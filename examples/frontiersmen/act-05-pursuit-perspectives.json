@@ -1,0 +1,321 @@
+{
+  "protocol": "wedl-changeset/v1",
+  "expectedHead": "d61d3215a1567cf07759350dd2b73ef0eaaa1f79",
+  "idempotencyKey": "frontiersmen-act-5-pursuit-perspectives-v1",
+  "summary": "Separate distant pursuit from scene presence, group redundant badge context, and record the five immediate chase recollections",
+  "actor": {
+    "kind": "author",
+    "id": "local:frontiersmen-builder"
+  },
+  "operations": [
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "scene",
+          "id": "scene_508C0AN1PBBCHYZZDJCEVWGHR9",
+          "title": "The Hunt Begins",
+          "domain": "scenes.frontiersmen",
+          "status": "active",
+          "tags": [
+            "active",
+            "pursuit"
+          ],
+          "aliases": [],
+          "time": {
+            "start": {
+              "timeline": "main",
+              "tick": 191,
+              "order": 0
+            },
+            "current": {
+              "timeline": "main",
+              "tick": 195,
+              "order": 0
+            },
+            "end": null
+          },
+          "location": "loc_3W0Q3EHNGCDQ05QTWK3DW3JQN7",
+          "participants": [
+            {
+              "character": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+              "role": "fleeing-frontiersman",
+              "point_of_view": true,
+              "from": {
+                "timeline": "main",
+                "tick": 191,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+              "role": "fleeing-frontiersman",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 191,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+              "role": "fleeing-frontiersman",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 191,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+              "role": "fleeing-frontiersman",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 191,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+              "role": "fleeing-frontiersman",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 191,
+                "order": 0
+              }
+            }
+          ],
+          "objects": [
+            "obj_0X0RH4GV7ZDE3C7JFHJH5JGWPK",
+            "obj_2T5QAX3BWM0DBNT2KZ1R1TV4T9",
+            "obj_6EBRZF2P79J47HXEJWP7CDDFA1",
+            "obj_1V7FPPZKJPVQE2SV3GHWRVBSER",
+            "obj_6B725P2CXQSC90HH4H24K0C5X2",
+            "obj_1PWCXKVPT3RS8MK7TDHQ9QN4FH",
+            "obj_5KH5J0ZACS5W06DMT772D119QS",
+            "obj_1SZQK22K4XSNC0XTZX1Z0T7R5N",
+            "obj_3W8SFAP29CDCV2M3X9XMYTDXY8"
+          ],
+          "environments": [
+            "env_6988R6QMT47MNDKAZGX9VS5JTD"
+          ],
+          "story_points": [
+            "sp_7VDVQCDD7VGSGHMD95RT3SJ0TN",
+            "sp_0CBN052ZTZNY89D1BNBXSW9VPB",
+            "sp_2CS9JPWCRVZJQ6YS41M2BAS4JV",
+            "sp_738TMHY3Y8CZK6V7KK1BWXPRZJ"
+          ],
+          "observations": [
+            {
+              "id": "obs_2K19S0W8W7R90Z4EHXCCG0A2SF",
+              "at": {
+                "timeline": "main",
+                "tick": 191,
+                "order": 0
+              },
+              "audience": [
+                "participants"
+              ],
+              "salience": 1.0,
+              "text": "Cold rain erases ordinary tracks but every reliquary pulse leaves a brief gold reflection in puddles."
+            },
+            {
+              "id": "obs_235KMFRC6RRKYZ9GT3SXSQFATC",
+              "at": {
+                "timeline": "main",
+                "tick": 191,
+                "order": 10
+              },
+              "audience": [
+                "char_0NQKTG3NQZFSVFKXS901NJD82E"
+              ],
+              "salience": 1.0,
+              "text": "Masked pursuit lines remain unnaturally straight until forced into flooded spruce."
+            },
+            {
+              "id": "obs_73CNX0ATVD0GDHTD93W1H3D439",
+              "at": {
+                "timeline": "main",
+                "tick": 192,
+                "order": 20
+              },
+              "audience": [
+                "char_1W0GNKETQY2HF88YHM7CWVFH7C"
+              ],
+              "salience": 1.0,
+              "text": "Moth's bone key has three notches: pen tooth, triangular road mark, and an unfamiliar hooked cut."
+            },
+            {
+              "id": "obs_7H8WHPSZEZSCSPBJAC9E5S7VRZ",
+              "at": {
+                "timeline": "main",
+                "tick": 191,
+                "order": 40
+              },
+              "audience": [
+                "char_48QC9B4M2RFVXJKSDFMRGJWG8Y"
+              ],
+              "salience": 1.0,
+              "text": "The closed reliquary tugs west in time with distant root-crown pulses."
+            },
+            {
+              "id": "obs_31TP8YRJ25DMPXMHPFQRW9K3DX",
+              "at": {
+                "timeline": "main",
+                "tick": 193,
+                "order": 10
+              },
+              "audience": [
+                "char_671MWM7KTP4DCVVP8EP6SFRJVP"
+              ],
+              "salience": 1.0,
+              "text": "Rootjaw's distant bellow carries several older animal cries under the boar voice."
+            },
+            {
+              "id": "obs_4E6ZGXGB8FBAPBJ25QQVZKBP01",
+              "at": {
+                "timeline": "main",
+                "tick": 194,
+                "order": 0
+              },
+              "audience": [
+                "char_36X0KBYZ7MQGKM070H5NF12BK8"
+              ],
+              "salience": 1.0,
+              "text": "A second drumline sounds south of the party, proving the host knows or predicts the water route."
+            }
+          ],
+          "author_constraints": [
+            "Rootjaw is audible and pursuing at distance, not physically co-present with the party.",
+            "Moth's identity and the key's other uses remain unresolved.",
+            "The route back to Harrowcross remains unknown."
+          ],
+          "conversations": [
+            "conv_6CAEJ0NV40CEBK9A8BGVK3CAFG"
+          ]
+        },
+        "bodyMarkdown": "# The Hunt Begins\n\nThe requested story ends in motion: five exhausted hunters are physically together, while the masked host remains an audible and spatially inferred pursuit rather than a co-present scene participant.\n"
+      }
+    },
+    {
+      "type": "conversation.recollection.record",
+      "conversationId": "conv_6CAEJ0NV40CEBK9A8BGVK3CAFG",
+      "temporaryId": "$tmp.recollection.pursuit-current-0",
+      "recollection": {
+        "character": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+        "at": {
+          "timeline": "main",
+          "tick": 195,
+          "order": 10
+        },
+        "state": "remembered",
+        "summary": "The host anticipated the flooded route, the reliquary acts as Aldren's compass, and Moth's unknown key may encode another road.",
+        "interpretation": "Rhea must keep the party moving without mistaking debt to Moth for knowledge of his plan.",
+        "emotional_impression": "command narrowed to the next thirty breaths",
+        "confidence": 0.88,
+        "exact_turns": [
+          "turn_2PKF1K8BDGDSP40G7GCZXQW6W7",
+          "turn_0Z5XXPPKBNDWHYCBQZKF045EC9",
+          "turn_6SMHSS64ZFF30G2PRZ3W1FG0G2"
+        ],
+        "remembered_quotes": []
+      }
+    },
+    {
+      "type": "conversation.recollection.record",
+      "conversationId": "conv_6CAEJ0NV40CEBK9A8BGVK3CAFG",
+      "temporaryId": "$tmp.recollection.pursuit-current-1",
+      "recollection": {
+        "character": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+        "at": {
+          "timeline": "main",
+          "tick": 195,
+          "order": 11
+        },
+        "state": "remembered",
+        "summary": "Flooded spruce disrupts mask formations, but a second drumline cut south before the party reached the stream.",
+        "interpretation": "The host understands the terrain and may be reading likely prey routes rather than tracking footprints.",
+        "emotional_impression": "hunted focus",
+        "confidence": 0.93,
+        "exact_turns": [
+          "turn_0RDQ0Q3RC8HCF1WZDE0RFGVMB5",
+          "turn_4Q59YY6EKDQV7KKZNQ0C0NBBHK"
+        ],
+        "remembered_quotes": []
+      }
+    },
+    {
+      "type": "conversation.recollection.record",
+      "conversationId": "conv_6CAEJ0NV40CEBK9A8BGVK3CAFG",
+      "temporaryId": "$tmp.recollection.pursuit-current-2",
+      "recollection": {
+        "character": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+        "at": {
+          "timeline": "main",
+          "tick": 195,
+          "order": 12
+        },
+        "state": "remembered",
+        "summary": "The party can deny the masks fresh strength by controlling terror, and Rootjaw's bellow contains several older captured animal cries.",
+        "interpretation": "Moth should be remembered for the action actually witnessed, not turned into a comforting story.",
+        "emotional_impression": "mercy under pursuit",
+        "confidence": 0.86,
+        "exact_turns": [
+          "turn_68NFNJKZDFBMNXQQ5VQPRXNC41",
+          "turn_77A4EAQEEEAJQFZ3NXDAQF4FWC"
+        ],
+        "remembered_quotes": []
+      }
+    },
+    {
+      "type": "conversation.recollection.record",
+      "conversationId": "conv_6CAEJ0NV40CEBK9A8BGVK3CAFG",
+      "temporaryId": "$tmp.recollection.pursuit-current-3",
+      "recollection": {
+        "character": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+        "at": {
+          "timeline": "main",
+          "tick": 195,
+          "order": 13
+        },
+        "state": "remembered",
+        "summary": "Aldren tracks the closed reliquary through root-crown resonance; charcoal and running water may interrupt the link.",
+        "interpretation": "The artifact is both their best defense against wretches and the signal guiding the host.",
+        "emotional_impression": "technical panic",
+        "confidence": 0.95,
+        "exact_turns": [
+          "turn_2PKF1K8BDGDSP40G7GCZXQW6W7",
+          "turn_5QKB9MBBMMX77ZQ7ZSPZZCRKRJ"
+        ],
+        "remembered_quotes": []
+      }
+    },
+    {
+      "type": "conversation.recollection.record",
+      "conversationId": "conv_6CAEJ0NV40CEBK9A8BGVK3CAFG",
+      "temporaryId": "$tmp.recollection.pursuit-current-4",
+      "recollection": {
+        "character": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+        "at": {
+          "timeline": "main",
+          "tick": 195,
+          "order": 14
+        },
+        "state": "remembered",
+        "summary": "Moth's key includes a possible road-marker notch, but the host knew the same water route the notch may indicate.",
+        "interpretation": "The key may open a route, identify one, or be deliberately legible to the host; he cannot choose among those yet.",
+        "emotional_impression": "curiosity restrained by immediate danger",
+        "confidence": 0.84,
+        "exact_turns": [
+          "turn_6P7QAR5DCSF4AX0A4BZG6943V6",
+          "turn_5C3ZTFZ8ZZRVJQDYNE0NQZKPEY"
+        ],
+        "remembered_quotes": []
+      }
+    }
+  ]
+}

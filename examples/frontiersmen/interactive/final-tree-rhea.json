@@ -1,0 +1,528 @@
+{
+  "protocol": "wedl-conversation/v1",
+  "revision": "d61d3215a1567cf07759350dd2b73ef0eaaa1f79",
+  "perspective": "character",
+  "conversationId": "conv_15QVSWGRT6V08TRCQ13GMZH9BH",
+  "title": "The Tree King's Offer",
+  "characterId": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+  "conversationTime": {
+    "start": {
+      "order": 0,
+      "tick": 167,
+      "timeline": "main"
+    },
+    "end": {
+      "order": 40,
+      "tick": 170,
+      "timeline": "main"
+    }
+  },
+  "effectiveTime": {
+    "timeline": "main",
+    "tick": 195,
+    "order": 0
+  },
+  "heardVerbatimTurns": [
+    {
+      "id": "turn_2RRQM096GGD9X3TM3RD3ASTQJ2",
+      "at": {
+        "timeline": "main",
+        "tick": 167,
+        "order": 0
+      },
+      "speakerId": "char_4CMM4NQV0GXRD5J73ZVC3BQTKN",
+      "speaker": "The Tree King",
+      "text": "Welcome, Lantern Pike. Halric sends better questions than soldiers now.",
+      "delivery": "courtly",
+      "audience": [
+        "participants"
+      ],
+      "citation": {
+        "entityId": "conv_15QVSWGRT6V08TRCQ13GMZH9BH",
+        "kind": "conversation",
+        "sourcePath": "story/conversations/the-tree-king-s-offer--conv_15QVSWGRT6V08TRCQ13GMZH9BH.md",
+        "blobOid": "303c5ab54f1cf3602a7105b740a3db59d5a24dd7",
+        "revision": "d61d3215a1567cf07759350dd2b73ef0eaaa1f79",
+        "section": "turn:turn_2RRQM096GGD9X3TM3RD3ASTQJ2"
+      }
+    },
+    {
+      "id": "turn_4TBYJW9Q4DKSEGARGB5JW2MDYH",
+      "at": {
+        "timeline": "main",
+        "tick": 167,
+        "order": 10
+      },
+      "speakerId": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+      "speaker": "Rhea Marrow",
+      "text": "He did not send us to you.",
+      "delivery": "flat",
+      "audience": [
+        "participants"
+      ],
+      "citation": {
+        "entityId": "conv_15QVSWGRT6V08TRCQ13GMZH9BH",
+        "kind": "conversation",
+        "sourcePath": "story/conversations/the-tree-king-s-offer--conv_15QVSWGRT6V08TRCQ13GMZH9BH.md",
+        "blobOid": "303c5ab54f1cf3602a7105b740a3db59d5a24dd7",
+        "revision": "d61d3215a1567cf07759350dd2b73ef0eaaa1f79",
+        "section": "turn:turn_4TBYJW9Q4DKSEGARGB5JW2MDYH"
+      }
+    },
+    {
+      "id": "turn_7GKM56VT73VH7P0S7KKMJTMW2K",
+      "at": {
+        "timeline": "main",
+        "tick": 167,
+        "order": 20
+      },
+      "speakerId": "char_4CMM4NQV0GXRD5J73ZVC3BQTKN",
+      "speaker": "The Tree King",
+      "text": "He sends everyone to me when he sends them after what amber remembers.",
+      "delivery": "pleased",
+      "audience": [
+        "participants"
+      ],
+      "citation": {
+        "entityId": "conv_15QVSWGRT6V08TRCQ13GMZH9BH",
+        "kind": "conversation",
+        "sourcePath": "story/conversations/the-tree-king-s-offer--conv_15QVSWGRT6V08TRCQ13GMZH9BH.md",
+        "blobOid": "303c5ab54f1cf3602a7105b740a3db59d5a24dd7",
+        "revision": "d61d3215a1567cf07759350dd2b73ef0eaaa1f79",
+        "section": "turn:turn_7GKM56VT73VH7P0S7KKMJTMW2K"
+      }
+    },
+    {
+      "id": "turn_7AD6NYHHNSK6754ZSTAYTBAEZ3",
+      "at": {
+        "timeline": "main",
+        "tick": 167,
+        "order": 30
+      },
+      "speakerId": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+      "speaker": "Pip Fenlock",
+      "text": "You know the guild knot.",
+      "delivery": "careful",
+      "audience": [
+        "participants"
+      ],
+      "citation": {
+        "entityId": "conv_15QVSWGRT6V08TRCQ13GMZH9BH",
+        "kind": "conversation",
+        "sourcePath": "story/conversations/the-tree-king-s-offer--conv_15QVSWGRT6V08TRCQ13GMZH9BH.md",
+        "blobOid": "303c5ab54f1cf3602a7105b740a3db59d5a24dd7",
+        "revision": "d61d3215a1567cf07759350dd2b73ef0eaaa1f79",
+        "section": "turn:turn_7AD6NYHHNSK6754ZSTAYTBAEZ3"
+      }
+    },
+    {
+      "id": "turn_36FR9NVRNP1H8BG3623H0F36HB",
+      "at": {
+        "timeline": "main",
+        "tick": 167,
+        "order": 40
+      },
+      "speakerId": "char_4CMM4NQV0GXRD5J73ZVC3BQTKN",
+      "speaker": "The Tree King",
+      "text": "I tied it before your lodge-master learned to make silence look like policy. Aldren Veyl, then. Tree King, now.",
+      "delivery": "grand",
+      "audience": [
+        "participants"
+      ],
+      "citation": {
+        "entityId": "conv_15QVSWGRT6V08TRCQ13GMZH9BH",
+        "kind": "conversation",
+        "sourcePath": "story/conversations/the-tree-king-s-offer--conv_15QVSWGRT6V08TRCQ13GMZH9BH.md",
+        "blobOid": "303c5ab54f1cf3602a7105b740a3db59d5a24dd7",
+        "revision": "d61d3215a1567cf07759350dd2b73ef0eaaa1f79",
+        "section": "turn:turn_36FR9NVRNP1H8BG3623H0F36HB"
+      }
+    },
+    {
+      "id": "turn_0NBR383B8TZ272NASCZYFSY3DY",
+      "at": {
+        "timeline": "main",
+        "tick": 168,
+        "order": 0
+      },
+      "speakerId": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+      "speaker": "Veyra Kest",
+      "text": "The crown is routing impressions from the masks into you.",
+      "delivery": "fascinated despite herself",
+      "audience": [
+        "participants"
+      ],
+      "citation": {
+        "entityId": "conv_15QVSWGRT6V08TRCQ13GMZH9BH",
+        "kind": "conversation",
+        "sourcePath": "story/conversations/the-tree-king-s-offer--conv_15QVSWGRT6V08TRCQ13GMZH9BH.md",
+        "blobOid": "303c5ab54f1cf3602a7105b740a3db59d5a24dd7",
+        "revision": "d61d3215a1567cf07759350dd2b73ef0eaaa1f79",
+        "section": "turn:turn_0NBR383B8TZ272NASCZYFSY3DY"
+      }
+    },
+    {
+      "id": "turn_3BVBCW1VGHNBJPJ7RHDKCQFH3Q",
+      "at": {
+        "timeline": "main",
+        "tick": 168,
+        "order": 10
+      },
+      "speakerId": "char_4CMM4NQV0GXRD5J73ZVC3BQTKN",
+      "speaker": "The Tree King",
+      "text": "Communion. The Frontier lends me every hunted life the guild grinds into coin.",
+      "delivery": "reverent",
+      "audience": [
+        "participants"
+      ],
+      "citation": {
+        "entityId": "conv_15QVSWGRT6V08TRCQ13GMZH9BH",
+        "kind": "conversation",
+        "sourcePath": "story/conversations/the-tree-king-s-offer--conv_15QVSWGRT6V08TRCQ13GMZH9BH.md",
+        "blobOid": "303c5ab54f1cf3602a7105b740a3db59d5a24dd7",
+        "revision": "d61d3215a1567cf07759350dd2b73ef0eaaa1f79",
+        "section": "turn:turn_3BVBCW1VGHNBJPJ7RHDKCQFH3Q"
+      }
+    },
+    {
+      "id": "turn_5KHJJCJQVJSP24WK4EXCVFCXX0",
+      "at": {
+        "timeline": "main",
+        "tick": 168,
+        "order": 20
+      },
+      "speakerId": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+      "speaker": "Brother Garran Holt",
+      "text": "A chorus is not consent. Memory is not a crown.",
+      "delivery": "firm",
+      "audience": [
+        "participants"
+      ],
+      "citation": {
+        "entityId": "conv_15QVSWGRT6V08TRCQ13GMZH9BH",
+        "kind": "conversation",
+        "sourcePath": "story/conversations/the-tree-king-s-offer--conv_15QVSWGRT6V08TRCQ13GMZH9BH.md",
+        "blobOid": "303c5ab54f1cf3602a7105b740a3db59d5a24dd7",
+        "revision": "d61d3215a1567cf07759350dd2b73ef0eaaa1f79",
+        "section": "turn:turn_5KHJJCJQVJSP24WK4EXCVFCXX0"
+      }
+    },
+    {
+      "id": "turn_4G0F3NDM7XZ4NDMBPE5R8CG0GH",
+      "at": {
+        "timeline": "main",
+        "tick": 168,
+        "order": 30
+      },
+      "speakerId": "char_5P1T0F31DJHKZHBC49XEHCX891",
+      "speaker": "Rootjaw",
+      "text": "[a low warning grunt]",
+      "delivery": "nonverbal",
+      "audience": [
+        "participants"
+      ],
+      "citation": {
+        "entityId": "conv_15QVSWGRT6V08TRCQ13GMZH9BH",
+        "kind": "conversation",
+        "sourcePath": "story/conversations/the-tree-king-s-offer--conv_15QVSWGRT6V08TRCQ13GMZH9BH.md",
+        "blobOid": "303c5ab54f1cf3602a7105b740a3db59d5a24dd7",
+        "revision": "d61d3215a1567cf07759350dd2b73ef0eaaa1f79",
+        "section": "turn:turn_4G0F3NDM7XZ4NDMBPE5R8CG0GH"
+      }
+    },
+    {
+      "id": "turn_19J6YPWVVVJZWEQHDVNEYFZMYC",
+      "at": {
+        "timeline": "main",
+        "tick": 168,
+        "order": 40
+      },
+      "speakerId": "char_4CMM4NQV0GXRD5J73ZVC3BQTKN",
+      "speaker": "The Tree King",
+      "text": "The masks do not require consent from what is already dead.",
+      "delivery": "mild",
+      "audience": [
+        "participants"
+      ],
+      "citation": {
+        "entityId": "conv_15QVSWGRT6V08TRCQ13GMZH9BH",
+        "kind": "conversation",
+        "sourcePath": "story/conversations/the-tree-king-s-offer--conv_15QVSWGRT6V08TRCQ13GMZH9BH.md",
+        "blobOid": "303c5ab54f1cf3602a7105b740a3db59d5a24dd7",
+        "revision": "d61d3215a1567cf07759350dd2b73ef0eaaa1f79",
+        "section": "turn:turn_19J6YPWVVVJZWEQHDVNEYFZMYC"
+      }
+    },
+    {
+      "id": "turn_01THG9RD7VSEMP3FY6NFQQ7Q15",
+      "at": {
+        "timeline": "main",
+        "tick": 169,
+        "order": 0
+      },
+      "speakerId": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+      "speaker": "Sylvi Ashdown",
+      "text": "Some of it is not dead. The fish avoided the roots. The forest avoids your camp.",
+      "delivery": "quiet",
+      "audience": [
+        "participants"
+      ],
+      "citation": {
+        "entityId": "conv_15QVSWGRT6V08TRCQ13GMZH9BH",
+        "kind": "conversation",
+        "sourcePath": "story/conversations/the-tree-king-s-offer--conv_15QVSWGRT6V08TRCQ13GMZH9BH.md",
+        "blobOid": "303c5ab54f1cf3602a7105b740a3db59d5a24dd7",
+        "revision": "d61d3215a1567cf07759350dd2b73ef0eaaa1f79",
+        "section": "turn:turn_01THG9RD7VSEMP3FY6NFQQ7Q15"
+      }
+    },
+    {
+      "id": "turn_0GFXWCSRY86T9506EYV4FVPH57",
+      "at": {
+        "timeline": "main",
+        "tick": 169,
+        "order": 10
+      },
+      "speakerId": "char_4CMM4NQV0GXRD5J73ZVC3BQTKN",
+      "speaker": "The Tree King",
+      "text": "The weak always call attention to wisdom when they mean fear.",
+      "delivery": "dismissive",
+      "audience": [
+        "participants"
+      ],
+      "citation": {
+        "entityId": "conv_15QVSWGRT6V08TRCQ13GMZH9BH",
+        "kind": "conversation",
+        "sourcePath": "story/conversations/the-tree-king-s-offer--conv_15QVSWGRT6V08TRCQ13GMZH9BH.md",
+        "blobOid": "303c5ab54f1cf3602a7105b740a3db59d5a24dd7",
+        "revision": "d61d3215a1567cf07759350dd2b73ef0eaaa1f79",
+        "section": "turn:turn_0GFXWCSRY86T9506EYV4FVPH57"
+      }
+    },
+    {
+      "id": "turn_1R9NM3D6YHM9ZP35SH9JYD22T5",
+      "at": {
+        "timeline": "main",
+        "tick": 169,
+        "order": 20
+      },
+      "speakerId": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+      "speaker": "Rhea Marrow",
+      "text": "What do you want from us?",
+      "delivery": "direct",
+      "audience": [
+        "participants"
+      ],
+      "citation": {
+        "entityId": "conv_15QVSWGRT6V08TRCQ13GMZH9BH",
+        "kind": "conversation",
+        "sourcePath": "story/conversations/the-tree-king-s-offer--conv_15QVSWGRT6V08TRCQ13GMZH9BH.md",
+        "blobOid": "303c5ab54f1cf3602a7105b740a3db59d5a24dd7",
+        "revision": "d61d3215a1567cf07759350dd2b73ef0eaaa1f79",
+        "section": "turn:turn_1R9NM3D6YHM9ZP35SH9JYD22T5"
+      }
+    },
+    {
+      "id": "turn_76FF999W5FHB3WAEC6XP0BGZNS",
+      "at": {
+        "timeline": "main",
+        "tick": 169,
+        "order": 30
+      },
+      "speakerId": "char_4CMM4NQV0GXRD5J73ZVC3BQTKN",
+      "speaker": "The Tree King",
+      "text": "Blood, terror, contest. The survivor strengthens my host. The fallen strengthen it more completely.",
+      "delivery": "ceremonial",
+      "audience": [
+        "participants"
+      ],
+      "citation": {
+        "entityId": "conv_15QVSWGRT6V08TRCQ13GMZH9BH",
+        "kind": "conversation",
+        "sourcePath": "story/conversations/the-tree-king-s-offer--conv_15QVSWGRT6V08TRCQ13GMZH9BH.md",
+        "blobOid": "303c5ab54f1cf3602a7105b740a3db59d5a24dd7",
+        "revision": "d61d3215a1567cf07759350dd2b73ef0eaaa1f79",
+        "section": "turn:turn_76FF999W5FHB3WAEC6XP0BGZNS"
+      }
+    },
+    {
+      "id": "turn_7ND6YDG3T2CEE6HXBT2REPNYRV",
+      "at": {
+        "timeline": "main",
+        "tick": 169,
+        "order": 40
+      },
+      "speakerId": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+      "speaker": "Brother Garran Holt",
+      "text": "You make murder into a tool and call the tool a kingdom.",
+      "delivery": "cold",
+      "audience": [
+        "participants"
+      ],
+      "citation": {
+        "entityId": "conv_15QVSWGRT6V08TRCQ13GMZH9BH",
+        "kind": "conversation",
+        "sourcePath": "story/conversations/the-tree-king-s-offer--conv_15QVSWGRT6V08TRCQ13GMZH9BH.md",
+        "blobOid": "303c5ab54f1cf3602a7105b740a3db59d5a24dd7",
+        "revision": "d61d3215a1567cf07759350dd2b73ef0eaaa1f79",
+        "section": "turn:turn_7ND6YDG3T2CEE6HXBT2REPNYRV"
+      }
+    },
+    {
+      "id": "turn_2YRJM1WHCYKQS0V2E71Y2KWARM",
+      "at": {
+        "timeline": "main",
+        "tick": 170,
+        "order": 0
+      },
+      "speakerId": "char_4CMM4NQV0GXRD5J73ZVC3BQTKN",
+      "speaker": "The Tree King",
+      "text": "I make strength from what the guild wastes. You will enter the ring tomorrow and teach the masks five new shapes.",
+      "delivery": "final",
+      "audience": [
+        "participants"
+      ],
+      "citation": {
+        "entityId": "conv_15QVSWGRT6V08TRCQ13GMZH9BH",
+        "kind": "conversation",
+        "sourcePath": "story/conversations/the-tree-king-s-offer--conv_15QVSWGRT6V08TRCQ13GMZH9BH.md",
+        "blobOid": "303c5ab54f1cf3602a7105b740a3db59d5a24dd7",
+        "revision": "d61d3215a1567cf07759350dd2b73ef0eaaa1f79",
+        "section": "turn:turn_2YRJM1WHCYKQS0V2E71Y2KWARM"
+      }
+    },
+    {
+      "id": "turn_7C9RNHBT5ET1MRJ80FMQDA83YR",
+      "at": {
+        "timeline": "main",
+        "tick": 170,
+        "order": 10
+      },
+      "speakerId": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+      "speaker": "Veyra Kest",
+      "text": "And if the amber chooses a different vessel?",
+      "delivery": "testing",
+      "audience": [
+        "participants"
+      ],
+      "citation": {
+        "entityId": "conv_15QVSWGRT6V08TRCQ13GMZH9BH",
+        "kind": "conversation",
+        "sourcePath": "story/conversations/the-tree-king-s-offer--conv_15QVSWGRT6V08TRCQ13GMZH9BH.md",
+        "blobOid": "303c5ab54f1cf3602a7105b740a3db59d5a24dd7",
+        "revision": "d61d3215a1567cf07759350dd2b73ef0eaaa1f79",
+        "section": "turn:turn_7C9RNHBT5ET1MRJ80FMQDA83YR"
+      }
+    },
+    {
+      "id": "turn_7C8CF7YZ19ZS94FDTT76EMQHYM",
+      "at": {
+        "timeline": "main",
+        "tick": 170,
+        "order": 20
+      },
+      "speakerId": "char_4CMM4NQV0GXRD5J73ZVC3BQTKN",
+      "speaker": "The Tree King",
+      "text": "Then I will finally have an heir worth fearing.",
+      "delivery": "delighted",
+      "audience": [
+        "participants"
+      ],
+      "citation": {
+        "entityId": "conv_15QVSWGRT6V08TRCQ13GMZH9BH",
+        "kind": "conversation",
+        "sourcePath": "story/conversations/the-tree-king-s-offer--conv_15QVSWGRT6V08TRCQ13GMZH9BH.md",
+        "blobOid": "303c5ab54f1cf3602a7105b740a3db59d5a24dd7",
+        "revision": "d61d3215a1567cf07759350dd2b73ef0eaaa1f79",
+        "section": "turn:turn_7C8CF7YZ19ZS94FDTT76EMQHYM"
+      }
+    },
+    {
+      "id": "turn_3VT1N52DH2CC8TS7JSQR4FYFG7",
+      "at": {
+        "timeline": "main",
+        "tick": 170,
+        "order": 30
+      },
+      "speakerId": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+      "speaker": "Rhea Marrow",
+      "text": "No.",
+      "delivery": "quiet",
+      "audience": [
+        "participants"
+      ],
+      "citation": {
+        "entityId": "conv_15QVSWGRT6V08TRCQ13GMZH9BH",
+        "kind": "conversation",
+        "sourcePath": "story/conversations/the-tree-king-s-offer--conv_15QVSWGRT6V08TRCQ13GMZH9BH.md",
+        "blobOid": "303c5ab54f1cf3602a7105b740a3db59d5a24dd7",
+        "revision": "d61d3215a1567cf07759350dd2b73ef0eaaa1f79",
+        "section": "turn:turn_3VT1N52DH2CC8TS7JSQR4FYFG7"
+      }
+    },
+    {
+      "id": "turn_56BKPDKX0KXMDGTNZ9JTCN35E4",
+      "at": {
+        "timeline": "main",
+        "tick": 170,
+        "order": 40
+      },
+      "speakerId": "char_4CMM4NQV0GXRD5J73ZVC3BQTKN",
+      "speaker": "The Tree King",
+      "text": "The ring is more patient than you are.",
+      "delivery": "amused",
+      "audience": [
+        "participants"
+      ],
+      "citation": {
+        "entityId": "conv_15QVSWGRT6V08TRCQ13GMZH9BH",
+        "kind": "conversation",
+        "sourcePath": "story/conversations/the-tree-king-s-offer--conv_15QVSWGRT6V08TRCQ13GMZH9BH.md",
+        "blobOid": "303c5ab54f1cf3602a7105b740a3db59d5a24dd7",
+        "revision": "d61d3215a1567cf07759350dd2b73ef0eaaa1f79",
+        "section": "turn:turn_56BKPDKX0KXMDGTNZ9JTCN35E4"
+      }
+    }
+  ],
+  "subjectiveRecollection": {
+    "at": {
+      "timeline": "main",
+      "tick": 173,
+      "order": 0
+    },
+    "character": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+    "confidence": 0.96,
+    "emotional_impression": "controlled hatred",
+    "exact_turns": [
+      "turn_36FR9NVRNP1H8BG3623H0F36HB",
+      "turn_76FF999W5FHB3WAEC6XP0BGZNS",
+      "turn_3VT1N52DH2CC8TS7JSQR4FYFG7"
+    ],
+    "id": "recol_41PQNBW2938QW4SAFC3Y0NSEDF",
+    "interpretation": "Aldren knows real guild secrets but has turned that knowledge into a system of domination.",
+    "remembered_quotes": [],
+    "state": "remembered",
+    "summary": "The Tree King is former Lantern Pike field-master Aldren Veyl. He uses blood sport to feed terror and defeated forms into amber-backed masks and plans to use the party tomorrow.",
+    "rememberedQuotes": [
+      {
+        "sourceTurn": "turn_36FR9NVRNP1H8BG3623H0F36HB",
+        "speaker": "char_4CMM4NQV0GXRD5J73ZVC3BQTKN",
+        "text": "I tied it before your lodge-master learned to make silence look like policy. Aldren Veyl, then. Tree King, now.",
+        "fidelity": "exact"
+      },
+      {
+        "sourceTurn": "turn_76FF999W5FHB3WAEC6XP0BGZNS",
+        "speaker": "char_4CMM4NQV0GXRD5J73ZVC3BQTKN",
+        "text": "Blood, terror, contest. The survivor strengthens my host. The fallen strengthen it more completely.",
+        "fidelity": "exact"
+      },
+      {
+        "sourceTurn": "turn_3VT1N52DH2CC8TS7JSQR4FYFG7",
+        "speaker": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+        "text": "No.",
+        "fidelity": "exact"
+      }
+    ]
+  },
+  "provenanceBoundary": "heardVerbatimTurns are canonical audible lines; subjectiveRecollection is separately authored memory and may disagree."
+}

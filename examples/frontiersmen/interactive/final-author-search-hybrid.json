@@ -1,0 +1,898 @@
+{
+  "protocol": "wedl-search/v4",
+  "revision": "d61d3215a1567cf07759350dd2b73ef0eaaa1f79",
+  "perspective": "author",
+  "characterId": null,
+  "sceneId": "scene_508C0AN1PBBCHYZZDJCEVWGHR9",
+  "effectiveTime": {
+    "timeline": "main",
+    "tick": 195,
+    "order": 0
+  },
+  "mode": "hybrid",
+  "searchState": {
+    "profile": {
+      "name": "hybrid",
+      "ftsEnabled": true,
+      "vectorEnabled": true,
+      "vectorProvider": "lsa",
+      "vectorModel": "wedl-lsa-v1",
+      "vectorDimensions": 192,
+      "vectorMaxFeatures": 8192,
+      "ftsCandidateLimit": 120,
+      "vectorCandidateLimit": 120,
+      "hybridFtsWeight": 1.0,
+      "hybridVectorWeight": 1.0,
+      "hybridRrfK": 60.0
+    },
+    "fts": {
+      "available": true,
+      "documentCount": 2253,
+      "provider": "sqlite-fts5"
+    },
+    "vector": {
+      "available": true,
+      "models": [
+        {
+          "scope": "author",
+          "modelId": "lsa:author:wedl-lsa-v1:192:65f562dfc9906436",
+          "provider": "lsa",
+          "modelName": "wedl-lsa-v1",
+          "dimensions": 192,
+          "normalized": true
+        },
+        {
+          "scope": "character",
+          "modelId": "lsa:character:wedl-lsa-v1:124:8e194a9a4e6b9d0b",
+          "provider": "lsa",
+          "modelName": "wedl-lsa-v1",
+          "dimensions": 124,
+          "normalized": true
+        }
+      ],
+      "uniqueVectors": 934,
+      "documentLinks": 2253
+    }
+  },
+  "results": [
+    {
+      "documentId": "doc:obj_7R9BCTFJJVS623ZJ5V9A7JAXA7:entity-author:0:39eb01c61b21",
+      "entityId": "obj_7R9BCTFJJVS623ZJ5V9A7JAXA7",
+      "documentKind": "entity-author",
+      "heading": null,
+      "audienceKind": "author",
+      "metadata": {
+        "aliases": [],
+        "domain": "props.frontiersmen",
+        "kind": "object",
+        "tags": [
+          "guild",
+          "secret",
+          "amber"
+        ],
+        "title": "Blackroot Compact Log"
+      },
+      "ftsRank": 5,
+      "ftsBm25": -15.959628269266805,
+      "ftsScore": 15.959628269266805,
+      "snippet": "<mark>Blackroot</mark> <mark>Compact</mark> Log\nKind: object\nDomain: props.frontiersmen\n\n# <mark>Blackroot</mark> <mark>Compact</mark> Log\n\nA sealed guild log recording the first <mark>blood</mark>-triggered <mark>amber</mark> manifestation and the … ",
+      "score": 0.03125763125763126,
+      "lanes": [
+        "fts",
+        "vector"
+      ],
+      "vectorRank": 3,
+      "vectorScore": 0.482479453086853,
+      "citation": {
+        "entityId": "obj_7R9BCTFJJVS623ZJ5V9A7JAXA7",
+        "sourcePath": "story/objects/blackroot-compact-log--obj_7R9BCTFJJVS623ZJ5V9A7JAXA7.md",
+        "section": "entity-author"
+      }
+    },
+    {
+      "documentId": "doc:conv_6RWETYKZ9T3CJXB855G9KDKJWD:entity-author:0:5d767d3ff670",
+      "entityId": "conv_6RWETYKZ9T3CJXB855G9KDKJWD",
+      "documentKind": "entity-author",
+      "heading": null,
+      "audienceKind": "author",
+      "metadata": {
+        "aliases": [],
+        "domain": "conversations.frontiersmen",
+        "kind": "conversation",
+        "tags": [
+          "amber",
+          "guild-secret",
+          "blackroot"
+        ],
+        "title": "The Blackroot Compact"
+      },
+      "ftsRank": 8,
+      "ftsBm25": -15.658647428985184,
+      "ftsScore": 15.658647428985184,
+      "snippet": "The <mark>Blackroot</mark> <mark>Compact</mark>\nKind: conversation\nDomain: conversations.frontiersmen\n\n# The <mark>Blackroot</mark> <mark>Compact</mark>\n\nThe first confirmed connection between <mark>blooded</mark> <mark>amber</mark> and wretch manifestations becomes an institutional … ",
+      "score": 0.031099324975891997,
+      "lanes": [
+        "fts",
+        "vector"
+      ],
+      "vectorRank": 1,
+      "vectorScore": 0.5303695201873779,
+      "citation": {
+        "entityId": "conv_6RWETYKZ9T3CJXB855G9KDKJWD",
+        "sourcePath": "story/conversations/the-blackroot-compact--conv_6RWETYKZ9T3CJXB855G9KDKJWD.md",
+        "section": "entity-author"
+      }
+    },
+    {
+      "documentId": "doc:sp_738TMHY3Y8CZK6V7KK1BWXPRZJ:entity-author:0:c0ab44e69d28",
+      "entityId": "sp_738TMHY3Y8CZK6V7KK1BWXPRZJ",
+      "documentKind": "entity-author",
+      "heading": null,
+      "audienceKind": "author",
+      "metadata": {
+        "aliases": [],
+        "domain": "plot.frontiersmen",
+        "kind": "story-point",
+        "tags": [
+          "campaign"
+        ],
+        "title": "Expose the Blackroot Compact"
+      },
+      "ftsRank": 11,
+      "ftsBm25": -14.64902761428013,
+      "ftsScore": 14.64902761428013,
+      "snippet": "Expose the <mark>Blackroot</mark> <mark>Compact</mark>\nKind: story-point\nDomain: plot.frontiersmen\n\n# Expose the <mark>Blackroot</mark> <mark>Compact</mark>\n\nRecover evidence that the guild has long known <mark>amber</mark> extraction … ",
+      "score": 0.03021353930031804,
+      "lanes": [
+        "fts",
+        "vector"
+      ],
+      "vectorRank": 2,
+      "vectorScore": 0.5184858441352844,
+      "citation": {
+        "entityId": "sp_738TMHY3Y8CZK6V7KK1BWXPRZJ",
+        "sourcePath": "story/story-points/expose-the-blackroot-compact--sp_738TMHY3Y8CZK6V7KK1BWXPRZJ.md",
+        "section": "entity-author"
+      }
+    },
+    {
+      "documentId": "doc:know_63RTGSSFBH16Z436Y5W6MR1AFV:entity-author:0:e965f005907a",
+      "entityId": "know_63RTGSSFBH16Z436Y5W6MR1AFV",
+      "documentKind": "entity-author",
+      "heading": null,
+      "audienceKind": "author",
+      "metadata": {
+        "aliases": [],
+        "domain": "knowledge.char_1W0GNKETQY2HF88YHM7CWVFH7C",
+        "kind": "knowledge",
+        "tags": [
+          "root-host"
+        ],
+        "title": "Pip Fenlock records tree king aldren"
+      },
+      "ftsRank": 2,
+      "ftsBm25": -15.992169350670656,
+      "ftsScore": 15.992169350670656,
+      "snippet": " … tree king <mark>aldren</mark>\n\nThe Tree King says he was <mark>Aldren</mark> Veyl, a former Lantern Pike field-master who opposed <mark>Halric</mark> after <mark>Blackroot</mark>.\n\nThis is … ",
+      "score": 0.02964254577157803,
+      "lanes": [
+        "fts",
+        "vector"
+      ],
+      "vectorRank": 14,
+      "vectorScore": 0.21145515143871307,
+      "citation": {
+        "entityId": "know_63RTGSSFBH16Z436Y5W6MR1AFV",
+        "sourcePath": "story/knowledge/char-1w0gnketqy2hf88yhm7cwvfh7c/pip-fenlock-records-tree-king-aldren--know_63RTGSSFBH16Z436Y5W6MR1AFV.md",
+        "section": "entity-author"
+      }
+    },
+    {
+      "documentId": "doc:know_65A7N7WD97YS683SWYQ38NSBH9:entity-author:0:4cf6641b4541",
+      "entityId": "know_65A7N7WD97YS683SWYQ38NSBH9",
+      "documentKind": "entity-author",
+      "heading": null,
+      "audienceKind": "author",
+      "metadata": {
+        "aliases": [],
+        "domain": "knowledge.char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+        "kind": "knowledge",
+        "tags": [
+          "root-host"
+        ],
+        "title": "Veyra Kest records tree king aldren"
+      },
+      "ftsRank": 3,
+      "ftsBm25": -15.992169350670656,
+      "ftsScore": 15.992169350670656,
+      "snippet": " … tree king <mark>aldren</mark>\n\nThe Tree King says he was <mark>Aldren</mark> Veyl, a former Lantern Pike field-master who opposed <mark>Halric</mark> after <mark>Blackroot</mark>.\n\nThis is … ",
+      "score": 0.029571646010002173,
+      "lanes": [
+        "fts",
+        "vector"
+      ],
+      "vectorRank": 13,
+      "vectorScore": 0.2116408497095108,
+      "citation": {
+        "entityId": "know_65A7N7WD97YS683SWYQ38NSBH9",
+        "sourcePath": "story/knowledge/char-48qc9b4m2rfvxjksdfmrgjwg8y/veyra-kest-records-tree-king-aldren--know_65A7N7WD97YS683SWYQ38NSBH9.md",
+        "section": "entity-author"
+      }
+    },
+    {
+      "documentId": "doc:know_0BRG4PREBBYEAEKC3TZGDHA5DV:entity-author:0:2656bf3d2848",
+      "entityId": "know_0BRG4PREBBYEAEKC3TZGDHA5DV",
+      "documentKind": "entity-author",
+      "heading": null,
+      "audienceKind": "author",
+      "metadata": {
+        "aliases": [],
+        "domain": "knowledge.char_0NQKTG3NQZFSVFKXS901NJD82E",
+        "kind": "knowledge",
+        "tags": [
+          "root-host"
+        ],
+        "title": "Sylvi Ashdown records tree king aldren"
+      },
+      "ftsRank": 1,
+      "ftsBm25": -15.992169350670656,
+      "ftsScore": 15.992169350670656,
+      "snippet": " … tree king <mark>aldren</mark>\n\nThe Tree King says he was <mark>Aldren</mark> Veyl, a former Lantern Pike field-master who opposed <mark>Halric</mark> after <mark>Blackroot</mark>.\n\nThis is … ",
+      "score": 0.029551337359792925,
+      "lanes": [
+        "fts",
+        "vector"
+      ],
+      "vectorRank": 16,
+      "vectorScore": 0.20747995376586914,
+      "citation": {
+        "entityId": "know_0BRG4PREBBYEAEKC3TZGDHA5DV",
+        "sourcePath": "story/knowledge/char-0nqktg3nqzfsvfkxs901njd82e/sylvi-ashdown-records-tree-king-aldren--know_0BRG4PREBBYEAEKC3TZGDHA5DV.md",
+        "section": "entity-author"
+      }
+    },
+    {
+      "documentId": "doc:know_6A9YA17XE5ZEM59NNWEPJS5TX1:entity-author:0:4085de1da9cf",
+      "entityId": "know_6A9YA17XE5ZEM59NNWEPJS5TX1",
+      "documentKind": "entity-author",
+      "heading": null,
+      "audienceKind": "author",
+      "metadata": {
+        "aliases": [],
+        "domain": "knowledge.char_36X0KBYZ7MQGKM070H5NF12BK8",
+        "kind": "knowledge",
+        "tags": [
+          "root-host"
+        ],
+        "title": "Rhea Marrow records tree king aldren"
+      },
+      "ftsRank": 4,
+      "ftsBm25": -15.992169350670656,
+      "ftsScore": 15.992169350670656,
+      "snippet": " … tree king <mark>aldren</mark>\n\nThe Tree King says he was <mark>Aldren</mark> Veyl, a former Lantern Pike field-master who opposed <mark>Halric</mark> after <mark>Blackroot</mark>.\n\nThis is … ",
+      "score": 0.029513888888888888,
+      "lanes": [
+        "fts",
+        "vector"
+      ],
+      "vectorRank": 12,
+      "vectorScore": 0.2125547081232071,
+      "citation": {
+        "entityId": "know_6A9YA17XE5ZEM59NNWEPJS5TX1",
+        "sourcePath": "story/knowledge/char-36x0kbyz7mqgkm070h5nf12bk8/rhea-marrow-records-tree-king-aldren--know_6A9YA17XE5ZEM59NNWEPJS5TX1.md",
+        "section": "entity-author"
+      }
+    },
+    {
+      "documentId": "doc:sp_7VDVQCDD7VGSGHMD95RT3SJ0TN:entity-author:0:1a0ff4bf9cd6",
+      "entityId": "sp_7VDVQCDD7VGSGHMD95RT3SJ0TN",
+      "documentKind": "entity-author",
+      "heading": null,
+      "audienceKind": "author",
+      "metadata": {
+        "aliases": [],
+        "domain": "plot.frontiersmen",
+        "kind": "story-point",
+        "tags": [
+          "campaign"
+        ],
+        "title": "Flee the Root Host"
+      },
+      "ftsRank": 14,
+      "ftsBm25": -9.50607667411602,
+      "ftsScore": 9.50607667411602,
+      "snippet": "Flee the <mark>Root</mark> <mark>Host</mark>\nKind: story-point\nDomain: plot.frontiersmen\n\n# Flee the <mark>Root</mark> <mark>Host</mark>\n\nStay ahead of the masked <mark>host</mark> through the deep northern … ",
+      "score": 0.029138513513513514,
+      "lanes": [
+        "fts",
+        "vector"
+      ],
+      "vectorRank": 4,
+      "vectorScore": 0.4383116066455841,
+      "citation": {
+        "entityId": "sp_7VDVQCDD7VGSGHMD95RT3SJ0TN",
+        "sourcePath": "story/story-points/flee-the-root-host--sp_7VDVQCDD7VGSGHMD95RT3SJ0TN.md",
+        "section": "entity-author"
+      }
+    },
+    {
+      "documentId": "doc:event_34VWF280Y3BEFV6PYEAH17EJGT:entity-author:0:595dc15b47c3",
+      "entityId": "event_34VWF280Y3BEFV6PYEAH17EJGT",
+      "documentKind": "entity-author",
+      "heading": null,
+      "audienceKind": "author",
+      "metadata": {
+        "aliases": [],
+        "domain": "plot.frontiersmen",
+        "kind": "event",
+        "tags": [
+          "alarm",
+          "root-host"
+        ],
+        "title": "The Root Host Raises the Pursuit Alarm"
+      },
+      "ftsRank": 13,
+      "ftsBm25": -11.359151376300987,
+      "ftsScore": 11.359151376300987,
+      "snippet": " … against the <mark>root</mark> court. Every mask in the camp releases a different animal cry. <mark>Aldren</mark> answers through the crown, sending the <mark>host</mark> north and … ",
+      "score": 0.028850145288501453,
+      "lanes": [
+        "fts",
+        "vector"
+      ],
+      "vectorRank": 6,
+      "vectorScore": 0.3231978416442871,
+      "citation": {
+        "entityId": "event_34VWF280Y3BEFV6PYEAH17EJGT",
+        "sourcePath": "story/events/main/the-root-host-raises-the-pursuit-alarm--event_34VWF280Y3BEFV6PYEAH17EJGT.md",
+        "section": "entity-author"
+      }
+    },
+    {
+      "documentId": "doc:obj_1YPM7180GE8RNP56RK31980M2E:entity-author:0:fae0daacc159",
+      "entityId": "obj_1YPM7180GE8RNP56RK31980M2E",
+      "documentKind": "entity-author",
+      "heading": null,
+      "audienceKind": "author",
+      "metadata": {
+        "aliases": [],
+        "domain": "props.frontiersmen",
+        "kind": "object",
+        "tags": [
+          "mask",
+          "root-host",
+          "amber"
+        ],
+        "title": "Root Host Wooden Mask"
+      },
+      "ftsRank": 15,
+      "ftsBm25": -9.361676131647378,
+      "ftsScore": 9.361676131647378,
+      "snippet": "<mark>Root</mark> <mark>Host</mark> Wooden Mask\nKind: object\nDomain: props.frontiersmen\n\n# <mark>Root</mark> <mark>Host</mark> Wooden Mask\n\nA frightening animal mask carved from green wood. A thin <mark>amber</mark> … ",
+      "score": 0.02871794871794872,
+      "lanes": [
+        "fts",
+        "vector"
+      ],
+      "vectorRank": 5,
+      "vectorScore": 0.34332332015037537,
+      "citation": {
+        "entityId": "obj_1YPM7180GE8RNP56RK31980M2E",
+        "sourcePath": "story/objects/root-host-wooden-mask--obj_1YPM7180GE8RNP56RK31980M2E.md",
+        "section": "entity-author"
+      }
+    },
+    {
+      "documentId": "doc:char_4CMM4NQV0GXRD5J73ZVC3BQTKN:entity-author:0:f6e0864896b4",
+      "entityId": "char_4CMM4NQV0GXRD5J73ZVC3BQTKN",
+      "documentKind": "entity-author",
+      "heading": null,
+      "audienceKind": "author",
+      "metadata": {
+        "aliases": [
+          "Aldren Veyl",
+          "Root-Crowned Aldren"
+        ],
+        "domain": "cast.frontiersmen",
+        "kind": "character",
+        "tags": [
+          "root-host-king",
+          "antagonist",
+          "amber-bound",
+          "secret"
+        ],
+        "title": "The Tree King"
+      },
+      "ftsRank": 6,
+      "ftsBm25": -15.841053331679166,
+      "ftsScore": 15.841053331679166,
+      "snippet": " … <mark>amber</mark>, and force Veyra to admit that the substance chooses worthy vessels.\n\n## Private pressure\n\nHe was <mark>Aldren</mark> Veyl, <mark>Halric</mark>'s field-master at <mark>Blackroot</mark> … ",
+      "score": 0.028484848484848488,
+      "lanes": [
+        "fts",
+        "vector"
+      ],
+      "vectorRank": 15,
+      "vectorScore": 0.20873290300369263,
+      "citation": {
+        "entityId": "char_4CMM4NQV0GXRD5J73ZVC3BQTKN",
+        "sourcePath": "story/characters/the-tree-king--char_4CMM4NQV0GXRD5J73ZVC3BQTKN.md",
+        "section": "entity-author"
+      }
+    },
+    {
+      "documentId": "doc:know_7NY066FZDP1XZPFKD67GYPE5RP:entity-author:0:120b7b7ffe85",
+      "entityId": "know_7NY066FZDP1XZPFKD67GYPE5RP",
+      "documentKind": "entity-author",
+      "heading": null,
+      "audienceKind": "author",
+      "metadata": {
+        "aliases": [],
+        "domain": "knowledge.char_671MWM7KTP4DCVVP8EP6SFRJVP",
+        "kind": "knowledge",
+        "tags": [
+          "root-host"
+        ],
+        "title": "Brother Garran Holt records tree king aldren"
+      },
+      "ftsRank": 7,
+      "ftsBm25": -15.738430078127754,
+      "ftsScore": 15.738430078127754,
+      "snippet": " … tree king <mark>aldren</mark>\n\nThe Tree King says he was <mark>Aldren</mark> Veyl, a former Lantern Pike field-master who opposed <mark>Halric</mark> after <mark>Blackroot</mark>.\n\nThis is … ",
+      "score": 0.027912386121341344,
+      "lanes": [
+        "fts",
+        "vector"
+      ],
+      "vectorRank": 17,
+      "vectorScore": 0.20019809901714325,
+      "citation": {
+        "entityId": "know_7NY066FZDP1XZPFKD67GYPE5RP",
+        "sourcePath": "story/knowledge/char-671mwm7ktp4dcvvp8ep6sfrjvp/brother-garran-holt-records-tree-king-aldren--know_7NY066FZDP1XZPFKD67GYPE5RP.md",
+        "section": "entity-author"
+      }
+    },
+    {
+      "documentId": "doc:event_12J7R6TJJQ6EHH99H84FMJ1XKG:entity-author:0:856e1aefe473",
+      "entityId": "event_12J7R6TJJQ6EHH99H84FMJ1XKG",
+      "documentKind": "entity-author",
+      "heading": null,
+      "audienceKind": "author",
+      "metadata": {
+        "aliases": [],
+        "domain": "plot.frontiersmen",
+        "kind": "event",
+        "tags": [
+          "confiscation",
+          "root-host"
+        ],
+        "title": "The Root Host Confiscates the Party's Gear"
+      },
+      "ftsRank": 18,
+      "ftsBm25": -8.9427417840011,
+      "ftsScore": 8.9427417840011,
+      "snippet": " … plot.frontiersmen\n\n# The <mark>Root</mark> <mark>Host</mark> Confiscates the Party's Gear\n\nThe masked <mark>host</mark> removes weapons, maps, badges, <mark>amber</mark>, and the Sunken Hall reliquary. They … ",
+      "score": 0.027745885954841176,
+      "lanes": [
+        "fts",
+        "vector"
+      ],
+      "vectorRank": 7,
+      "vectorScore": 0.3127480447292328,
+      "citation": {
+        "entityId": "event_12J7R6TJJQ6EHH99H84FMJ1XKG",
+        "sourcePath": "story/events/main/the-root-host-confiscates-the-party-s-gear--event_12J7R6TJJQ6EHH99H84FMJ1XKG.md",
+        "section": "entity-author"
+      }
+    },
+    {
+      "documentId": "doc:event_5WAX4CHN4SE3M3YM4G5NX97YRM:entity-author:0:6a9ae5997c69",
+      "entityId": "event_5WAX4CHN4SE3M3YM4G5NX97YRM",
+      "documentKind": "entity-author",
+      "heading": null,
+      "audienceKind": "author",
+      "metadata": {
+        "aliases": [],
+        "domain": "plot.frontiersmen",
+        "kind": "event",
+        "tags": [
+          "capture",
+          "root-host"
+        ],
+        "title": "The Root Host Captures the Frontiersmen"
+      },
+      "ftsRank": 17,
+      "ftsBm25": -8.979775089336599,
+      "ftsScore": 8.979775089336599,
+      "snippet": "The <mark>Root</mark> <mark>Host</mark> Captures the Frontiersmen\nKind: event\nDomain: plot.frontiersmen\n\n# The <mark>Root</mark> <mark>Host</mark> Captures the Frontiersmen\n\nThe company descends under a white cloth … ",
+      "score": 0.027479766610201392,
+      "lanes": [
+        "fts",
+        "vector"
+      ],
+      "vectorRank": 9,
+      "vectorScore": 0.2676572799682617,
+      "citation": {
+        "entityId": "event_5WAX4CHN4SE3M3YM4G5NX97YRM",
+        "sourcePath": "story/events/main/the-root-host-captures-the-frontiersmen--event_5WAX4CHN4SE3M3YM4G5NX97YRM.md",
+        "section": "entity-author"
+      }
+    },
+    {
+      "documentId": "doc:event_6N1R17E2SH4YDVEST1TB72E5FQ:entity-author:0:b47e37da7e26",
+      "entityId": "event_6N1R17E2SH4YDVEST1TB72E5FQ",
+      "documentKind": "entity-author",
+      "heading": null,
+      "audienceKind": "author",
+      "metadata": {
+        "aliases": [],
+        "domain": "plot.frontiersmen",
+        "kind": "event",
+        "tags": [
+          "pursuit",
+          "forest"
+        ],
+        "title": "The Root Host Pursues the Frontiersmen"
+      },
+      "ftsRank": 20,
+      "ftsBm25": -8.724719712613052,
+      "ftsScore": 8.724719712613052,
+      "snippet": "The <mark>Root</mark> <mark>Host</mark> Pursues the Frontiersmen\nKind: event\nDomain: plot.frontiersmen\n\n# The <mark>Root</mark> <mark>Host</mark> Pursues the Frontiersmen\n\nThe party crosses the north palisade and … ",
+      "score": 0.027205882352941177,
+      "lanes": [
+        "fts",
+        "vector"
+      ],
+      "vectorRank": 8,
+      "vectorScore": 0.2839462161064148,
+      "citation": {
+        "entityId": "event_6N1R17E2SH4YDVEST1TB72E5FQ",
+        "sourcePath": "story/events/main/the-root-host-pursues-the-frontiersmen--event_6N1R17E2SH4YDVEST1TB72E5FQ.md",
+        "section": "entity-author"
+      }
+    },
+    {
+      "documentId": "doc:know_6EW5BNSV96QDQB0EAZMB5NTDJ8:entity-author:0:ae0d14513cca",
+      "entityId": "know_6EW5BNSV96QDQB0EAZMB5NTDJ8",
+      "documentKind": "entity-author",
+      "heading": null,
+      "audienceKind": "author",
+      "metadata": {
+        "aliases": [],
+        "domain": "knowledge.char_36X0KBYZ7MQGKM070H5NF12BK8",
+        "kind": "knowledge",
+        "tags": [
+          "guild-secret"
+        ],
+        "title": "Rhea records Aldren's accusation against Halric"
+      },
+      "ftsRank": 10,
+      "ftsBm25": -14.775676821456894,
+      "ftsScore": 14.775676821456894,
+      "snippet": " … records <mark>Aldren</mark>'s accusation against <mark>Halric</mark>\n\n<mark>Aldren</mark> accuses <mark>Halric</mark> of concealing the <mark>Blackroot</mark> manifestation while continuing to sell and collect damped <mark>amber</mark>.\n\nThis is … ",
+      "score": 0.027106227106227107,
+      "lanes": [
+        "fts",
+        "vector"
+      ],
+      "vectorRank": 18,
+      "vectorScore": 0.19362184405326843,
+      "citation": {
+        "entityId": "know_6EW5BNSV96QDQB0EAZMB5NTDJ8",
+        "sourcePath": "story/knowledge/char-36x0kbyz7mqgkm070h5nf12bk8/rhea-records-aldren-s-accusation-against-halric--know_6EW5BNSV96QDQB0EAZMB5NTDJ8.md",
+        "section": "entity-author"
+      }
+    },
+    {
+      "documentId": "doc:char_37D4GED06VHV5Q82C2GHTKFYCX:entity-author:0:0ec57e4bf0f2",
+      "entityId": "char_37D4GED06VHV5Q82C2GHTKFYCX",
+      "documentKind": "entity-author",
+      "heading": null,
+      "audienceKind": "author",
+      "metadata": {
+        "aliases": [
+          "Master Doss"
+        ],
+        "domain": "cast.frontiersmen",
+        "kind": "character",
+        "tags": [
+          "guildmaster",
+          "guild",
+          "secret-keeper"
+        ],
+        "title": "Guildmaster Halric Doss"
+      },
+      "ftsRank": 19,
+      "ftsBm25": -8.932964643081906,
+      "ftsScore": 8.932964643081906,
+      "snippet": " … keep <mark>amber</mark> flowing, and preserve the guild's authority over a danger it helped create.\n\n## Private pressure\n\n<mark>Halric</mark> signed the <mark>Blackroot</mark> <mark>Compact</mark> after the … ",
+      "score": 0.026742734890354787,
+      "lanes": [
+        "fts",
+        "vector"
+      ],
+      "vectorRank": 11,
+      "vectorScore": 0.22077655792236328,
+      "citation": {
+        "entityId": "char_37D4GED06VHV5Q82C2GHTKFYCX",
+        "sourcePath": "story/characters/guildmaster-halric-doss--char_37D4GED06VHV5Q82C2GHTKFYCX.md",
+        "section": "entity-author"
+      }
+    },
+    {
+      "documentId": "doc:char_4CMM4NQV0GXRD5J73ZVC3BQTKN:entity-author:1:5cad1948d8cd",
+      "entityId": "char_4CMM4NQV0GXRD5J73ZVC3BQTKN",
+      "documentKind": "entity-author",
+      "heading": null,
+      "audienceKind": "author",
+      "metadata": {
+        "aliases": [
+          "Aldren Veyl",
+          "Root-Crowned Aldren"
+        ],
+        "domain": "cast.frontiersmen",
+        "kind": "character",
+        "tags": [
+          "root-host-king",
+          "antagonist",
+          "amber-bound",
+          "secret"
+        ],
+        "title": "The Tree King"
+      },
+      "ftsRank": 9,
+      "ftsBm25": -15.617758514854271,
+      "ftsScore": 15.617758514854271,
+      "snippet": "## Author notes\n\nHe can provoke manifestations by feeding <mark>blood</mark> and fear into carved <mark>amber</mark> lattices. His communion is real, but his interpretation is self … ",
+      "score": 0.02625745950554135,
+      "lanes": [
+        "fts",
+        "vector"
+      ],
+      "vectorRank": 25,
+      "vectorScore": 0.14744322001934052,
+      "citation": {
+        "entityId": "char_4CMM4NQV0GXRD5J73ZVC3BQTKN",
+        "sourcePath": "story/characters/the-tree-king--char_4CMM4NQV0GXRD5J73ZVC3BQTKN.md",
+        "section": "entity-author"
+      }
+    },
+    {
+      "documentId": "doc:know_4J2H4HPBP59DCFJDENXZ2CCE45:entity-author:0:fe6c356731a8",
+      "entityId": "know_4J2H4HPBP59DCFJDENXZ2CCE45",
+      "documentKind": "entity-author",
+      "heading": null,
+      "audienceKind": "author",
+      "metadata": {
+        "aliases": [],
+        "domain": "knowledge.char_37D4GED06VHV5Q82C2GHTKFYCX",
+        "kind": "knowledge",
+        "tags": [
+          "secret",
+          "amber"
+        ],
+        "title": "Halric knows blood can quicken raw amber"
+      },
+      "ftsRank": 16,
+      "ftsBm25": -8.994155592815488,
+      "ftsScore": 8.994155592815488,
+      "snippet": "<mark>Halric</mark> knows <mark>blood</mark> can quicken raw <mark>amber</mark>\nKind: knowledge\nDomain: knowledge.char_37D4GED06VHV5Q82C2GHTKFYCX\n\n# <mark>Halric</mark> knows <mark>blood</mark> can quicken raw <mark>amber</mark>\n\nFresh <mark>blood</mark> can quicken … ",
+      "score": 0.025657894736842105,
+      "lanes": [
+        "fts",
+        "vector"
+      ],
+      "vectorRank": 20,
+      "vectorScore": 0.17535680532455444,
+      "citation": {
+        "entityId": "know_4J2H4HPBP59DCFJDENXZ2CCE45",
+        "sourcePath": "story/knowledge/char-37d4ged06vhv5q82c2ghtkfycx/halric-knows-blood-can-quicken-raw-amber--know_4J2H4HPBP59DCFJDENXZ2CCE45.md",
+        "section": "entity-author"
+      }
+    },
+    {
+      "documentId": "doc:char_37D4GED06VHV5Q82C2GHTKFYCX:entity-author:1:87fd96bc02dd",
+      "entityId": "char_37D4GED06VHV5Q82C2GHTKFYCX",
+      "documentKind": "entity-author",
+      "heading": null,
+      "audienceKind": "author",
+      "metadata": {
+        "aliases": [
+          "Master Doss"
+        ],
+        "domain": "cast.frontiersmen",
+        "kind": "character",
+        "tags": [
+          "guildmaster",
+          "guild",
+          "secret-keeper"
+        ],
+        "title": "Guildmaster Halric Doss"
+      },
+      "ftsRank": 12,
+      "ftsBm25": -12.87081272501484,
+      "ftsScore": 12.87081272501484,
+      "snippet": "He knows fresh <mark>blood</mark> and fractured raw <mark>amber</mark> can call wretches. Secret marker: FRONTIER-SECRET-<mark>AMBER</mark>-<mark>ROOT</mark>-<mark>MEMORY</mark>-7K4M.",
+      "score": 0.025516795865633074,
+      "lanes": [
+        "fts",
+        "vector"
+      ],
+      "vectorRank": 26,
+      "vectorScore": 0.14733682572841644,
+      "citation": {
+        "entityId": "char_37D4GED06VHV5Q82C2GHTKFYCX",
+        "sourcePath": "story/characters/guildmaster-halric-doss--char_37D4GED06VHV5Q82C2GHTKFYCX.md",
+        "section": "entity-author"
+      }
+    },
+    {
+      "documentId": "doc:event_7TH2BAQE1Q7J6MABMC316AD0ZB:entity-author:0:7969ba0d0858",
+      "entityId": "event_7TH2BAQE1Q7J6MABMC316AD0ZB",
+      "documentKind": "entity-author",
+      "heading": null,
+      "audienceKind": "author",
+      "metadata": {
+        "aliases": [],
+        "domain": "plot.frontiersmen",
+        "kind": "event",
+        "tags": [
+          "tree-king",
+          "guild-secret"
+        ],
+        "title": "The Tree King Claims Communion with the Frontier"
+      },
+      "ftsRank": 24,
+      "ftsBm25": -7.762997465439655,
+      "ftsScore": 7.762997465439655,
+      "snippet": " … living spruce <mark>roots</mark>. The Tree King identifies himself as former Lantern Pike field-master <mark>Aldren</mark> Veyl, accuses <mark>Halric</mark> of selling damped <mark>memory</mark> as currency … ",
+      "score": 0.024099883855981417,
+      "lanes": [
+        "fts",
+        "vector"
+      ],
+      "vectorRank": 22,
+      "vectorScore": 0.16550208628177643,
+      "citation": {
+        "entityId": "event_7TH2BAQE1Q7J6MABMC316AD0ZB",
+        "sourcePath": "story/events/main/the-tree-king-claims-communion-with-the-frontier--event_7TH2BAQE1Q7J6MABMC316AD0ZB.md",
+        "section": "entity-author"
+      }
+    },
+    {
+      "documentId": "doc:loc_5G37W2VTB50J6KD5R4C3X6C8FZ:entity-author:0:c74b201561eb",
+      "entityId": "loc_5G37W2VTB50J6KD5R4C3X6C8FZ",
+      "documentKind": "entity-author",
+      "heading": null,
+      "audienceKind": "author",
+      "metadata": {
+        "aliases": [],
+        "domain": "setting.frontier",
+        "kind": "location",
+        "tags": [
+          "secret",
+          "amber",
+          "history"
+        ],
+        "title": "Blackroot Sink"
+      },
+      "ftsRank": 22,
+      "ftsBm25": -8.473184195622768,
+      "ftsScore": 8.473184195622768,
+      "snippet": " … setting.frontier\n\n# <mark>Blackroot</mark> Sink\n\nA collapsed prospecting pit west of Keldmouth where the Lantern Pike first documented <mark>blood</mark>-triggered <mark>amber</mark> manifestations twelve years before … ",
+      "score": 0.024099883855981417,
+      "lanes": [
+        "fts",
+        "vector"
+      ],
+      "vectorRank": 24,
+      "vectorScore": 0.15138812363147736,
+      "citation": {
+        "entityId": "loc_5G37W2VTB50J6KD5R4C3X6C8FZ",
+        "sourcePath": "story/locations/blackroot-sink--loc_5G37W2VTB50J6KD5R4C3X6C8FZ.md",
+        "section": "entity-author"
+      }
+    },
+    {
+      "documentId": "doc:env_15P7GV4NTAWXKEATRWC5BVKD1V:entity-author:0:6af5d62bc4f4",
+      "entityId": "env_15P7GV4NTAWXKEATRWC5BVKD1V",
+      "documentKind": "entity-author",
+      "heading": null,
+      "audienceKind": "author",
+      "metadata": {
+        "aliases": [],
+        "domain": "environment.frontier",
+        "kind": "environment",
+        "tags": [
+          "frontier"
+        ],
+        "title": "Root Camp Drum Smoke"
+      },
+      "ftsRank": 27,
+      "ftsBm25": -6.933402526674012,
+      "ftsScore": 6.933402526674012,
+      "snippet": "<mark>Root</mark> Camp Drum Smoke\nKind: environment\nDomain: environment.frontier\n\n# <mark>Root</mark> Camp Drum Smoke\n\nThe masked <mark>host</mark> is disciplined, uncanny, and largely mute.",
+      "score": 0.023839931885908897,
+      "lanes": [
+        "fts",
+        "vector"
+      ],
+      "vectorRank": 21,
+      "vectorScore": 0.1659303605556488,
+      "citation": {
+        "entityId": "env_15P7GV4NTAWXKEATRWC5BVKD1V",
+        "sourcePath": "story/environments/root-camp-drum-smoke--env_15P7GV4NTAWXKEATRWC5BVKD1V.md",
+        "section": "entity-author"
+      }
+    },
+    {
+      "documentId": "doc:conv_60R00C9GFDD8MPY5PBEX304S99:entity-author:0:2fc27c1d77a2",
+      "entityId": "conv_60R00C9GFDD8MPY5PBEX304S99",
+      "documentKind": "entity-author",
+      "heading": null,
+      "audienceKind": "author",
+      "metadata": {
+        "aliases": [],
+        "domain": "conversations.frontiersmen",
+        "kind": "conversation",
+        "tags": [
+          "amber",
+          "dowsing",
+          "mine"
+        ],
+        "title": "Tillo and the Fork"
+      },
+      "ftsRank": 46,
+      "ftsBm25": -5.4451283804618456,
+      "ftsScore": 5.4451283804618456,
+      "snippet": " … first operational vocabulary for raw, refined, and quick <mark>amber</mark> while still withholding the <mark>Blackroot</mark> <mark>Compact</mark>.\n\nThe turn list is canonical verbatim provenance. Character recollections … ",
+      "score": 0.02371967654986523,
+      "lanes": [
+        "fts",
+        "vector"
+      ],
+      "vectorRank": 10,
+      "vectorScore": 0.24397404491901398,
+      "citation": {
+        "entityId": "conv_60R00C9GFDD8MPY5PBEX304S99",
+        "sourcePath": "story/conversations/tillo-and-the-fork--conv_60R00C9GFDD8MPY5PBEX304S99.md",
+        "section": "entity-author"
+      }
+    },
+    {
+      "documentId": "doc:world_01M0HH0YXDMTCEX34NPQ7S2AXQ:entity-author:1:f7d95cf8f454",
+      "entityId": "world_01M0HH0YXDMTCEX34NPQ7S2AXQ",
+      "documentKind": "entity-author",
+      "heading": null,
+      "audienceKind": "author",
+      "metadata": {
+        "aliases": [],
+        "domain": "world",
+        "kind": "world",
+        "tags": [
+          "example",
+          "frontier-fantasy",
+          "monster-hunters",
+          "interactive"
+        ],
+        "title": "The Frontiersmen"
+      },
+      "ftsRank": 23,
+      "ftsBm25": -8.255145612707585,
+      "ftsScore": 8.255145612707585,
+      "snippet": " … call and strengthen manifestations with <mark>blooded</mark> <mark>amber</mark>, then mistook access to accumulated <mark>memory</mark> for divine kingship. Secret marker: FRONTIER-SECRET-<mark>AMBER</mark>-<mark>ROOT</mark>-<mark>MEMORY</mark>-7K4M.",
+      "score": 0.023542445644647556,
+      "lanes": [
+        "fts",
+        "vector"
+      ],
+      "vectorRank": 27,
+      "vectorScore": 0.1393618881702423,
+      "citation": {
+        "entityId": "world_01M0HH0YXDMTCEX34NPQ7S2AXQ",
+        "sourcePath": "story/world.md",
+        "section": "entity-author"
+      }
+    }
+  ]
+}

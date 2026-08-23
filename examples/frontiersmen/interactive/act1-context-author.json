@@ -1,0 +1,19 @@
+{
+  "protocol": "wedl-context/v3",
+  "revision": "a3e6e3676d4eaf14810724b7906544fe23f0c905",
+  "perspective": "author",
+  "characterId": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+  "sceneId": "scene_7ACNVBH43CXNMQ75YZPKA07PDD",
+  "effectiveTime": {
+    "timeline": "main",
+    "tick": 55,
+    "order": 0
+  },
+  "promptText": "# Author margin — Harrowcross at Dusk\n\nCanonical truth, dramatic pressure, and dialogue provenance for constructing the next beat.\n\n## Present moment\n- Canonical author view of **Harrowcross at Dusk** at **main 55:0**. [s1.1]\n\n## What matters\n- **Rhea Marrow — Author notes:** Primary viewpoint and practical leader. She begins wary of Veyra's fascination with amber and ends suspecting that the guild's protection business depends on the danger it conceals. [s2.1]\n- **Rhea Marrow — Goals:** Keep the new company alive, earn enough to leave old disgrace behind, and refuse any contract that requires abandoning people already under her protection. [s2.2]\n- **Harrowcross at Dusk — Harrowcross at Dusk:** At the crossroads town, the caravan meets a catastrophe large enough to activate the guild contract's emergency clause. [s1.2]\n- **Escape Before the Blood Sport:** eligible; priority 100. [s3.1]\n- **Cross the Lower Caverns:** eligible; priority 90. [s4.1]\n- **Replace the Dead Watch:** eligible; priority 94. [s5.1]\n- **Connect Amber to the Wretches:** eligible; priority 92. [s6.1]\n- **Reconstruct the Last Watch:** eligible; priority 88. [s7.1]\n- **Survive the First Wretch:** eligible; priority 96. [s8.1]\n- **What Is Amber?:** eligible; priority 97. [s9.1]\n- **Understand the Tree King:** eligible; priority 95. [s10.1]\n- **Expose the Blackroot Compact:** eligible; priority 91. [s11.1]\n\n## Writing boundary\n- This margin may contain canonical truth and dramatic irony. Never attribute it to the viewpoint character unless the character packet independently supplies that knowledge.\n- The full massacre mechanism remains unknown to the party. [s1.3]\n- The conversation is intentionally active at the act boundary so later turns and recollections can be appended through wedl. [s1.4]\n\n## Provenance\n- [s1] `scene_7ACNVBH43CXNMQ75YZPKA07PDD` — 1 author-frame; 2 Harrowcross at Dusk; 3 constraint:0; 4 constraint:1\n- [s2] `char_36X0KBYZ7MQGKM070H5NF12BK8` — 1 Author notes; 2 Goals\n- [s3] `sp_036KDER9FKFVCH734QS3QS34TC` — 1 story-point-state\n- [s4] `sp_05AYKKC34KZ155A2YBVTZJF4VN` — 1 story-point-state\n- [s5] `sp_0KBNVM3A3AVCG4Z88ETRQM1K78` — 1 story-point-state\n- [s6] `sp_0RTEKC1CPW46B4RZNJX178NKMT` — 1 story-point-state\n- [s7] `sp_2KFWNBNCG0RPGS4R85M5DQVV9B` — 1 story-point-state\n- [s8] `sp_4FPF4MV3YMFPH5W3Z5T7W3FSAY` — 1 story-point-state\n- [s9] `sp_55RMAMRVV8DYG02ZR84VWME0CR` — 1 story-point-state\n- [s10] `sp_56BDX8H6ZW2K20S7Z9EV5RBRTR` — 1 story-point-state\n- [s11] `sp_738TMHY3Y8CZK6V7KK1BWXPRZJ` — 1 story-point-state\n",
+  "selection": {
+    "included": 16,
+    "omitted": 4,
+    "budgetCharacters": 6500,
+    "serializedCharacters": 2941
+  }
+}

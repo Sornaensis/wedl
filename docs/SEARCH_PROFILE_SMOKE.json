@@ -1,0 +1,494 @@
+{
+  "initialization": {
+    "repository": "/mnt/data/wedl-050-smoke",
+    "git": true,
+    "example": true,
+    "head": "2b6317e429caa77397f843d85ef214ef1b9d312d",
+    "compile": {
+      "status": "compiled",
+      "buildMode": "full",
+      "revision": "2b6317e429caa77397f843d85ef214ef1b9d312d",
+      "treeOid": "6ad359c80f8c75e8aa31950dcfa8ae0643d33e06",
+      "database": "/mnt/data/wedl-050-smoke/.wedl/world.sqlite",
+      "databaseBytes": 6299648,
+      "recordCount": 238,
+      "searchProfile": {
+        "name": "hybrid",
+        "ftsEnabled": true,
+        "vectorEnabled": true,
+        "vectorProvider": "lsa",
+        "vectorModel": "wedl-lsa-v1",
+        "vectorDimensions": 192,
+        "vectorMaxFeatures": 8192,
+        "ftsCandidateLimit": 120,
+        "vectorCandidateLimit": 120,
+        "hybridFtsWeight": 1.0,
+        "hybridVectorWeight": 1.0,
+        "hybridRrfK": 60.0
+      },
+      "searchDocumentCount": 931,
+      "ftsDocumentCount": 931,
+      "vectorDocumentCount": 931,
+      "uniqueVectorCount": 626,
+      "vectorLinkCount": 931,
+      "vectorModels": [
+        {
+          "scope": "author",
+          "modelId": "lsa:author:wedl-lsa-v1:192:f6eefe2f5d129a13",
+          "provider": "lsa",
+          "modelName": "wedl-lsa-v1",
+          "dimensions": 192,
+          "normalized": true,
+          "corpusHash": "f6eefe2f5d129a13fe8d9c03313dcd11e8cb4595f68011a85a9a78cb4f2e173e"
+        },
+        {
+          "scope": "character",
+          "modelId": "lsa:character:wedl-lsa-v1:89:d6a14086da84ad08",
+          "provider": "lsa",
+          "modelName": "wedl-lsa-v1",
+          "dimensions": 89,
+          "normalized": true,
+          "corpusHash": "d6a14086da84ad08fae15ba52d97e856a038011204a576bb75293c02806c237b"
+        }
+      ],
+      "vectorCache": {
+        "reused": 0,
+        "generated": 626,
+        "uniqueInputs": 626
+      },
+      "searchProjection": {
+        "timingsMs": {
+          "buildDocuments": 10.66,
+          "hashInputs": 1.889,
+          "buildVectors": 587.559,
+          "prepareRows": 6.001,
+          "insertDocuments": 2.746,
+          "insertFts": 6.004,
+          "insertVectors": 10.343
+        }
+      },
+      "activeSceneId": "scene_45FYHCR4ZHK90ZFTPF0WADM6GZ",
+      "currentTime": {
+        "timeline": "main",
+        "tick": 178,
+        "order": 10
+      },
+      "changedPaths": [],
+      "sourceLoad": {
+        "mode": "parsed-source-cache",
+        "records": 238,
+        "parsed": 238,
+        "cacheHits": 0,
+        "blobReads": 238
+      },
+      "timingsMs": {
+        "resolveRevision": 2.615,
+        "loadSource": 87.393,
+        "validate": 6.924,
+        "schema": 1.757,
+        "entities": 8.969,
+        "narrative": 4.198,
+        "derived": 5.54,
+        "search": 625.928,
+        "indexes": 29.044,
+        "total": 783.001
+      }
+    }
+  },
+  "recordCount": 238,
+  "profiles": {
+    "state": {
+      "compile": {
+        "status": "compiled",
+        "buildMode": "fast-forward-rebuild",
+        "revision": "2b6317e429caa77397f843d85ef214ef1b9d312d",
+        "treeOid": "6ad359c80f8c75e8aa31950dcfa8ae0643d33e06",
+        "database": "/mnt/data/wedl-050-smoke/.wedl/world.sqlite",
+        "databaseBytes": 1417216,
+        "recordCount": 238,
+        "searchProfile": {
+          "name": "state",
+          "ftsEnabled": false,
+          "vectorEnabled": false,
+          "vectorProvider": null,
+          "vectorModel": null,
+          "vectorDimensions": 192,
+          "vectorMaxFeatures": 8192,
+          "ftsCandidateLimit": 120,
+          "vectorCandidateLimit": 120,
+          "hybridFtsWeight": 1.0,
+          "hybridVectorWeight": 1.0,
+          "hybridRrfK": 60.0
+        },
+        "searchDocumentCount": 0,
+        "ftsDocumentCount": 0,
+        "vectorDocumentCount": 0,
+        "uniqueVectorCount": 0,
+        "vectorLinkCount": 0,
+        "vectorModels": [],
+        "vectorCache": {
+          "reused": 0,
+          "generated": 0,
+          "uniqueInputs": 0
+        },
+        "searchProjection": {
+          "timingsMs": {}
+        },
+        "activeSceneId": "scene_45FYHCR4ZHK90ZFTPF0WADM6GZ",
+        "currentTime": {
+          "timeline": "main",
+          "tick": 178,
+          "order": 10
+        },
+        "changedPaths": [],
+        "sourceLoad": {
+          "mode": "memory-cache",
+          "records": 238,
+          "parsed": 0,
+          "cacheHits": 238,
+          "blobReads": 0
+        },
+        "timingsMs": {
+          "resolveRevision": 2.381,
+          "loadSource": 1.986,
+          "validate": 6.858,
+          "schema": 1.639,
+          "entities": 9.109,
+          "narrative": 4.197,
+          "derived": 6.687,
+          "search": 0.003,
+          "indexes": 1.548,
+          "total": 39.524
+        }
+      },
+      "counts": {
+        "searchDocuments": 0,
+        "ftsRows": 0,
+        "uniqueVectors": 0,
+        "vectorLinks": 0,
+        "badNorms": 0
+      },
+      "queries": {
+        "ftsRejected": true,
+        "vectorRejected": true
+      }
+    },
+    "fts": {
+      "compile": {
+        "status": "compiled",
+        "buildMode": "fast-forward-rebuild",
+        "revision": "2b6317e429caa77397f843d85ef214ef1b9d312d",
+        "treeOid": "6ad359c80f8c75e8aa31950dcfa8ae0643d33e06",
+        "database": "/mnt/data/wedl-050-smoke/.wedl/world.sqlite",
+        "databaseBytes": 2592768,
+        "recordCount": 238,
+        "searchProfile": {
+          "name": "fts",
+          "ftsEnabled": true,
+          "vectorEnabled": false,
+          "vectorProvider": null,
+          "vectorModel": null,
+          "vectorDimensions": 192,
+          "vectorMaxFeatures": 8192,
+          "ftsCandidateLimit": 120,
+          "vectorCandidateLimit": 120,
+          "hybridFtsWeight": 1.0,
+          "hybridVectorWeight": 1.0,
+          "hybridRrfK": 60.0
+        },
+        "searchDocumentCount": 931,
+        "ftsDocumentCount": 931,
+        "vectorDocumentCount": 0,
+        "uniqueVectorCount": 0,
+        "vectorLinkCount": 0,
+        "vectorModels": [],
+        "vectorCache": {
+          "reused": 0,
+          "generated": 0,
+          "uniqueInputs": 0
+        },
+        "searchProjection": {
+          "timingsMs": {
+            "buildDocuments": 10.314,
+            "prepareRows": 3.469,
+            "insertDocuments": 2.502,
+            "insertFts": 5.578
+          }
+        },
+        "activeSceneId": "scene_45FYHCR4ZHK90ZFTPF0WADM6GZ",
+        "currentTime": {
+          "timeline": "main",
+          "tick": 178,
+          "order": 10
+        },
+        "changedPaths": [],
+        "sourceLoad": {
+          "mode": "memory-cache",
+          "records": 238,
+          "parsed": 0,
+          "cacheHits": 238,
+          "blobReads": 0
+        },
+        "timingsMs": {
+          "resolveRevision": 2.527,
+          "loadSource": 2.041,
+          "validate": 7.71,
+          "schema": 1.566,
+          "entities": 9.303,
+          "narrative": 4.493,
+          "derived": 5.323,
+          "search": 22.133,
+          "indexes": 3.691,
+          "total": 68.554
+        }
+      },
+      "counts": {
+        "searchDocuments": 931,
+        "ftsRows": 931,
+        "uniqueVectors": 0,
+        "vectorLinks": 0,
+        "badNorms": 0
+      },
+      "queries": {
+        "ftsAliasTitles": [
+          "Ilyra Sorn"
+        ],
+        "ftsTagTitles": [
+          "Pressure Gate Seven Key"
+        ],
+        "vectorRejected": true
+      }
+    },
+    "vector": {
+      "compile": {
+        "status": "compiled",
+        "buildMode": "fast-forward-rebuild",
+        "revision": "2b6317e429caa77397f843d85ef214ef1b9d312d",
+        "treeOid": "6ad359c80f8c75e8aa31950dcfa8ae0643d33e06",
+        "database": "/mnt/data/wedl-050-smoke/.wedl/world.sqlite",
+        "databaseBytes": 5894144,
+        "recordCount": 238,
+        "searchProfile": {
+          "name": "vector",
+          "ftsEnabled": false,
+          "vectorEnabled": true,
+          "vectorProvider": "lsa",
+          "vectorModel": "wedl-lsa-v1",
+          "vectorDimensions": 192,
+          "vectorMaxFeatures": 8192,
+          "ftsCandidateLimit": 120,
+          "vectorCandidateLimit": 120,
+          "hybridFtsWeight": 1.0,
+          "hybridVectorWeight": 1.0,
+          "hybridRrfK": 60.0
+        },
+        "searchDocumentCount": 931,
+        "ftsDocumentCount": 0,
+        "vectorDocumentCount": 931,
+        "uniqueVectorCount": 626,
+        "vectorLinkCount": 931,
+        "vectorModels": [
+          {
+            "scope": "author",
+            "modelId": "lsa:author:wedl-lsa-v1:192:31ce9cef9907ddbf",
+            "provider": "lsa",
+            "modelName": "wedl-lsa-v1",
+            "dimensions": 192,
+            "normalized": true,
+            "corpusHash": "31ce9cef9907ddbfcb903ccdde52ceebe8977694a4fe9aed68cb1f8f75b03735"
+          },
+          {
+            "scope": "character",
+            "modelId": "lsa:character:wedl-lsa-v1:89:19e59fea14ba7667",
+            "provider": "lsa",
+            "modelName": "wedl-lsa-v1",
+            "dimensions": 89,
+            "normalized": true,
+            "corpusHash": "19e59fea14ba76673c6338bc90eaff4f7a258e255a34d4f27e1cb88095aa9398"
+          }
+        ],
+        "vectorCache": {
+          "reused": 0,
+          "generated": 626,
+          "uniqueInputs": 626
+        },
+        "searchProjection": {
+          "timingsMs": {
+            "buildDocuments": 11.529,
+            "hashInputs": 2.079,
+            "buildVectors": 570.913,
+            "prepareRows": 4.117,
+            "insertDocuments": 2.767,
+            "insertVectors": 9.892
+          }
+        },
+        "activeSceneId": "scene_45FYHCR4ZHK90ZFTPF0WADM6GZ",
+        "currentTime": {
+          "timeline": "main",
+          "tick": 178,
+          "order": 10
+        },
+        "changedPaths": [],
+        "sourceLoad": {
+          "mode": "memory-cache",
+          "records": 238,
+          "parsed": 0,
+          "cacheHits": 238,
+          "blobReads": 0
+        },
+        "timingsMs": {
+          "resolveRevision": 2.71,
+          "loadSource": 4.241,
+          "validate": 9.674,
+          "schema": 3.721,
+          "entities": 13.896,
+          "narrative": 4.671,
+          "derived": 5.687,
+          "search": 601.866,
+          "indexes": 4.621,
+          "total": 659.864
+        }
+      },
+      "counts": {
+        "searchDocuments": 931,
+        "ftsRows": 0,
+        "uniqueVectors": 626,
+        "vectorLinks": 931,
+        "badNorms": 0
+      },
+      "queries": {
+        "ftsRejected": true,
+        "vectorTitles": [
+          "The Notary at the Seventh Drawer",
+          "Ysabet Crane",
+          "The Seventh Drawer",
+          "Council Inventory Writ",
+          "Flood Gallery N",
+          "Token 7B Releases the Seventh Drawer",
+          "Search the Catalog Gap",
+          "Rusk Reaches the North Door"
+        ]
+      }
+    },
+    "hybrid": {
+      "compile": {
+        "status": "compiled",
+        "buildMode": "fast-forward-rebuild",
+        "revision": "2b6317e429caa77397f843d85ef214ef1b9d312d",
+        "treeOid": "6ad359c80f8c75e8aa31950dcfa8ae0643d33e06",
+        "database": "/mnt/data/wedl-050-smoke/.wedl/world.sqlite",
+        "databaseBytes": 6299648,
+        "recordCount": 238,
+        "searchProfile": {
+          "name": "hybrid",
+          "ftsEnabled": true,
+          "vectorEnabled": true,
+          "vectorProvider": "lsa",
+          "vectorModel": "wedl-lsa-v1",
+          "vectorDimensions": 192,
+          "vectorMaxFeatures": 8192,
+          "ftsCandidateLimit": 120,
+          "vectorCandidateLimit": 120,
+          "hybridFtsWeight": 1.0,
+          "hybridVectorWeight": 1.0,
+          "hybridRrfK": 60.0
+        },
+        "searchDocumentCount": 931,
+        "ftsDocumentCount": 931,
+        "vectorDocumentCount": 931,
+        "uniqueVectorCount": 626,
+        "vectorLinkCount": 931,
+        "vectorModels": [
+          {
+            "scope": "author",
+            "modelId": "lsa:author:wedl-lsa-v1:192:f6eefe2f5d129a13",
+            "provider": "lsa",
+            "modelName": "wedl-lsa-v1",
+            "dimensions": 192,
+            "normalized": true,
+            "corpusHash": "f6eefe2f5d129a13fe8d9c03313dcd11e8cb4595f68011a85a9a78cb4f2e173e"
+          },
+          {
+            "scope": "character",
+            "modelId": "lsa:character:wedl-lsa-v1:89:d6a14086da84ad08",
+            "provider": "lsa",
+            "modelName": "wedl-lsa-v1",
+            "dimensions": 89,
+            "normalized": true,
+            "corpusHash": "d6a14086da84ad08fae15ba52d97e856a038011204a576bb75293c02806c237b"
+          }
+        ],
+        "vectorCache": {
+          "reused": 626,
+          "generated": 0,
+          "uniqueInputs": 626
+        },
+        "searchProjection": {
+          "timingsMs": {
+            "buildDocuments": 16.862,
+            "hashInputs": 2.398,
+            "buildVectors": 7.381,
+            "prepareRows": 4.085,
+            "insertDocuments": 2.769,
+            "insertFts": 8.356,
+            "insertVectors": 13.984
+          }
+        },
+        "activeSceneId": "scene_45FYHCR4ZHK90ZFTPF0WADM6GZ",
+        "currentTime": {
+          "timeline": "main",
+          "tick": 178,
+          "order": 10
+        },
+        "changedPaths": [],
+        "sourceLoad": {
+          "mode": "memory-cache",
+          "records": 238,
+          "parsed": 0,
+          "cacheHits": 238,
+          "blobReads": 0
+        },
+        "timingsMs": {
+          "resolveRevision": 4.375,
+          "loadSource": 2.312,
+          "validate": 7.832,
+          "schema": 2.144,
+          "entities": 13.083,
+          "narrative": 5.171,
+          "derived": 6.412,
+          "search": 56.75,
+          "indexes": 6.698,
+          "total": 117.079
+        }
+      },
+      "counts": {
+        "searchDocuments": 931,
+        "ftsRows": 931,
+        "uniqueVectors": 626,
+        "vectorLinks": 931,
+        "badNorms": 0
+      },
+      "queries": {
+        "ftsAliasTitles": [
+          "Ilyra Sorn"
+        ],
+        "ftsTagTitles": [
+          "Pressure Gate Seven Key"
+        ],
+        "vectorTitles": [
+          "The Notary at the Seventh Drawer",
+          "Ysabet Crane",
+          "The Seventh Drawer",
+          "Council Inventory Writ",
+          "Flood Gallery N",
+          "Token 7B Releases the Seventh Drawer",
+          "Search the Catalog Gap",
+          "Rusk Reaches the North Door"
+        ],
+        "hybridBothLanes": 3,
+        "hybridVectorOnly": 16,
+        "characterSecretResults": 0
+      }
+    }
+  }
+}

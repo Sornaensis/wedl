@@ -1,0 +1,19 @@
+{
+  "protocol": "wedl-context/v3",
+  "revision": "74768378e7a222292257be1e6780e698a44b7ced",
+  "perspective": "author",
+  "characterId": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+  "sceneId": "scene_0XW14MHXGV4DY4GGDCV4FDQPBX",
+  "effectiveTime": {
+    "timeline": "main",
+    "tick": 85,
+    "order": 0
+  },
+  "promptText": "# Author margin — Saint Orra Mine\n\nCanonical truth, dramatic pressure, and dialogue provenance for constructing the next beat.\n\n## Present moment\n- Canonical author view of **Saint Orra Mine** at **main 85:0**. [s1.1]\n\n## What matters\n- **Veyra Kest — Author notes:** She first identifies amber as a storage medium for impressions rather than conventional spell matter. Her fascination is useful and dangerous. [s2.1]\n- **Veyra Kest — Goals:** Understand amber's latent magic, earn recognition without a patron, and keep curiosity from becoming the reason the party dies. [s2.2]\n- **Saint Orra Mine — Saint Orra Mine:** The first investigation act ends at an unwilling mine: every independent clue points below, and the man responsible for the workers is more afraid of guild scrutiny than of the visible threat. [s1.2]\n- **Escape Before the Blood Sport:** eligible; priority 100. [s3.1]\n- **Cross the Lower Caverns:** eligible; priority 90. [s4.1]\n- **Replace the Dead Watch:** active; priority 94. [s5.1]\n- **Escape the Wretch Gallery:** eligible; priority 98. [s6.1]\n- **Escape the Cave-In:** eligible; priority 100. [s7.1]\n- **What Is Amber?:** active; priority 97. [s8.1]\n- **Understand the Tree King:** eligible; priority 95. [s9.1]\n- **Enter Saint Orra's Mine:** eligible; priority 82. [s10.1]\n- **Expose the Blackroot Compact:** active; priority 91. [s11.1]\n\n## Writing boundary\n- This margin may contain canonical truth and dramatic irony. Never attribute it to the viewpoint character unless the character packet independently supplies that knowledge.\n- Jorund knows the sealed drift breached a living vein but has not confessed it. [s1.3]\n- The party is at the threshold of the mine; the cave-in has not yet occurred. [s1.4]\n\n## Provenance\n- [s1] `scene_0XW14MHXGV4DY4GGDCV4FDQPBX` — 1 author-frame; 2 Saint Orra Mine; 3 constraint:0; 4 constraint:1\n- [s2] `char_48QC9B4M2RFVXJKSDFMRGJWG8Y` — 1 Author notes; 2 Goals\n- [s3] `sp_036KDER9FKFVCH734QS3QS34TC` — 1 story-point-state\n- [s4] `sp_05AYKKC34KZ155A2YBVTZJF4VN` — 1 story-point-state\n- [s5] `sp_0KBNVM3A3AVCG4Z88ETRQM1K78` — 1 story-point-state\n- [s6] `sp_35EY7W2N8WH1PG0S9F367HZT4X` — 1 story-point-state\n- [s7] `sp_3J1S28X5AZ261VA09J5RS573EN` — 1 story-point-state\n- [s8] `sp_55RMAMRVV8DYG02ZR84VWME0CR` — 1 story-point-state\n- [s9] `sp_56BDX8H6ZW2K20S7Z9EV5RBRTR` — 1 story-point-state\n- [s10] `sp_5JW98KWBPBPHFYSA7MMC796ZAJ` — 1 story-point-state\n- [s11] `sp_738TMHY3Y8CZK6V7KK1BWXPRZJ` — 1 story-point-state\n",
+  "selection": {
+    "included": 16,
+    "omitted": 2,
+    "budgetCharacters": 7000,
+    "serializedCharacters": 2881
+  }
+}

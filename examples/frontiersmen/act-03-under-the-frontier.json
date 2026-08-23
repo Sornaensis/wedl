@@ -1,0 +1,5887 @@
+{
+  "protocol": "wedl-changeset/v1",
+  "expectedHead": "74768378e7a222292257be1e6780e698a44b7ced",
+  "idempotencyKey": "frontiersmen-act-3-under-the-frontier-v1",
+  "summary": "Investigate the living vein, survive the cave-in, travel two days below, read the Sunken Hall, escape the wretch gallery, and reach the isolated hilltop",
+  "actor": {
+    "kind": "author",
+    "id": "local:frontiersmen-builder"
+  },
+  "operations": [
+    {
+      "type": "conversation.turn.append",
+      "conversationId": "conv_33YJSY1GRTYH06S8JD2Q6TKWJ1",
+      "turn": {
+        "id": "turn_2C9QDY8B0R96YVQYH3XEEJ4DKD",
+        "at": {
+          "timeline": "main",
+          "tick": 82,
+          "order": 20
+        },
+        "speaker": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+        "text": "Open the drift or tell us what happened inside it.",
+        "audience": [
+          "participants"
+        ],
+        "delivery": "controlled"
+      }
+    },
+    {
+      "type": "conversation.turn.append",
+      "conversationId": "conv_33YJSY1GRTYH06S8JD2Q6TKWJ1",
+      "turn": {
+        "id": "turn_6A44QYJ5Q8N0EEJPDTS9CGRP5T",
+        "at": {
+          "timeline": "main",
+          "tick": 82,
+          "order": 30
+        },
+        "speaker": "char_0R5AN25NJFB2GFQPC96JK85SH4",
+        "text": "We followed a new seam through black rootstone. Three cutters said the wall was warm. Then the tally bell rang from underground.",
+        "audience": [
+          "participants"
+        ],
+        "delivery": "defeated"
+      }
+    },
+    {
+      "type": "conversation.turn.append",
+      "conversationId": "conv_33YJSY1GRTYH06S8JD2Q6TKWJ1",
+      "turn": {
+        "id": "turn_0CZXQX7C9GJ65JDRCNKGY5ZN9E",
+        "at": {
+          "timeline": "main",
+          "tick": 82,
+          "order": 40
+        },
+        "speaker": "char_6B6FGKREZM4RAECD6ZSFQXX74B",
+        "text": "You cut a membrane after I marked it sleeping.",
+        "audience": [
+          "participants"
+        ],
+        "delivery": "furious"
+      }
+    },
+    {
+      "type": "conversation.turn.append",
+      "conversationId": "conv_33YJSY1GRTYH06S8JD2Q6TKWJ1",
+      "turn": {
+        "id": "turn_7YBDPXB69W2QNTDG28M3F3Y14F",
+        "at": {
+          "timeline": "main",
+          "tick": 82,
+          "order": 50
+        },
+        "speaker": "char_0R5AN25NJFB2GFQPC96JK85SH4",
+        "text": "I marked it unproductive. The guild collector marked it overdue.",
+        "audience": [
+          "participants"
+        ],
+        "delivery": "bitter"
+      }
+    },
+    {
+      "type": "conversation.turn.append",
+      "conversationId": "conv_33YJSY1GRTYH06S8JD2Q6TKWJ1",
+      "turn": {
+        "id": "turn_24A7C2M30VWCD14RN711EDVGAQ",
+        "at": {
+          "timeline": "main",
+          "tick": 83,
+          "order": 0
+        },
+        "speaker": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+        "text": "Are miners still below?",
+        "audience": [
+          "participants"
+        ],
+        "delivery": "urgent"
+      }
+    },
+    {
+      "type": "conversation.turn.append",
+      "conversationId": "conv_33YJSY1GRTYH06S8JD2Q6TKWJ1",
+      "turn": {
+        "id": "turn_17N1RQMQ6ZJ611FH7Z884E4R7B",
+        "at": {
+          "timeline": "main",
+          "tick": 83,
+          "order": 10
+        },
+        "speaker": "char_0R5AN25NJFB2GFQPC96JK85SH4",
+        "text": "One pump tender never came out. The others refuse to go past the green lamp line.",
+        "audience": [
+          "participants"
+        ],
+        "delivery": "quiet"
+      }
+    },
+    {
+      "type": "conversation.turn.append",
+      "conversationId": "conv_33YJSY1GRTYH06S8JD2Q6TKWJ1",
+      "turn": {
+        "id": "turn_4E6K4AHYGB9190JM5ABTRG5EJH",
+        "at": {
+          "timeline": "main",
+          "tick": 83,
+          "order": 20
+        },
+        "speaker": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+        "text": "The line is green here in daylight.",
+        "audience": [
+          "participants"
+        ],
+        "delivery": "observant"
+      }
+    },
+    {
+      "type": "conversation.turn.append",
+      "conversationId": "conv_33YJSY1GRTYH06S8JD2Q6TKWJ1",
+      "turn": {
+        "id": "turn_5FS5YBKR5YE521CAZMJHBTBRMD",
+        "at": {
+          "timeline": "main",
+          "tick": 83,
+          "order": 30
+        },
+        "speaker": "char_0R5AN25NJFB2GFQPC96JK85SH4",
+        "text": "That is why I am not opening the gate.",
+        "audience": [
+          "participants"
+        ],
+        "delivery": "flat"
+      }
+    },
+    {
+      "type": "conversation.turn.append",
+      "conversationId": "conv_33YJSY1GRTYH06S8JD2Q6TKWJ1",
+      "turn": {
+        "id": "turn_798BYE716427RMRWGJ40T3EPZ2",
+        "at": {
+          "timeline": "main",
+          "tick": 84,
+          "order": 0
+        },
+        "speaker": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+        "text": "The gate bolt was drawn this morning. Someone opened it already.",
+        "audience": [
+          "participants"
+        ],
+        "delivery": "technical"
+      }
+    },
+    {
+      "type": "conversation.turn.append",
+      "conversationId": "conv_33YJSY1GRTYH06S8JD2Q6TKWJ1",
+      "turn": {
+        "id": "turn_37AMZP2KYE6CN6R72EBY5KDFMX",
+        "at": {
+          "timeline": "main",
+          "tick": 84,
+          "order": 10
+        },
+        "speaker": "char_0R5AN25NJFB2GFQPC96JK85SH4",
+        "text": "Then we are finished arguing.",
+        "audience": [
+          "participants"
+        ],
+        "delivery": "afraid"
+      }
+    },
+    {
+      "type": "conversation.turn.append",
+      "conversationId": "conv_33YJSY1GRTYH06S8JD2Q6TKWJ1",
+      "turn": {
+        "id": "turn_6S9SRZJ63XWF7XSEMAA122EEA2",
+        "at": {
+          "timeline": "main",
+          "tick": 84,
+          "order": 20
+        },
+        "speaker": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+        "text": "No. We are finished pretending the danger is behind the gate.",
+        "audience": [
+          "participants"
+        ],
+        "delivery": "quiet"
+      }
+    },
+    {
+      "type": "conversation.turn.append",
+      "conversationId": "conv_33YJSY1GRTYH06S8JD2Q6TKWJ1",
+      "turn": {
+        "id": "turn_5AR6J90NV8XQX9P671HGE7PRBN",
+        "at": {
+          "timeline": "main",
+          "tick": 84,
+          "order": 30
+        },
+        "speaker": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+        "text": "You lead us to the green line. Tillo stays above and rings three times if the fork turns away.",
+        "audience": [
+          "participants"
+        ],
+        "delivery": "command"
+      }
+    },
+    {
+      "type": "entity.update",
+      "entityId": "conv_33YJSY1GRTYH06S8JD2Q6TKWJ1",
+      "frontmatterPatch": {
+        "status": "closed",
+        "time": {
+          "start": {
+            "timeline": "main",
+            "tick": 81,
+            "order": 0
+          },
+          "end": {
+            "timeline": "main",
+            "tick": 84,
+            "order": 30
+          }
+        }
+      }
+    },
+    {
+      "type": "conversation.recollection.record",
+      "conversationId": "conv_33YJSY1GRTYH06S8JD2Q6TKWJ1",
+      "temporaryId": "$tmp.recollection.jorund-act3-0",
+      "recollection": {
+        "character": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+        "at": {
+          "timeline": "main",
+          "tick": 85,
+          "order": 0
+        },
+        "state": "remembered",
+        "summary": "Jorund breached a warm seam under production pressure, lost a pump tender, and discovered the sealed gate had been opened again.",
+        "interpretation": "The mine foreman concealed danger to protect workers and output at the same time; he is culpable but necessary.",
+        "emotional_impression": "contained anger",
+        "confidence": 0.91,
+        "exact_turns": [
+          "turn_6A44QYJ5Q8N0EEJPDTS9CGRP5T",
+          "turn_37AMZP2KYE6CN6R72EBY5KDFMX"
+        ],
+        "remembered_quotes": []
+      }
+    },
+    {
+      "type": "conversation.recollection.record",
+      "conversationId": "conv_33YJSY1GRTYH06S8JD2Q6TKWJ1",
+      "temporaryId": "$tmp.recollection.jorund-act3-1",
+      "recollection": {
+        "character": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+        "at": {
+          "timeline": "main",
+          "tick": 85,
+          "order": 1
+        },
+        "state": "remembered",
+        "summary": "Animals avoid the spoil boundary and someone reopened the dangerous drift after Jorund sealed it.",
+        "interpretation": "The threat is already moving independently of the mine's formal gates.",
+        "emotional_impression": "predatory focus",
+        "confidence": 0.9,
+        "exact_turns": [
+          "turn_37AMZP2KYE6CN6R72EBY5KDFMX",
+          "turn_6S9SRZJ63XWF7XSEMAA122EEA2"
+        ],
+        "remembered_quotes": []
+      }
+    },
+    {
+      "type": "conversation.recollection.record",
+      "conversationId": "conv_33YJSY1GRTYH06S8JD2Q6TKWJ1",
+      "temporaryId": "$tmp.recollection.jorund-act3-2",
+      "recollection": {
+        "character": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+        "at": {
+          "timeline": "main",
+          "tick": 85,
+          "order": 2
+        },
+        "state": "remembered",
+        "summary": "A pump tender remains missing below a warm seam while miners refuse to cross the lamp's green line.",
+        "interpretation": "Rescue is still possible and gives moral weight to entering despite the risk.",
+        "emotional_impression": "urgent compassion",
+        "confidence": 0.84,
+        "exact_turns": [
+          "turn_24A7C2M30VWCD14RN711EDVGAQ",
+          "turn_17N1RQMQ6ZJ611FH7Z884E4R7B"
+        ],
+        "remembered_quotes": []
+      }
+    },
+    {
+      "type": "conversation.recollection.record",
+      "conversationId": "conv_33YJSY1GRTYH06S8JD2Q6TKWJ1",
+      "temporaryId": "$tmp.recollection.jorund-act3-3",
+      "recollection": {
+        "character": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+        "at": {
+          "timeline": "main",
+          "tick": 85,
+          "order": 3
+        },
+        "state": "remembered",
+        "summary": "The lamp reacts at the yard and the warm seam lies through black rootstone rather than ordinary ore.",
+        "interpretation": "The mine has intersected a larger active structure rather than an isolated amber pocket.",
+        "emotional_impression": "awe restrained by fear",
+        "confidence": 0.88,
+        "exact_turns": [
+          "turn_6A44QYJ5Q8N0EEJPDTS9CGRP5T",
+          "turn_4E6K4AHYGB9190JM5ABTRG5EJH"
+        ],
+        "remembered_quotes": []
+      }
+    },
+    {
+      "type": "conversation.recollection.record",
+      "conversationId": "conv_33YJSY1GRTYH06S8JD2Q6TKWJ1",
+      "temporaryId": "$tmp.recollection.jorund-act3-4",
+      "recollection": {
+        "character": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+        "at": {
+          "timeline": "main",
+          "tick": 85,
+          "order": 4
+        },
+        "state": "remembered",
+        "summary": "The sealed gate's bolt was operated recently despite Jorund's refusal to reopen it.",
+        "interpretation": "Someone inside or outside the crew is maintaining access to the concealed drift.",
+        "emotional_impression": "suspicious concentration",
+        "confidence": 0.94,
+        "exact_turns": [
+          "turn_798BYE716427RMRWGJ40T3EPZ2",
+          "turn_37AMZP2KYE6CN6R72EBY5KDFMX"
+        ],
+        "remembered_quotes": []
+      }
+    },
+    {
+      "type": "conversation.recollection.record",
+      "conversationId": "conv_33YJSY1GRTYH06S8JD2Q6TKWJ1",
+      "temporaryId": "$tmp.recollection.jorund-act3-5",
+      "recollection": {
+        "character": "char_0R5AN25NJFB2GFQPC96JK85SH4",
+        "at": {
+          "timeline": "main",
+          "tick": 85,
+          "order": 5
+        },
+        "state": "remembered",
+        "summary": "The guild hunters found every omission and mechanical contradiction before entering the drift.",
+        "interpretation": "If they die, his concealment will be harder to excuse than the original breach.",
+        "emotional_impression": "shame and dread",
+        "confidence": 0.86,
+        "exact_turns": [
+          "turn_2C9QDY8B0R96YVQYH3XEEJ4DKD",
+          "turn_5AR6J90NV8XQX9P671HGE7PRBN"
+        ],
+        "remembered_quotes": []
+      }
+    },
+    {
+      "type": "conversation.recollection.record",
+      "conversationId": "conv_33YJSY1GRTYH06S8JD2Q6TKWJ1",
+      "temporaryId": "$tmp.recollection.jorund-act3-6",
+      "recollection": {
+        "character": "char_6B6FGKREZM4RAECD6ZSFQXX74B",
+        "at": {
+          "timeline": "main",
+          "tick": 85,
+          "order": 6
+        },
+        "state": "remembered",
+        "summary": "Jorund cut a membrane the dowser had marked sleeping because the guild collection was overdue.",
+        "interpretation": "The Blackroot handling rules failed because production pressure rewards violating them.",
+        "emotional_impression": "old guilt renewed",
+        "confidence": 0.97,
+        "exact_turns": [
+          "turn_0CZXQX7C9GJ65JDRCNKGY5ZN9E",
+          "turn_7YBDPXB69W2QNTDG28M3F3Y14F"
+        ],
+        "remembered_quotes": []
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "scene",
+          "id": "scene_0XW14MHXGV4DY4GGDCV4FDQPBX",
+          "title": "Saint Orra Mine",
+          "domain": "scenes.frontiersmen",
+          "status": "closed",
+          "tags": [
+            "mine",
+            "closed"
+          ],
+          "aliases": [],
+          "time": {
+            "start": {
+              "timeline": "main",
+              "tick": 80,
+              "order": 0
+            },
+            "current": {
+              "timeline": "main",
+              "tick": 85,
+              "order": 0
+            },
+            "end": {
+              "timeline": "main",
+              "tick": 85,
+              "order": 0
+            }
+          },
+          "location": "loc_3KMRW36Y06YVVEX31FZACMYEA6",
+          "participants": [
+            {
+              "character": "char_0R5AN25NJFB2GFQPC96JK85SH4",
+              "role": "foreman",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 80,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 85,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_6B6FGKREZM4RAECD6ZSFQXX74B",
+              "role": "dowser",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 80,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 85,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+              "role": "guild-hunter",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 80,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 85,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+              "role": "guild-hunter",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 80,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 85,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+              "role": "guild-hunter",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 80,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 85,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+              "role": "guild-hunter",
+              "point_of_view": true,
+              "from": {
+                "timeline": "main",
+                "tick": 80,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 85,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+              "role": "guild-hunter",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 80,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 85,
+                "order": 0
+              }
+            }
+          ],
+          "objects": [
+            "obj_6B7S0AKDAJYX96PJK5SRAB9QCN",
+            "obj_3A7X1D9JBR82WX8DBB287ZABR1",
+            "obj_2ZQC95HXYHSZX9HMPFE2T5JMV1",
+            "obj_6EBRZF2P79J47HXEJWP7CDDFA1",
+            "obj_6B725P2CXQSC90HH4H24K0C5X2",
+            "obj_1PWCXKVPT3RS8MK7TDHQ9QN4FH",
+            "obj_5KH5J0ZACS5W06DMT772D119QS",
+            "obj_1SZQK22K4XSNC0XTZX1Z0T7R5N",
+            "obj_3W8SFAP29CDCV2M3X9XMYTDXY8"
+          ],
+          "environments": [
+            "env_540JHNME3MCKMYDV50RBDQ414F"
+          ],
+          "story_points": [
+            "sp_5Q8BN1G91QHYSCRSDSF9QWDK09",
+            "sp_5JW98KWBPBPHFYSA7MMC796ZAJ",
+            "sp_55RMAMRVV8DYG02ZR84VWME0CR"
+          ],
+          "observations": [
+            {
+              "id": "obs_5NPRCSX1EWKY93D1K191D4PR66",
+              "at": {
+                "timeline": "main",
+                "tick": 80,
+                "order": 20
+              },
+              "audience": [
+                "char_0NQKTG3NQZFSVFKXS901NJD82E"
+              ],
+              "salience": 1.0,
+              "text": "No bird, hare, or insect crosses the boundary between spruce litter and amber spoil."
+            },
+            {
+              "id": "obs_73805B2WZH6N84H1KFA35J8BDM",
+              "at": {
+                "timeline": "main",
+                "tick": 81,
+                "order": 25
+              },
+              "audience": [
+                "char_48QC9B4M2RFVXJKSDFMRGJWG8Y"
+              ],
+              "salience": 1.0,
+              "text": "The omitted drifts on Jorund's tally correspond to the two places where the ground presses against her teeth."
+            },
+            {
+              "id": "obs_7HTK1WX3DRZZBG5RVJ7XQE1Q6V",
+              "at": {
+                "timeline": "main",
+                "tick": 81,
+                "order": 35
+              },
+              "audience": [
+                "char_1W0GNKETQY2HF88YHM7CWVFH7C"
+              ],
+              "salience": 1.0,
+              "text": "Fresh knife cuts have removed two drift totals from the official tally board."
+            },
+            {
+              "id": "obs_7FRSNT5B1S6TEDW4TRQB98QAT4",
+              "at": {
+                "timeline": "main",
+                "tick": 82,
+                "order": 5
+              },
+              "audience": [
+                "char_671MWM7KTP4DCVVP8EP6SFRJVP"
+              ],
+              "salience": 1.0,
+              "text": "The Saint Orra lamp changes from yellow to green whenever Jorund points it toward the sealed drift."
+            },
+            {
+              "id": "obs_0NTZCPZV67PCBVK0VMMB1F5T8X",
+              "at": {
+                "timeline": "main",
+                "tick": 84,
+                "order": 0
+              },
+              "audience": [
+                "char_36X0KBYZ7MQGKM070H5NF12BK8"
+              ],
+              "salience": 1.0,
+              "text": "Jorund keeps his lower-drift map inside his coat and one hand on the drift bell rope."
+            },
+            {
+              "id": "obs_5DEZP31V37FBN68635GBEGTCSC",
+              "at": {
+                "timeline": "main",
+                "tick": 84,
+                "order": 0
+              },
+              "audience": [
+                "char_1W0GNKETQY2HF88YHM7CWVFH7C"
+              ],
+              "salience": 1.0,
+              "text": "Fresh graphite on the gate bolt shows it was drawn after Jorund claims to have sealed it."
+            }
+          ],
+          "author_constraints": [
+            "Jorund still does not know the Blackroot Compact.",
+            "The party enters for rescue and investigation, not because they understand amber."
+          ],
+          "conversations": [
+            "conv_33YJSY1GRTYH06S8JD2Q6TKWJ1"
+          ]
+        },
+        "bodyMarkdown": "# Saint Orra Mine\n\nThe mine negotiation strips away the last procedural excuse. A worker may remain below, the sealed gate has been used, and every instrument points into the omitted drift.\n"
+      }
+    },
+    {
+      "type": "event.create",
+      "id": "event_15JS2KMNQS88FY8GAYXBV1MBPA",
+      "title": "The Frontiersmen Enter Saint Orra's Sealed Drift",
+      "domain": "plot.frontiersmen",
+      "status": "canonical",
+      "tags": [
+        "mine",
+        "descent"
+      ],
+      "time": {
+        "timeline": "main",
+        "tick": 86,
+        "order": 0
+      },
+      "location": "loc_7KN02KPDDDRRZGQ67SEXG1930G",
+      "participants": [
+        {
+          "character": "char_0R5AN25NJFB2GFQPC96JK85SH4",
+          "role": "guide"
+        },
+        {
+          "character": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "role": "guild-hunter"
+        },
+        {
+          "character": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+          "role": "guild-hunter"
+        },
+        {
+          "character": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+          "role": "guild-hunter"
+        },
+        {
+          "character": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "role": "guild-hunter"
+        },
+        {
+          "character": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "role": "guild-hunter"
+        }
+      ],
+      "causes": [
+        "event_71BDWMBEY0J1HM0BNVH3EMNPPX"
+      ],
+      "relatedStoryPoints": [
+        "sp_5JW98KWBPBPHFYSA7MMC796ZAJ",
+        "sp_3J1S28X5AZ261VA09J5RS573EN"
+      ],
+      "effects": [
+        {
+          "id": "effect_5HA8RGKPQJTEYBVF0DYV5PE94T",
+          "target": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_7KN02KPDDDRRZGQ67SEXG1930G"
+          }
+        },
+        {
+          "id": "effect_2WWQMEE2JA1V7HP0WVFM073CKB",
+          "target": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "key": "condition",
+          "operation": "set",
+          "value": "inside-sealed-drift"
+        },
+        {
+          "id": "effect_0NW9TK2CFEBP1K0J7K09BXRBCV",
+          "target": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_7KN02KPDDDRRZGQ67SEXG1930G"
+          }
+        },
+        {
+          "id": "effect_1NVDDF2NNH1V65Q4KY41M92ZBF",
+          "target": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+          "key": "condition",
+          "operation": "set",
+          "value": "inside-sealed-drift"
+        },
+        {
+          "id": "effect_4RRBA69HAG7FC47QP2D39C9CYC",
+          "target": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_7KN02KPDDDRRZGQ67SEXG1930G"
+          }
+        },
+        {
+          "id": "effect_5XJ305WWSDWW8CNWBKW70CXJWJ",
+          "target": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+          "key": "condition",
+          "operation": "set",
+          "value": "inside-sealed-drift"
+        },
+        {
+          "id": "effect_7BXMMA01D2XJ4SPJQMFV34QJYB",
+          "target": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_7KN02KPDDDRRZGQ67SEXG1930G"
+          }
+        },
+        {
+          "id": "effect_21J5D64DSYQP5BADP9ZG3DBQFQ",
+          "target": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "key": "condition",
+          "operation": "set",
+          "value": "inside-sealed-drift"
+        },
+        {
+          "id": "effect_4EFB73C208G0YSY5PV58MDFRC1",
+          "target": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_7KN02KPDDDRRZGQ67SEXG1930G"
+          }
+        },
+        {
+          "id": "effect_6WEC3SE963HYYYSGZY5B6RFANP",
+          "target": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "key": "condition",
+          "operation": "set",
+          "value": "inside-sealed-drift"
+        },
+        {
+          "id": "effect_69KAVPFHCBN7G86RMK37E9QMFD",
+          "target": "char_0R5AN25NJFB2GFQPC96JK85SH4",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_7KN02KPDDDRRZGQ67SEXG1930G"
+          }
+        }
+      ],
+      "bodyMarkdown": "# The Frontiersmen Enter Saint Orra's Sealed Drift\n\nJorund opens the drift and guides the company past abandoned cutting stations. Amber seams brighten behind black rootstone whenever the party speaks, as if sound is arriving before them.\n"
+    },
+    {
+      "type": "event.create",
+      "id": "event_5ZJAAR5TR2YG832NSRE7NN5HHX",
+      "title": "The Living Amber Vein Answers the Party",
+      "domain": "plot.frontiersmen",
+      "status": "canonical",
+      "tags": [
+        "amber",
+        "living-vein"
+      ],
+      "time": {
+        "timeline": "main",
+        "tick": 88,
+        "order": 20
+      },
+      "location": "loc_6SM417B3987VQBJ7FH5SZZY5SW",
+      "participants": [
+        {
+          "character": "char_0R5AN25NJFB2GFQPC96JK85SH4",
+          "role": "guide"
+        },
+        {
+          "character": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "role": "observer"
+        },
+        {
+          "character": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+          "role": "warder"
+        },
+        {
+          "character": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "role": "witness"
+        },
+        {
+          "character": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+          "role": "witness"
+        },
+        {
+          "character": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+          "role": "witness"
+        },
+        {
+          "character": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "role": "witness"
+        },
+        {
+          "character": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "role": "witness"
+        }
+      ],
+      "causes": [
+        "event_15JS2KMNQS88FY8GAYXBV1MBPA"
+      ],
+      "relatedStoryPoints": [
+        "sp_55RMAMRVV8DYG02ZR84VWME0CR",
+        "sp_3J1S28X5AZ261VA09J5RS573EN"
+      ],
+      "effects": [
+        {
+          "id": "effect_6C6RCTNVTJDDJ286XQZDAB5JDK",
+          "target": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_6SM417B3987VQBJ7FH5SZZY5SW"
+          }
+        },
+        {
+          "id": "effect_2EFENA4VCNRT0KFBN4X4NZW8ZF",
+          "target": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "key": "condition",
+          "operation": "set",
+          "value": "before-living-vein"
+        },
+        {
+          "id": "effect_6QQKKQ0JAYAZ74PFNGQDRYMYGH",
+          "target": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_6SM417B3987VQBJ7FH5SZZY5SW"
+          }
+        },
+        {
+          "id": "effect_0XV46GX0FG6BZW69JFFWGE233J",
+          "target": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+          "key": "condition",
+          "operation": "set",
+          "value": "before-living-vein"
+        },
+        {
+          "id": "effect_41KKSM4N56Q3NYA88ZQ3QB2VW6",
+          "target": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_6SM417B3987VQBJ7FH5SZZY5SW"
+          }
+        },
+        {
+          "id": "effect_2G2YPYR2N1Q2NV130ZPF7MW6PN",
+          "target": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+          "key": "condition",
+          "operation": "set",
+          "value": "before-living-vein"
+        },
+        {
+          "id": "effect_1HPW61WYNCDEBS5GS1FAPYPWTN",
+          "target": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_6SM417B3987VQBJ7FH5SZZY5SW"
+          }
+        },
+        {
+          "id": "effect_52HYHKSMJ40WW84H0KV47TVH30",
+          "target": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "key": "condition",
+          "operation": "set",
+          "value": "before-living-vein"
+        },
+        {
+          "id": "effect_4EFJZZC29CMKP4FAFZGC34WY2D",
+          "target": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_6SM417B3987VQBJ7FH5SZZY5SW"
+          }
+        },
+        {
+          "id": "effect_0016FXE5ZADM76DBPV0V73MNVF",
+          "target": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "key": "condition",
+          "operation": "set",
+          "value": "before-living-vein"
+        },
+        {
+          "id": "effect_3YTRM39BTPSB6HBSRRGXDZ3XHV",
+          "target": "char_0R5AN25NJFB2GFQPC96JK85SH4",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_6SM417B3987VQBJ7FH5SZZY5SW"
+          }
+        },
+        {
+          "id": "effect_10W75TDTZYTK384P2FZSMWD49M",
+          "target": "obj_7S5VCP8ZKTAF5K0YVZKQDAMPRD",
+          "key": "condition",
+          "operation": "set",
+          "value": "awake and imitating nearby forms"
+        }
+      ],
+      "bodyMarkdown": "# The Living Amber Vein Answers the Party\n\nThe drift opens onto a membrane of liquid-gold amber threaded between petrified roots. It repeats the party's footfalls a heartbeat late and briefly shows five other silhouettes walking inside it.\n"
+    },
+    {
+      "type": "event.create",
+      "id": "event_2RMVR4KJF2F3P1RFJ5AE24W36K",
+      "title": "A Mine Wretch Phases Out of the Living Vein",
+      "domain": "plot.frontiersmen",
+      "status": "canonical",
+      "tags": [
+        "wretch",
+        "mine"
+      ],
+      "time": {
+        "timeline": "main",
+        "tick": 89,
+        "order": 10
+      },
+      "location": "loc_6SM417B3987VQBJ7FH5SZZY5SW",
+      "participants": [
+        {
+          "character": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "role": "shield"
+        },
+        {
+          "character": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+          "role": "archer"
+        },
+        {
+          "character": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+          "role": "warder"
+        },
+        {
+          "character": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "role": "arcanist"
+        },
+        {
+          "character": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "role": "scout"
+        },
+        {
+          "character": "char_0R5AN25NJFB2GFQPC96JK85SH4",
+          "role": "guide"
+        }
+      ],
+      "causes": [
+        "event_5ZJAAR5TR2YG832NSRE7NN5HHX"
+      ],
+      "relatedStoryPoints": [
+        "sp_3J1S28X5AZ261VA09J5RS573EN",
+        "sp_55RMAMRVV8DYG02ZR84VWME0CR"
+      ],
+      "effects": [
+        {
+          "id": "effect_1M88701TDDBGDZQTG209APKTP5",
+          "target": "char_0R5AN25NJFB2GFQPC96JK85SH4",
+          "key": "condition",
+          "operation": "set",
+          "value": "concussed and bleeding"
+        }
+      ],
+      "bodyMarkdown": "# A Mine Wretch Phases Out of the Living Vein\n\nA long-bodied wretch emerges from the vein wearing the pump tender's lamp face and the claws of a cave bear. It repeats Jorund's orders before he speaks them, striking each place the foreman is about to indicate.\n"
+    },
+    {
+      "type": "event.create",
+      "id": "event_5PE0EKDCDMGT41TT616CBN5F23",
+      "title": "The Saint Orra Drift Collapses",
+      "domain": "plot.frontiersmen",
+      "status": "canonical",
+      "tags": [
+        "cave-in",
+        "disaster"
+      ],
+      "time": {
+        "timeline": "main",
+        "tick": 91,
+        "order": 0
+      },
+      "location": "loc_6SM417B3987VQBJ7FH5SZZY5SW",
+      "participants": [
+        {
+          "character": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "role": "shield"
+        },
+        {
+          "character": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+          "role": "archer"
+        },
+        {
+          "character": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+          "role": "warder"
+        },
+        {
+          "character": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "role": "arcanist"
+        },
+        {
+          "character": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "role": "scout"
+        },
+        {
+          "character": "char_0R5AN25NJFB2GFQPC96JK85SH4",
+          "role": "foreman"
+        }
+      ],
+      "causes": [
+        "event_2RMVR4KJF2F3P1RFJ5AE24W36K"
+      ],
+      "relatedStoryPoints": [
+        "sp_3J1S28X5AZ261VA09J5RS573EN",
+        "sp_05AYKKC34KZ155A2YBVTZJF4VN"
+      ],
+      "effects": [
+        {
+          "id": "effect_3NGKWRPGXKBDW1GYFWP8E1JEMQ",
+          "target": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_4ARPKYS0QXXWJVC98JPPFSD0MG"
+          }
+        },
+        {
+          "id": "effect_57J9XGH5C0TJBWHBHM5WY8KF0F",
+          "target": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "key": "condition",
+          "operation": "set",
+          "value": "trapped underground"
+        },
+        {
+          "id": "effect_7GSGGYQQQQX365N3F0A32HDHJ4",
+          "target": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_4ARPKYS0QXXWJVC98JPPFSD0MG"
+          }
+        },
+        {
+          "id": "effect_62Y5W7QRGZQQFEA5B14YVWB2NE",
+          "target": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+          "key": "condition",
+          "operation": "set",
+          "value": "trapped underground"
+        },
+        {
+          "id": "effect_78W9DJ7AZDRWJA6JVRJXT8T2PQ",
+          "target": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_4ARPKYS0QXXWJVC98JPPFSD0MG"
+          }
+        },
+        {
+          "id": "effect_5ADCQ1732JWETE5SGD3RD5KMPS",
+          "target": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+          "key": "condition",
+          "operation": "set",
+          "value": "trapped underground"
+        },
+        {
+          "id": "effect_3ACDXH2AS32XARGNGY4EHA3ZBV",
+          "target": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_4ARPKYS0QXXWJVC98JPPFSD0MG"
+          }
+        },
+        {
+          "id": "effect_6EZ6297JGP123GV7P9AZCPXQQC",
+          "target": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "key": "condition",
+          "operation": "set",
+          "value": "trapped underground"
+        },
+        {
+          "id": "effect_1VBSTJR10B7NF9TAPK4NVZJ5AT",
+          "target": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_4ARPKYS0QXXWJVC98JPPFSD0MG"
+          }
+        },
+        {
+          "id": "effect_0NVPVHJEKA4N62YW1R033KGQXE",
+          "target": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "key": "condition",
+          "operation": "set",
+          "value": "trapped underground"
+        },
+        {
+          "id": "effect_2AA8DRA5D6V761WSJ4Z0KBF0F9",
+          "target": "char_0R5AN25NJFB2GFQPC96JK85SH4",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_7KN02KPDDDRRZGQ67SEXG1930G"
+          }
+        },
+        {
+          "id": "effect_0YF0NS2RMN1SCX1H9K3GK4TW92",
+          "target": "char_0R5AN25NJFB2GFQPC96JK85SH4",
+          "key": "condition",
+          "operation": "set",
+          "value": "separated behind collapse; fate unknown"
+        },
+        {
+          "id": "effect_48WV68NDHGJXVPG7D3SBQW7JMW",
+          "target": "obj_6EBRZF2P79J47HXEJWP7CDDFA1",
+          "key": "holder",
+          "operation": "clear"
+        },
+        {
+          "id": "effect_2P7BPX28GPC484XZC3YVZ55TCR",
+          "target": "obj_6EBRZF2P79J47HXEJWP7CDDFA1",
+          "key": "holder",
+          "operation": "set",
+          "value": {
+            "entity": "char_1W0GNKETQY2HF88YHM7CWVFH7C"
+          }
+        },
+        {
+          "id": "effect_2GRH9QGGQY07ZRVVQ9Z3CSMZ26",
+          "target": "obj_3A7X1D9JBR82WX8DBB287ZABR1",
+          "key": "holder",
+          "operation": "clear"
+        },
+        {
+          "id": "effect_0MFDZ3309T3H3H6RG1X2P059M6",
+          "target": "obj_3A7X1D9JBR82WX8DBB287ZABR1",
+          "key": "holder",
+          "operation": "set",
+          "value": {
+            "entity": "char_671MWM7KTP4DCVVP8EP6SFRJVP"
+          }
+        },
+        {
+          "id": "effect_4ZG7J0XDT02FTWFQKFHKPQ1AHE",
+          "target": "obj_7S5VCP8ZKTAF5K0YVZKQDAMPRD",
+          "key": "condition",
+          "operation": "set",
+          "value": "contracted behind collapse"
+        }
+      ],
+      "bodyMarkdown": "# The Saint Orra Drift Collapses\n\nVeyra scorches the membrane to force the wretch solid. The living vein contracts through the rootstone, snapping old support timbers in sequence. Jorund throws his map and mine lamp across the fracture before the roof comes down between him and the party.\n"
+    },
+    {
+      "type": "event.create",
+      "id": "event_6VP6S3PQBFXQ9EXRCM0J6X3E42",
+      "title": "Jorund Is Lost Behind the Collapse",
+      "domain": "plot.frontiersmen",
+      "status": "canonical",
+      "tags": [
+        "separation",
+        "mine"
+      ],
+      "time": {
+        "timeline": "main",
+        "tick": 91,
+        "order": 10
+      },
+      "location": "loc_4ARPKYS0QXXWJVC98JPPFSD0MG",
+      "participants": [
+        {
+          "character": "char_0R5AN25NJFB2GFQPC96JK85SH4",
+          "role": "separated-foreman"
+        },
+        {
+          "character": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "role": "trapped-hunter"
+        },
+        {
+          "character": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+          "role": "trapped-hunter"
+        },
+        {
+          "character": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+          "role": "trapped-hunter"
+        },
+        {
+          "character": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "role": "trapped-hunter"
+        },
+        {
+          "character": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "role": "trapped-hunter"
+        }
+      ],
+      "causes": [
+        "event_5PE0EKDCDMGT41TT616CBN5F23"
+      ],
+      "relatedStoryPoints": [
+        "sp_3J1S28X5AZ261VA09J5RS573EN"
+      ],
+      "effects": [],
+      "bodyMarkdown": "# Jorund Is Lost Behind the Collapse\n\nThe party hears Jorund strike the far side of the rock three times, then one final blow farther away. No voice follows. The main drift and surface bell rope are buried.\n"
+    },
+    {
+      "type": "conversation.create",
+      "id": "conv_250WR2DH6P3A0C947X961FV3ZS",
+      "value": {
+        "title": "After the Cave-In",
+        "domain": "conversations.frontiersmen",
+        "status": "closed",
+        "tags": [
+          "cave-in",
+          "survival",
+          "jorund"
+        ],
+        "aliases": [],
+        "time": {
+          "start": {
+            "timeline": "main",
+            "tick": 92,
+            "order": 0
+          },
+          "end": {
+            "timeline": "main",
+            "tick": 94,
+            "order": 40
+          }
+        },
+        "scene": "scene_2QWP21CR4YC5VS0JFV0Y2QDMKM",
+        "location": "loc_4ARPKYS0QXXWJVC98JPPFSD0MG",
+        "participants": [
+          {
+            "character": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+            "role": "trapped-hunter",
+            "point_of_view": false,
+            "from": {
+              "timeline": "main",
+              "tick": 92,
+              "order": 0
+            },
+            "to": {
+              "timeline": "main",
+              "tick": 94,
+              "order": 40
+            }
+          },
+          {
+            "character": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+            "role": "trapped-hunter",
+            "point_of_view": false,
+            "from": {
+              "timeline": "main",
+              "tick": 92,
+              "order": 0
+            },
+            "to": {
+              "timeline": "main",
+              "tick": 94,
+              "order": 40
+            }
+          },
+          {
+            "character": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+            "role": "trapped-hunter",
+            "point_of_view": false,
+            "from": {
+              "timeline": "main",
+              "tick": 92,
+              "order": 0
+            },
+            "to": {
+              "timeline": "main",
+              "tick": 94,
+              "order": 40
+            }
+          },
+          {
+            "character": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+            "role": "trapped-hunter",
+            "point_of_view": false,
+            "from": {
+              "timeline": "main",
+              "tick": 92,
+              "order": 0
+            },
+            "to": {
+              "timeline": "main",
+              "tick": 94,
+              "order": 40
+            }
+          },
+          {
+            "character": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+            "role": "trapped-hunter",
+            "point_of_view": false,
+            "from": {
+              "timeline": "main",
+              "tick": 92,
+              "order": 0
+            },
+            "to": {
+              "timeline": "main",
+              "tick": 94,
+              "order": 40
+            }
+          }
+        ],
+        "topics": [
+          "cave-in",
+          "survival",
+          "jorund"
+        ],
+        "turns": [
+          {
+            "id": "turn_7968954YVAGG0C6FC5YA06TV39",
+            "at": {
+              "timeline": "main",
+              "tick": 92,
+              "order": 0
+            },
+            "speaker": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+            "text": "Names and injuries. Quickly.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "command"
+          },
+          {
+            "id": "turn_2NHZ299Z5MPXCQXRSKB7BK7MD9",
+            "at": {
+              "timeline": "main",
+              "tick": 92,
+              "order": 10
+            },
+            "speaker": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+            "text": "Sylvi. Shoulder cut. Air is moving from below us.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "controlled"
+          },
+          {
+            "id": "turn_78SJKJKREEP24G8PCZM1ZEBDJT",
+            "at": {
+              "timeline": "main",
+              "tick": 92,
+              "order": 20
+            },
+            "speaker": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+            "text": "Garran. Old frost wound, new bruising. The lamp survived.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "steady"
+          },
+          {
+            "id": "turn_3YMJC533R84WZJESWW55FYNGXQ",
+            "at": {
+              "timeline": "main",
+              "tick": 92,
+              "order": 30
+            },
+            "speaker": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+            "text": "Veyra. Hearing the vein through the stone. I would prefer not to.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "rapid"
+          },
+          {
+            "id": "turn_1YD0X1CGYTWM90VPBE9FZBMZG2",
+            "at": {
+              "timeline": "main",
+              "tick": 92,
+              "order": 40
+            },
+            "speaker": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+            "text": "Pip. Uninjured in all morally significant ways. I have Jorund's map.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "breathless"
+          },
+          {
+            "id": "turn_0GQ4X9V4Y1XM8YTGR7E6494PTE",
+            "at": {
+              "timeline": "main",
+              "tick": 92,
+              "order": 50
+            },
+            "speaker": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+            "text": "Jorund?",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "loud"
+          },
+          {
+            "id": "turn_3M48QXTFFC14MD0RJQ1GW8AWW7",
+            "at": {
+              "timeline": "main",
+              "tick": 93,
+              "order": 0
+            },
+            "speaker": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+            "text": "Three strikes. Then one moving away. Nothing now.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "quiet"
+          },
+          {
+            "id": "turn_3K75T907SAR4CYANYSW1ZM25WJ",
+            "at": {
+              "timeline": "main",
+              "tick": 93,
+              "order": 10
+            },
+            "speaker": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+            "text": "We dig until the air fails or he answers.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "firm"
+          },
+          {
+            "id": "turn_1QH9J9DXAD4TTAF95J3YYXZZ3R",
+            "at": {
+              "timeline": "main",
+              "tick": 94,
+              "order": 0
+            },
+            "speaker": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+            "text": "The dust is settling toward the lower fissure. The surface side has no breath.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "certain"
+          },
+          {
+            "id": "turn_3K8C0YQM0SJ7YEBW6P9QDJ0HHA",
+            "at": {
+              "timeline": "main",
+              "tick": 94,
+              "order": 10
+            },
+            "speaker": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+            "text": "The map ends at OLD WATER beneath us. There are older passages beyond the mine work.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "focused"
+          },
+          {
+            "id": "turn_52CEY0AE5A3S4ZAFVZGCG092Q0",
+            "at": {
+              "timeline": "main",
+              "tick": 94,
+              "order": 20
+            },
+            "speaker": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+            "text": "We mark this chamber, take the lower air, and return for Jorund from outside.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "decisive"
+          },
+          {
+            "id": "turn_0F91QXK0HC85F1CVWWSA5DJKMD",
+            "at": {
+              "timeline": "main",
+              "tick": 94,
+              "order": 30
+            },
+            "speaker": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+            "text": "Say it as a promise, not a plan.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "low"
+          },
+          {
+            "id": "turn_362EV0S5EHJMFV90F1WJNH3HNC",
+            "at": {
+              "timeline": "main",
+              "tick": 94,
+              "order": 40
+            },
+            "speaker": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+            "text": "We come back for him.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "formal"
+          }
+        ],
+        "recollections": [],
+        "bodyMarkdown": "# After the Cave-In\n\nThe party inventories itself, attempts to hear Jorund, and makes the consequential decision to follow lower airflow rather than die digging toward a sealed surface.\n\nThe turn list is canonical verbatim provenance. Character recollections are stored separately and may disagree.\n"
+      }
+    },
+    {
+      "type": "event.create",
+      "id": "event_0PPHBSJACDHS2BDKJE1ZYEP02J",
+      "title": "The Frontiersmen Choose the Lower Air",
+      "domain": "plot.frontiersmen",
+      "status": "canonical",
+      "tags": [
+        "survival",
+        "caverns"
+      ],
+      "time": {
+        "timeline": "main",
+        "tick": 101,
+        "order": 0
+      },
+      "location": "loc_4ARPKYS0QXXWJVC98JPPFSD0MG",
+      "participants": [
+        {
+          "character": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "role": "leader"
+        },
+        {
+          "character": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+          "role": "air-finder"
+        },
+        {
+          "character": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+          "role": "healer"
+        },
+        {
+          "character": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "role": "reader"
+        },
+        {
+          "character": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "role": "mapper"
+        }
+      ],
+      "causes": [
+        "event_5PE0EKDCDMGT41TT616CBN5F23",
+        "event_6VP6S3PQBFXQ9EXRCM0J6X3E42"
+      ],
+      "relatedStoryPoints": [
+        "sp_3J1S28X5AZ261VA09J5RS573EN",
+        "sp_05AYKKC34KZ155A2YBVTZJF4VN"
+      ],
+      "effects": [
+        {
+          "id": "effect_5QARZ5C17M997EJ3VTJA28PSY5",
+          "target": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_50VY90Q4BXXXGCXK1NQNQ7CJ0V"
+          }
+        },
+        {
+          "id": "effect_622YAP5BS3X8PBS6V8MH6V0V8A",
+          "target": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "key": "condition",
+          "operation": "set",
+          "value": "exhausted but moving"
+        },
+        {
+          "id": "effect_67TSSVP160NGQ0R0CA0B1KN1SF",
+          "target": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_50VY90Q4BXXXGCXK1NQNQ7CJ0V"
+          }
+        },
+        {
+          "id": "effect_34CA5V3GXRZJACSC1RRAMZ3MKH",
+          "target": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+          "key": "condition",
+          "operation": "set",
+          "value": "exhausted but moving"
+        },
+        {
+          "id": "effect_6DQYPYW6H5Y2SZMZRHA3YWNWR7",
+          "target": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_50VY90Q4BXXXGCXK1NQNQ7CJ0V"
+          }
+        },
+        {
+          "id": "effect_5Y1QX6C5HD3WWEJ41V7BMQZ9RP",
+          "target": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+          "key": "condition",
+          "operation": "set",
+          "value": "exhausted but moving"
+        },
+        {
+          "id": "effect_2KDZNP6H7ETGGW1EATXHXC7QA1",
+          "target": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_50VY90Q4BXXXGCXK1NQNQ7CJ0V"
+          }
+        },
+        {
+          "id": "effect_42S6F4KHC7ANN6AMJR5YMT9FAB",
+          "target": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "key": "condition",
+          "operation": "set",
+          "value": "exhausted but moving"
+        },
+        {
+          "id": "effect_37YTEJ74TXN7AZ8FJRWD5GZWFV",
+          "target": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_50VY90Q4BXXXGCXK1NQNQ7CJ0V"
+          }
+        },
+        {
+          "id": "effect_71EKBA59QWPVE3WW6VD1Y70DSB",
+          "target": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "key": "condition",
+          "operation": "set",
+          "value": "exhausted but moving"
+        }
+      ],
+      "bodyMarkdown": "# The Frontiersmen Choose the Lower Air\n\nAfter hours of digging and no further answer, Sylvi proves the lower fissure carries breathable air. Pip copies the collapse chamber onto Jorund's map, Garran marks the return promise, and Rhea leads the company into passages older than Saint Orra.\n"
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "scene",
+          "id": "scene_2QWP21CR4YC5VS0JFV0Y2QDMKM",
+          "title": "Cave-In Dark",
+          "domain": "scenes.frontiersmen",
+          "status": "closed",
+          "tags": [
+            "cave-in",
+            "survival"
+          ],
+          "aliases": [],
+          "time": {
+            "start": {
+              "timeline": "main",
+              "tick": 91,
+              "order": 0
+            },
+            "current": {
+              "timeline": "main",
+              "tick": 101,
+              "order": 0
+            },
+            "end": {
+              "timeline": "main",
+              "tick": 101,
+              "order": 0
+            }
+          },
+          "location": "loc_4ARPKYS0QXXWJVC98JPPFSD0MG",
+          "participants": [
+            {
+              "character": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+              "role": "trapped-hunter",
+              "point_of_view": true,
+              "from": {
+                "timeline": "main",
+                "tick": 91,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 101,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+              "role": "trapped-hunter",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 91,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 101,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+              "role": "trapped-hunter",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 91,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 101,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+              "role": "trapped-hunter",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 91,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 101,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+              "role": "trapped-hunter",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 91,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 101,
+                "order": 0
+              }
+            }
+          ],
+          "objects": [
+            "obj_6EBRZF2P79J47HXEJWP7CDDFA1",
+            "obj_3A7X1D9JBR82WX8DBB287ZABR1",
+            "obj_1V7FPPZKJPVQE2SV3GHWRVBSER",
+            "obj_0YS6DTVKR6FS6H82021A18GP2R",
+            "obj_6B725P2CXQSC90HH4H24K0C5X2",
+            "obj_1PWCXKVPT3RS8MK7TDHQ9QN4FH",
+            "obj_5KH5J0ZACS5W06DMT772D119QS",
+            "obj_1SZQK22K4XSNC0XTZX1Z0T7R5N",
+            "obj_3W8SFAP29CDCV2M3X9XMYTDXY8"
+          ],
+          "environments": [
+            "env_7569SY8EZ9EZC2FC3G9VB92P50"
+          ],
+          "story_points": [
+            "sp_3J1S28X5AZ261VA09J5RS573EN",
+            "sp_05AYKKC34KZ155A2YBVTZJF4VN"
+          ],
+          "observations": [
+            {
+              "id": "obs_2FN64QKKE8D2S9F77NV16J82A3",
+              "at": {
+                "timeline": "main",
+                "tick": 92,
+                "order": 10
+              },
+              "audience": [
+                "char_0NQKTG3NQZFSVFKXS901NJD82E"
+              ],
+              "salience": 1.0,
+              "text": "Dust threads flatten toward a black fissure below while the collapsed drift side remains still."
+            },
+            {
+              "id": "obs_19HB3VG3DV4D2HPM2ESB8GRPSG",
+              "at": {
+                "timeline": "main",
+                "tick": 92,
+                "order": 30
+              },
+              "audience": [
+                "char_48QC9B4M2RFVXJKSDFMRGJWG8Y"
+              ],
+              "salience": 1.0,
+              "text": "The living vein repeats their heartbeats through several yards of stone with one extra beat among them."
+            },
+            {
+              "id": "obs_18S9T10NV953CJWX94V3Q0FJXY",
+              "at": {
+                "timeline": "main",
+                "tick": 92,
+                "order": 40
+              },
+              "audience": [
+                "char_1W0GNKETQY2HF88YHM7CWVFH7C"
+              ],
+              "salience": 1.0,
+              "text": "Jorund's map ends at a lower annotation marked OLD WATER and a passage he never inked."
+            },
+            {
+              "id": "obs_17TSTCQDTPRBHXF3QJ3MXSFWFH",
+              "at": {
+                "timeline": "main",
+                "tick": 93,
+                "order": 0
+              },
+              "audience": [
+                "char_671MWM7KTP4DCVVP8EP6SFRJVP"
+              ],
+              "salience": 1.0,
+              "text": "Three distant blows answer from behind the collapse; the fourth arrives from farther away."
+            },
+            {
+              "id": "obs_0BDXB94NSEXAV56JCPPR6900WJ",
+              "at": {
+                "timeline": "main",
+                "tick": 94,
+                "order": 20
+              },
+              "audience": [
+                "char_36X0KBYZ7MQGKM070H5NF12BK8"
+              ],
+              "salience": 1.0,
+              "text": "The party has one day of lamp oil and less than two days of food if rationed."
+            }
+          ],
+          "author_constraints": [
+            "Jorund's fate remains unknown.",
+            "The party believes the lower route may return toward the surface; it does not."
+          ],
+          "conversations": [
+            "conv_250WR2DH6P3A0C947X961FV3ZS"
+          ]
+        },
+        "bodyMarkdown": "# Cave-In Dark\n\nThe catastrophe converts investigation into expedition. The party has no surface route, limited light, and a promise it may not be able to keep.\n"
+      }
+    },
+    {
+      "type": "conversation.recollection.record",
+      "conversationId": "conv_250WR2DH6P3A0C947X961FV3ZS",
+      "temporaryId": "$tmp.recollection.cavein-0",
+      "recollection": {
+        "character": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+        "at": {
+          "timeline": "main",
+          "tick": 102,
+          "order": 0
+        },
+        "state": "remembered",
+        "summary": "The surface drift had no air; the lower fissure did. The party promised to return for Jorund and chose movement over a fatal dig.",
+        "interpretation": "Leadership below means selecting which obligation can be postponed without pretending it is discharged.",
+        "emotional_impression": "guilt made operational",
+        "confidence": 0.96,
+        "exact_turns": [
+          "turn_52CEY0AE5A3S4ZAFVZGCG092Q0",
+          "turn_362EV0S5EHJMFV90F1WJNH3HNC"
+        ],
+        "remembered_quotes": []
+      }
+    },
+    {
+      "type": "conversation.recollection.record",
+      "conversationId": "conv_250WR2DH6P3A0C947X961FV3ZS",
+      "temporaryId": "$tmp.recollection.cavein-1",
+      "recollection": {
+        "character": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+        "at": {
+          "timeline": "main",
+          "tick": 102,
+          "order": 1
+        },
+        "state": "remembered",
+        "summary": "Airflow proved the only viable route was down into older water passages.",
+        "interpretation": "The mine is built across a preexisting underground ecology the surface crews do not understand.",
+        "emotional_impression": "claustrophobic focus",
+        "confidence": 0.98,
+        "exact_turns": [
+          "turn_2NHZ299Z5MPXCQXRSKB7BK7MD9",
+          "turn_1QH9J9DXAD4TTAF95J3YYXZZ3R"
+        ],
+        "remembered_quotes": []
+      }
+    },
+    {
+      "type": "conversation.recollection.record",
+      "conversationId": "conv_250WR2DH6P3A0C947X961FV3ZS",
+      "temporaryId": "$tmp.recollection.cavein-2",
+      "recollection": {
+        "character": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+        "at": {
+          "timeline": "main",
+          "tick": 102,
+          "order": 2
+        },
+        "state": "remembered",
+        "summary": "Jorund answered three times before moving away; Rhea promised the party would return.",
+        "interpretation": "A promise to the absent is still a threshold the living can violate.",
+        "emotional_impression": "grief held in ritual",
+        "confidence": 0.87,
+        "exact_turns": [
+          "turn_3M48QXTFFC14MD0RJQ1GW8AWW7",
+          "turn_362EV0S5EHJMFV90F1WJNH3HNC"
+        ],
+        "remembered_quotes": []
+      }
+    },
+    {
+      "type": "conversation.recollection.record",
+      "conversationId": "conv_250WR2DH6P3A0C947X961FV3ZS",
+      "temporaryId": "$tmp.recollection.cavein-3",
+      "recollection": {
+        "character": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+        "at": {
+          "timeline": "main",
+          "tick": 102,
+          "order": 3
+        },
+        "state": "remembered",
+        "summary": "The vein repeated six heartbeats for five people and the old map points to passages below mine construction.",
+        "interpretation": "The amber network may preserve or simulate forms independently of visible wretches.",
+        "emotional_impression": "fascination turning invasive",
+        "confidence": 0.78,
+        "exact_turns": [
+          "turn_3YMJC533R84WZJESWW55FYNGXQ",
+          "turn_3K8C0YQM0SJ7YEBW6P9QDJ0HHA"
+        ],
+        "remembered_quotes": []
+      }
+    },
+    {
+      "type": "conversation.recollection.record",
+      "conversationId": "conv_250WR2DH6P3A0C947X961FV3ZS",
+      "temporaryId": "$tmp.recollection.cavein-4",
+      "recollection": {
+        "character": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+        "at": {
+          "timeline": "main",
+          "tick": 102,
+          "order": 4
+        },
+        "state": "remembered",
+        "summary": "The lower map annotation and airflow offered a route; the collapse chamber is now the first reliable point on his underground survey.",
+        "interpretation": "Maps become promises when people depend on the return line.",
+        "emotional_impression": "fear controlled by measurement",
+        "confidence": 0.92,
+        "exact_turns": [
+          "turn_1YD0X1CGYTWM90VPBE9FZBMZG2",
+          "turn_52CEY0AE5A3S4ZAFVZGCG092Q0"
+        ],
+        "remembered_quotes": []
+      }
+    },
+    {
+      "type": "event.create",
+      "id": "event_0WRPYJT2TS2ZCXGR05HDF6TYRY",
+      "title": "The Frontiersmen Cross the Black Water",
+      "domain": "plot.frontiersmen",
+      "status": "canonical",
+      "tags": [
+        "caverns",
+        "crossing"
+      ],
+      "time": {
+        "timeline": "main",
+        "tick": 108,
+        "order": 20
+      },
+      "location": "loc_0BPWZNY4CJQ398N3ZKZQ0MNNTF",
+      "participants": [
+        {
+          "character": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "role": "rope-anchor"
+        },
+        {
+          "character": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+          "role": "route-finder"
+        },
+        {
+          "character": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+          "role": "lamp-bearer"
+        },
+        {
+          "character": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "role": "amber-watcher"
+        },
+        {
+          "character": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "role": "mapper"
+        }
+      ],
+      "causes": [
+        "event_0PPHBSJACDHS2BDKJE1ZYEP02J"
+      ],
+      "relatedStoryPoints": [
+        "sp_05AYKKC34KZ155A2YBVTZJF4VN"
+      ],
+      "effects": [
+        {
+          "id": "effect_2GDJBY7CB7H0AN2BEXRZJ8ACBS",
+          "target": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_0BPWZNY4CJQ398N3ZKZQ0MNNTF"
+          }
+        },
+        {
+          "id": "effect_6JHA8Y16X6Y7RKETJ5HKSQ16XD",
+          "target": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "key": "condition",
+          "operation": "set",
+          "value": "cold and rationing"
+        },
+        {
+          "id": "effect_7PW6AYE2S9SV1ETDCE29Z7FAAX",
+          "target": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_0BPWZNY4CJQ398N3ZKZQ0MNNTF"
+          }
+        },
+        {
+          "id": "effect_5SRAZ973E6S6BN7ND0ES0C5NN6",
+          "target": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+          "key": "condition",
+          "operation": "set",
+          "value": "cold and rationing"
+        },
+        {
+          "id": "effect_3X02MR0697W1A15CR54JWQ5HXW",
+          "target": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_0BPWZNY4CJQ398N3ZKZQ0MNNTF"
+          }
+        },
+        {
+          "id": "effect_3EETG23Q4YGQ8H0HF34JS0BCHX",
+          "target": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+          "key": "condition",
+          "operation": "set",
+          "value": "cold and rationing"
+        },
+        {
+          "id": "effect_0ZXM1Q7RAH84F38GVXX9S304ED",
+          "target": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_0BPWZNY4CJQ398N3ZKZQ0MNNTF"
+          }
+        },
+        {
+          "id": "effect_59W0ZBE0ETC319GKAX6ZNEBMQW",
+          "target": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "key": "condition",
+          "operation": "set",
+          "value": "cold and rationing"
+        },
+        {
+          "id": "effect_4QTWGGNY6FGPDJE3VJ88VP9AKE",
+          "target": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_0BPWZNY4CJQ398N3ZKZQ0MNNTF"
+          }
+        },
+        {
+          "id": "effect_2ZZZZ15YPX160FSZSBPEEC4ZGQ",
+          "target": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "key": "condition",
+          "operation": "set",
+          "value": "cold and rationing"
+        }
+      ],
+      "bodyMarkdown": "# The Frontiersmen Cross the Black Water\n\nThe lower route becomes a flooded throat. Rhea anchors a rope across, Sylvi follows blind fish toward moving water, and the party crosses while amber threads beneath the pool imitate the shadows of swimming animals that are not present.\n"
+    },
+    {
+      "type": "event.create",
+      "id": "event_5ZY58D2JG3TCJNX8F7NR0TKG40",
+      "title": "The Party Finds an Old Underground Camp",
+      "domain": "plot.frontiersmen",
+      "status": "canonical",
+      "tags": [
+        "camp",
+        "ruins"
+      ],
+      "time": {
+        "timeline": "main",
+        "tick": 116,
+        "order": 0
+      },
+      "location": "loc_50VY90Q4BXXXGCXK1NQNQ7CJ0V",
+      "participants": [
+        {
+          "character": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "role": "leader"
+        },
+        {
+          "character": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+          "role": "tracker"
+        },
+        {
+          "character": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+          "role": "healer"
+        },
+        {
+          "character": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "role": "reader"
+        },
+        {
+          "character": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "role": "mapper"
+        }
+      ],
+      "causes": [
+        "event_0WRPYJT2TS2ZCXGR05HDF6TYRY"
+      ],
+      "relatedStoryPoints": [
+        "sp_05AYKKC34KZ155A2YBVTZJF4VN",
+        "sp_0DMDKSH6VJ4XKN4HGYP9SDEP1C",
+        "sp_55RMAMRVV8DYG02ZR84VWME0CR"
+      ],
+      "effects": [
+        {
+          "id": "effect_5A7G1XRHWWNJE3021WRVEQTB9J",
+          "target": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_50VY90Q4BXXXGCXK1NQNQ7CJ0V"
+          }
+        },
+        {
+          "id": "effect_3V4Y1YZBXQTP97P770RMZ5DS1R",
+          "target": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "key": "condition",
+          "operation": "set",
+          "value": "second-day-underground"
+        },
+        {
+          "id": "effect_7678X8AJ2XFY6CCA9RJ2K5KTGT",
+          "target": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_50VY90Q4BXXXGCXK1NQNQ7CJ0V"
+          }
+        },
+        {
+          "id": "effect_0BV3TZ488WP365Z0FYD3M5XCNR",
+          "target": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+          "key": "condition",
+          "operation": "set",
+          "value": "second-day-underground"
+        },
+        {
+          "id": "effect_11DMH9S7SECENE90JC8103XN2E",
+          "target": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_50VY90Q4BXXXGCXK1NQNQ7CJ0V"
+          }
+        },
+        {
+          "id": "effect_5X5XBEY1BF3X5Z551ZDGZQK7YF",
+          "target": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+          "key": "condition",
+          "operation": "set",
+          "value": "second-day-underground"
+        },
+        {
+          "id": "effect_7M5X3XETRM5D0YWA6KQ1R75WRB",
+          "target": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_50VY90Q4BXXXGCXK1NQNQ7CJ0V"
+          }
+        },
+        {
+          "id": "effect_4NDRYEDA3CS1ZBC4MJTD7J2VS2",
+          "target": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "key": "condition",
+          "operation": "set",
+          "value": "second-day-underground"
+        },
+        {
+          "id": "effect_5374489RMBT0BNHWYX2PCKQAYH",
+          "target": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_50VY90Q4BXXXGCXK1NQNQ7CJ0V"
+          }
+        },
+        {
+          "id": "effect_2NAVRG5YWRX6C6X4MT2ZXC3MDE",
+          "target": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "key": "condition",
+          "operation": "set",
+          "value": "second-day-underground"
+        }
+      ],
+      "bodyMarkdown": "# The Party Finds an Old Underground Camp\n\nBeyond the black water they find a centuries-old camp: stone fire ring, bone needles, and soot marks deliberately placed over amber-lit root cracks. Someone lived below long enough to learn darkness was safer than memory-light.\n"
+    },
+    {
+      "type": "conversation.create",
+      "id": "conv_7MV33E43SR2ZKC30REKAAC77DP",
+      "value": {
+        "title": "Second Night Below",
+        "domain": "conversations.frontiersmen",
+        "status": "closed",
+        "tags": [
+          "fear",
+          "amber",
+          "guild"
+        ],
+        "aliases": [],
+        "time": {
+          "start": {
+            "timeline": "main",
+            "tick": 111,
+            "order": 0
+          },
+          "end": {
+            "timeline": "main",
+            "tick": 114,
+            "order": 0
+          }
+        },
+        "scene": "scene_0VS51XAXWKY6DWGBTMPC0FFN2E",
+        "location": "loc_0BPWZNY4CJQ398N3ZKZQ0MNNTF",
+        "participants": [
+          {
+            "character": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+            "role": "stranded-hunter",
+            "point_of_view": false,
+            "from": {
+              "timeline": "main",
+              "tick": 111,
+              "order": 0
+            },
+            "to": {
+              "timeline": "main",
+              "tick": 114,
+              "order": 0
+            }
+          },
+          {
+            "character": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+            "role": "stranded-hunter",
+            "point_of_view": false,
+            "from": {
+              "timeline": "main",
+              "tick": 111,
+              "order": 0
+            },
+            "to": {
+              "timeline": "main",
+              "tick": 114,
+              "order": 0
+            }
+          },
+          {
+            "character": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+            "role": "stranded-hunter",
+            "point_of_view": false,
+            "from": {
+              "timeline": "main",
+              "tick": 111,
+              "order": 0
+            },
+            "to": {
+              "timeline": "main",
+              "tick": 114,
+              "order": 0
+            }
+          },
+          {
+            "character": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+            "role": "stranded-hunter",
+            "point_of_view": false,
+            "from": {
+              "timeline": "main",
+              "tick": 111,
+              "order": 0
+            },
+            "to": {
+              "timeline": "main",
+              "tick": 114,
+              "order": 0
+            }
+          },
+          {
+            "character": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+            "role": "stranded-hunter",
+            "point_of_view": false,
+            "from": {
+              "timeline": "main",
+              "tick": 111,
+              "order": 0
+            },
+            "to": {
+              "timeline": "main",
+              "tick": 114,
+              "order": 0
+            }
+          }
+        ],
+        "topics": [
+          "fear",
+          "amber",
+          "guild"
+        ],
+        "turns": [
+          {
+            "id": "turn_3P6H66XYT9P4841T646JQFXJF3",
+            "at": {
+              "timeline": "main",
+              "tick": 111,
+              "order": 0
+            },
+            "speaker": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+            "text": "We have moved eleven map lengths east and three down. That is either excellent progress or a very specific grave.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "tired"
+          },
+          {
+            "id": "turn_43TPGXV4E2XM05SS1TWMT588QC",
+            "at": {
+              "timeline": "main",
+              "tick": 111,
+              "order": 10
+            },
+            "speaker": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+            "text": "Eat before the jokes become strategy.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "dry"
+          },
+          {
+            "id": "turn_6PWS4XFYD24P6GN8GA232EZCVX",
+            "at": {
+              "timeline": "main",
+              "tick": 111,
+              "order": 20
+            },
+            "speaker": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+            "text": "I have half a road blessing left and no road. We may need to rename it.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "weary"
+          },
+          {
+            "id": "turn_5ZN84ZWVDXB5ZHAZR9EMWTEKVA",
+            "at": {
+              "timeline": "main",
+              "tick": 111,
+              "order": 30
+            },
+            "speaker": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+            "text": "There are blind fish in the black water. Real ones. The amber has not emptied everything.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "quietly relieved"
+          },
+          {
+            "id": "turn_3VZZB8ZRE43VVP5Z6M8HH8JFSX",
+            "at": {
+              "timeline": "main",
+              "tick": 111,
+              "order": 40
+            },
+            "speaker": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+            "text": "The roots under the water glow when we remember something aloud.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "careful"
+          },
+          {
+            "id": "turn_0BGE1MN70FYZHCJ7H298F8DAYN",
+            "at": {
+              "timeline": "main",
+              "tick": 111,
+              "order": 50
+            },
+            "speaker": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+            "text": "Then we remember silently.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "immediate"
+          },
+          {
+            "id": "turn_2S99S0SRD446Z1QH89A6Q86044",
+            "at": {
+              "timeline": "main",
+              "tick": 112,
+              "order": 0
+            },
+            "speaker": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+            "text": "I remember owing three men money. The roots remain unimpressed.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "testing"
+          },
+          {
+            "id": "turn_7ZRNXE3RQNE9039R9DFF8VRM81",
+            "at": {
+              "timeline": "main",
+              "tick": 112,
+              "order": 10
+            },
+            "speaker": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+            "text": "Say something that hurt.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "flat"
+          },
+          {
+            "id": "turn_3T373AH784DVWZGMBF8KTPRV4Y",
+            "at": {
+              "timeline": "main",
+              "tick": 112,
+              "order": 20
+            },
+            "speaker": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+            "text": "I once locked myself in a customs vault for six hours because I had forged the key backward.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "confessing"
+          },
+          {
+            "id": "turn_50YRVAP71DCAXHCKGANWYVZTB0",
+            "at": {
+              "timeline": "main",
+              "tick": 112,
+              "order": 30
+            },
+            "speaker": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+            "text": "They brightened.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "unhappy"
+          },
+          {
+            "id": "turn_6FVKSVT2DGXSF4QXV5J70D8FM5",
+            "at": {
+              "timeline": "main",
+              "tick": 112,
+              "order": 40
+            },
+            "speaker": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+            "text": "No more experiments with our own fear.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "command"
+          },
+          {
+            "id": "turn_69HXG9YWZC8MGA5Z8DEYW50XT1",
+            "at": {
+              "timeline": "main",
+              "tick": 113,
+              "order": 0
+            },
+            "speaker": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+            "text": "That may be the first sensible rule anyone has made about amber.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "soft"
+          },
+          {
+            "id": "turn_4F4S6RP1N026BME3QKZ9PYSQM1",
+            "at": {
+              "timeline": "main",
+              "tick": 113,
+              "order": 10
+            },
+            "speaker": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+            "text": "The guild had rules. It kept them from us.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "cold"
+          },
+          {
+            "id": "turn_7E8KBBSQ1CH2B0J266M8AF7MFJ",
+            "at": {
+              "timeline": "main",
+              "tick": 113,
+              "order": 20
+            },
+            "speaker": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+            "text": "And Tillo knew the word quick before the chest moved.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "quiet"
+          },
+          {
+            "id": "turn_7M14EXZHKBKASFTKDDAKT7BDE2",
+            "at": {
+              "timeline": "main",
+              "tick": 114,
+              "order": 0
+            },
+            "speaker": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+            "text": "When we surface, the guild answers before we take another contract.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "certain"
+          }
+        ],
+        "recollections": [],
+        "bodyMarkdown": "# Second Night Below\n\nThe party tests the glowing roots by speaking memories, then recognizes that the guild possessed operational rules it withheld.\n\nThe turn list is canonical verbatim provenance. Character recollections are stored separately and may disagree.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "scene",
+          "id": "scene_0VS51XAXWKY6DWGBTMPC0FFN2E",
+          "title": "Blackwater Below",
+          "domain": "scenes.frontiersmen",
+          "status": "closed",
+          "tags": [
+            "caverns",
+            "survival"
+          ],
+          "aliases": [],
+          "time": {
+            "start": {
+              "timeline": "main",
+              "tick": 102,
+              "order": 0
+            },
+            "current": {
+              "timeline": "main",
+              "tick": 120,
+              "order": 0
+            },
+            "end": {
+              "timeline": "main",
+              "tick": 120,
+              "order": 0
+            }
+          },
+          "location": "loc_0BPWZNY4CJQ398N3ZKZQ0MNNTF",
+          "participants": [
+            {
+              "character": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+              "role": "underground-traveler",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 102,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 120,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+              "role": "underground-traveler",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 102,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 120,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+              "role": "underground-traveler",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 102,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 120,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+              "role": "underground-traveler",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 102,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 120,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+              "role": "underground-traveler",
+              "point_of_view": true,
+              "from": {
+                "timeline": "main",
+                "tick": 102,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 120,
+                "order": 0
+              }
+            }
+          ],
+          "objects": [
+            "obj_6EBRZF2P79J47HXEJWP7CDDFA1",
+            "obj_3A7X1D9JBR82WX8DBB287ZABR1",
+            "obj_1V7FPPZKJPVQE2SV3GHWRVBSER",
+            "obj_0YS6DTVKR6FS6H82021A18GP2R",
+            "obj_6B725P2CXQSC90HH4H24K0C5X2",
+            "obj_1PWCXKVPT3RS8MK7TDHQ9QN4FH",
+            "obj_5KH5J0ZACS5W06DMT772D119QS",
+            "obj_1SZQK22K4XSNC0XTZX1Z0T7R5N",
+            "obj_3W8SFAP29CDCV2M3X9XMYTDXY8"
+          ],
+          "environments": [
+            "env_74465DF8FCTCHSH5QJ3BSA4SEZ"
+          ],
+          "story_points": [
+            "sp_05AYKKC34KZ155A2YBVTZJF4VN",
+            "sp_0DMDKSH6VJ4XKN4HGYP9SDEP1C",
+            "sp_55RMAMRVV8DYG02ZR84VWME0CR",
+            "sp_738TMHY3Y8CZK6V7KK1BWXPRZJ"
+          ],
+          "observations": [
+            {
+              "id": "obs_6KGQ8N6A59VZA3CKQ50K8V3XTT",
+              "at": {
+                "timeline": "main",
+                "tick": 107,
+                "order": 20
+              },
+              "audience": [
+                "char_0NQKTG3NQZFSVFKXS901NJD82E"
+              ],
+              "salience": 1.0,
+              "text": "Blind white fish occupy the flowing channel but avoid every amber-lit root."
+            },
+            {
+              "id": "obs_33P34S3W79VFFVKSBNFZKF7R78",
+              "at": {
+                "timeline": "main",
+                "tick": 108,
+                "order": 20
+              },
+              "audience": [
+                "participants"
+              ],
+              "salience": 1.0,
+              "text": "Animal-shaped shadows swim beneath the crossing although the water around the rope is empty."
+            },
+            {
+              "id": "obs_1V7WD1T184BHFZC6D7MPFY45F0",
+              "at": {
+                "timeline": "main",
+                "tick": 112,
+                "order": 30
+              },
+              "audience": [
+                "char_48QC9B4M2RFVXJKSDFMRGJWG8Y"
+              ],
+              "salience": 1.0,
+              "text": "The submerged roots brighten when Pip describes a humiliating frightened memory and dim when he jokes without believing it."
+            },
+            {
+              "id": "obs_0B5KA55MXSE2XK5QVVSB5A9YWN",
+              "at": {
+                "timeline": "main",
+                "tick": 116,
+                "order": 0
+              },
+              "audience": [
+                "participants"
+              ],
+              "salience": 1.0,
+              "text": "Ancient soot has been packed over every amber crack surrounding the abandoned camp."
+            },
+            {
+              "id": "obs_3KJ2RY1K7J1N0EGZHTTC9N7N5J",
+              "at": {
+                "timeline": "main",
+                "tick": 118,
+                "order": 0
+              },
+              "audience": [
+                "char_36X0KBYZ7MQGKM070H5NF12BK8"
+              ],
+              "salience": 1.0,
+              "text": "The party has one full meal left and enough lamp oil for perhaps another day."
+            }
+          ],
+          "author_constraints": [
+            "The roots respond to emotionally salient memory, but the party cannot yet prove whether they store or merely attract it.",
+            "The party's growing suspicion of the guild remains inference, not knowledge of the Blackroot Compact."
+          ],
+          "conversations": [
+            "conv_7MV33E43SR2ZKC30REKAAC77DP"
+          ]
+        },
+        "bodyMarkdown": "# Blackwater Below\n\nTwo days underground make the group into a real company. Hunger and darkness reduce their theories to the observations they are willing to trust.\n"
+      }
+    },
+    {
+      "type": "conversation.recollection.record",
+      "conversationId": "conv_7MV33E43SR2ZKC30REKAAC77DP",
+      "temporaryId": "$tmp.recollection.below-0",
+      "recollection": {
+        "character": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+        "at": {
+          "timeline": "main",
+          "tick": 115,
+          "order": 0
+        },
+        "state": "remembered",
+        "summary": "Amber-lit roots brightened when Pip recalled genuine fear, and Tillo and the guild already had rules for quick amber.",
+        "interpretation": "The guild concealed practical hazard knowledge from workers and hunters who were expected to handle the material.",
+        "emotional_impression": "anger becoming purpose",
+        "confidence": 0.88,
+        "exact_turns": [
+          "turn_6FVKSVT2DGXSF4QXV5J70D8FM5",
+          "turn_4F4S6RP1N026BME3QKZ9PYSQM1"
+        ],
+        "remembered_quotes": []
+      }
+    },
+    {
+      "type": "conversation.recollection.record",
+      "conversationId": "conv_7MV33E43SR2ZKC30REKAAC77DP",
+      "temporaryId": "$tmp.recollection.below-1",
+      "recollection": {
+        "character": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+        "at": {
+          "timeline": "main",
+          "tick": 115,
+          "order": 1
+        },
+        "state": "remembered",
+        "summary": "Real blind fish avoid amber roots while emotionally charged speech brightens them.",
+        "interpretation": "Amber changes behavior across living ecosystems before it produces visible monsters.",
+        "emotional_impression": "relief at living tracks, then alarm",
+        "confidence": 0.91,
+        "exact_turns": [
+          "turn_5ZN84ZWVDXB5ZHAZR9EMWTEKVA",
+          "turn_7M14EXZHKBKASFTKDDAKT7BDE2"
+        ],
+        "remembered_quotes": []
+      }
+    },
+    {
+      "type": "conversation.recollection.record",
+      "conversationId": "conv_7MV33E43SR2ZKC30REKAAC77DP",
+      "temporaryId": "$tmp.recollection.below-2",
+      "recollection": {
+        "character": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+        "at": {
+          "timeline": "main",
+          "tick": 115,
+          "order": 2
+        },
+        "state": "remembered",
+        "summary": "The roots answered painful memory, not ordinary words, and old inhabitants covered them in soot.",
+        "interpretation": "Whatever amber stores or calls, the danger is tied to remembered suffering more closely than to death itself.",
+        "emotional_impression": "faith under revision",
+        "confidence": 0.79,
+        "exact_turns": [
+          "turn_3T373AH784DVWZGMBF8KTPRV4Y",
+          "turn_69HXG9YWZC8MGA5Z8DEYW50XT1"
+        ],
+        "remembered_quotes": []
+      }
+    },
+    {
+      "type": "conversation.recollection.record",
+      "conversationId": "conv_7MV33E43SR2ZKC30REKAAC77DP",
+      "temporaryId": "$tmp.recollection.below-3",
+      "recollection": {
+        "character": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+        "at": {
+          "timeline": "main",
+          "tick": 115,
+          "order": 3
+        },
+        "state": "remembered",
+        "summary": "The roots brighten for emotionally real memories and respond weakly to fabricated statements.",
+        "interpretation": "Amber may be a medium for structured lived impressions rather than a source of free magical energy.",
+        "emotional_impression": "intellectual hunger tempered by consent",
+        "confidence": 0.9,
+        "exact_turns": [
+          "turn_3VZZB8ZRE43VVP5Z6M8HH8JFSX",
+          "turn_50YRVAP71DCAXHCKGANWYVZTB0"
+        ],
+        "remembered_quotes": []
+      }
+    },
+    {
+      "type": "conversation.recollection.record",
+      "conversationId": "conv_7MV33E43SR2ZKC30REKAAC77DP",
+      "temporaryId": "$tmp.recollection.below-4",
+      "recollection": {
+        "character": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+        "at": {
+          "timeline": "main",
+          "tick": 115,
+          "order": 4
+        },
+        "state": "remembered",
+        "summary": "His genuine humiliation brightened the roots, proving that the underground system distinguishes performed speech from felt recollection.",
+        "interpretation": "The caves are reading them, which makes mapping space alone insufficient.",
+        "emotional_impression": "exposure and defiance",
+        "confidence": 0.87,
+        "exact_turns": [
+          "turn_2S99S0SRD446Z1QH89A6Q86044",
+          "turn_3T373AH784DVWZGMBF8KTPRV4Y"
+        ],
+        "remembered_quotes": []
+      }
+    },
+    {
+      "type": "event.create",
+      "id": "event_314JMK73N3KMHCBR7RW673BXC5",
+      "title": "The Frontiersmen Find the Sunken Hall",
+      "domain": "plot.frontiersmen",
+      "status": "canonical",
+      "tags": [
+        "ruins",
+        "amber"
+      ],
+      "time": {
+        "timeline": "main",
+        "tick": 122,
+        "order": 20
+      },
+      "location": "loc_0K5BXDK00TPBXG8TPZE10G2MN1",
+      "participants": [
+        {
+          "character": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "role": "leader"
+        },
+        {
+          "character": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+          "role": "tracker"
+        },
+        {
+          "character": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+          "role": "priest"
+        },
+        {
+          "character": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "role": "reader"
+        },
+        {
+          "character": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "role": "mapper"
+        }
+      ],
+      "causes": [
+        "event_5ZY58D2JG3TCJNX8F7NR0TKG40"
+      ],
+      "relatedStoryPoints": [
+        "sp_0DMDKSH6VJ4XKN4HGYP9SDEP1C",
+        "sp_55RMAMRVV8DYG02ZR84VWME0CR"
+      ],
+      "effects": [
+        {
+          "id": "effect_0RTJ9K43975AV5RBF405AP8EEF",
+          "target": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_0K5BXDK00TPBXG8TPZE10G2MN1"
+          }
+        },
+        {
+          "id": "effect_6AYS9H6KVVRJHSBDV7NMA4ZZJN",
+          "target": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "key": "condition",
+          "operation": "set",
+          "value": "inside-sunken-hall"
+        },
+        {
+          "id": "effect_4JTV6BQ61PS33T1Z4FN3K8FG1C",
+          "target": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_0K5BXDK00TPBXG8TPZE10G2MN1"
+          }
+        },
+        {
+          "id": "effect_1NZJ7VM20ST4HY21MF8PBESKHK",
+          "target": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+          "key": "condition",
+          "operation": "set",
+          "value": "inside-sunken-hall"
+        },
+        {
+          "id": "effect_4745GVRV6GEFG8SDJYNYBXN1R1",
+          "target": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_0K5BXDK00TPBXG8TPZE10G2MN1"
+          }
+        },
+        {
+          "id": "effect_3JE35CWX5F15HKDNDB5QVAPE8K",
+          "target": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+          "key": "condition",
+          "operation": "set",
+          "value": "inside-sunken-hall"
+        },
+        {
+          "id": "effect_3EN5YJZXX6T7BG04S0BKFFFGB7",
+          "target": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_0K5BXDK00TPBXG8TPZE10G2MN1"
+          }
+        },
+        {
+          "id": "effect_0ZAQ9419DYMS0JV5H3W2Y1TRZ2",
+          "target": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "key": "condition",
+          "operation": "set",
+          "value": "inside-sunken-hall"
+        },
+        {
+          "id": "effect_33AF7KTKJ72BXWERQPX5X5MMKB",
+          "target": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_0K5BXDK00TPBXG8TPZE10G2MN1"
+          }
+        },
+        {
+          "id": "effect_2H07J4ZHNS638FVFT9PWW5QTG1",
+          "target": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "key": "condition",
+          "operation": "set",
+          "value": "inside-sunken-hall"
+        }
+      ],
+      "bodyMarkdown": "# The Frontiersmen Find the Sunken Hall\n\nBeyond the old camp, dressed stone emerges from the cavern wall. A stair descends into a hall built around amber-bearing roots, with murals showing hunters and prey dissolving into the same golden lattice.\n"
+    },
+    {
+      "type": "event.create",
+      "id": "event_071AM9366WK3A503C0K3N23HE3",
+      "title": "Veyra Reads the Memory-Sap Tablet",
+      "domain": "plot.frontiersmen",
+      "status": "canonical",
+      "tags": [
+        "lore",
+        "amber"
+      ],
+      "time": {
+        "timeline": "main",
+        "tick": 124,
+        "order": 15
+      },
+      "location": "loc_0K5BXDK00TPBXG8TPZE10G2MN1",
+      "participants": [
+        {
+          "character": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "role": "translator"
+        },
+        {
+          "character": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+          "role": "theological-witness"
+        },
+        {
+          "character": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "role": "decision-maker"
+        },
+        {
+          "character": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+          "role": "ecological-witness"
+        },
+        {
+          "character": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "role": "copyist"
+        }
+      ],
+      "causes": [
+        "event_314JMK73N3KMHCBR7RW673BXC5"
+      ],
+      "relatedStoryPoints": [
+        "sp_0DMDKSH6VJ4XKN4HGYP9SDEP1C",
+        "sp_55RMAMRVV8DYG02ZR84VWME0CR"
+      ],
+      "effects": [],
+      "bodyMarkdown": "# Veyra Reads the Memory-Sap Tablet\n\nVeyra translates the hall tablet: amber is golden sap after a buried root has remembered a wound; fresh terror can return hunter and hunted without distinguishing them. Garran rejects his earlier soul theory, while Pip copies every line onto the back of Jorund's map.\n"
+    },
+    {
+      "type": "event.create",
+      "id": "event_1X2GQH1T37V55P4JBN5QG4V7H8",
+      "title": "The Amber Reliquary Opens Under Pressure",
+      "domain": "plot.frontiersmen",
+      "status": "canonical",
+      "tags": [
+        "reliquary",
+        "choice"
+      ],
+      "time": {
+        "timeline": "main",
+        "tick": 127,
+        "order": 10
+      },
+      "location": "loc_0K5BXDK00TPBXG8TPZE10G2MN1",
+      "participants": [
+        {
+          "character": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "role": "locksmith"
+        },
+        {
+          "character": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "role": "arcanist"
+        },
+        {
+          "character": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "role": "leader"
+        },
+        {
+          "character": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+          "role": "watcher"
+        },
+        {
+          "character": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+          "role": "warder"
+        }
+      ],
+      "causes": [
+        "event_071AM9366WK3A503C0K3N23HE3"
+      ],
+      "relatedStoryPoints": [
+        "sp_0DMDKSH6VJ4XKN4HGYP9SDEP1C",
+        "sp_35EY7W2N8WH1PG0S9F367HZT4X"
+      ],
+      "effects": [
+        {
+          "id": "effect_3Q58K9RFJR3QSBFEDXM1HRNVYR",
+          "target": "obj_2T5QAX3BWM0DBNT2KZ1R1TV4T9",
+          "key": "location",
+          "operation": "clear"
+        },
+        {
+          "id": "effect_1G43NK4DAWG88R7W5NF4B5801W",
+          "target": "obj_2T5QAX3BWM0DBNT2KZ1R1TV4T9",
+          "key": "holder",
+          "operation": "set",
+          "value": {
+            "entity": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y"
+          }
+        },
+        {
+          "id": "effect_4Q7XEV0GZJ44JX3VEC2QQH45RZ",
+          "target": "obj_2T5QAX3BWM0DBNT2KZ1R1TV4T9",
+          "key": "condition",
+          "operation": "set",
+          "value": "open and carrying five fresh shadow-impressions"
+        }
+      ],
+      "bodyMarkdown": "# The Amber Reliquary Opens Under Pressure\n\nThe breathing floor closes the route back. Pip opens the reliquary because its lattice is the only mechanism named for quieting an awakened path. The amber lattice inside unfolds like roots in water and absorbs the party's nearest shadows.\n"
+    },
+    {
+      "type": "conversation.create",
+      "id": "conv_7TC8QMY25DHKXCDDD6BRBZCAS0",
+      "value": {
+        "title": "The Sunken Hall Debate",
+        "domain": "conversations.frontiersmen",
+        "status": "closed",
+        "tags": [
+          "amber",
+          "memory",
+          "reliquary"
+        ],
+        "aliases": [],
+        "time": {
+          "start": {
+            "timeline": "main",
+            "tick": 123,
+            "order": 0
+          },
+          "end": {
+            "timeline": "main",
+            "tick": 127,
+            "order": 0
+          }
+        },
+        "scene": "scene_0HRBBT554AGJHB24SHFAHTCKEK",
+        "location": "loc_0K5BXDK00TPBXG8TPZE10G2MN1",
+        "participants": [
+          {
+            "character": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+            "role": "underground-investigator",
+            "point_of_view": false,
+            "from": {
+              "timeline": "main",
+              "tick": 123,
+              "order": 0
+            },
+            "to": {
+              "timeline": "main",
+              "tick": 127,
+              "order": 0
+            }
+          },
+          {
+            "character": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+            "role": "underground-investigator",
+            "point_of_view": false,
+            "from": {
+              "timeline": "main",
+              "tick": 123,
+              "order": 0
+            },
+            "to": {
+              "timeline": "main",
+              "tick": 127,
+              "order": 0
+            }
+          },
+          {
+            "character": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+            "role": "underground-investigator",
+            "point_of_view": false,
+            "from": {
+              "timeline": "main",
+              "tick": 123,
+              "order": 0
+            },
+            "to": {
+              "timeline": "main",
+              "tick": 127,
+              "order": 0
+            }
+          },
+          {
+            "character": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+            "role": "underground-investigator",
+            "point_of_view": false,
+            "from": {
+              "timeline": "main",
+              "tick": 123,
+              "order": 0
+            },
+            "to": {
+              "timeline": "main",
+              "tick": 127,
+              "order": 0
+            }
+          },
+          {
+            "character": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+            "role": "underground-investigator",
+            "point_of_view": false,
+            "from": {
+              "timeline": "main",
+              "tick": 123,
+              "order": 0
+            },
+            "to": {
+              "timeline": "main",
+              "tick": 127,
+              "order": 0
+            }
+          }
+        ],
+        "topics": [
+          "amber",
+          "memory",
+          "reliquary"
+        ],
+        "turns": [
+          {
+            "id": "turn_4R15ZMR696PSJQPGMPHK8NBXXR",
+            "at": {
+              "timeline": "main",
+              "tick": 123,
+              "order": 0
+            },
+            "speaker": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+            "text": "These stairs were built from below upward. The tool marks face the wrong way for a mine entrance.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "technical"
+          },
+          {
+            "id": "turn_1XNC4XG6YJGKYSGP7A4M9ZF6CZ",
+            "at": {
+              "timeline": "main",
+              "tick": 123,
+              "order": 10
+            },
+            "speaker": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+            "text": "No animal bone in the hall. Only teeth placed around the stone box.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "quiet"
+          },
+          {
+            "id": "turn_3WFT6EC9CP23J28YQ2ER7D9JKH",
+            "at": {
+              "timeline": "main",
+              "tick": 123,
+              "order": 20
+            },
+            "speaker": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+            "text": "The tablet calls amber 'golden sap after the root has remembered the wound.'",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "translating"
+          },
+          {
+            "id": "turn_7SBTN2NE59TW2CZ32M6TK8Y6YW",
+            "at": {
+              "timeline": "main",
+              "tick": 123,
+              "order": 30
+            },
+            "speaker": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+            "text": "Remembered by whom?",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "strained"
+          },
+          {
+            "id": "turn_7PDC8CH2CH4N7ZDEJ372KDZGTP",
+            "at": {
+              "timeline": "main",
+              "tick": 123,
+              "order": 40
+            },
+            "speaker": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+            "text": "Not whom. The grammar makes the root the subject.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "awed"
+          },
+          {
+            "id": "turn_76ZKH3YX56RD5HZ2QJNTXW6385",
+            "at": {
+              "timeline": "main",
+              "tick": 124,
+              "order": 0
+            },
+            "speaker": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+            "text": "Read the warning before the poetry.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "firm"
+          },
+          {
+            "id": "turn_1XMDZZTGQBFD4C74B9CTCRE1DP",
+            "at": {
+              "timeline": "main",
+              "tick": 124,
+              "order": 10
+            },
+            "speaker": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+            "text": "'Do not give the sap fresh terror, for it returns the hunter and the hunted without knowing the difference.'",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "careful"
+          },
+          {
+            "id": "turn_5MSPG81VV87R4JGYN9DX46H00R",
+            "at": {
+              "timeline": "main",
+              "tick": 124,
+              "order": 20
+            },
+            "speaker": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+            "text": "Then the wretches are not dead souls.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "quiet"
+          },
+          {
+            "id": "turn_5VAD312SCWBG7BQBANRJHBPYXW",
+            "at": {
+              "timeline": "main",
+              "tick": 124,
+              "order": 30
+            },
+            "speaker": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+            "text": "They may be memories with enough structure to move.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "precise"
+          },
+          {
+            "id": "turn_3SF3FF8M47TD5C78WKA0Q38JQK",
+            "at": {
+              "timeline": "main",
+              "tick": 125,
+              "order": 0
+            },
+            "speaker": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+            "text": "The stone box has a pressure latch and absolutely no written suggestion that opening it is wise.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "dry"
+          },
+          {
+            "id": "turn_6E56E6DNH9M67CYB8SB34G9DEQ",
+            "at": {
+              "timeline": "main",
+              "tick": 125,
+              "order": 10
+            },
+            "speaker": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+            "text": "We leave it closed.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "immediate"
+          },
+          {
+            "id": "turn_0JD67PC13SHP10Y6V7JHA0KH8Q",
+            "at": {
+              "timeline": "main",
+              "tick": 125,
+              "order": 20
+            },
+            "speaker": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+            "text": "The tablet also says the lattice can quiet an awakened route.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "reluctant"
+          },
+          {
+            "id": "turn_681G63F4H1684XE1D81J9KRKP5",
+            "at": {
+              "timeline": "main",
+              "tick": 125,
+              "order": 30
+            },
+            "speaker": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+            "text": "Or wake every shape stored around it.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "flat"
+          },
+          {
+            "id": "turn_7NSHABZ4VCYXEGWB4ABXWG8DV7",
+            "at": {
+              "timeline": "main",
+              "tick": 126,
+              "order": 0
+            },
+            "speaker": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+            "text": "We copy the tablet and leave the box.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "decisive"
+          },
+          {
+            "id": "turn_6YZ12M02XXSEBZXRZ4TP0FN5S8",
+            "at": {
+              "timeline": "main",
+              "tick": 127,
+              "order": 0
+            },
+            "speaker": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+            "text": "The floor behind us has started breathing.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "very quiet"
+          }
+        ],
+        "recollections": [],
+        "bodyMarkdown": "# The Sunken Hall Debate\n\nAncient grammar gives the party a theory of amber as root memory. They decide against opening the reliquary until the hall itself blocks retreat.\n\nThe turn list is canonical verbatim provenance. Character recollections are stored separately and may disagree.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "scene",
+          "id": "scene_0HRBBT554AGJHB24SHFAHTCKEK",
+          "title": "Sunken Hall",
+          "domain": "scenes.frontiersmen",
+          "status": "closed",
+          "tags": [
+            "ruins",
+            "lore"
+          ],
+          "aliases": [],
+          "time": {
+            "start": {
+              "timeline": "main",
+              "tick": 121,
+              "order": 0
+            },
+            "current": {
+              "timeline": "main",
+              "tick": 135,
+              "order": 0
+            },
+            "end": {
+              "timeline": "main",
+              "tick": 135,
+              "order": 0
+            }
+          },
+          "location": "loc_0K5BXDK00TPBXG8TPZE10G2MN1",
+          "participants": [
+            {
+              "character": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+              "role": "ruin-explorer",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 121,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 135,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+              "role": "ruin-explorer",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 121,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 135,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+              "role": "ruin-explorer",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 121,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 135,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+              "role": "ruin-explorer",
+              "point_of_view": true,
+              "from": {
+                "timeline": "main",
+                "tick": 121,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 135,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+              "role": "ruin-explorer",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 121,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 135,
+                "order": 0
+              }
+            }
+          ],
+          "objects": [
+            "obj_6EBRZF2P79J47HXEJWP7CDDFA1",
+            "obj_3A7X1D9JBR82WX8DBB287ZABR1",
+            "obj_481HCSTXARNTFBN36HP31HTYV2",
+            "obj_2T5QAX3BWM0DBNT2KZ1R1TV4T9",
+            "obj_1V7FPPZKJPVQE2SV3GHWRVBSER",
+            "obj_6B725P2CXQSC90HH4H24K0C5X2",
+            "obj_1PWCXKVPT3RS8MK7TDHQ9QN4FH",
+            "obj_5KH5J0ZACS5W06DMT772D119QS",
+            "obj_1SZQK22K4XSNC0XTZX1Z0T7R5N",
+            "obj_3W8SFAP29CDCV2M3X9XMYTDXY8"
+          ],
+          "environments": [
+            "env_3Q9ZD90DKAMS6MGARGTA1Q6P0C"
+          ],
+          "story_points": [
+            "sp_0DMDKSH6VJ4XKN4HGYP9SDEP1C",
+            "sp_55RMAMRVV8DYG02ZR84VWME0CR",
+            "sp_35EY7W2N8WH1PG0S9F367HZT4X"
+          ],
+          "observations": [
+            {
+              "id": "obs_5HNWK1DS9D8ZSAQ84WQF3V1SAR",
+              "at": {
+                "timeline": "main",
+                "tick": 122,
+                "order": 20
+              },
+              "audience": [
+                "participants"
+              ],
+              "salience": 1.0,
+              "text": "The same gold root is painted through hunters, prey, and human mourners without separating their bodies."
+            },
+            {
+              "id": "obs_1YVPZ94TGK0VBGNQ6FEHQA7X3N",
+              "at": {
+                "timeline": "main",
+                "tick": 123,
+                "order": 10
+              },
+              "audience": [
+                "char_0NQKTG3NQZFSVFKXS901NJD82E"
+              ],
+              "salience": 1.0,
+              "text": "Every animal tooth around the reliquary was cut from a jaw after death and arranged by species."
+            },
+            {
+              "id": "obs_5VH2NR6EPEBWGRQKB6KZQ0STGZ",
+              "at": {
+                "timeline": "main",
+                "tick": 123,
+                "order": 20
+              },
+              "audience": [
+                "char_48QC9B4M2RFVXJKSDFMRGJWG8Y"
+              ],
+              "salience": 1.0,
+              "text": "The oldest inscription treats the buried root as the acting mind and people as passing impressions."
+            },
+            {
+              "id": "obs_4BRRTMXZKYZMY8RAHM855FV155",
+              "at": {
+                "timeline": "main",
+                "tick": 124,
+                "order": 20
+              },
+              "audience": [
+                "char_671MWM7KTP4DCVVP8EP6SFRJVP"
+              ],
+              "salience": 1.0,
+              "text": "The warning describes returned forms as unable to distinguish hunter from hunted, not as conscious dead."
+            },
+            {
+              "id": "obs_54ZK2X6122PN97BC79VV6FVS7X",
+              "at": {
+                "timeline": "main",
+                "tick": 127,
+                "order": 0
+              },
+              "audience": [
+                "char_1W0GNKETQY2HF88YHM7CWVFH7C"
+              ],
+              "salience": 1.0,
+              "text": "Dust rises and falls through cracks behind the party in the rhythm of a sleeping chest."
+            }
+          ],
+          "author_constraints": [
+            "The tablet is reliable ancient evidence but not a complete scientific account.",
+            "Opening the reliquary is a coerced tactical choice, not Veyra casually ignoring Rhea."
+          ],
+          "conversations": [
+            "conv_7TC8QMY25DHKXCDDD6BRBZCAS0"
+          ]
+        },
+        "bodyMarkdown": "# Sunken Hall\n\nThe ruins provide the campaign's first defensible ontology: amber is remembered form in a buried living network. The immediate need to escape keeps that revelation from becoming safe scholarship.\n"
+      }
+    },
+    {
+      "type": "conversation.recollection.record",
+      "conversationId": "conv_7TC8QMY25DHKXCDDD6BRBZCAS0",
+      "temporaryId": "$tmp.recollection.hall-0",
+      "recollection": {
+        "character": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+        "at": {
+          "timeline": "main",
+          "tick": 136,
+          "order": 0
+        },
+        "state": "remembered",
+        "summary": "The tablet says amber is root memory and fresh terror returns hunter and hunted without distinction. The party opened the reliquary only after retreat closed.",
+        "interpretation": "The practical question is no longer whether amber causes wretches but who knew the handling rules and kept mining.",
+        "emotional_impression": "clarity sharpened into accusation",
+        "confidence": 0.9,
+        "exact_turns": [
+          "turn_1XMDZZTGQBFD4C74B9CTCRE1DP",
+          "turn_7NSHABZ4VCYXEGWB4ABXWG8DV7"
+        ],
+        "remembered_quotes": []
+      }
+    },
+    {
+      "type": "conversation.recollection.record",
+      "conversationId": "conv_7TC8QMY25DHKXCDDD6BRBZCAS0",
+      "temporaryId": "$tmp.recollection.hall-1",
+      "recollection": {
+        "character": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+        "at": {
+          "timeline": "main",
+          "tick": 136,
+          "order": 1
+        },
+        "state": "remembered",
+        "summary": "The hall treats animal, human, hunter, and prey as impressions in one root system; the reliquary is ringed by deliberately catalogued teeth.",
+        "interpretation": "The Frontier's animal silence may be avoidance of a memory ecology older than settlement.",
+        "emotional_impression": "awe without comfort",
+        "confidence": 0.88,
+        "exact_turns": [
+          "turn_1XNC4XG6YJGKYSGP7A4M9ZF6CZ",
+          "turn_681G63F4H1684XE1D81J9KRKP5"
+        ],
+        "remembered_quotes": []
+      }
+    },
+    {
+      "type": "conversation.recollection.record",
+      "conversationId": "conv_7TC8QMY25DHKXCDDD6BRBZCAS0",
+      "temporaryId": "$tmp.recollection.hall-2",
+      "recollection": {
+        "character": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+        "at": {
+          "timeline": "main",
+          "tick": 136,
+          "order": 2
+        },
+        "state": "remembered",
+        "summary": "The inscription says returned forms cannot distinguish hunter from hunted, contradicting his belief that wretches are conscious dead souls.",
+        "interpretation": "Mercy must address repeated pain without pretending a person remains inside every shape.",
+        "emotional_impression": "faith broken open",
+        "confidence": 0.84,
+        "exact_turns": [
+          "turn_1XMDZZTGQBFD4C74B9CTCRE1DP",
+          "turn_5MSPG81VV87R4JGYN9DX46H00R"
+        ],
+        "remembered_quotes": []
+      }
+    },
+    {
+      "type": "conversation.recollection.record",
+      "conversationId": "conv_7TC8QMY25DHKXCDDD6BRBZCAS0",
+      "temporaryId": "$tmp.recollection.hall-3",
+      "recollection": {
+        "character": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+        "at": {
+          "timeline": "main",
+          "tick": 136,
+          "order": 3
+        },
+        "state": "remembered",
+        "summary": "Ancient grammar names the root as the remembering subject and amber as golden sap retaining wounded forms.",
+        "interpretation": "The Heartwood may be an enormous distributed memory rather than a conventional magical creature.",
+        "emotional_impression": "wonder approaching temptation",
+        "confidence": 0.94,
+        "exact_turns": [
+          "turn_3WFT6EC9CP23J28YQ2ER7D9JKH",
+          "turn_7PDC8CH2CH4N7ZDEJ372KDZGTP"
+        ],
+        "remembered_quotes": []
+      }
+    },
+    {
+      "type": "conversation.recollection.record",
+      "conversationId": "conv_7TC8QMY25DHKXCDDD6BRBZCAS0",
+      "temporaryId": "$tmp.recollection.hall-4",
+      "recollection": {
+        "character": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+        "at": {
+          "timeline": "main",
+          "tick": 136,
+          "order": 4
+        },
+        "state": "remembered",
+        "summary": "The party chose not to open the reliquary until the return floor began moving; its lattice is designed to quiet routes but also records nearby shadows.",
+        "interpretation": "Ancient safety devices require inputs that can become new hazards.",
+        "emotional_impression": "technical fascination under terror",
+        "confidence": 0.9,
+        "exact_turns": [
+          "turn_3SF3FF8M47TD5C78WKA0Q38JQK",
+          "turn_6YZ12M02XXSEBZXRZ4TP0FN5S8"
+        ],
+        "remembered_quotes": []
+      }
+    },
+    {
+      "type": "event.create",
+      "id": "event_4ME3BF84VMYJEH9WEGD1ZAR39F",
+      "title": "The Sunken Hall Releases a Pack of Remembered Beasts",
+      "domain": "plot.frontiersmen",
+      "status": "canonical",
+      "tags": [
+        "wretch-pack",
+        "ruins"
+      ],
+      "time": {
+        "timeline": "main",
+        "tick": 136,
+        "order": 10
+      },
+      "location": "loc_41DV9GRGHE7MV9VTJYWD35QHC2",
+      "participants": [
+        {
+          "character": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "role": "shield"
+        },
+        {
+          "character": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+          "role": "route-finder"
+        },
+        {
+          "character": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+          "role": "warder"
+        },
+        {
+          "character": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "role": "reliquary-bearer"
+        },
+        {
+          "character": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "role": "door-finder"
+        }
+      ],
+      "causes": [
+        "event_1X2GQH1T37V55P4JBN5QG4V7H8"
+      ],
+      "relatedStoryPoints": [
+        "sp_35EY7W2N8WH1PG0S9F367HZT4X",
+        "sp_55RMAMRVV8DYG02ZR84VWME0CR"
+      ],
+      "effects": [
+        {
+          "id": "effect_4FK5V7D3GXDZMB05GZKK21HG9X",
+          "target": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_41DV9GRGHE7MV9VTJYWD35QHC2"
+          }
+        },
+        {
+          "id": "effect_25AG3HYF78YPXDYVVKNTTBAW5Z",
+          "target": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "key": "condition",
+          "operation": "set",
+          "value": "pursued underground"
+        },
+        {
+          "id": "effect_09GMS0QGNP5NH74PF17Z22YANC",
+          "target": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_41DV9GRGHE7MV9VTJYWD35QHC2"
+          }
+        },
+        {
+          "id": "effect_5NA080HRNHK854ERRYMYMGPT5Y",
+          "target": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+          "key": "condition",
+          "operation": "set",
+          "value": "pursued underground"
+        },
+        {
+          "id": "effect_5GJZ5BA9P9DGX6MX43Q4XSQRNE",
+          "target": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_41DV9GRGHE7MV9VTJYWD35QHC2"
+          }
+        },
+        {
+          "id": "effect_1G0EBFXMETP8BTVD4R2JT6VWQ2",
+          "target": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+          "key": "condition",
+          "operation": "set",
+          "value": "pursued underground"
+        },
+        {
+          "id": "effect_5MWBD50P735JK9TCRGAAAKQ22X",
+          "target": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_41DV9GRGHE7MV9VTJYWD35QHC2"
+          }
+        },
+        {
+          "id": "effect_724NZYD8SDVXQF1P663ZZMWP6V",
+          "target": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "key": "condition",
+          "operation": "set",
+          "value": "pursued underground"
+        },
+        {
+          "id": "effect_1M4ABRSAG41RW2XA36EVXH4WYH",
+          "target": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_41DV9GRGHE7MV9VTJYWD35QHC2"
+          }
+        },
+        {
+          "id": "effect_2CBQGHA1HMQZBP6XTREP63G1VD",
+          "target": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "key": "condition",
+          "operation": "set",
+          "value": "pursued underground"
+        }
+      ],
+      "bodyMarkdown": "# The Sunken Hall Releases a Pack of Remembered Beasts\n\nThe opened lattice quiets the hall behind them but wakes a gallery ahead. Pale forms of cave lion, elk, wolf, miner, and something winged phase through pillars, changing prey and predator anatomy whenever the party shows fear.\n"
+    },
+    {
+      "type": "event.create",
+      "id": "event_22FQP078VAK3ZC1SVK18VZEC9S",
+      "title": "The Frontiersmen Escape the Wretch Gallery",
+      "domain": "plot.frontiersmen",
+      "status": "canonical",
+      "tags": [
+        "escape",
+        "wretch-pack"
+      ],
+      "time": {
+        "timeline": "main",
+        "tick": 151,
+        "order": 20
+      },
+      "location": "loc_41DV9GRGHE7MV9VTJYWD35QHC2",
+      "participants": [
+        {
+          "character": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "role": "rear-guard"
+        },
+        {
+          "character": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+          "role": "route-finder"
+        },
+        {
+          "character": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+          "role": "warder"
+        },
+        {
+          "character": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "role": "reliquary-bearer"
+        },
+        {
+          "character": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "role": "locksmith"
+        }
+      ],
+      "causes": [
+        "event_4ME3BF84VMYJEH9WEGD1ZAR39F"
+      ],
+      "relatedStoryPoints": [
+        "sp_35EY7W2N8WH1PG0S9F367HZT4X",
+        "sp_7C05N0E5311W4YY72D8X3PHB6P"
+      ],
+      "effects": [
+        {
+          "id": "effect_2S2SY5MA1RC76W9CTY7GHGZWCK",
+          "target": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_7KR423MWGKFHQ63EPX4X61XBJH"
+          }
+        },
+        {
+          "id": "effect_78HQZ6YNZ2HJ8S0J355S1GBEQG",
+          "target": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "key": "condition",
+          "operation": "set",
+          "value": "surfaced, starved, and exhausted"
+        },
+        {
+          "id": "effect_5MWS03MQAY6TZ6SD8NS05T91TJ",
+          "target": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_7KR423MWGKFHQ63EPX4X61XBJH"
+          }
+        },
+        {
+          "id": "effect_0Y62YCAQW081Y3F4WCE3XGHAWQ",
+          "target": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+          "key": "condition",
+          "operation": "set",
+          "value": "surfaced, starved, and exhausted"
+        },
+        {
+          "id": "effect_6C8V8V88GTEC5ZCV4S5HWW2C2R",
+          "target": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_7KR423MWGKFHQ63EPX4X61XBJH"
+          }
+        },
+        {
+          "id": "effect_0B5H34RKRP0WQDZ39NVMJF50ZX",
+          "target": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+          "key": "condition",
+          "operation": "set",
+          "value": "surfaced, starved, and exhausted"
+        },
+        {
+          "id": "effect_502XAN1KZ56SH0KF5CF2A9PPVG",
+          "target": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_7KR423MWGKFHQ63EPX4X61XBJH"
+          }
+        },
+        {
+          "id": "effect_7FGC5WYYE8WJWP575HF46FS3M1",
+          "target": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "key": "condition",
+          "operation": "set",
+          "value": "surfaced, starved, and exhausted"
+        },
+        {
+          "id": "effect_713WW91P5JFSVRFR3GHR0YHPD8",
+          "target": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_7KR423MWGKFHQ63EPX4X61XBJH"
+          }
+        },
+        {
+          "id": "effect_2ZYND65WNP27KJ0GJZPWYMFG8X",
+          "target": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "key": "condition",
+          "operation": "set",
+          "value": "surfaced, starved, and exhausted"
+        },
+        {
+          "id": "effect_7GCF5CYYN764FQATEFY5V1725P",
+          "target": "obj_3A7X1D9JBR82WX8DBB287ZABR1",
+          "key": "condition",
+          "operation": "set",
+          "value": "empty but intact"
+        },
+        {
+          "id": "effect_4Y832YM216RZH28AN0M8KT2G03",
+          "target": "obj_2T5QAX3BWM0DBNT2KZ1R1TV4T9",
+          "key": "condition",
+          "operation": "set",
+          "value": "closed; contains five shadow-impressions"
+        }
+      ],
+      "bodyMarkdown": "# The Frontiersmen Escape the Wretch Gallery\n\nPip finds an air shaft disguised as a carved tree trunk. Garran uses the reliquary lattice as a moving threshold while Rhea and Sylvi retreat without feeding the pack fresh panic. Veyra closes the lattice only after their shadows stop multiplying.\n"
+    },
+    {
+      "type": "event.create",
+      "id": "event_5QXAWZGMJXAY3MA8W1C3BNSV1V",
+      "title": "The Party Emerges on a Hilltop Deep in the Frontier",
+      "domain": "plot.frontiersmen",
+      "status": "canonical",
+      "tags": [
+        "surface",
+        "isolation"
+      ],
+      "time": {
+        "timeline": "main",
+        "tick": 158,
+        "order": 0
+      },
+      "location": "loc_7KR423MWGKFHQ63EPX4X61XBJH",
+      "participants": [
+        {
+          "character": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "role": "leader"
+        },
+        {
+          "character": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+          "role": "tracker"
+        },
+        {
+          "character": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+          "role": "healer"
+        },
+        {
+          "character": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "role": "arcanist"
+        },
+        {
+          "character": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "role": "mapper"
+        }
+      ],
+      "causes": [
+        "event_22FQP078VAK3ZC1SVK18VZEC9S"
+      ],
+      "relatedStoryPoints": [
+        "sp_7C05N0E5311W4YY72D8X3PHB6P",
+        "sp_56BDX8H6ZW2K20S7Z9EV5RBRTR",
+        "sp_2CS9JPWCRVZJQ6YS41M2BAS4JV"
+      ],
+      "effects": [
+        {
+          "id": "effect_6Z8HWB2H9NFG6PCX4WH0F9C2EP",
+          "target": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_7KR423MWGKFHQ63EPX4X61XBJH"
+          }
+        },
+        {
+          "id": "effect_7PEFBHG1JP9B37HHFK3JREWYA7",
+          "target": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "key": "condition",
+          "operation": "set",
+          "value": "isolated in deep forest"
+        },
+        {
+          "id": "effect_44HG52EXWVZB8E6YQNPQ311TM5",
+          "target": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_7KR423MWGKFHQ63EPX4X61XBJH"
+          }
+        },
+        {
+          "id": "effect_0RMJKHANP09TDS8RTYZ6HRKVDF",
+          "target": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+          "key": "condition",
+          "operation": "set",
+          "value": "isolated in deep forest"
+        },
+        {
+          "id": "effect_4AWBS6GS4TN0QF88C4YD1GNC3F",
+          "target": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_7KR423MWGKFHQ63EPX4X61XBJH"
+          }
+        },
+        {
+          "id": "effect_266BBXT98325CWC0NWDSFZSHZ4",
+          "target": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+          "key": "condition",
+          "operation": "set",
+          "value": "isolated in deep forest"
+        },
+        {
+          "id": "effect_2MB4PHTVY82YJN6MYGFC9002P7",
+          "target": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_7KR423MWGKFHQ63EPX4X61XBJH"
+          }
+        },
+        {
+          "id": "effect_02W9HMMSJPZKMBRAXXA2PGV06D",
+          "target": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "key": "condition",
+          "operation": "set",
+          "value": "isolated in deep forest"
+        },
+        {
+          "id": "effect_58C7GARTY56Q0K4HD9A4C364P3",
+          "target": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_7KR423MWGKFHQ63EPX4X61XBJH"
+          }
+        },
+        {
+          "id": "effect_56WYBHG4M78VXXSK4CTPN8ZM2C",
+          "target": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "key": "condition",
+          "operation": "set",
+          "value": "isolated in deep forest"
+        }
+      ],
+      "bodyMarkdown": "# The Party Emerges on a Hilltop Deep in the Frontier\n\nAfter climbing the shaft for hours, the party pushes through root mat into cold dawn. No road, field smoke, or river landmark is visible—only unbroken boreal forest and unfamiliar ridgelines.\n"
+    },
+    {
+      "type": "event.create",
+      "id": "event_6K8VCQVV5Q04PRF6NHWHJNHT4N",
+      "title": "The Frontiersmen See Smoke from a Masked Camp",
+      "domain": "plot.frontiersmen",
+      "status": "canonical",
+      "tags": [
+        "root-host",
+        "camp"
+      ],
+      "time": {
+        "timeline": "main",
+        "tick": 160,
+        "order": 0
+      },
+      "location": "loc_7KR423MWGKFHQ63EPX4X61XBJH",
+      "participants": [
+        {
+          "character": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+          "role": "spotter"
+        },
+        {
+          "character": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "role": "scout"
+        },
+        {
+          "character": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "role": "decision-maker"
+        },
+        {
+          "character": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+          "role": "healer"
+        },
+        {
+          "character": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "role": "observer"
+        }
+      ],
+      "causes": [
+        "event_5QXAWZGMJXAY3MA8W1C3BNSV1V"
+      ],
+      "relatedStoryPoints": [
+        "sp_56BDX8H6ZW2K20S7Z9EV5RBRTR",
+        "sp_2CS9JPWCRVZJQ6YS41M2BAS4JV"
+      ],
+      "effects": [],
+      "bodyMarkdown": "# The Frontiersmen See Smoke from a Masked Camp\n\nFrom the hilltop Sylvi sees thin smoke two valleys north. Pip's glass reveals wooden animal masks moving around a palisade and a single unmasked man wearing a crown of living roots. With no food and no known direction to Harrowcross, the party approaches under a white cloth.\n"
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "scene",
+          "id": "scene_0HD1QCBVKN6D7FCBTRP34E487F",
+          "title": "Wretch Gallery",
+          "domain": "scenes.frontiersmen",
+          "status": "closed",
+          "tags": [
+            "wretch-pack",
+            "escape"
+          ],
+          "aliases": [],
+          "time": {
+            "start": {
+              "timeline": "main",
+              "tick": 136,
+              "order": 0
+            },
+            "current": {
+              "timeline": "main",
+              "tick": 152,
+              "order": 0
+            },
+            "end": {
+              "timeline": "main",
+              "tick": 152,
+              "order": 0
+            }
+          },
+          "location": "loc_41DV9GRGHE7MV9VTJYWD35QHC2",
+          "participants": [
+            {
+              "character": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+              "role": "fleeing-explorer",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 136,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 152,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+              "role": "fleeing-explorer",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 136,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 152,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+              "role": "fleeing-explorer",
+              "point_of_view": true,
+              "from": {
+                "timeline": "main",
+                "tick": 136,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 152,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+              "role": "fleeing-explorer",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 136,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 152,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+              "role": "fleeing-explorer",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 136,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 152,
+                "order": 0
+              }
+            }
+          ],
+          "objects": [
+            "obj_6EBRZF2P79J47HXEJWP7CDDFA1",
+            "obj_2T5QAX3BWM0DBNT2KZ1R1TV4T9",
+            "obj_3A7X1D9JBR82WX8DBB287ZABR1",
+            "obj_1V7FPPZKJPVQE2SV3GHWRVBSER",
+            "obj_6B725P2CXQSC90HH4H24K0C5X2",
+            "obj_1PWCXKVPT3RS8MK7TDHQ9QN4FH",
+            "obj_5KH5J0ZACS5W06DMT772D119QS",
+            "obj_1SZQK22K4XSNC0XTZX1Z0T7R5N",
+            "obj_3W8SFAP29CDCV2M3X9XMYTDXY8"
+          ],
+          "environments": [
+            "env_2DKZ0JAREJ68JXSDJYKMGTC3NJ"
+          ],
+          "story_points": [
+            "sp_35EY7W2N8WH1PG0S9F367HZT4X",
+            "sp_7C05N0E5311W4YY72D8X3PHB6P"
+          ],
+          "observations": [
+            {
+              "id": "obs_4X4ASHHD72JRYTJWYKS7V4J39W",
+              "at": {
+                "timeline": "main",
+                "tick": 136,
+                "order": 10
+              },
+              "audience": [
+                "participants"
+              ],
+              "salience": 1.0,
+              "text": "Each wretch shifts between predator and prey anatomy while retaining the same moving amber outline."
+            },
+            {
+              "id": "obs_5A1RB4454BZTKM9TWZZ31AZBQX",
+              "at": {
+                "timeline": "main",
+                "tick": 140,
+                "order": 0
+              },
+              "audience": [
+                "char_36X0KBYZ7MQGKM070H5NF12BK8"
+              ],
+              "salience": 1.0,
+              "text": "When Rhea imagines losing the others, the nearest wretch grows five human hands around its throat."
+            },
+            {
+              "id": "obs_6G4TD3ND0ZVGFATACCKQFK7XJC",
+              "at": {
+                "timeline": "main",
+                "tick": 144,
+                "order": 0
+              },
+              "audience": [
+                "char_0NQKTG3NQZFSVFKXS901NJD82E"
+              ],
+              "salience": 1.0,
+              "text": "A cold draft carries spruce pollen through a vertical carving shaped like a tree trunk."
+            },
+            {
+              "id": "obs_13S3GAPZXMPWJWM673P7NKQ0JK",
+              "at": {
+                "timeline": "main",
+                "tick": 148,
+                "order": 0
+              },
+              "audience": [
+                "char_671MWM7KTP4DCVVP8EP6SFRJVP"
+              ],
+              "salience": 1.0,
+              "text": "The open reliquary lattice makes the pack hesitate at an invisible moving boundary."
+            },
+            {
+              "id": "obs_3NBD1WJJP5V4F5YHPDV20XMCCH",
+              "at": {
+                "timeline": "main",
+                "tick": 151,
+                "order": 0
+              },
+              "audience": [
+                "char_48QC9B4M2RFVXJKSDFMRGJWG8Y"
+              ],
+              "salience": 1.0,
+              "text": "Every fresh panic adds a new shadow-layer inside the lattice; controlled breathing stops the multiplication."
+            }
+          ],
+          "author_constraints": [
+            "The pack responds to felt fear, not merely spoken fear.",
+            "The party escapes by emotional discipline and spatial ingenuity rather than killing every manifestation."
+          ],
+          "conversations": []
+        },
+        "bodyMarkdown": "# Wretch Gallery\n\nThe gallery stress-tests the new amber theory under pursuit. Knowledge helps only when the party changes how it feels and moves, not when it becomes exposition.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "scene",
+          "id": "scene_6N54SP1BTJ9GR036V9M9JCFDR4",
+          "title": "Hilltop Dawn",
+          "domain": "scenes.frontiersmen",
+          "status": "active",
+          "tags": [
+            "surface",
+            "active"
+          ],
+          "aliases": [],
+          "time": {
+            "start": {
+              "timeline": "main",
+              "tick": 158,
+              "order": 0
+            },
+            "current": {
+              "timeline": "main",
+              "tick": 160,
+              "order": 0
+            },
+            "end": null
+          },
+          "location": "loc_7KR423MWGKFHQ63EPX4X61XBJH",
+          "participants": [
+            {
+              "character": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+              "role": "stranded-frontiersman",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 158,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+              "role": "stranded-frontiersman",
+              "point_of_view": true,
+              "from": {
+                "timeline": "main",
+                "tick": 158,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+              "role": "stranded-frontiersman",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 158,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+              "role": "stranded-frontiersman",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 158,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+              "role": "stranded-frontiersman",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 158,
+                "order": 0
+              }
+            }
+          ],
+          "objects": [
+            "obj_6EBRZF2P79J47HXEJWP7CDDFA1",
+            "obj_2T5QAX3BWM0DBNT2KZ1R1TV4T9",
+            "obj_1V7FPPZKJPVQE2SV3GHWRVBSER",
+            "obj_6B725P2CXQSC90HH4H24K0C5X2",
+            "obj_1PWCXKVPT3RS8MK7TDHQ9QN4FH",
+            "obj_5KH5J0ZACS5W06DMT772D119QS",
+            "obj_1SZQK22K4XSNC0XTZX1Z0T7R5N",
+            "obj_3W8SFAP29CDCV2M3X9XMYTDXY8"
+          ],
+          "environments": [
+            "env_77WH7B5PBB2XZYBNDWNVCY2XGP"
+          ],
+          "story_points": [
+            "sp_7C05N0E5311W4YY72D8X3PHB6P",
+            "sp_56BDX8H6ZW2K20S7Z9EV5RBRTR",
+            "sp_2CS9JPWCRVZJQ6YS41M2BAS4JV",
+            "sp_55RMAMRVV8DYG02ZR84VWME0CR"
+          ],
+          "observations": [
+            {
+              "id": "obs_1FG9NTBYZEQAPZEVD0ARMHH16T",
+              "at": {
+                "timeline": "main",
+                "tick": 158,
+                "order": 0
+              },
+              "audience": [
+                "participants"
+              ],
+              "salience": 1.0,
+              "text": "The hill overlooks forest in every direction without road smoke, farm clearing, or the River Keld."
+            },
+            {
+              "id": "obs_4NVN7SY69410EY598GQ2TFAKTE",
+              "at": {
+                "timeline": "main",
+                "tick": 158,
+                "order": 20
+              },
+              "audience": [
+                "char_0NQKTG3NQZFSVFKXS901NJD82E"
+              ],
+              "salience": 1.0,
+              "text": "The dawn angle places them far north and east of every mapped road in Pip's case."
+            },
+            {
+              "id": "obs_616CQAW1300Y5CGAQPYH0D256N",
+              "at": {
+                "timeline": "main",
+                "tick": 159,
+                "order": 0
+              },
+              "audience": [
+                "char_1W0GNKETQY2HF88YHM7CWVFH7C"
+              ],
+              "salience": 1.0,
+              "text": "Jorund's map and Pip's underground route cannot be reconciled with any known surface contour."
+            },
+            {
+              "id": "obs_3YH7SSSSQFPXEGK320EMEWAFXV",
+              "at": {
+                "timeline": "main",
+                "tick": 160,
+                "order": 0
+              },
+              "audience": [
+                "participants"
+              ],
+              "salience": 1.0,
+              "text": "A narrow column of smoke rises two valleys north from a camp where animal-faced figures move in silence."
+            },
+            {
+              "id": "obs_3R7B6Y3CVN40DG154HY1AACETZ",
+              "at": {
+                "timeline": "main",
+                "tick": 160,
+                "order": 10
+              },
+              "audience": [
+                "char_48QC9B4M2RFVXJKSDFMRGJWG8Y"
+              ],
+              "salience": 1.0,
+              "text": "The unmasked figure's root crown contains amber that pulses in time with the reliquary under her coat."
+            }
+          ],
+          "author_constraints": [
+            "The party does not know the Tree King's identity or Moth's role.",
+            "Approaching the camp is a survival decision under hunger and isolation, not implausible trust."
+          ],
+          "conversations": []
+        },
+        "bodyMarkdown": "# Hilltop Dawn\n\nThe underground arc ends with apparent escape and a worse isolation. The first human camp in sight belongs to someone already resonating with what the party carries.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "knowledge",
+          "id": "know_2MBB0C8ZV4AF952BR84SK8GERE",
+          "title": "Rhea Marrow forms an underground amber theory",
+          "domain": "knowledge.char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "status": "canonical",
+          "tags": [
+            "amber",
+            "ruins"
+          ],
+          "aliases": [],
+          "knower": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "claim": {
+            "key": "amber.root-memory-warning",
+            "statement": "The Sunken Hall tablet says amber is golden sap through which a buried root remembers wounds, and fresh terror can return hunter and hunted without distinction.",
+            "author_truth_status": "true",
+            "subject": "obj_2T5QAX3BWM0DBNT2KZ1R1TV4T9",
+            "predicate": "reveals",
+            "object": {
+              "text": "the buried memory-root network"
+            }
+          },
+          "transitions": [
+            {
+              "id": "kt_3AZTF6FN9J4VRADYZP765CE2DZ",
+              "time": {
+                "timeline": "main",
+                "tick": 152,
+                "order": 0
+              },
+              "state": "accepted",
+              "confidence": 0.92,
+              "acquisition": "inferred",
+              "causing_event": "event_22FQP078VAK3ZC1SVK18VZEC9S",
+              "source_entity": "obj_481HCSTXARNTFBN36HP31HTYV2"
+            }
+          ]
+        },
+        "bodyMarkdown": "# Rhea Marrow forms an underground amber theory\n\nThe Sunken Hall tablet says amber is golden sap through which a buried root remembers wounds, and fresh terror can return hunter and hunted without distinction.\n\nThis is a subjective proposition held by the named knower, not a replacement for canonical event or conversation provenance.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "knowledge",
+          "id": "know_72G9WB5A5H171YC3P8D80GX3DR",
+          "title": "Sylvi Ashdown forms an underground amber theory",
+          "domain": "knowledge.char_0NQKTG3NQZFSVFKXS901NJD82E",
+          "status": "canonical",
+          "tags": [
+            "amber",
+            "ruins"
+          ],
+          "aliases": [],
+          "knower": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+          "claim": {
+            "key": "animals.avoid-amber-network",
+            "statement": "Living cave animals avoid amber-lit roots while remembered animal shapes move within them.",
+            "author_truth_status": "true",
+            "subject": "obj_2T5QAX3BWM0DBNT2KZ1R1TV4T9",
+            "predicate": "reveals",
+            "object": {
+              "text": "the buried memory-root network"
+            }
+          },
+          "transitions": [
+            {
+              "id": "kt_73NRQ6GT0M14CX88P8PD1Z918J",
+              "time": {
+                "timeline": "main",
+                "tick": 152,
+                "order": 1
+              },
+              "state": "accepted",
+              "confidence": 0.95,
+              "acquisition": "inferred",
+              "causing_event": "event_22FQP078VAK3ZC1SVK18VZEC9S",
+              "source_entity": "obj_481HCSTXARNTFBN36HP31HTYV2"
+            }
+          ]
+        },
+        "bodyMarkdown": "# Sylvi Ashdown forms an underground amber theory\n\nLiving cave animals avoid amber-lit roots while remembered animal shapes move within them.\n\nThis is a subjective proposition held by the named knower, not a replacement for canonical event or conversation provenance.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "knowledge",
+          "id": "know_1AN34KZ2Q1K8D03J4V3FDKZH9G",
+          "title": "Brother Garran Holt forms an underground amber theory",
+          "domain": "knowledge.char_671MWM7KTP4DCVVP8EP6SFRJVP",
+          "status": "canonical",
+          "tags": [
+            "amber",
+            "ruins"
+          ],
+          "aliases": [],
+          "knower": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+          "claim": {
+            "key": "wretches.not-conscious-dead",
+            "statement": "Wretches are repeated forms unable to distinguish hunter from hunted, not necessarily surviving conscious souls.",
+            "author_truth_status": "unknown",
+            "subject": "obj_2T5QAX3BWM0DBNT2KZ1R1TV4T9",
+            "predicate": "reveals",
+            "object": {
+              "text": "the buried memory-root network"
+            }
+          },
+          "transitions": [
+            {
+              "id": "kt_3QBWT0XQSXYDZVDA8GKC45W2X0",
+              "time": {
+                "timeline": "main",
+                "tick": 152,
+                "order": 2
+              },
+              "state": "suspected",
+              "confidence": 0.82,
+              "acquisition": "inferred",
+              "causing_event": "event_22FQP078VAK3ZC1SVK18VZEC9S",
+              "source_entity": "obj_481HCSTXARNTFBN36HP31HTYV2"
+            }
+          ]
+        },
+        "bodyMarkdown": "# Brother Garran Holt forms an underground amber theory\n\nWretches are repeated forms unable to distinguish hunter from hunted, not necessarily surviving conscious souls.\n\nThis is a subjective proposition held by the named knower, not a replacement for canonical event or conversation provenance.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "knowledge",
+          "id": "know_1DGNWGY4XX96ZZ124XVGGT221G",
+          "title": "Veyra Kest forms an underground amber theory",
+          "domain": "knowledge.char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "status": "canonical",
+          "tags": [
+            "amber",
+            "ruins"
+          ],
+          "aliases": [],
+          "knower": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "claim": {
+            "key": "amber.stores-lived-impressions",
+            "statement": "Amber stores structured lived impressions inside a larger root network and can project them as moving forms.",
+            "author_truth_status": "true",
+            "subject": "obj_2T5QAX3BWM0DBNT2KZ1R1TV4T9",
+            "predicate": "reveals",
+            "object": {
+              "text": "the buried memory-root network"
+            }
+          },
+          "transitions": [
+            {
+              "id": "kt_753BH7SSKJ3PXVJDKCAG5K414M",
+              "time": {
+                "timeline": "main",
+                "tick": 152,
+                "order": 3
+              },
+              "state": "accepted",
+              "confidence": 0.93,
+              "acquisition": "inferred",
+              "causing_event": "event_22FQP078VAK3ZC1SVK18VZEC9S",
+              "source_entity": "obj_481HCSTXARNTFBN36HP31HTYV2"
+            }
+          ]
+        },
+        "bodyMarkdown": "# Veyra Kest forms an underground amber theory\n\nAmber stores structured lived impressions inside a larger root network and can project them as moving forms.\n\nThis is a subjective proposition held by the named knower, not a replacement for canonical event or conversation provenance.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "knowledge",
+          "id": "know_4CW43QN5CFC4ZH2QJCQ4J3EC52",
+          "title": "Pip Fenlock forms an underground amber theory",
+          "domain": "knowledge.char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "status": "canonical",
+          "tags": [
+            "amber",
+            "ruins"
+          ],
+          "aliases": [],
+          "knower": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "claim": {
+            "key": "amber-routes-react-to-memory",
+            "statement": "Amber routes react to emotionally genuine recollection and can be quieted or redirected by ancient lattice mechanisms.",
+            "author_truth_status": "true",
+            "subject": "obj_2T5QAX3BWM0DBNT2KZ1R1TV4T9",
+            "predicate": "reveals",
+            "object": {
+              "text": "the buried memory-root network"
+            }
+          },
+          "transitions": [
+            {
+              "id": "kt_2PRXS0SF5D0EZWDX28Q2Q0VTXW",
+              "time": {
+                "timeline": "main",
+                "tick": 152,
+                "order": 4
+              },
+              "state": "accepted",
+              "confidence": 0.9,
+              "acquisition": "inferred",
+              "causing_event": "event_22FQP078VAK3ZC1SVK18VZEC9S",
+              "source_entity": "obj_481HCSTXARNTFBN36HP31HTYV2"
+            }
+          ]
+        },
+        "bodyMarkdown": "# Pip Fenlock forms an underground amber theory\n\nAmber routes react to emotionally genuine recollection and can be quieted or redirected by ancient lattice mechanisms.\n\nThis is a subjective proposition held by the named knower, not a replacement for canonical event or conversation provenance.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "knowledge",
+          "id": "know_1FRSYA0S073FZYCFDHPD3NE7VJ",
+          "title": "Rhea suspects the guild concealed amber safety rules",
+          "domain": "knowledge.char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "status": "canonical",
+          "tags": [
+            "guild-secret"
+          ],
+          "aliases": [],
+          "knower": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "claim": {
+            "key": "guild.concealed.amber-rules",
+            "statement": "Lantern Pike possessed operational handling rules for quick amber but did not provide them to the hunters, watch, or mine crews.",
+            "author_truth_status": "true",
+            "subject": "char_37D4GED06VHV5Q82C2GHTKFYCX",
+            "predicate": "concealed",
+            "object": {
+              "text": "quick-amber handling rules"
+            }
+          },
+          "transitions": [
+            {
+              "id": "kt_7274A1ZYCKC6ZXJSHRETHQYMA9",
+              "time": {
+                "timeline": "main",
+                "tick": 114,
+                "order": 10
+              },
+              "state": "suspected",
+              "confidence": 0.88,
+              "acquisition": "inferred",
+              "causing_event": "event_5ZY58D2JG3TCJNX8F7NR0TKG40",
+              "source_entity": "obj_6B7S0AKDAJYX96PJK5SRAB9QCN"
+            }
+          ]
+        },
+        "bodyMarkdown": "# Rhea suspects the guild concealed amber safety rules\n\nLantern Pike possessed operational handling rules for quick amber but did not provide them to the hunters, watch, or mine crews.\n\nThis is a subjective proposition held by the named knower, not a replacement for canonical event or conversation provenance.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "knowledge",
+          "id": "know_1FVRPWTJGJHNEPQTVEKZXTBV0Y",
+          "title": "Rhea knows the party is isolated beyond mapped roads",
+          "domain": "knowledge.char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "status": "canonical",
+          "tags": [
+            "isolation"
+          ],
+          "aliases": [],
+          "knower": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "claim": {
+            "key": "party.isolated.deep-frontier",
+            "statement": "The party emerged far beyond every mapped road and cannot identify a direct route back to Harrowcross.",
+            "author_truth_status": "true",
+            "subject": "loc_7KR423MWGKFHQ63EPX4X61XBJH",
+            "predicate": "isolates",
+            "object": {
+              "text": "the party from mapped settlements"
+            }
+          },
+          "transitions": [
+            {
+              "id": "kt_30T6MQQGRWCQQVC7N8B2T2A5CM",
+              "time": {
+                "timeline": "main",
+                "tick": 159,
+                "order": 0
+              },
+              "state": "accepted",
+              "confidence": 0.98,
+              "acquisition": "observed",
+              "causing_event": "event_5QXAWZGMJXAY3MA8W1C3BNSV1V",
+              "source_entity": "obj_6EBRZF2P79J47HXEJWP7CDDFA1"
+            }
+          ]
+        },
+        "bodyMarkdown": "# Rhea knows the party is isolated beyond mapped roads\n\nThe party emerged far beyond every mapped road and cannot identify a direct route back to Harrowcross.\n\nThis is a subjective proposition held by the named knower, not a replacement for canonical event or conversation provenance.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "relationship",
+          "id": "rel_7B0R95HAFQNJAH07GBBZBYCHTE",
+          "title": "Rhea Marrow's view of Pip Fenlock",
+          "domain": "relationships.frontiersmen",
+          "status": "canonical",
+          "tags": [
+            "char_36X0KBYZ7MQGKM070H5NF12BK8",
+            "char_1W0GNKETQY2HF88YHM7CWVFH7C"
+          ],
+          "aliases": [],
+          "from": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "to": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "relationship_kind": "new-company",
+          "inverse": "rel_3S8SP05JPQS8M8BTWBCBTVX2JN",
+          "transitions": [
+            {
+              "id": "rt_2BKZV669RQ902BEP4XJ6QN4WV2",
+              "time": {
+                "timeline": "main",
+                "tick": 0,
+                "order": 0
+              },
+              "relationship_status": "active",
+              "metrics": {
+                "trust": 0.18,
+                "affinity": 0.12,
+                "fear": 0.0,
+                "obligation": 0.04,
+                "respect": 0.08,
+                "dependence": 0.02
+              },
+              "facets": [
+                "young-looking",
+                "quick-handed"
+              ],
+              "causing_event": null,
+              "note": "Rhea underestimates Pip's strategic value."
+            },
+            {
+              "id": "rt_2ZFC5GRH6BA1M80ES6PEMMK3A7",
+              "time": {
+                "timeline": "main",
+                "tick": 152,
+                "order": 0
+              },
+              "relationship_status": "active",
+              "metrics": {
+                "trust": 0.68,
+                "affinity": 0.28,
+                "fear": 0.02,
+                "obligation": 0.16,
+                "respect": 0.7,
+                "dependence": 0.46
+              },
+              "facets": [
+                "trusted-mapper",
+                "keeps-exits-real"
+              ],
+              "causing_event": "event_22FQP078VAK3ZC1SVK18VZEC9S",
+              "note": "Pip preserves a navigable route and finds the surface shaft while frightened."
+            }
+          ]
+        },
+        "bodyMarkdown": "# Rhea Marrow's view of Pip Fenlock\n\nA directional relationship in The Frontiersmen. Rhea underestimates Pip's strategic value.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "relationship",
+          "id": "rel_3S8SP05JPQS8M8BTWBCBTVX2JN",
+          "title": "Pip Fenlock's view of Rhea Marrow",
+          "domain": "relationships.frontiersmen",
+          "status": "canonical",
+          "tags": [
+            "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+            "char_36X0KBYZ7MQGKM070H5NF12BK8"
+          ],
+          "aliases": [],
+          "from": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "to": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "relationship_kind": "new-company",
+          "inverse": "rel_7B0R95HAFQNJAH07GBBZBYCHTE",
+          "transitions": [
+            {
+              "id": "rt_5MXVQ0FM1MAGZZS7H4R5WG2VW1",
+              "time": {
+                "timeline": "main",
+                "tick": 0,
+                "order": 0
+              },
+              "relationship_status": "active",
+              "metrics": {
+                "trust": 0.24,
+                "affinity": 0.18,
+                "fear": 0.02,
+                "obligation": 0.02,
+                "respect": 0.18,
+                "dependence": 0.04
+              },
+              "facets": [
+                "shield",
+                "easy-to-tease"
+              ],
+              "causing_event": null,
+              "note": "Pip decides Rhea is safest when annoyed rather than uncertain."
+            },
+            {
+              "id": "rt_4DGRKVF5CA0EK7QPTSAHHZXH8K",
+              "time": {
+                "timeline": "main",
+                "tick": 152,
+                "order": 1
+              },
+              "relationship_status": "active",
+              "metrics": {
+                "trust": 0.64,
+                "affinity": 0.34,
+                "fear": 0.04,
+                "obligation": 0.12,
+                "respect": 0.62,
+                "dependence": 0.32
+              },
+              "facets": [
+                "leader-keeps-promises",
+                "uses-his-map"
+              ],
+              "causing_event": "event_22FQP078VAK3ZC1SVK18VZEC9S",
+              "note": "Rhea treats the map as a shared promise rather than Pip's private trick."
+            }
+          ]
+        },
+        "bodyMarkdown": "# Pip Fenlock's view of Rhea Marrow\n\nA directional relationship in The Frontiersmen. Pip decides Rhea is safest when annoyed rather than uncertain.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "relationship",
+          "id": "rel_4BBZ5ENTG8936G932M5WRAZP4G",
+          "title": "Rhea Marrow's view of Veyra Kest",
+          "domain": "relationships.frontiersmen",
+          "status": "canonical",
+          "tags": [
+            "char_36X0KBYZ7MQGKM070H5NF12BK8",
+            "char_48QC9B4M2RFVXJKSDFMRGJWG8Y"
+          ],
+          "aliases": [],
+          "from": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "to": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "relationship_kind": "new-company",
+          "inverse": "rel_5NQ2SPKJZPBK131RJXGW58W6KR",
+          "transitions": [
+            {
+              "id": "rt_6KDR1EJGFS72PF54SNBGS4KWZQ",
+              "time": {
+                "timeline": "main",
+                "tick": 0,
+                "order": 0
+              },
+              "relationship_status": "active",
+              "metrics": {
+                "trust": 0.02,
+                "affinity": 0.0,
+                "fear": 0.12,
+                "obligation": 0.0,
+                "respect": 0.18,
+                "dependence": 0.05
+              },
+              "facets": [
+                "unknown-magic",
+                "useful"
+              ],
+              "causing_event": null,
+              "note": "Rhea respects Veyra's knowledge and distrusts her appetite for risk."
+            },
+            {
+              "id": "rt_50M0M43094YP5NN8WRJRCZX9RR",
+              "time": {
+                "timeline": "main",
+                "tick": 152,
+                "order": 2
+              },
+              "relationship_status": "active",
+              "metrics": {
+                "trust": 0.38,
+                "affinity": 0.08,
+                "fear": 0.26,
+                "obligation": 0.1,
+                "respect": 0.58,
+                "dependence": 0.34
+              },
+              "facets": [
+                "essential-arcanist",
+                "amber-susceptible"
+              ],
+              "causing_event": "event_1X2GQH1T37V55P4JBN5QG4V7H8",
+              "note": "Veyra decodes the ruins and carries the reliquary, but the material answers her too readily."
+            }
+          ]
+        },
+        "bodyMarkdown": "# Rhea Marrow's view of Veyra Kest\n\nA directional relationship in The Frontiersmen. Rhea respects Veyra's knowledge and distrusts her appetite for risk.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "relationship",
+          "id": "rel_5NQ2SPKJZPBK131RJXGW58W6KR",
+          "title": "Veyra Kest's view of Rhea Marrow",
+          "domain": "relationships.frontiersmen",
+          "status": "canonical",
+          "tags": [
+            "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+            "char_36X0KBYZ7MQGKM070H5NF12BK8"
+          ],
+          "aliases": [],
+          "from": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "to": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "relationship_kind": "new-company",
+          "inverse": "rel_4BBZ5ENTG8936G932M5WRAZP4G",
+          "transitions": [
+            {
+              "id": "rt_7QETZKJFP2W3QR5WMW4GY3ZZX5",
+              "time": {
+                "timeline": "main",
+                "tick": 0,
+                "order": 0
+              },
+              "relationship_status": "active",
+              "metrics": {
+                "trust": 0.16,
+                "affinity": 0.06,
+                "fear": 0.02,
+                "obligation": 0.0,
+                "respect": 0.22,
+                "dependence": 0.04
+              },
+              "facets": [
+                "practical",
+                "unimaginative-at-first"
+              ],
+              "causing_event": null,
+              "note": "Veyra expects Rhea to be useful and intellectually conservative."
+            },
+            {
+              "id": "rt_4ZXEBBR7PVM9RR98FEMQ6V0B7H",
+              "time": {
+                "timeline": "main",
+                "tick": 152,
+                "order": 3
+              },
+              "relationship_status": "active",
+              "metrics": {
+                "trust": 0.58,
+                "affinity": 0.18,
+                "fear": 0.08,
+                "obligation": 0.12,
+                "respect": 0.64,
+                "dependence": 0.3
+              },
+              "facets": [
+                "protective-skeptic",
+                "limits-experiment"
+              ],
+              "causing_event": "event_1X2GQH1T37V55P4JBN5QG4V7H8",
+              "note": "Rhea prevents experimentation until survival makes the reliquary necessary."
+            }
+          ]
+        },
+        "bodyMarkdown": "# Veyra Kest's view of Rhea Marrow\n\nA directional relationship in The Frontiersmen. Veyra expects Rhea to be useful and intellectually conservative.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "relationship",
+          "id": "rel_7VXKXMGN96PQHNGAA781PYT38Q",
+          "title": "Brother Garran Holt's view of Veyra Kest",
+          "domain": "relationships.frontiersmen",
+          "status": "canonical",
+          "tags": [
+            "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+            "char_48QC9B4M2RFVXJKSDFMRGJWG8Y"
+          ],
+          "aliases": [],
+          "from": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+          "to": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "relationship_kind": "new-company",
+          "inverse": "rel_6R247N2NA89XEZ8PEFG0YV0RCQ",
+          "transitions": [
+            {
+              "id": "rt_1058WB579YWW02T1JBMF87JZMZ",
+              "time": {
+                "timeline": "main",
+                "tick": 0,
+                "order": 0
+              },
+              "relationship_status": "active",
+              "metrics": {
+                "trust": 0.08,
+                "affinity": 0.06,
+                "fear": 0.04,
+                "obligation": 0.0,
+                "respect": 0.18,
+                "dependence": 0.04
+              },
+              "facets": [
+                "theological-disagreement"
+              ],
+              "causing_event": null,
+              "note": "Garran respects Veyra's discipline and worries that curiosity is her form of worship."
+            },
+            {
+              "id": "rt_6X8BNA7G6K1W8HMN56BY2ZFG7H",
+              "time": {
+                "timeline": "main",
+                "tick": 136,
+                "order": 0
+              },
+              "relationship_status": "active",
+              "metrics": {
+                "trust": 0.5,
+                "affinity": 0.2,
+                "fear": 0.02,
+                "obligation": 0.08,
+                "respect": 0.62,
+                "dependence": 0.22
+              },
+              "facets": [
+                "theory-changed-faith",
+                "truthful-translator"
+              ],
+              "causing_event": "event_071AM9366WK3A503C0K3N23HE3",
+              "note": "Veyra translates evidence that forces Garran to abandon the easy soul explanation."
+            }
+          ]
+        },
+        "bodyMarkdown": "# Brother Garran Holt's view of Veyra Kest\n\nA directional relationship in The Frontiersmen. Garran respects Veyra's discipline and worries that curiosity is her form of worship.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "relationship",
+          "id": "rel_3KMQWTHMYJ7X9HK08AX03SETQY",
+          "title": "Sylvi Ashdown's view of Pip Fenlock",
+          "domain": "relationships.frontiersmen",
+          "status": "canonical",
+          "tags": [
+            "char_0NQKTG3NQZFSVFKXS901NJD82E",
+            "char_1W0GNKETQY2HF88YHM7CWVFH7C"
+          ],
+          "aliases": [],
+          "from": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+          "to": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "relationship_kind": "new-company",
+          "inverse": "rel_2W95XG795P49Q4VQJCNQ9HRQPV",
+          "transitions": [
+            {
+              "id": "rt_0NYMHJYB4N9VYSRWRPPNS46FDM",
+              "time": {
+                "timeline": "main",
+                "tick": 0,
+                "order": 0
+              },
+              "relationship_status": "active",
+              "metrics": {
+                "trust": 0.3,
+                "affinity": 0.22,
+                "fear": 0.0,
+                "obligation": 0.02,
+                "respect": 0.22,
+                "dependence": 0.08
+              },
+              "facets": [
+                "scouting-partner"
+              ],
+              "causing_event": null,
+              "note": "Sylvi appreciates that Pip can move quietly and knows when not to talk."
+            },
+            {
+              "id": "rt_0Z1SZ087X4S1NBJ547EXSP7H3K",
+              "time": {
+                "timeline": "main",
+                "tick": 152,
+                "order": 4
+              },
+              "relationship_status": "active",
+              "metrics": {
+                "trust": 0.56,
+                "affinity": 0.22,
+                "fear": 0.0,
+                "obligation": 0.08,
+                "respect": 0.6,
+                "dependence": 0.32
+              },
+              "facets": [
+                "air-and-map-partners",
+                "reliable-under-dark"
+              ],
+              "causing_event": "event_22FQP078VAK3ZC1SVK18VZEC9S",
+              "note": "Sylvi's airflow and Pip's map become one route rather than competing methods."
+            }
+          ]
+        },
+        "bodyMarkdown": "# Sylvi Ashdown's view of Pip Fenlock\n\nA directional relationship in The Frontiersmen. Sylvi appreciates that Pip can move quietly and knows when not to talk.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "story-point",
+          "id": "sp_5JW98KWBPBPHFYSA7MMC796ZAJ",
+          "title": "Enter Saint Orra's Mine",
+          "domain": "plot.frontiersmen",
+          "status": "canonical",
+          "tags": [
+            "campaign"
+          ],
+          "aliases": [],
+          "lifecycle": {
+            "initial_state": "dormant",
+            "transitions": [
+              {
+                "id": "spt_46MZ2A97XST2ZNM7W54MK6640Z",
+                "time": {
+                  "timeline": "main",
+                  "tick": 84,
+                  "order": 30
+                },
+                "state": "active",
+                "causing_event": "event_71BDWMBEY0J1HM0BNVH3EMNPPX",
+                "note": "The party wins access to the sealed drift."
+              },
+              {
+                "id": "spt_5NBQP5MTEWPCQHF0F97BV570GE",
+                "time": {
+                  "timeline": "main",
+                  "tick": 86,
+                  "order": 0
+                },
+                "state": "resolved",
+                "causing_event": "event_15JS2KMNQS88FY8GAYXBV1MBPA",
+                "note": "The company crosses the green lamp line."
+              }
+            ]
+          },
+          "activation_policy": "suggest",
+          "priority": 82,
+          "repeat_policy": "once",
+          "dependencies": {
+            "all": []
+          },
+          "trigger": {
+            "all": []
+          },
+          "on_activate": {
+            "create_draft_scene": false
+          },
+          "outcome_events": [
+            "event_15JS2KMNQS88FY8GAYXBV1MBPA"
+          ]
+        },
+        "bodyMarkdown": "# Enter Saint Orra's Mine\n\nInvestigate the sealed drifts and missing lower crew despite Jorund's resistance.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "story-point",
+          "id": "sp_3J1S28X5AZ261VA09J5RS573EN",
+          "title": "Escape the Cave-In",
+          "domain": "plot.frontiersmen",
+          "status": "canonical",
+          "tags": [
+            "campaign"
+          ],
+          "aliases": [],
+          "lifecycle": {
+            "initial_state": "dormant",
+            "transitions": [
+              {
+                "id": "spt_541EB5TTRSMV90VZFRWJ3XAFES",
+                "time": {
+                  "timeline": "main",
+                  "tick": 91,
+                  "order": 0
+                },
+                "state": "active",
+                "causing_event": "event_5PE0EKDCDMGT41TT616CBN5F23",
+                "note": "The mine collapses between the party and the surface."
+              },
+              {
+                "id": "spt_1ZT64DCCGYX323JW61Z3VMFDAV",
+                "time": {
+                  "timeline": "main",
+                  "tick": 101,
+                  "order": 0
+                },
+                "state": "resolved",
+                "causing_event": "event_0PPHBSJACDHS2BDKJE1ZYEP02J",
+                "note": "The party finds lower air and a viable route away from the collapse."
+              }
+            ]
+          },
+          "activation_policy": "suggest",
+          "priority": 100,
+          "repeat_policy": "once",
+          "dependencies": {
+            "all": []
+          },
+          "trigger": {
+            "all": []
+          },
+          "on_activate": {
+            "create_draft_scene": false
+          },
+          "outcome_events": [
+            "event_0PPHBSJACDHS2BDKJE1ZYEP02J"
+          ]
+        },
+        "bodyMarkdown": "# Escape the Cave-In\n\nSurvive the collapse, find an alternate route, and keep the company together underground.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "story-point",
+          "id": "sp_05AYKKC34KZ155A2YBVTZJF4VN",
+          "title": "Cross the Lower Caverns",
+          "domain": "plot.frontiersmen",
+          "status": "canonical",
+          "tags": [
+            "campaign"
+          ],
+          "aliases": [],
+          "lifecycle": {
+            "initial_state": "dormant",
+            "transitions": [
+              {
+                "id": "spt_3XRNBDZKRRQ0Z2SFN2SBJK5VNG",
+                "time": {
+                  "timeline": "main",
+                  "tick": 101,
+                  "order": 0
+                },
+                "state": "active",
+                "causing_event": "event_0PPHBSJACDHS2BDKJE1ZYEP02J",
+                "note": "The party enters unmapped lower caverns."
+              },
+              {
+                "id": "spt_4K3WE2ZEZGW1NJNDZDWM5S6S3M",
+                "time": {
+                  "timeline": "main",
+                  "tick": 122,
+                  "order": 20
+                },
+                "state": "resolved",
+                "causing_event": "event_314JMK73N3KMHCBR7RW673BXC5",
+                "note": "The lower route reaches constructed ruins and a new navigational frame."
+              }
+            ]
+          },
+          "activation_policy": "suggest",
+          "priority": 90,
+          "repeat_policy": "once",
+          "dependencies": {
+            "all": []
+          },
+          "trigger": {
+            "all": []
+          },
+          "on_activate": {
+            "create_draft_scene": false
+          },
+          "outcome_events": [
+            "event_0WRPYJT2TS2ZCXGR05HDF6TYRY",
+            "event_5ZY58D2JG3TCJNX8F7NR0TKG40",
+            "event_314JMK73N3KMHCBR7RW673BXC5"
+          ]
+        },
+        "bodyMarkdown": "# Cross the Lower Caverns\n\nTravel through two days of unmapped cavern systems with dwindling food and lamps.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "story-point",
+          "id": "sp_0DMDKSH6VJ4XKN4HGYP9SDEP1C",
+          "title": "Decode the Sunken Hall",
+          "domain": "plot.frontiersmen",
+          "status": "canonical",
+          "tags": [
+            "campaign"
+          ],
+          "aliases": [],
+          "lifecycle": {
+            "initial_state": "dormant",
+            "transitions": [
+              {
+                "id": "spt_49ZGVY0DNADZ3PVWX7QW0QHZR1",
+                "time": {
+                  "timeline": "main",
+                  "tick": 122,
+                  "order": 20
+                },
+                "state": "active",
+                "causing_event": "event_314JMK73N3KMHCBR7RW673BXC5",
+                "note": "The party begins reading the Sunken Hall."
+              },
+              {
+                "id": "spt_64DRERFV132BDRC5X19QD7JP9K",
+                "time": {
+                  "timeline": "main",
+                  "tick": 124,
+                  "order": 15
+                },
+                "state": "resolved",
+                "causing_event": "event_071AM9366WK3A503C0K3N23HE3",
+                "note": "Veyra translates the central amber warning."
+              }
+            ]
+          },
+          "activation_policy": "suggest",
+          "priority": 89,
+          "repeat_policy": "once",
+          "dependencies": {
+            "all": []
+          },
+          "trigger": {
+            "all": []
+          },
+          "on_activate": {
+            "create_draft_scene": false
+          },
+          "outcome_events": [
+            "event_071AM9366WK3A503C0K3N23HE3"
+          ]
+        },
+        "bodyMarkdown": "# Decode the Sunken Hall\n\nInterpret the old reliefs and tablet describing amber as a vessel for remembered forms.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "story-point",
+          "id": "sp_35EY7W2N8WH1PG0S9F367HZT4X",
+          "title": "Escape the Wretch Gallery",
+          "domain": "plot.frontiersmen",
+          "status": "canonical",
+          "tags": [
+            "campaign"
+          ],
+          "aliases": [],
+          "lifecycle": {
+            "initial_state": "dormant",
+            "transitions": [
+              {
+                "id": "spt_028K3PQ61J865EWB1CD9787H8Z",
+                "time": {
+                  "timeline": "main",
+                  "tick": 136,
+                  "order": 10
+                },
+                "state": "active",
+                "causing_event": "event_4ME3BF84VMYJEH9WEGD1ZAR39F",
+                "note": "The reliquary wakes a gallery of remembered beasts."
+              },
+              {
+                "id": "spt_0EAW76HPW40V9XSZ8N1K01BW8Z",
+                "time": {
+                  "timeline": "main",
+                  "tick": 151,
+                  "order": 20
+                },
+                "state": "resolved",
+                "causing_event": "event_22FQP078VAK3ZC1SVK18VZEC9S",
+                "note": "The party reaches the surface shaft."
+              }
+            ]
+          },
+          "activation_policy": "suggest",
+          "priority": 98,
+          "repeat_policy": "once",
+          "dependencies": {
+            "all": []
+          },
+          "trigger": {
+            "all": []
+          },
+          "on_activate": {
+            "create_draft_scene": false
+          },
+          "outcome_events": [
+            "event_22FQP078VAK3ZC1SVK18VZEC9S"
+          ]
+        },
+        "bodyMarkdown": "# Escape the Wretch Gallery\n\nCross a ruin gallery where wretches can emerge from every carved surface.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "story-point",
+          "id": "sp_7C05N0E5311W4YY72D8X3PHB6P",
+          "title": "Reach the Surface",
+          "domain": "plot.frontiersmen",
+          "status": "canonical",
+          "tags": [
+            "campaign"
+          ],
+          "aliases": [],
+          "lifecycle": {
+            "initial_state": "dormant",
+            "transitions": [
+              {
+                "id": "spt_06MX24601VFB0PT5QR1C5A0DJC",
+                "time": {
+                  "timeline": "main",
+                  "tick": 151,
+                  "order": 20
+                },
+                "state": "active",
+                "causing_event": "event_22FQP078VAK3ZC1SVK18VZEC9S",
+                "note": "A cold shaft offers the first surface route."
+              },
+              {
+                "id": "spt_2JFQ7V269A03HSZ11YKJKXZ62X",
+                "time": {
+                  "timeline": "main",
+                  "tick": 158,
+                  "order": 0
+                },
+                "state": "resolved",
+                "causing_event": "event_5QXAWZGMJXAY3MA8W1C3BNSV1V",
+                "note": "The party emerges onto the isolated hilltop."
+              }
+            ]
+          },
+          "activation_policy": "suggest",
+          "priority": 92,
+          "repeat_policy": "once",
+          "dependencies": {
+            "all": []
+          },
+          "trigger": {
+            "all": []
+          },
+          "on_activate": {
+            "create_draft_scene": false
+          },
+          "outcome_events": [
+            "event_5QXAWZGMJXAY3MA8W1C3BNSV1V"
+          ]
+        },
+        "bodyMarkdown": "# Reach the Surface\n\nFind an exit from the cavern system and establish where the party has emerged.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "story-point",
+          "id": "sp_56BDX8H6ZW2K20S7Z9EV5RBRTR",
+          "title": "Understand the Tree King",
+          "domain": "plot.frontiersmen",
+          "status": "canonical",
+          "tags": [
+            "campaign"
+          ],
+          "aliases": [],
+          "lifecycle": {
+            "initial_state": "dormant",
+            "transitions": [
+              {
+                "id": "spt_5PAVS0Y3GBCVNKR13NYK6NBRXB",
+                "time": {
+                  "timeline": "main",
+                  "tick": 160,
+                  "order": 0
+                },
+                "state": "active",
+                "causing_event": "event_6K8VCQVV5Q04PRF6NHWHJNHT4N",
+                "note": "The only nearby human camp belongs to a masked host and an amber-crowned man."
+              }
+            ]
+          },
+          "activation_policy": "suggest",
+          "priority": 95,
+          "repeat_policy": "once",
+          "dependencies": {
+            "all": []
+          },
+          "trigger": {
+            "all": []
+          },
+          "on_activate": {
+            "create_draft_scene": false
+          },
+          "outcome_events": []
+        },
+        "bodyMarkdown": "# Understand the Tree King\n\nLearn why the masked king can harness amber and whether his communion with the Frontier is real.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "story-point",
+          "id": "sp_2CS9JPWCRVZJQ6YS41M2BAS4JV",
+          "title": "Return to Harrowcross",
+          "domain": "plot.frontiersmen",
+          "status": "canonical",
+          "tags": [
+            "campaign"
+          ],
+          "aliases": [],
+          "lifecycle": {
+            "initial_state": "dormant",
+            "transitions": [
+              {
+                "id": "spt_6XW2T2DDNYJGFXJAX7FF5T3ZHZ",
+                "time": {
+                  "timeline": "main",
+                  "tick": 158,
+                  "order": 0
+                },
+                "state": "active",
+                "causing_event": "event_5QXAWZGMJXAY3MA8W1C3BNSV1V",
+                "note": "The party is alive but isolated beyond mapped roads."
+              }
+            ]
+          },
+          "activation_policy": "suggest",
+          "priority": 84,
+          "repeat_policy": "once",
+          "dependencies": {
+            "all": []
+          },
+          "trigger": {
+            "all": []
+          },
+          "on_activate": {
+            "create_draft_scene": false
+          },
+          "outcome_events": []
+        },
+        "bodyMarkdown": "# Return to Harrowcross\n\nFind a route back to the abandoned duty post with warning and evidence.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "story-point",
+          "id": "sp_55RMAMRVV8DYG02ZR84VWME0CR",
+          "title": "What Is Amber?",
+          "domain": "plot.frontiersmen",
+          "status": "canonical",
+          "tags": [
+            "campaign"
+          ],
+          "aliases": [],
+          "lifecycle": {
+            "initial_state": "dormant",
+            "transitions": [
+              {
+                "id": "spt_4MCYZSVKNHWRMEHE0BKHH6TJGP",
+                "time": {
+                  "timeline": "main",
+                  "tick": 72,
+                  "order": 40
+                },
+                "state": "active",
+                "causing_event": "event_3X3WCH3S4HA27KAGTQTDP6FPCM",
+                "note": "Tillo supplies a partial operational vocabulary for quick amber."
+              },
+              {
+                "id": "spt_03V557N2V84SEDQRFMQ918JWMZ",
+                "time": {
+                  "timeline": "main",
+                  "tick": 124,
+                  "order": 15
+                },
+                "state": "resolved",
+                "causing_event": "event_071AM9366WK3A503C0K3N23HE3",
+                "note": "The tablet and underground behavior support a root-memory theory."
+              }
+            ]
+          },
+          "activation_policy": "suggest",
+          "priority": 97,
+          "repeat_policy": "once",
+          "dependencies": {
+            "all": []
+          },
+          "trigger": {
+            "all": []
+          },
+          "on_activate": {
+            "create_draft_scene": false
+          },
+          "outcome_events": [
+            "event_071AM9366WK3A503C0K3N23HE3"
+          ]
+        },
+        "bodyMarkdown": "# What Is Amber?\n\nSeparate frontier superstition, guild euphemism, ancient record, and the Tree King's claims into a defensible theory.\n"
+      }
+    }
+  ]
+}

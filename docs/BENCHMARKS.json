@@ -1,0 +1,832 @@
+{
+  "authored": {
+    "repository": "/mnt/data/wedl-iteration-04/story-build",
+    "revision": "bed220f90d69f7657fcae635c9f51c9524eb6b97",
+    "records": 238,
+    "kinds": {
+      "character": 13,
+      "conversation": 13,
+      "environment": 15,
+      "event": 41,
+      "knowledge": 54,
+      "location": 20,
+      "object": 21,
+      "relationship": 24,
+      "scene": 15,
+      "story-point": 21,
+      "world": 1
+    },
+    "characterId": "char_00HBQM4T4CMF11RKMNDBRP92QC",
+    "sceneId": "scene_45FYHCR4ZHK90ZFTPF0WADM6GZ",
+    "conversationId": "conv_5BD4RHP5KJCVYGCRZQWZYAF17K",
+    "compile": {
+      "coldWallMs": 105.973,
+      "cold": {
+        "status": "compiled",
+        "buildMode": "full",
+        "revision": "bed220f90d69f7657fcae635c9f51c9524eb6b97",
+        "treeOid": "36ed44bc306745f784af10f64d010d35f1e28cb3",
+        "database": "/mnt/data/wedl-iteration-04/story-build/.wedl/world.sqlite",
+        "databaseBytes": 3862528,
+        "recordCount": 238,
+        "searchDocumentCount": 931,
+        "embeddingCache": {
+          "reused": 0,
+          "generated": 931,
+          "uniqueInputs": 619
+        },
+        "searchProjection": {
+          "timingsMs": {
+            "buildDocuments": 10.395,
+            "hashInputs": 0.551,
+            "embeddingCacheLookup": 4.832,
+            "generateEmbeddings": 24.973,
+            "persistEmbeddingCache": 2.415,
+            "prepareRows": 3.519,
+            "insertDocuments": 2.504,
+            "insertFts": 3.768,
+            "insertEmbeddings": 2.185
+          }
+        },
+        "activeSceneId": "scene_45FYHCR4ZHK90ZFTPF0WADM6GZ",
+        "currentTime": {
+          "timeline": "main",
+          "tick": 178,
+          "order": 10
+        },
+        "changedPaths": [],
+        "sourceLoad": {
+          "mode": "memory-cache",
+          "records": 238,
+          "parsed": 0,
+          "cacheHits": 238,
+          "blobReads": 0
+        },
+        "timingsMs": {
+          "resolveRevision": 2.755,
+          "loadSource": 6.216,
+          "validate": 6.977,
+          "schema": 1.815,
+          "entities": 9.535,
+          "narrative": 4.316,
+          "derived": 6.426,
+          "search": 56.679,
+          "indexes": 4.167,
+          "total": 105.868
+        }
+      },
+      "warmForcedWallMs": 72.308,
+      "warmForced": {
+        "status": "compiled",
+        "buildMode": "fast-forward-rebuild",
+        "revision": "bed220f90d69f7657fcae635c9f51c9524eb6b97",
+        "treeOid": "36ed44bc306745f784af10f64d010d35f1e28cb3",
+        "database": "/mnt/data/wedl-iteration-04/story-build/.wedl/world.sqlite",
+        "databaseBytes": 3862528,
+        "recordCount": 238,
+        "searchDocumentCount": 931,
+        "embeddingCache": {
+          "reused": 931,
+          "generated": 0,
+          "uniqueInputs": 619
+        },
+        "searchProjection": {
+          "timingsMs": {
+            "buildDocuments": 11.08,
+            "hashInputs": 0.517,
+            "embeddingCacheLookup": 3.631,
+            "generateEmbeddings": 0.046,
+            "persistEmbeddingCache": 0.0,
+            "prepareRows": 2.835,
+            "insertDocuments": 2.365,
+            "insertFts": 3.612,
+            "insertEmbeddings": 1.885
+          }
+        },
+        "activeSceneId": "scene_45FYHCR4ZHK90ZFTPF0WADM6GZ",
+        "currentTime": {
+          "timeline": "main",
+          "tick": 178,
+          "order": 10
+        },
+        "changedPaths": [],
+        "sourceLoad": {
+          "mode": "memory-cache",
+          "records": 238,
+          "parsed": 0,
+          "cacheHits": 238,
+          "blobReads": 0
+        },
+        "timingsMs": {
+          "resolveRevision": 3.112,
+          "loadSource": 2.17,
+          "validate": 5.669,
+          "schema": 1.486,
+          "entities": 10.543,
+          "narrative": 3.998,
+          "derived": 5.134,
+          "search": 26.478,
+          "indexes": 4.239,
+          "total": 72.236
+        }
+      },
+      "exactCacheWallMs": 2.911,
+      "exactCache": {
+        "status": "cache-hit",
+        "revision": "bed220f90d69f7657fcae635c9f51c9524eb6b97",
+        "treeOid": "36ed44bc306745f784af10f64d010d35f1e28cb3",
+        "database": "/mnt/data/wedl-iteration-04/story-build/.wedl/world.sqlite",
+        "recordCount": 238,
+        "databaseBytes": 3862528,
+        "sourceLoad": {
+          "mode": "not-required",
+          "parsed": 0,
+          "cacheHits": 0,
+          "blobReads": 0
+        },
+        "timingsMs": {
+          "resolveRevision": 2.855,
+          "total": 2.893
+        }
+      }
+    },
+    "operations": {
+      "validate": {
+        "repeats": 7,
+        "minimumMs": 7.031,
+        "medianMs": 7.297,
+        "p95Ms": 7.362,
+        "maximumMs": 7.961
+      },
+      "authorSearch": {
+        "repeats": 7,
+        "minimumMs": 4.242,
+        "medianMs": 4.653,
+        "p95Ms": 4.904,
+        "maximumMs": 11.285
+      },
+      "characterSearch": {
+        "repeats": 7,
+        "minimumMs": 4.743,
+        "medianMs": 4.791,
+        "p95Ms": 5.097,
+        "maximumMs": 5.135
+      },
+      "characterContext": {
+        "repeats": 7,
+        "minimumMs": 20.69,
+        "medianMs": 22.06,
+        "p95Ms": 26.581,
+        "maximumMs": 29.77
+      },
+      "authorContext": {
+        "repeats": 7,
+        "minimumMs": 5.336,
+        "medianMs": 5.654,
+        "p95Ms": 6.008,
+        "maximumMs": 6.257
+      },
+      "conversationAuthorView": {
+        "repeats": 7,
+        "minimumMs": 2.075,
+        "medianMs": 2.16,
+        "p95Ms": 2.249,
+        "maximumMs": 2.723
+      },
+      "storyPoints": {
+        "repeats": 7,
+        "minimumMs": 3.65,
+        "medianMs": 3.811,
+        "p95Ms": 3.835,
+        "maximumMs": 4.477
+      }
+    },
+    "resultSizes": {
+      "validationDiagnostics": 0,
+      "authorSearchResults": 12,
+      "characterSearchResults": 12,
+      "characterContextCharacters": 6912,
+      "authorContextCharacters": 2232,
+      "conversationTurns": 6,
+      "storyPoints": 21
+    }
+  },
+  "stressMedium": {
+    "repository": "/mnt/data/wedl-iteration-04/stress-medium",
+    "revision": "a6e75cf8df00b0e8b29c289f088a4d16d8b48c0a",
+    "records": 4302,
+    "kinds": {
+      "character": 120,
+      "conversation": 160,
+      "event": 1400,
+      "knowledge": 1400,
+      "location": 80,
+      "object": 900,
+      "relationship": 240,
+      "scene": 1,
+      "world": 1
+    },
+    "characterId": "char_70QZQ31H4XMNEA4RNWV18PWAQ4",
+    "sceneId": "scene_3M6NY3XBFXCW2HGC0HD74ZVC0J",
+    "conversationId": "conv_0CDW95EACKD2K8PNEXTTMZ8H9S",
+    "compile": {
+      "coldWallMs": 1093.565,
+      "cold": {
+        "status": "compiled",
+        "buildMode": "full",
+        "revision": "a6e75cf8df00b0e8b29c289f088a4d16d8b48c0a",
+        "treeOid": "985192e3757133d832b0b08e00c737a159bd4c16",
+        "database": "/mnt/data/wedl-iteration-04/stress-medium/.wedl/world.sqlite",
+        "databaseBytes": 38055936,
+        "recordCount": 4302,
+        "searchDocumentCount": 10288,
+        "embeddingCache": {
+          "reused": 0,
+          "generated": 10288,
+          "uniqueInputs": 9249
+        },
+        "searchProjection": {
+          "timingsMs": {
+            "buildDocuments": 132.799,
+            "hashInputs": 5.467,
+            "embeddingCacheLookup": 10.429,
+            "generateEmbeddings": 303.699,
+            "persistEmbeddingCache": 45.228,
+            "prepareRows": 40.566,
+            "insertDocuments": 31.434,
+            "insertFts": 33.245,
+            "insertEmbeddings": 25.776
+          }
+        },
+        "activeSceneId": "scene_3M6NY3XBFXCW2HGC0HD74ZVC0J",
+        "currentTime": {
+          "timeline": "main",
+          "tick": 10000,
+          "order": 100
+        },
+        "changedPaths": [],
+        "sourceLoad": {
+          "mode": "memory-cache",
+          "records": 4302,
+          "parsed": 0,
+          "cacheHits": 4302,
+          "blobReads": 0
+        },
+        "timingsMs": {
+          "resolveRevision": 2.57,
+          "loadSource": 2.115,
+          "validate": 71.62,
+          "schema": 1.849,
+          "entities": 138.969,
+          "narrative": 49.343,
+          "derived": 77.316,
+          "search": 638.781,
+          "indexes": 41.617,
+          "total": 1093.493
+        }
+      },
+      "warmForcedWallMs": 719.084,
+      "warmForced": {
+        "status": "compiled",
+        "buildMode": "fast-forward-rebuild",
+        "revision": "a6e75cf8df00b0e8b29c289f088a4d16d8b48c0a",
+        "treeOid": "985192e3757133d832b0b08e00c737a159bd4c16",
+        "database": "/mnt/data/wedl-iteration-04/stress-medium/.wedl/world.sqlite",
+        "databaseBytes": 38055936,
+        "recordCount": 4302,
+        "searchDocumentCount": 10288,
+        "embeddingCache": {
+          "reused": 10288,
+          "generated": 0,
+          "uniqueInputs": 9249
+        },
+        "searchProjection": {
+          "timingsMs": {
+            "buildDocuments": 106.917,
+            "hashInputs": 6.104,
+            "embeddingCacheLookup": 29.835,
+            "generateEmbeddings": 1.162,
+            "persistEmbeddingCache": 0.001,
+            "prepareRows": 39.307,
+            "insertDocuments": 30.748,
+            "insertFts": 31.639,
+            "insertEmbeddings": 26.044
+          }
+        },
+        "activeSceneId": "scene_3M6NY3XBFXCW2HGC0HD74ZVC0J",
+        "currentTime": {
+          "timeline": "main",
+          "tick": 10000,
+          "order": 100
+        },
+        "changedPaths": [],
+        "sourceLoad": {
+          "mode": "memory-cache",
+          "records": 4302,
+          "parsed": 0,
+          "cacheHits": 4302,
+          "blobReads": 0
+        },
+        "timingsMs": {
+          "resolveRevision": 3.557,
+          "loadSource": 2.09,
+          "validate": 67.963,
+          "schema": 1.618,
+          "entities": 124.792,
+          "narrative": 46.135,
+          "derived": 55.055,
+          "search": 283.383,
+          "indexes": 43.21,
+          "total": 718.977
+        }
+      },
+      "exactCacheWallMs": 3.779,
+      "exactCache": {
+        "status": "cache-hit",
+        "revision": "a6e75cf8df00b0e8b29c289f088a4d16d8b48c0a",
+        "treeOid": "985192e3757133d832b0b08e00c737a159bd4c16",
+        "database": "/mnt/data/wedl-iteration-04/stress-medium/.wedl/world.sqlite",
+        "recordCount": 4302,
+        "databaseBytes": 38055936,
+        "sourceLoad": {
+          "mode": "not-required",
+          "parsed": 0,
+          "cacheHits": 0,
+          "blobReads": 0
+        },
+        "timingsMs": {
+          "resolveRevision": 3.701,
+          "total": 3.758
+        }
+      }
+    },
+    "operations": {
+      "validate": {
+        "repeats": 3,
+        "minimumMs": 72.776,
+        "medianMs": 78.294,
+        "p95Ms": 78.294,
+        "maximumMs": 80.747
+      },
+      "authorSearch": {
+        "repeats": 3,
+        "minimumMs": 3.006,
+        "medianMs": 3.469,
+        "p95Ms": 3.469,
+        "maximumMs": 78.572
+      },
+      "characterSearch": {
+        "repeats": 3,
+        "minimumMs": 3.152,
+        "medianMs": 3.479,
+        "p95Ms": 3.479,
+        "maximumMs": 5.925
+      },
+      "characterContext": {
+        "repeats": 3,
+        "minimumMs": 8.426,
+        "medianMs": 8.767,
+        "p95Ms": 8.767,
+        "maximumMs": 17.334
+      },
+      "authorContext": {
+        "repeats": 3,
+        "minimumMs": 2.642,
+        "medianMs": 2.706,
+        "p95Ms": 2.706,
+        "maximumMs": 3.786
+      },
+      "conversationAuthorView": {
+        "repeats": 3,
+        "minimumMs": 2.154,
+        "medianMs": 2.208,
+        "p95Ms": 2.208,
+        "maximumMs": 3.571
+      },
+      "storyPoints": {
+        "repeats": 3,
+        "minimumMs": 2.17,
+        "medianMs": 2.183,
+        "p95Ms": 2.183,
+        "maximumMs": 2.216
+      }
+    },
+    "resultSizes": {
+      "validationDiagnostics": 0,
+      "authorSearchResults": 0,
+      "characterSearchResults": 0,
+      "characterContextCharacters": 4601,
+      "authorContextCharacters": 1283,
+      "conversationTurns": 4,
+      "storyPoints": 0
+    }
+  },
+  "stressLarge": {
+    "repository": "/mnt/data/wedl-iteration-04/stress-large",
+    "revision": "0f17964c7337b13d3a613685f11b88e530f1fed4",
+    "records": 10662,
+    "kinds": {
+      "character": 240,
+      "conversation": 360,
+      "event": 3600,
+      "knowledge": 3600,
+      "location": 180,
+      "object": 2200,
+      "relationship": 480,
+      "scene": 1,
+      "world": 1
+    },
+    "characterId": "char_70QZQ31H4XMNEA4RNWV18PWAQ4",
+    "sceneId": "scene_3M6NY3XBFXCW2HGC0HD74ZVC0J",
+    "conversationId": "conv_0CDW95EACKD2K8PNEXTTMZ8H9S",
+    "compile": {
+      "coldWallMs": 2885.654,
+      "cold": {
+        "status": "compiled",
+        "buildMode": "full",
+        "revision": "0f17964c7337b13d3a613685f11b88e530f1fed4",
+        "treeOid": "4c996179f4324dbe4044ff8624f6a5f808d2c35a",
+        "database": "/mnt/data/wedl-iteration-04/stress-large/.wedl/world.sqlite",
+        "databaseBytes": 92778496,
+        "recordCount": 10662,
+        "searchDocumentCount": 25048,
+        "embeddingCache": {
+          "reused": 0,
+          "generated": 25048,
+          "uniqueInputs": 22769
+        },
+        "searchProjection": {
+          "timingsMs": {
+            "buildDocuments": 303.305,
+            "hashInputs": 13.973,
+            "embeddingCacheLookup": 26.68,
+            "generateEmbeddings": 698.629,
+            "persistEmbeddingCache": 273.147,
+            "prepareRows": 97.435,
+            "insertDocuments": 80.12,
+            "insertFts": 84.989,
+            "insertEmbeddings": 80.41
+          }
+        },
+        "activeSceneId": "scene_3M6NY3XBFXCW2HGC0HD74ZVC0J",
+        "currentTime": {
+          "timeline": "main",
+          "tick": 10000,
+          "order": 100
+        },
+        "changedPaths": [],
+        "sourceLoad": {
+          "mode": "memory-cache",
+          "records": 10662,
+          "parsed": 0,
+          "cacheHits": 10662,
+          "blobReads": 0
+        },
+        "timingsMs": {
+          "resolveRevision": 3.116,
+          "loadSource": 2.96,
+          "validate": 195.528,
+          "schema": 1.994,
+          "entities": 348.71,
+          "narrative": 131.426,
+          "derived": 212.384,
+          "search": 1686.803,
+          "indexes": 100.213,
+          "total": 2885.593
+        }
+      },
+      "warmForcedWallMs": 1947.926,
+      "warmForced": {
+        "status": "compiled",
+        "buildMode": "fast-forward-rebuild",
+        "revision": "0f17964c7337b13d3a613685f11b88e530f1fed4",
+        "treeOid": "4c996179f4324dbe4044ff8624f6a5f808d2c35a",
+        "database": "/mnt/data/wedl-iteration-04/stress-large/.wedl/world.sqlite",
+        "databaseBytes": 92778496,
+        "recordCount": 10662,
+        "searchDocumentCount": 25048,
+        "embeddingCache": {
+          "reused": 25048,
+          "generated": 0,
+          "uniqueInputs": 22769
+        },
+        "searchProjection": {
+          "timingsMs": {
+            "buildDocuments": 268.11,
+            "hashInputs": 13.587,
+            "embeddingCacheLookup": 72.473,
+            "generateEmbeddings": 3.638,
+            "persistEmbeddingCache": 0.001,
+            "prepareRows": 129.063,
+            "insertDocuments": 78.147,
+            "insertFts": 90.686,
+            "insertEmbeddings": 81.514
+          }
+        },
+        "activeSceneId": "scene_3M6NY3XBFXCW2HGC0HD74ZVC0J",
+        "currentTime": {
+          "timeline": "main",
+          "tick": 10000,
+          "order": 100
+        },
+        "changedPaths": [],
+        "sourceLoad": {
+          "mode": "memory-cache",
+          "records": 10662,
+          "parsed": 0,
+          "cacheHits": 10662,
+          "blobReads": 0
+        },
+        "timingsMs": {
+          "resolveRevision": 3.368,
+          "loadSource": 2.236,
+          "validate": 172.004,
+          "schema": 1.672,
+          "entities": 321.728,
+          "narrative": 127.192,
+          "derived": 151.701,
+          "search": 770.4,
+          "indexes": 171.408,
+          "total": 1947.842
+        }
+      },
+      "exactCacheWallMs": 3.503,
+      "exactCache": {
+        "status": "cache-hit",
+        "revision": "0f17964c7337b13d3a613685f11b88e530f1fed4",
+        "treeOid": "4c996179f4324dbe4044ff8624f6a5f808d2c35a",
+        "database": "/mnt/data/wedl-iteration-04/stress-large/.wedl/world.sqlite",
+        "recordCount": 10662,
+        "databaseBytes": 92778496,
+        "sourceLoad": {
+          "mode": "not-required",
+          "parsed": 0,
+          "cacheHits": 0,
+          "blobReads": 0
+        },
+        "timingsMs": {
+          "resolveRevision": 3.429,
+          "total": 3.48
+        }
+      }
+    },
+    "operations": {
+      "validate": {
+        "repeats": 2,
+        "minimumMs": 184.893,
+        "medianMs": 185.951,
+        "p95Ms": 184.893,
+        "maximumMs": 187.008
+      },
+      "authorSearch": {
+        "repeats": 2,
+        "minimumMs": 3.995,
+        "medianMs": 159.834,
+        "p95Ms": 3.995,
+        "maximumMs": 315.673
+      },
+      "characterSearch": {
+        "repeats": 2,
+        "minimumMs": 4.076,
+        "medianMs": 10.088,
+        "p95Ms": 4.076,
+        "maximumMs": 16.101
+      },
+      "characterContext": {
+        "repeats": 2,
+        "minimumMs": 12.674,
+        "medianMs": 25.727,
+        "p95Ms": 12.674,
+        "maximumMs": 38.781
+      },
+      "authorContext": {
+        "repeats": 2,
+        "minimumMs": 3.276,
+        "medianMs": 5.038,
+        "p95Ms": 3.276,
+        "maximumMs": 6.799
+      },
+      "conversationAuthorView": {
+        "repeats": 2,
+        "minimumMs": 2.828,
+        "medianMs": 4.157,
+        "p95Ms": 2.828,
+        "maximumMs": 5.486
+      },
+      "storyPoints": {
+        "repeats": 2,
+        "minimumMs": 2.408,
+        "medianMs": 2.497,
+        "p95Ms": 2.408,
+        "maximumMs": 2.586
+      }
+    },
+    "resultSizes": {
+      "validationDiagnostics": 0,
+      "authorSearchResults": 0,
+      "characterSearchResults": 0,
+      "characterContextCharacters": 4612,
+      "authorContextCharacters": 1283,
+      "conversationTurns": 4,
+      "storyPoints": 0
+    }
+  },
+  "apiExercise": {
+    "recordsBefore": 238,
+    "activeScene": {
+      "id": "scene_45FYHCR4ZHK90ZFTPF0WADM6GZ",
+      "title": "The Choice of Records"
+    },
+    "activeConversation": {
+      "id": "conv_4Q80NQ0AA0X8EP3N352BRGS10Z",
+      "title": "The Choice of Records"
+    },
+    "authorization": {
+      "compileWithoutToken": 401,
+      "previewWithoutToken": 401
+    },
+    "latency": {
+      "session": {
+        "count": 1,
+        "medianMs": 2.239,
+        "p95Ms": 2.239,
+        "maxMs": 2.239,
+        "status": 200
+      },
+      "status": {
+        "count": 25,
+        "medianMs": 6.072,
+        "p95Ms": 18.978,
+        "maxMs": 19.765,
+        "status": 200
+      },
+      "entities_character": {
+        "count": 25,
+        "medianMs": 4.05,
+        "p95Ms": 10.464,
+        "maxMs": 12.043,
+        "status": 200
+      },
+      "search_author": {
+        "count": 25,
+        "medianMs": 6.605,
+        "p95Ms": 12.363,
+        "maxMs": 12.656,
+        "status": 200
+      },
+      "search_mara": {
+        "count": 25,
+        "medianMs": 7.494,
+        "p95Ms": 22.585,
+        "maxMs": 25.724,
+        "status": 200
+      },
+      "context_mara": {
+        "count": 25,
+        "medianMs": 26.508,
+        "p95Ms": 33.769,
+        "maxMs": 47.336,
+        "status": 200
+      },
+      "context_ansel": {
+        "count": 25,
+        "medianMs": 8.901,
+        "p95Ms": 16.257,
+        "maxMs": 25.777,
+        "status": 200
+      },
+      "conversation_mara": {
+        "count": 25,
+        "medianMs": 4.272,
+        "p95Ms": 12.087,
+        "maxMs": 33.931,
+        "status": 200
+      },
+      "conversation_ansel": {
+        "count": 25,
+        "medianMs": 3.811,
+        "p95Ms": 6.55,
+        "maxMs": 13.237,
+        "status": 200
+      },
+      "story_points": {
+        "count": 25,
+        "medianMs": 5.593,
+        "p95Ms": 39.042,
+        "maxMs": 44.168,
+        "status": 200
+      },
+      "compile_exact": {
+        "count": 1,
+        "medianMs": 4.674,
+        "p95Ms": 4.674,
+        "maxMs": 4.674,
+        "status": 200
+      },
+      "changeset_preview": {
+        "count": 1,
+        "medianMs": 25.93,
+        "p95Ms": 25.93,
+        "maxMs": 25.93,
+        "status": 200
+      },
+      "changeset_apply": {
+        "count": 1,
+        "medianMs": 171.959,
+        "p95Ms": 171.959,
+        "maxMs": 171.959,
+        "status": 200
+      },
+      "changeset_replay": {
+        "count": 1,
+        "medianMs": 1.772,
+        "p95Ms": 1.772,
+        "maxMs": 1.772,
+        "status": 200
+      },
+      "context_post_change": {
+        "count": 1,
+        "medianMs": 25.684,
+        "p95Ms": 25.684,
+        "maxMs": 25.684,
+        "status": 200
+      }
+    },
+    "compileExact": {
+      "status": "cache-hit",
+      "revision": "7f817b07e7efddebdf870f852b4112cee1ad9776",
+      "treeOid": "36ed44bc306745f784af10f64d010d35f1e28cb3",
+      "database": "/mnt/data/wedl-iteration-04/api-exercise-repo/.wedl/world.sqlite",
+      "recordCount": 238,
+      "databaseBytes": 3862528,
+      "sourceLoad": {
+        "mode": "not-required",
+        "parsed": 0,
+        "cacheHits": 0,
+        "blobReads": 0
+      },
+      "timingsMs": {
+        "resolveRevision": 2.978,
+        "total": 3.046
+      }
+    },
+    "changeset": {
+      "previewValid": true,
+      "previewDiagnostics": 0,
+      "appliedHead": "44a0685af1c432eb9952757859440a46e579cc20",
+      "generatedIds": {
+        "$tmp.turn.provisional-custody": "turn_5JYKVHFP1FPH6C7VVGXEBBGSWK",
+        "$tmp.recollection.mara-provisional-custody": "recol_0DH8RM9RR91FJRDHGBTPKDJ7P6",
+        "$tmp.recollection.nessa-provisional-custody": "recol_4Q9FFEXRH5V12TX0PZX7KCBEV4"
+      },
+      "replayIdempotent": true
+    },
+    "postChangeContextCharacters": 4951,
+    "postChangeMentionsProposal": true
+  },
+  "narrativeMetrics": {
+    "records": 238,
+    "kinds": {
+      "character": 13,
+      "conversation": 13,
+      "environment": 15,
+      "event": 41,
+      "knowledge": 54,
+      "location": 20,
+      "object": 21,
+      "relationship": 24,
+      "scene": 15,
+      "story-point": 21,
+      "world": 1
+    },
+    "bodyWords": 7350,
+    "conversationTurns": 95,
+    "conversationRecollections": 38,
+    "eventTickRange": [
+      40,
+      178
+    ],
+    "sceneStartRange": [
+      64,
+      190
+    ],
+    "activeScene": {
+      "id": "scene_45FYHCR4ZHK90ZFTPF0WADM6GZ",
+      "title": "The Choice of Records",
+      "time": {
+        "start": {
+          "timeline": "main",
+          "tick": 176,
+          "order": 0
+        },
+        "current": {
+          "timeline": "main",
+          "tick": 178,
+          "order": 10
+        },
+        "end": null
+      }
+    },
+    "sourceBytes": 314292
+  }
+}

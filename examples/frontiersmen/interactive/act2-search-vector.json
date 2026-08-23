@@ -1,0 +1,693 @@
+{
+  "protocol": "wedl-search/v4",
+  "revision": "74768378e7a222292257be1e6780e698a44b7ced",
+  "perspective": "character",
+  "characterId": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+  "sceneId": "scene_0XW14MHXGV4DY4GGDCV4FDQPBX",
+  "effectiveTime": {
+    "timeline": "main",
+    "tick": 85,
+    "order": 0
+  },
+  "mode": "vector",
+  "searchState": {
+    "profile": {
+      "name": "hybrid",
+      "ftsEnabled": true,
+      "vectorEnabled": true,
+      "vectorProvider": "lsa",
+      "vectorModel": "wedl-lsa-v1",
+      "vectorDimensions": 192,
+      "vectorMaxFeatures": 8192,
+      "ftsCandidateLimit": 120,
+      "vectorCandidateLimit": 120,
+      "hybridFtsWeight": 1.0,
+      "hybridVectorWeight": 1.0,
+      "hybridRrfK": 60.0
+    },
+    "fts": {
+      "available": true,
+      "documentCount": 1403,
+      "provider": "sqlite-fts5"
+    },
+    "vector": {
+      "available": true,
+      "models": [
+        {
+          "scope": "author",
+          "modelId": "lsa:author:wedl-lsa-v1:192:4db8b9c3196c637b",
+          "provider": "lsa",
+          "modelName": "wedl-lsa-v1",
+          "dimensions": 192,
+          "normalized": true
+        },
+        {
+          "scope": "character",
+          "modelId": "lsa:character:wedl-lsa-v1:124:a222f7ee078597c4",
+          "provider": "lsa",
+          "modelName": "wedl-lsa-v1",
+          "dimensions": 124,
+          "normalized": true
+        }
+      ],
+      "uniqueVectors": 646,
+      "documentLinks": 1403
+    }
+  },
+  "results": [
+    {
+      "documentId": "doc:conv_60R00C9GFDD8MPY5PBEX304S99:conversation-turn:4:55b81e3c59a5",
+      "entityId": "conv_60R00C9GFDD8MPY5PBEX304S99",
+      "documentKind": "conversation-turn",
+      "heading": "verbatim-turn",
+      "audienceKind": "conversation",
+      "metadata": {
+        "aliases": [],
+        "domain": "conversations.frontiersmen",
+        "fidelity": "verbatim",
+        "kind": "conversation",
+        "speaker": "Tillo Wick",
+        "tags": [
+          "amber",
+          "dowsing",
+          "mine"
+        ],
+        "title": "Tillo and the Fork",
+        "turnId": "turn_4G5BG7R76RKCJ9AGVRFMTFGYM6"
+      },
+      "vectorRank": 1,
+      "vectorScore": 0.42308712005615234,
+      "snippet": "Tillo Wick: “Warm without fire. Pulls the fork backward. Makes old shapes where no animal stands.”",
+      "score": 0.42308712005615234,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "conv_60R00C9GFDD8MPY5PBEX304S99",
+        "sourcePath": "story/conversations/tillo-and-the-fork--conv_60R00C9GFDD8MPY5PBEX304S99.md",
+        "section": "verbatim-turn"
+      }
+    },
+    {
+      "documentId": "doc:conv_60R00C9GFDD8MPY5PBEX304S99:conversation-recollection:3:096defc3e9b4",
+      "entityId": "conv_60R00C9GFDD8MPY5PBEX304S99",
+      "documentKind": "conversation-recollection",
+      "heading": "subjective-recollection",
+      "audienceKind": "conversation",
+      "metadata": {
+        "aliases": [],
+        "confidence": 0.93,
+        "domain": "conversations.frontiersmen",
+        "fidelity": "subjective",
+        "kind": "conversation",
+        "recollectionId": "recol_30X11P3CSN57XS0C4Z8GGZ7C3J",
+        "state": "remembered",
+        "tags": [
+          "amber",
+          "dowsing",
+          "mine"
+        ],
+        "title": "Tillo and the Fork"
+      },
+      "vectorRank": 2,
+      "vectorScore": 0.41743728518486023,
+      "snippet": "Gnome dowsing senses amber through pressure on tuned materials, and quick amber creates old shapes without living bodies.\nInterpretation: Amber stores or transmits structured impressions rather than ordinary spell energy.\nEmotional impression: dangerous fascination\nVeyra Kest: “You can feel it befor",
+      "score": 0.41743728518486023,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "conv_60R00C9GFDD8MPY5PBEX304S99",
+        "sourcePath": "story/conversations/tillo-and-the-fork--conv_60R00C9GFDD8MPY5PBEX304S99.md",
+        "section": "subjective-recollection"
+      }
+    },
+    {
+      "documentId": "doc:conv_3TH0GGWH9AFGWGND2BFPA6MTKG:conversation-turn:5:b7d0635beb84",
+      "entityId": "conv_3TH0GGWH9AFGWGND2BFPA6MTKG",
+      "documentKind": "conversation-turn",
+      "heading": "verbatim-turn",
+      "audienceKind": "conversation",
+      "metadata": {
+        "aliases": [],
+        "domain": "conversations.frontiersmen",
+        "fidelity": "verbatim",
+        "kind": "conversation",
+        "speaker": "Sylvi Ashdown",
+        "tags": [
+          "massacre",
+          "amber",
+          "wretch"
+        ],
+        "title": "Kellan's Broken Watch",
+        "turnId": "turn_02PCQA1SWTCFPN2ZAMJSTK1CWE"
+      },
+      "vectorRank": 4,
+      "vectorScore": 0.3966923952102661,
+      "snippet": "Sylvi Ashdown: “Did it leave a print? Hair? Blood?”",
+      "score": 0.3966923952102661,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "conv_3TH0GGWH9AFGWGND2BFPA6MTKG",
+        "sourcePath": "story/conversations/kellan-s-broken-watch--conv_3TH0GGWH9AFGWGND2BFPA6MTKG.md",
+        "section": "verbatim-turn"
+      }
+    },
+    {
+      "documentId": "doc:conv_33YJSY1GRTYH06S8JD2Q6TKWJ1:conversation-turn:3:e308b418944d",
+      "entityId": "conv_33YJSY1GRTYH06S8JD2Q6TKWJ1",
+      "documentKind": "conversation-turn",
+      "heading": "verbatim-turn",
+      "audienceKind": "conversation",
+      "metadata": {
+        "aliases": [],
+        "domain": "conversations.frontiersmen",
+        "fidelity": "verbatim",
+        "kind": "conversation",
+        "speaker": "Veyra Kest",
+        "tags": [
+          "mine",
+          "sealed-drift",
+          "guild"
+        ],
+        "title": "Jorund's Terms",
+        "turnId": "turn_4A74FJFA5KMJXPJYVGCSNFS17E"
+      },
+      "vectorRank": 5,
+      "vectorScore": 0.37813249230384827,
+      "snippet": "Veyra Kest: “Your tally omits two drifts and the amber under this yard is warm.”",
+      "score": 0.37813249230384827,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "conv_33YJSY1GRTYH06S8JD2Q6TKWJ1",
+        "sourcePath": "story/conversations/jorund-s-terms--conv_33YJSY1GRTYH06S8JD2Q6TKWJ1.md",
+        "section": "verbatim-turn"
+      }
+    },
+    {
+      "documentId": "doc:know_1514C0YWW9GJCAKYGVXBNW54FH:knowledge:0:8f7080b2b595",
+      "entityId": "know_1514C0YWW9GJCAKYGVXBNW54FH",
+      "documentKind": "knowledge",
+      "heading": null,
+      "audienceKind": "knowledge",
+      "metadata": {
+        "aliases": [],
+        "claimKey": "amber.is.magically-active",
+        "domain": "knowledge.char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+        "kind": "knowledge",
+        "tags": [
+          "amber",
+          "magic"
+        ],
+        "title": "Veyra suspects amber is magically active"
+      },
+      "vectorRank": 6,
+      "vectorScore": 0.3764861822128296,
+      "snippet": "Amber is an active magical material rather than inert gemstone or resin.",
+      "score": 0.3764861822128296,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "know_1514C0YWW9GJCAKYGVXBNW54FH",
+        "sourcePath": "story/knowledge/char-48qc9b4m2rfvxjksdfmrgjwg8y/veyra-suspects-amber-is-magically-active--know_1514C0YWW9GJCAKYGVXBNW54FH.md",
+        "section": "knowledge"
+      }
+    },
+    {
+      "documentId": "doc:conv_5Q4V1ATZE1B2XWQRTJ4XG9NEC1:conversation-recollection:3:4126b9c8f1d3",
+      "entityId": "conv_5Q4V1ATZE1B2XWQRTJ4XG9NEC1",
+      "documentKind": "conversation-recollection",
+      "heading": "subjective-recollection",
+      "audienceKind": "conversation",
+      "metadata": {
+        "aliases": [],
+        "confidence": 0.94,
+        "domain": "conversations.frontiersmen",
+        "fidelity": "subjective",
+        "kind": "conversation",
+        "recollectionId": "recol_26P4TZ762HDB6TX8F74QMSFPRD",
+        "state": "remembered",
+        "tags": [
+          "contract",
+          "abandonment",
+          "amber-payment"
+        ],
+        "title": "Maela's Departure"
+      },
+      "vectorRank": 7,
+      "vectorScore": 0.3716260492801666,
+      "snippet": "Raw amber is transferred directly from Saint Orra Mine to the guild as payment.\nInterpretation: The guild has institutional access to the material it refuses to explain.\nEmotional impression: vindicated suspicion\nReeve Hessa Noll: “Amber. Three measures from Saint Orra each quarter, plus stamped dis",
+      "score": 0.3716260492801666,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "conv_5Q4V1ATZE1B2XWQRTJ4XG9NEC1",
+        "sourcePath": "story/conversations/maela-s-departure--conv_5Q4V1ATZE1B2XWQRTJ4XG9NEC1.md",
+        "section": "subjective-recollection"
+      }
+    },
+    {
+      "documentId": "doc:know_4PMAFBAQY1T21BM5B636P01H2H:knowledge:0:75801f8d0215",
+      "entityId": "know_4PMAFBAQY1T21BM5B636P01H2H",
+      "documentKind": "knowledge",
+      "heading": null,
+      "audienceKind": "knowledge",
+      "metadata": {
+        "aliases": [],
+        "claimKey": "harrowcross.chest.quick-amber",
+        "domain": "knowledge.char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+        "kind": "knowledge",
+        "tags": [
+          "amber",
+          "wretch"
+        ],
+        "title": "Veyra Kest knows the chest contained quick amber"
+      },
+      "vectorRank": 9,
+      "vectorScore": 0.3701748549938202,
+      "snippet": "The Harrowcross payment chest contained raw amber that had become warm, backward-pulling, and capable of supporting wretch manifestations.",
+      "score": 0.3701748549938202,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "know_4PMAFBAQY1T21BM5B636P01H2H",
+        "sourcePath": "story/knowledge/char-48qc9b4m2rfvxjksdfmrgjwg8y/veyra-kest-knows-the-chest-contained-quick-amber--know_4PMAFBAQY1T21BM5B636P01H2H.md",
+        "section": "knowledge"
+      }
+    },
+    {
+      "documentId": "doc:scene_0XW14MHXGV4DY4GGDCV4FDQPBX:scene-observation:1:7a58f49ff945",
+      "entityId": "scene_0XW14MHXGV4DY4GGDCV4FDQPBX",
+      "documentKind": "scene-observation",
+      "heading": "observation",
+      "audienceKind": "scene",
+      "metadata": {
+        "aliases": [],
+        "domain": "scenes.frontiersmen",
+        "kind": "scene",
+        "observationId": "obs_73805B2WZH6N84H1KFA35J8BDM",
+        "tags": [
+          "mine",
+          "active"
+        ],
+        "title": "Saint Orra Mine"
+      },
+      "vectorRank": 11,
+      "vectorScore": 0.3482975363731384,
+      "snippet": "The omitted drifts on Jorund's tally correspond to the two places where the ground presses against her teeth.",
+      "score": 0.3482975363731384,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "scene_0XW14MHXGV4DY4GGDCV4FDQPBX",
+        "sourcePath": "story/scenes/saint-orra-mine--scene_0XW14MHXGV4DY4GGDCV4FDQPBX.md",
+        "section": "observation"
+      }
+    },
+    {
+      "documentId": "doc:know_4WABGVP968ESVHRRKEZ2GDRW57:knowledge:0:48de4e8f4490",
+      "entityId": "know_4WABGVP968ESVHRRKEZ2GDRW57",
+      "documentKind": "knowledge",
+      "heading": null,
+      "audienceKind": "knowledge",
+      "metadata": {
+        "aliases": [],
+        "claimKey": "amber.pulses-shape-wretch",
+        "domain": "knowledge.char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+        "kind": "knowledge",
+        "tags": [
+          "wretch",
+          "amber"
+        ],
+        "title": "Veyra observes amber pulses shaping the wretch"
+      },
+      "vectorRank": 13,
+      "vectorScore": 0.3461676836013794,
+      "snippet": "Pulses from the raw amber chest corresponded to the wretch's changing borrowed anatomy.",
+      "score": 0.3461676836013794,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "know_4WABGVP968ESVHRRKEZ2GDRW57",
+        "sourcePath": "story/knowledge/char-48qc9b4m2rfvxjksdfmrgjwg8y/veyra-observes-amber-pulses-shaping-the-wretch--know_4WABGVP968ESVHRRKEZ2GDRW57.md",
+        "section": "knowledge"
+      }
+    },
+    {
+      "documentId": "doc:conv_3TH0GGWH9AFGWGND2BFPA6MTKG:conversation-turn:2:89180a1d9dfe",
+      "entityId": "conv_3TH0GGWH9AFGWGND2BFPA6MTKG",
+      "documentKind": "conversation-turn",
+      "heading": "verbatim-turn",
+      "audienceKind": "conversation",
+      "metadata": {
+        "aliases": [],
+        "domain": "conversations.frontiersmen",
+        "fidelity": "verbatim",
+        "kind": "conversation",
+        "speaker": "Kellan Voss",
+        "tags": [
+          "massacre",
+          "amber",
+          "wretch"
+        ],
+        "title": "Kellan's Broken Watch",
+        "turnId": "turn_53S7V6FG1F49F76RWX99GQ96C8"
+      },
+      "vectorRank": 14,
+      "vectorScore": 0.34417787194252014,
+      "snippet": "Kellan Voss: “Warm enough that the snow beneath it melted. Then Bran's blood ran uphill toward the crack.”",
+      "score": 0.34417787194252014,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "conv_3TH0GGWH9AFGWGND2BFPA6MTKG",
+        "sourcePath": "story/conversations/kellan-s-broken-watch--conv_3TH0GGWH9AFGWGND2BFPA6MTKG.md",
+        "section": "verbatim-turn"
+      }
+    },
+    {
+      "documentId": "doc:conv_33YJSY1GRTYH06S8JD2Q6TKWJ1:conversation-turn:4:bd16d1ab1583",
+      "entityId": "conv_33YJSY1GRTYH06S8JD2Q6TKWJ1",
+      "documentKind": "conversation-turn",
+      "heading": "verbatim-turn",
+      "audienceKind": "conversation",
+      "metadata": {
+        "aliases": [],
+        "domain": "conversations.frontiersmen",
+        "fidelity": "verbatim",
+        "kind": "conversation",
+        "speaker": "Jorund Bale",
+        "tags": [
+          "mine",
+          "sealed-drift",
+          "guild"
+        ],
+        "title": "Jorund's Terms",
+        "turnId": "turn_5JSSV5FS6EJQF3J1F61CJAT3J3"
+      },
+      "vectorRank": 15,
+      "vectorScore": 0.342195063829422,
+      "snippet": "Jorund Bale: “You have been here one minute.”",
+      "score": 0.342195063829422,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "conv_33YJSY1GRTYH06S8JD2Q6TKWJ1",
+        "sourcePath": "story/conversations/jorund-s-terms--conv_33YJSY1GRTYH06S8JD2Q6TKWJ1.md",
+        "section": "verbatim-turn"
+      }
+    },
+    {
+      "documentId": "doc:obj_5PQSHGM3GXJD26BX95794WQMTF:entity-public:0:6670b63a0051",
+      "entityId": "obj_5PQSHGM3GXJD26BX95794WQMTF",
+      "documentKind": "entity-public",
+      "heading": "Raw Amber Nodule",
+      "audienceKind": "public",
+      "metadata": {
+        "aliases": [],
+        "domain": "props.frontiersmen",
+        "kind": "object",
+        "tags": [
+          "amber",
+          "raw",
+          "magic"
+        ],
+        "title": "Raw Amber Nodule"
+      },
+      "vectorRank": 22,
+      "vectorScore": 0.29022857546806335,
+      "snippet": "# Raw Amber Nodule\n\nAn irregular translucent nodule warm at its center and threaded with shapes like roots or veins.",
+      "score": 0.29022857546806335,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "obj_5PQSHGM3GXJD26BX95794WQMTF",
+        "sourcePath": "story/objects/raw-amber-nodule--obj_5PQSHGM3GXJD26BX95794WQMTF.md",
+        "section": "Raw Amber Nodule"
+      }
+    },
+    {
+      "documentId": "doc:know_587B15ZZB77TDA8BEEPKY6RS0J:knowledge:0:08d6a33bbce6",
+      "entityId": "know_587B15ZZB77TDA8BEEPKY6RS0J",
+      "documentKind": "knowledge",
+      "heading": null,
+      "audienceKind": "knowledge",
+      "metadata": {
+        "aliases": [],
+        "claimKey": "amber.warmed.during-apparition",
+        "domain": "knowledge.char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+        "kind": "knowledge",
+        "tags": [
+          "amber",
+          "wretch"
+        ],
+        "title": "Veyra links the warm wage pouch to the road apparition"
+      },
+      "vectorRank": 24,
+      "vectorScore": 0.28333401679992676,
+      "snippet": "The party's amber wages became warm during the fox-shaped apparition.",
+      "score": 0.28333401679992676,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "know_587B15ZZB77TDA8BEEPKY6RS0J",
+        "sourcePath": "story/knowledge/char-48qc9b4m2rfvxjksdfmrgjwg8y/veyra-links-the-warm-wage-pouch-to-the-road-apparition--know_587B15ZZB77TDA8BEEPKY6RS0J.md",
+        "section": "knowledge"
+      }
+    },
+    {
+      "documentId": "doc:conv_2RBJYJKPMVB96P4S5PBQT10X9R:conversation-turn:5:56248be0b423",
+      "entityId": "conv_2RBJYJKPMVB96P4S5PBQT10X9R",
+      "documentKind": "conversation-turn",
+      "heading": "verbatim-turn",
+      "audienceKind": "conversation",
+      "metadata": {
+        "aliases": [],
+        "domain": "conversations.frontiersmen",
+        "fidelity": "verbatim",
+        "kind": "conversation",
+        "speaker": "Veyra Kest",
+        "tags": [
+          "road",
+          "amber",
+          "apparition"
+        ],
+        "title": "Saltmere Campfire",
+        "turnId": "turn_2E14R5AGVQ5R6ZXES1VYYPFRCG"
+      },
+      "vectorRank": 25,
+      "vectorScore": 0.2817573547363281,
+      "snippet": "Veyra Kest: “The wage amber warmed when the fox appeared.”",
+      "score": 0.2817573547363281,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "conv_2RBJYJKPMVB96P4S5PBQT10X9R",
+        "sourcePath": "story/conversations/saltmere-campfire--conv_2RBJYJKPMVB96P4S5PBQT10X9R.md",
+        "section": "verbatim-turn"
+      }
+    },
+    {
+      "documentId": "doc:conv_2RBJYJKPMVB96P4S5PBQT10X9R:conversation-recollection:1:29b5d310a75b",
+      "entityId": "conv_2RBJYJKPMVB96P4S5PBQT10X9R",
+      "documentKind": "conversation-recollection",
+      "heading": "subjective-recollection",
+      "audienceKind": "conversation",
+      "metadata": {
+        "aliases": [],
+        "confidence": 0.89,
+        "domain": "conversations.frontiersmen",
+        "fidelity": "subjective",
+        "kind": "conversation",
+        "recollectionId": "recol_3WWRNMQEVZJD3RZWKNEXJGNB5Z",
+        "state": "remembered",
+        "tags": [
+          "road",
+          "amber",
+          "apparition"
+        ],
+        "title": "Saltmere Campfire"
+      },
+      "vectorRank": 26,
+      "vectorScore": 0.279371976852417,
+      "snippet": "Maela produced many ordinary explanations for warm amber without testing any of them.\nInterpretation: The Frontier has social defenses against asking what amber does.\nEmotional impression: intellectual frustration\nVeyra Kest: “The wage amber warmed when the fox appeared.” (exact)\nMaela Brigg: “Amber",
+      "score": 0.279371976852417,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "conv_2RBJYJKPMVB96P4S5PBQT10X9R",
+        "sourcePath": "story/conversations/saltmere-campfire--conv_2RBJYJKPMVB96P4S5PBQT10X9R.md",
+        "section": "subjective-recollection"
+      }
+    },
+    {
+      "documentId": "doc:know_5GYJNX0X06PH15DQ2BBM9AWTTX:knowledge:0:00d92c3b3a16",
+      "entityId": "know_5GYJNX0X06PH15DQ2BBM9AWTTX",
+      "documentKind": "knowledge",
+      "heading": null,
+      "audienceKind": "knowledge",
+      "metadata": {
+        "aliases": [],
+        "claimKey": "amber.pockets.dowsed-by-gnomes",
+        "domain": "knowledge.char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+        "kind": "knowledge",
+        "tags": [
+          "amber",
+          "dowsing"
+        ],
+        "title": "Veyra Kest knows gnomes dowse for amber pockets"
+      },
+      "vectorRank": 30,
+      "vectorScore": 0.2702396810054779,
+      "snippet": "Gnome dowsers locate shallow amber pockets using tuned forks that pull toward the material.",
+      "score": 0.2702396810054779,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "know_5GYJNX0X06PH15DQ2BBM9AWTTX",
+        "sourcePath": "story/knowledge/char-48qc9b4m2rfvxjksdfmrgjwg8y/veyra-kest-knows-gnomes-dowse-for-amber-pockets--know_5GYJNX0X06PH15DQ2BBM9AWTTX.md",
+        "section": "knowledge"
+      }
+    },
+    {
+      "documentId": "doc:conv_1WF5SDFJPJJCMM57MCZ7KTGMWA:conversation-turn:9:c3a42afd8bfd",
+      "entityId": "conv_1WF5SDFJPJJCMM57MCZ7KTGMWA",
+      "documentKind": "conversation-turn",
+      "heading": "verbatim-turn",
+      "audienceKind": "conversation",
+      "metadata": {
+        "aliases": [],
+        "domain": "conversations.frontiersmen",
+        "fidelity": "verbatim",
+        "kind": "conversation",
+        "speaker": "Sergeant Edrik Morn",
+        "tags": [
+          "massacre",
+          "assignment",
+          "harrowcross"
+        ],
+        "title": "The Sergeant's Account",
+        "turnId": "turn_1R55QG1RD90NZNZTMSRW81HNR0"
+      },
+      "vectorRank": 32,
+      "vectorScore": 0.2558957040309906,
+      "snippet": "Sergeant Edrik Morn: “Quarterly guild payment. Amber from Saint Orra, raw and struck.”",
+      "score": 0.2558957040309906,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "conv_1WF5SDFJPJJCMM57MCZ7KTGMWA",
+        "sourcePath": "story/conversations/the-sergeant-s-account--conv_1WF5SDFJPJJCMM57MCZ7KTGMWA.md",
+        "section": "verbatim-turn"
+      }
+    },
+    {
+      "documentId": "doc:char_0R5AN25NJFB2GFQPC96JK85SH4:entity-public:2:45dd150fbc43",
+      "entityId": "char_0R5AN25NJFB2GFQPC96JK85SH4",
+      "documentKind": "entity-public",
+      "heading": "Appearance",
+      "audienceKind": "public",
+      "metadata": {
+        "aliases": [
+          "Jorund"
+        ],
+        "domain": "cast.frontiersmen",
+        "kind": "character",
+        "tags": [
+          "mine-foreman",
+          "mine",
+          "foreman"
+        ],
+        "title": "Jorund Bale"
+      },
+      "vectorRank": 35,
+      "vectorScore": 0.25202441215515137,
+      "snippet": "## Appearance\n\nHeavy-set, black-bearded, with yellow lamp glass sewn into his cap and old amber burns along his right forearm.",
+      "score": 0.25202441215515137,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "char_0R5AN25NJFB2GFQPC96JK85SH4",
+        "sourcePath": "story/characters/jorund-bale--char_0R5AN25NJFB2GFQPC96JK85SH4.md",
+        "section": "Appearance"
+      }
+    },
+    {
+      "documentId": "doc:obj_3A7X1D9JBR82WX8DBB287ZABR1:entity-public:0:5d7ee70eb59e",
+      "entityId": "obj_3A7X1D9JBR82WX8DBB287ZABR1",
+      "documentKind": "entity-public",
+      "heading": "Saint Orra Mine Lamp",
+      "audienceKind": "public",
+      "metadata": {
+        "aliases": [],
+        "domain": "props.frontiersmen",
+        "kind": "object",
+        "tags": [
+          "mine",
+          "lamp"
+        ],
+        "title": "Saint Orra Mine Lamp"
+      },
+      "vectorRank": 36,
+      "vectorScore": 0.25167030096054077,
+      "snippet": "# Saint Orra Mine Lamp\n\nA yellow-glass oil lamp designed to show color changes near amber seams.",
+      "score": 0.25167030096054077,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "obj_3A7X1D9JBR82WX8DBB287ZABR1",
+        "sourcePath": "story/objects/saint-orra-mine-lamp--obj_3A7X1D9JBR82WX8DBB287ZABR1.md",
+        "section": "Saint Orra Mine Lamp"
+      }
+    },
+    {
+      "documentId": "doc:know_20J14E7QSBEPJXPNGVNBEKV1SM:knowledge:0:e3effc7e0ed8",
+      "entityId": "know_20J14E7QSBEPJXPNGVNBEKV1SM",
+      "documentKind": "knowledge",
+      "heading": null,
+      "audienceKind": "knowledge",
+      "metadata": {
+        "aliases": [],
+        "claimKey": "guild.services.paid-in-amber",
+        "domain": "knowledge.char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+        "kind": "knowledge",
+        "tags": [
+          "amber",
+          "guild"
+        ],
+        "title": "Veyra Kest knows Harrowcross pays Lantern Pike in amber"
+      },
+      "vectorRank": 37,
+      "vectorScore": 0.2465173751115799,
+      "snippet": "Harrowcross transfers a quarterly share of Saint Orra's amber production to Lantern Pike in exchange for guards and monster-hunting service.",
+      "score": 0.2465173751115799,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "know_20J14E7QSBEPJXPNGVNBEKV1SM",
+        "sourcePath": "story/knowledge/char-48qc9b4m2rfvxjksdfmrgjwg8y/veyra-kest-knows-harrowcross-pays-lantern-pike-in-amber--know_20J14E7QSBEPJXPNGVNBEKV1SM.md",
+        "section": "knowledge"
+      }
+    }
+  ]
+}

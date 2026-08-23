@@ -1,0 +1,19 @@
+{
+  "protocol": "wedl-context/v3",
+  "revision": "d61d3215a1567cf07759350dd2b73ef0eaaa1f79",
+  "perspective": "author",
+  "characterId": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+  "sceneId": "scene_508C0AN1PBBCHYZZDJCEVWGHR9",
+  "effectiveTime": {
+    "timeline": "main",
+    "tick": 195,
+    "order": 0
+  },
+  "promptText": "# Author margin — The Hunt Begins\n\nCanonical truth, dramatic pressure, and dialogue provenance for constructing the next beat.\n\n## Present moment\n- Canonical author view of **The Hunt Begins** at **main 195:0**. [s1.1]\n\n## What matters\n- **Rhea Marrow — Author notes:** Primary viewpoint and practical leader. She begins wary of Veyra's fascination with amber and ends suspecting that the guild's protection business depends on the danger it conceals. [s2.1]\n- **Rhea Marrow — Goals:** Keep the new company alive, earn enough to leave old disgrace behind, and refuse any contract that requires abandoning people already under her protection. [s2.2]\n- **The Hunt Begins — The Hunt Begins:** The requested story ends in motion: the company has escaped captivity but not the Frontier, and the enemy's silent host is adapting to every route choice. [s1.2]\n- **Identify the Silent Acolyte:** active; priority 66. [s3.1]\n- **Replace the Dead Watch:** active; priority 94. [s4.1]\n- **Return to Harrowcross:** active; priority 84. [s5.1]\n- **Expose the Blackroot Compact:** active; priority 91. [s6.1]\n- **Flee the Root Host:** active; priority 100. [s7.1]\n\n## Writing boundary\n- This margin may contain canonical truth and dramatic irony. Never attribute it to the viewpoint character unless the character packet independently supplies that knowledge.\n- The Root Host is actively pursuing; the party has not escaped the campaign threat. [s1.3]\n- Moth's identity and the key's other uses remain unresolved. [s1.4]\n- The route back to Harrowcross remains unknown. [s1.5]\n\n## Provenance\n- [s1] `scene_508C0AN1PBBCHYZZDJCEVWGHR9` — 1 author-frame; 2 The Hunt Begins; 3 constraint:0; 4 constraint:1; 5 constraint:2\n- [s2] `char_36X0KBYZ7MQGKM070H5NF12BK8` — 1 Author notes; 2 Goals\n- [s3] `sp_0CBN052ZTZNY89D1BNBXSW9VPB` — 1 story-point-state\n- [s4] `sp_0KBNVM3A3AVCG4Z88ETRQM1K78` — 1 story-point-state\n- [s5] `sp_2CS9JPWCRVZJQ6YS41M2BAS4JV` — 1 story-point-state\n- [s6] `sp_738TMHY3Y8CZK6V7KK1BWXPRZJ` — 1 story-point-state\n- [s7] `sp_7VDVQCDD7VGSGHMD95RT3SJ0TN` — 1 story-point-state\n",
+  "selection": {
+    "included": 13,
+    "omitted": 0,
+    "budgetCharacters": 7500,
+    "serializedCharacters": 2471
+  }
+}

@@ -1,0 +1,76 @@
+{
+  "status": {
+    "medianMs": 5.13,
+    "meanMs": 5.468,
+    "p95Ms": 6.124,
+    "minimumMs": 4.806,
+    "maximumMs": 13.308,
+    "repeats": 25,
+    "responseBytes": 2325
+  },
+  "characterList": {
+    "medianMs": 3.564,
+    "meanMs": 4.017,
+    "p95Ms": 4.46,
+    "minimumMs": 3.242,
+    "maximumMs": 13.984,
+    "repeats": 25,
+    "responseBytes": 4303
+  },
+  "ftsSearch": {
+    "medianMs": 7.734,
+    "meanMs": 8.543,
+    "p95Ms": 14.485,
+    "minimumMs": 6.899,
+    "maximumMs": 15.607,
+    "repeats": 25,
+    "responseBytes": 18168
+  },
+  "vectorSearch": {
+    "medianMs": 8.037,
+    "meanMs": 11.262,
+    "p95Ms": 20.055,
+    "minimumMs": 6.857,
+    "maximumMs": 62.508,
+    "repeats": 25,
+    "responseBytes": 18982
+  },
+  "hybridRheaSearch": {
+    "medianMs": 11.047,
+    "meanMs": 14.287,
+    "p95Ms": 26.036,
+    "minimumMs": 9.583,
+    "maximumMs": 49.645,
+    "repeats": 25,
+    "responseBytes": 19301
+  },
+  "rheaContext5000": {
+    "medianMs": 30.169,
+    "meanMs": 33.48,
+    "p95Ms": 49.03,
+    "minimumMs": 27.797,
+    "maximumMs": 59.789,
+    "repeats": 25,
+    "responseBytes": 5027
+  },
+  "rootjawConversation": {
+    "medianMs": 3.435,
+    "meanMs": 3.865,
+    "p95Ms": 5.103,
+    "minimumMs": 3.133,
+    "maximumMs": 10.239,
+    "repeats": 25,
+    "responseBytes": 3190
+  },
+  "storyPoints": {
+    "medianMs": 3.535,
+    "meanMs": 5.579,
+    "p95Ms": 7.841,
+    "minimumMs": 3.152,
+    "maximumMs": 44.114,
+    "repeats": 25,
+    "responseBytes": 4963
+  },
+  "unauthorizedCompileStatus": 401,
+  "authorizedCompileStatus": 200
+}

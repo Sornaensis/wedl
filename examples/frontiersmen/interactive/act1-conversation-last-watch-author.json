@@ -1,0 +1,257 @@
+{
+  "protocol": "wedl-conversation/v1",
+  "revision": "a3e6e3676d4eaf14810724b7906544fe23f0c905",
+  "perspective": "author",
+  "conversationId": "conv_4HXZ3Y7CCMECQNP1T5P0AK82YH",
+  "title": "The Last Watch",
+  "conversationTime": {
+    "start": {
+      "order": 10,
+      "tick": 47,
+      "timeline": "main"
+    },
+    "end": {
+      "order": 14,
+      "tick": 48,
+      "timeline": "main"
+    }
+  },
+  "effectiveTime": {
+    "timeline": "main",
+    "tick": 48,
+    "order": 14
+  },
+  "verbatimTurns": [
+    {
+      "id": "turn_5JZ4K1PDCQVQGC4G34HYV8AXWG",
+      "at": {
+        "timeline": "main",
+        "tick": 47,
+        "order": 10
+      },
+      "speakerId": "char_6RM0PWHAC6EJNJFPHNW1WAZ51G",
+      "speaker": "Corporal Asha Pell",
+      "text": "Bar the east door. The amber chest is humming again.",
+      "delivery": "command",
+      "audience": [
+        "participants"
+      ],
+      "citation": {
+        "entityId": "conv_4HXZ3Y7CCMECQNP1T5P0AK82YH",
+        "kind": "conversation",
+        "sourcePath": "story/conversations/the-last-watch--conv_4HXZ3Y7CCMECQNP1T5P0AK82YH.md",
+        "blobOid": "33bfa86c858336a55173d7e4550cbb42fb6a5d8f",
+        "revision": "a3e6e3676d4eaf14810724b7906544fe23f0c905",
+        "section": "turn:turn_5JZ4K1PDCQVQGC4G34HYV8AXWG"
+      }
+    },
+    {
+      "id": "turn_2P3SM8MWXYAGW04F30EXMZVFAR",
+      "at": {
+        "timeline": "main",
+        "tick": 47,
+        "order": 20
+      },
+      "speakerId": "char_5TTB85PHNSS5YBVVXG9F473WVN",
+      "speaker": "Bran Tew",
+      "text": "It is a box, Corporal. Boxes do not hum.",
+      "delivery": "joking",
+      "audience": [
+        "participants"
+      ],
+      "citation": {
+        "entityId": "conv_4HXZ3Y7CCMECQNP1T5P0AK82YH",
+        "kind": "conversation",
+        "sourcePath": "story/conversations/the-last-watch--conv_4HXZ3Y7CCMECQNP1T5P0AK82YH.md",
+        "blobOid": "33bfa86c858336a55173d7e4550cbb42fb6a5d8f",
+        "revision": "a3e6e3676d4eaf14810724b7906544fe23f0c905",
+        "section": "turn:turn_2P3SM8MWXYAGW04F30EXMZVFAR"
+      }
+    },
+    {
+      "id": "turn_0JQDX1AC189F83MPK9YD7CBEM9",
+      "at": {
+        "timeline": "main",
+        "tick": 47,
+        "order": 30
+      },
+      "speakerId": "char_7DS75TG6WFK6ZD1T9GCBJRMK1T",
+      "speaker": "Kellan Voss",
+      "text": "This one does.",
+      "delivery": "quiet",
+      "audience": [
+        "participants"
+      ],
+      "citation": {
+        "entityId": "conv_4HXZ3Y7CCMECQNP1T5P0AK82YH",
+        "kind": "conversation",
+        "sourcePath": "story/conversations/the-last-watch--conv_4HXZ3Y7CCMECQNP1T5P0AK82YH.md",
+        "blobOid": "33bfa86c858336a55173d7e4550cbb42fb6a5d8f",
+        "revision": "a3e6e3676d4eaf14810724b7906544fe23f0c905",
+        "section": "turn:turn_0JQDX1AC189F83MPK9YD7CBEM9"
+      }
+    },
+    {
+      "id": "turn_1S41ZSGNST23V4MEXYP83VFFGS",
+      "at": {
+        "timeline": "main",
+        "tick": 47,
+        "order": 40
+      },
+      "speakerId": "char_5BPBB10TM9S8M5AB4T6B6CNPZ6",
+      "speaker": "Nolly Dey",
+      "text": "Something is scratching under the floor.",
+      "delivery": "listening",
+      "audience": [
+        "participants"
+      ],
+      "citation": {
+        "entityId": "conv_4HXZ3Y7CCMECQNP1T5P0AK82YH",
+        "kind": "conversation",
+        "sourcePath": "story/conversations/the-last-watch--conv_4HXZ3Y7CCMECQNP1T5P0AK82YH.md",
+        "blobOid": "33bfa86c858336a55173d7e4550cbb42fb6a5d8f",
+        "revision": "a3e6e3676d4eaf14810724b7906544fe23f0c905",
+        "section": "turn:turn_1S41ZSGNST23V4MEXYP83VFFGS"
+      }
+    },
+    {
+      "id": "turn_6WS0T6TDJ6D36M9SHNJCXG1SM3",
+      "at": {
+        "timeline": "main",
+        "tick": 47,
+        "order": 50
+      },
+      "speakerId": "char_6RM0PWHAC6EJNJFPHNW1WAZ51G",
+      "speaker": "Corporal Asha Pell",
+      "text": "Nobody opens the door. Bran, move the chest away from the bunks.",
+      "delivery": "controlled",
+      "audience": [
+        "participants"
+      ],
+      "citation": {
+        "entityId": "conv_4HXZ3Y7CCMECQNP1T5P0AK82YH",
+        "kind": "conversation",
+        "sourcePath": "story/conversations/the-last-watch--conv_4HXZ3Y7CCMECQNP1T5P0AK82YH.md",
+        "blobOid": "33bfa86c858336a55173d7e4550cbb42fb6a5d8f",
+        "revision": "a3e6e3676d4eaf14810724b7906544fe23f0c905",
+        "section": "turn:turn_6WS0T6TDJ6D36M9SHNJCXG1SM3"
+      }
+    },
+    {
+      "id": "turn_3A4WTQHC41FP210FN39P91YRJD",
+      "at": {
+        "timeline": "main",
+        "tick": 48,
+        "order": 0
+      },
+      "speakerId": "char_5TTB85PHNSS5YBVVXG9F473WVN",
+      "speaker": "Bran Tew",
+      "text": "Bottle broke. Give me a cloth.",
+      "delivery": "annoyed",
+      "audience": [
+        "participants"
+      ],
+      "citation": {
+        "entityId": "conv_4HXZ3Y7CCMECQNP1T5P0AK82YH",
+        "kind": "conversation",
+        "sourcePath": "story/conversations/the-last-watch--conv_4HXZ3Y7CCMECQNP1T5P0AK82YH.md",
+        "blobOid": "33bfa86c858336a55173d7e4550cbb42fb6a5d8f",
+        "revision": "a3e6e3676d4eaf14810724b7906544fe23f0c905",
+        "section": "turn:turn_3A4WTQHC41FP210FN39P91YRJD"
+      }
+    },
+    {
+      "id": "turn_7NJG56HSKQGS18FSDCMS21B4E2",
+      "at": {
+        "timeline": "main",
+        "tick": 48,
+        "order": 5
+      },
+      "speakerId": "char_7DS75TG6WFK6ZD1T9GCBJRMK1T",
+      "speaker": "Kellan Voss",
+      "text": "Your blood is running toward the chest.",
+      "delivery": "alarmed",
+      "audience": [
+        "participants"
+      ],
+      "citation": {
+        "entityId": "conv_4HXZ3Y7CCMECQNP1T5P0AK82YH",
+        "kind": "conversation",
+        "sourcePath": "story/conversations/the-last-watch--conv_4HXZ3Y7CCMECQNP1T5P0AK82YH.md",
+        "blobOid": "33bfa86c858336a55173d7e4550cbb42fb6a5d8f",
+        "revision": "a3e6e3676d4eaf14810724b7906544fe23f0c905",
+        "section": "turn:turn_7NJG56HSKQGS18FSDCMS21B4E2"
+      }
+    },
+    {
+      "id": "turn_376095AKGNK2XMKGV9E4N3P9M8",
+      "at": {
+        "timeline": "main",
+        "tick": 48,
+        "order": 10
+      },
+      "speakerId": "char_5BPBB10TM9S8M5AB4T6B6CNPZ6",
+      "speaker": "Nolly Dey",
+      "text": "Asha, there is a deer in the wall.",
+      "delivery": "disbelieving",
+      "audience": [
+        "participants"
+      ],
+      "citation": {
+        "entityId": "conv_4HXZ3Y7CCMECQNP1T5P0AK82YH",
+        "kind": "conversation",
+        "sourcePath": "story/conversations/the-last-watch--conv_4HXZ3Y7CCMECQNP1T5P0AK82YH.md",
+        "blobOid": "33bfa86c858336a55173d7e4550cbb42fb6a5d8f",
+        "revision": "a3e6e3676d4eaf14810724b7906544fe23f0c905",
+        "section": "turn:turn_376095AKGNK2XMKGV9E4N3P9M8"
+      }
+    },
+    {
+      "id": "turn_0HNRER5YHKNCME4MDR5BN7T1RN",
+      "at": {
+        "timeline": "main",
+        "tick": 48,
+        "order": 12
+      },
+      "speakerId": "char_6RM0PWHAC6EJNJFPHNW1WAZ51G",
+      "speaker": "Corporal Asha Pell",
+      "text": "Spear line. Do not look at the floor.",
+      "delivery": "command",
+      "audience": [
+        "participants"
+      ],
+      "citation": {
+        "entityId": "conv_4HXZ3Y7CCMECQNP1T5P0AK82YH",
+        "kind": "conversation",
+        "sourcePath": "story/conversations/the-last-watch--conv_4HXZ3Y7CCMECQNP1T5P0AK82YH.md",
+        "blobOid": "33bfa86c858336a55173d7e4550cbb42fb6a5d8f",
+        "revision": "a3e6e3676d4eaf14810724b7906544fe23f0c905",
+        "section": "turn:turn_0HNRER5YHKNCME4MDR5BN7T1RN"
+      }
+    },
+    {
+      "id": "turn_1S245WH2QFHHY7E12ECGN3891G",
+      "at": {
+        "timeline": "main",
+        "tick": 48,
+        "order": 14
+      },
+      "speakerId": "char_5BPBB10TM9S8M5AB4T6B6CNPZ6",
+      "speaker": "Nolly Dey",
+      "text": "It has Bran's teeth.",
+      "delivery": "terrified",
+      "audience": [
+        "participants"
+      ],
+      "citation": {
+        "entityId": "conv_4HXZ3Y7CCMECQNP1T5P0AK82YH",
+        "kind": "conversation",
+        "sourcePath": "story/conversations/the-last-watch--conv_4HXZ3Y7CCMECQNP1T5P0AK82YH.md",
+        "blobOid": "33bfa86c858336a55173d7e4550cbb42fb6a5d8f",
+        "revision": "a3e6e3676d4eaf14810724b7906544fe23f0c905",
+        "section": "turn:turn_1S245WH2QFHHY7E12ECGN3891G"
+      }
+    }
+  ],
+  "recollections": []
+}

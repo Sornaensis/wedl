@@ -1,0 +1,63 @@
+{
+  "expectedHead": "00489a0048b042addc0428a55eabf317f2df2b3d",
+  "idempotencyKey": "frontiersmen-act-6-boundary-tightening-v2",
+  "operations": [
+    {
+      "entity": "scene_508C0AN1PBBCHYZZDJCEVWGHR9",
+      "frontmatterPatch": {
+        "status": "closed",
+        "tags": [
+          "pursuit"
+        ],
+        "time": {
+          "start": {"timeline": "main", "tick": 191, "order": 0},
+          "current": {"timeline": "main", "tick": 195, "order": 99},
+          "end": {"timeline": "main", "tick": 195, "order": 99}
+        },
+        "participants": [
+          {"character": "char_36X0KBYZ7MQGKM070H5NF12BK8", "role": "fleeing-frontiersman", "point_of_view": true, "from": {"timeline": "main", "tick": 191, "order": 0}, "to": {"timeline": "main", "tick": 195, "order": 99}},
+          {"character": "char_0NQKTG3NQZFSVFKXS901NJD82E", "role": "fleeing-frontiersman", "point_of_view": false, "from": {"timeline": "main", "tick": 191, "order": 0}, "to": {"timeline": "main", "tick": 195, "order": 99}},
+          {"character": "char_671MWM7KTP4DCVVP8EP6SFRJVP", "role": "fleeing-frontiersman", "point_of_view": false, "from": {"timeline": "main", "tick": 191, "order": 0}, "to": {"timeline": "main", "tick": 195, "order": 99}},
+          {"character": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y", "role": "fleeing-frontiersman", "point_of_view": false, "from": {"timeline": "main", "tick": 191, "order": 0}, "to": {"timeline": "main", "tick": 195, "order": 99}},
+          {"character": "char_1W0GNKETQY2HF88YHM7CWVFH7C", "role": "fleeing-frontiersman", "point_of_view": false, "from": {"timeline": "main", "tick": 191, "order": 0}, "to": {"timeline": "main", "tick": 195, "order": 99}}
+        ]
+      },
+      "type": "entity.update"
+    },
+    {
+      "entity": "conv_6CAEJ0NV40CEBK9A8BGVK3CAFG",
+      "frontmatterPatch": {
+        "status": "closed",
+        "time": {
+          "start": {"timeline": "main", "tick": 191, "order": 0},
+          "end": {"timeline": "main", "tick": 195, "order": 99}
+        },
+        "participants": [
+          {"character": "char_5P1T0F31DJHKZHBC49XEHCX891", "role": "distant-pursuer", "point_of_view": false, "from": {"timeline": "main", "tick": 193, "order": 10}, "to": {"timeline": "main", "tick": 195, "order": 99}},
+          {"character": "char_36X0KBYZ7MQGKM070H5NF12BK8", "role": "fleeing-frontiersman", "point_of_view": false, "from": {"timeline": "main", "tick": 191, "order": 0}, "to": {"timeline": "main", "tick": 195, "order": 99}},
+          {"character": "char_0NQKTG3NQZFSVFKXS901NJD82E", "role": "fleeing-frontiersman", "point_of_view": false, "from": {"timeline": "main", "tick": 191, "order": 0}, "to": {"timeline": "main", "tick": 195, "order": 99}},
+          {"character": "char_671MWM7KTP4DCVVP8EP6SFRJVP", "role": "fleeing-frontiersman", "point_of_view": false, "from": {"timeline": "main", "tick": 191, "order": 0}, "to": {"timeline": "main", "tick": 195, "order": 99}},
+          {"character": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y", "role": "fleeing-frontiersman", "point_of_view": false, "from": {"timeline": "main", "tick": 191, "order": 0}, "to": {"timeline": "main", "tick": 195, "order": 99}},
+          {"character": "char_1W0GNKETQY2HF88YHM7CWVFH7C", "role": "fleeing-frontiersman", "point_of_view": false, "from": {"timeline": "main", "tick": 191, "order": 0}, "to": {"timeline": "main", "tick": 195, "order": 99}}
+        ]
+      },
+      "type": "entity.update"
+    },
+    {
+      "entity": "scene_5DS6TYH3DXG3HDFEC7WRE836P7",
+      "frontmatterPatch": {
+        "author_constraints": [
+          "The scene remains active at main 210:0 on an uncertain southward road.",
+          "Rootjaw is absent from the scene and from the party's private route plan.",
+          "Harrowcross has not been reached and the road is not confirmed to lead there.",
+          "The reliquary remains closed and the hooked notch on Moth's key remains unused.",
+          "Do not identify Moth or establish the fate of Moth or Jorund.",
+          "The Blackroot counterfoil remains a narrow corroborating document, not resolution of the guild conspiracy."
+        ]
+      },
+      "type": "entity.update"
+    }
+  ],
+  "protocol": "wedl-changeset/v1",
+  "summary": "Close the inclusive Hunt boundary before the Drowned Waymark and preserve the Southward Cut identity boundary"
+}

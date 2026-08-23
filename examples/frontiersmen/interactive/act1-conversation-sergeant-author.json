@@ -1,0 +1,161 @@
+{
+  "protocol": "wedl-conversation/v1",
+  "revision": "a3e6e3676d4eaf14810724b7906544fe23f0c905",
+  "perspective": "author",
+  "conversationId": "conv_1WF5SDFJPJJCMM57MCZ7KTGMWA",
+  "title": "The Sergeant's Account",
+  "conversationTime": {
+    "start": {
+      "order": 10,
+      "tick": 52,
+      "timeline": "main"
+    },
+    "end": null
+  },
+  "effectiveTime": {
+    "timeline": "main",
+    "tick": 55,
+    "order": 0
+  },
+  "verbatimTurns": [
+    {
+      "id": "turn_6J2Y9MKZQ6WE14APZ6ZZZEBXA5",
+      "at": {
+        "timeline": "main",
+        "tick": 52,
+        "order": 10
+      },
+      "speakerId": "char_1F7JEGBD02MVY0J8M9X0967T5T",
+      "speaker": "Sergeant Edrik Morn",
+      "text": "The east watch was torn apart overnight.",
+      "delivery": "formal",
+      "audience": [
+        "participants"
+      ],
+      "citation": {
+        "entityId": "conv_1WF5SDFJPJJCMM57MCZ7KTGMWA",
+        "kind": "conversation",
+        "sourcePath": "story/conversations/the-sergeant-s-account--conv_1WF5SDFJPJJCMM57MCZ7KTGMWA.md",
+        "blobOid": "715911386267c22ecca373ecee1cea33552452b0",
+        "revision": "a3e6e3676d4eaf14810724b7906544fe23f0c905",
+        "section": "turn:turn_6J2Y9MKZQ6WE14APZ6ZZZEBXA5"
+      }
+    },
+    {
+      "id": "turn_56HRAFC6HK56JQX7X3VSSBYHGW",
+      "at": {
+        "timeline": "main",
+        "tick": 52,
+        "order": 20
+      },
+      "speakerId": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+      "speaker": "Rhea Marrow",
+      "text": "By what?",
+      "delivery": "direct",
+      "audience": [
+        "participants"
+      ],
+      "citation": {
+        "entityId": "conv_1WF5SDFJPJJCMM57MCZ7KTGMWA",
+        "kind": "conversation",
+        "sourcePath": "story/conversations/the-sergeant-s-account--conv_1WF5SDFJPJJCMM57MCZ7KTGMWA.md",
+        "blobOid": "715911386267c22ecca373ecee1cea33552452b0",
+        "revision": "a3e6e3676d4eaf14810724b7906544fe23f0c905",
+        "section": "turn:turn_56HRAFC6HK56JQX7X3VSSBYHGW"
+      }
+    },
+    {
+      "id": "turn_6FRKX5EPD0YGJ0KP3AVPYNAJ5E",
+      "at": {
+        "timeline": "main",
+        "tick": 52,
+        "order": 30
+      },
+      "speakerId": "char_1F7JEGBD02MVY0J8M9X0967T5T",
+      "speaker": "Sergeant Edrik Morn",
+      "text": "If I knew, I would have named it before I asked a caravan for hunters.",
+      "delivery": "strained",
+      "audience": [
+        "participants"
+      ],
+      "citation": {
+        "entityId": "conv_1WF5SDFJPJJCMM57MCZ7KTGMWA",
+        "kind": "conversation",
+        "sourcePath": "story/conversations/the-sergeant-s-account--conv_1WF5SDFJPJJCMM57MCZ7KTGMWA.md",
+        "blobOid": "715911386267c22ecca373ecee1cea33552452b0",
+        "revision": "a3e6e3676d4eaf14810724b7906544fe23f0c905",
+        "section": "turn:turn_6FRKX5EPD0YGJ0KP3AVPYNAJ5E"
+      }
+    },
+    {
+      "id": "turn_24Y6ZGY08DXNTFZ06NKV4E03A7",
+      "at": {
+        "timeline": "main",
+        "tick": 52,
+        "order": 40
+      },
+      "speakerId": "char_4YCQAG8HHJ83ZY2P3RN6KY0AXD",
+      "speaker": "Maela Brigg",
+      "text": "My bond carries freight east. It does not replace village watchmen.",
+      "delivery": "contractual",
+      "audience": [
+        "participants"
+      ],
+      "citation": {
+        "entityId": "conv_1WF5SDFJPJJCMM57MCZ7KTGMWA",
+        "kind": "conversation",
+        "sourcePath": "story/conversations/the-sergeant-s-account--conv_1WF5SDFJPJJCMM57MCZ7KTGMWA.md",
+        "blobOid": "715911386267c22ecca373ecee1cea33552452b0",
+        "revision": "a3e6e3676d4eaf14810724b7906544fe23f0c905",
+        "section": "turn:turn_24Y6ZGY08DXNTFZ06NKV4E03A7"
+      }
+    },
+    {
+      "id": "turn_57KSXYYNGSXFFPTKD7HHB2NHW3",
+      "at": {
+        "timeline": "main",
+        "tick": 53,
+        "order": 0
+      },
+      "speakerId": "char_2YA8FQRX5Q0PRKSETNQZ4EEDKZ",
+      "speaker": "Reeve Hessa Noll",
+      "text": "Harrowcross has paid the Lantern Pike through winter. The badges standing here are what arrived.",
+      "delivery": "plain",
+      "audience": [
+        "participants"
+      ],
+      "citation": {
+        "entityId": "conv_1WF5SDFJPJJCMM57MCZ7KTGMWA",
+        "kind": "conversation",
+        "sourcePath": "story/conversations/the-sergeant-s-account--conv_1WF5SDFJPJJCMM57MCZ7KTGMWA.md",
+        "blobOid": "715911386267c22ecca373ecee1cea33552452b0",
+        "revision": "a3e6e3676d4eaf14810724b7906544fe23f0c905",
+        "section": "turn:turn_57KSXYYNGSXFFPTKD7HHB2NHW3"
+      }
+    },
+    {
+      "id": "turn_5PPEY9JF8NAF0WEVFH5MHAQVV5",
+      "at": {
+        "timeline": "main",
+        "tick": 53,
+        "order": 10
+      },
+      "speakerId": "char_7DS75TG6WFK6ZD1T9GCBJRMK1T",
+      "speaker": "Kellan Voss",
+      "text": "The door never opened.",
+      "delivery": "shaking",
+      "audience": [
+        "participants"
+      ],
+      "citation": {
+        "entityId": "conv_1WF5SDFJPJJCMM57MCZ7KTGMWA",
+        "kind": "conversation",
+        "sourcePath": "story/conversations/the-sergeant-s-account--conv_1WF5SDFJPJJCMM57MCZ7KTGMWA.md",
+        "blobOid": "715911386267c22ecca373ecee1cea33552452b0",
+        "revision": "a3e6e3676d4eaf14810724b7906544fe23f0c905",
+        "section": "turn:turn_5PPEY9JF8NAF0WEVFH5MHAQVV5"
+      }
+    }
+  ],
+  "recollections": []
+}

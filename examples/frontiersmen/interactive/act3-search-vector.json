@@ -1,0 +1,858 @@
+{
+  "protocol": "wedl-search/v4",
+  "revision": "4267d78b9002889ae084bd8ef3884b2df964f7d1",
+  "perspective": "character",
+  "characterId": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+  "sceneId": "scene_6N54SP1BTJ9GR036V9M9JCFDR4",
+  "effectiveTime": {
+    "timeline": "main",
+    "tick": 160,
+    "order": 0
+  },
+  "mode": "vector",
+  "searchState": {
+    "profile": {
+      "name": "hybrid",
+      "ftsEnabled": true,
+      "vectorEnabled": true,
+      "vectorProvider": "lsa",
+      "vectorModel": "wedl-lsa-v1",
+      "vectorDimensions": 192,
+      "vectorMaxFeatures": 8192,
+      "ftsCandidateLimit": 120,
+      "vectorCandidateLimit": 120,
+      "hybridFtsWeight": 1.0,
+      "hybridVectorWeight": 1.0,
+      "hybridRrfK": 60.0
+    },
+    "fts": {
+      "available": true,
+      "documentCount": 1811,
+      "provider": "sqlite-fts5"
+    },
+    "vector": {
+      "available": true,
+      "models": [
+        {
+          "scope": "author",
+          "modelId": "lsa:author:wedl-lsa-v1:192:c9019a5f8d245951",
+          "provider": "lsa",
+          "modelName": "wedl-lsa-v1",
+          "dimensions": 192,
+          "normalized": true
+        },
+        {
+          "scope": "character",
+          "modelId": "lsa:character:wedl-lsa-v1:124:a222f7ee078597c4",
+          "provider": "lsa",
+          "modelName": "wedl-lsa-v1",
+          "dimensions": 124,
+          "normalized": true
+        }
+      ],
+      "uniqueVectors": 786,
+      "documentLinks": 1811
+    }
+  },
+  "results": [
+    {
+      "documentId": "doc:conv_7TC8QMY25DHKXCDDD6BRBZCAS0:conversation-recollection:3:7b0eac3a5187",
+      "entityId": "conv_7TC8QMY25DHKXCDDD6BRBZCAS0",
+      "documentKind": "conversation-recollection",
+      "heading": "subjective-recollection",
+      "audienceKind": "conversation",
+      "metadata": {
+        "aliases": [],
+        "confidence": 0.94,
+        "domain": "conversations.frontiersmen",
+        "fidelity": "subjective",
+        "kind": "conversation",
+        "recollectionId": "recol_0A7XD4FHFP43X0XVN75VBTBKXH",
+        "state": "remembered",
+        "tags": [
+          "amber",
+          "memory",
+          "reliquary"
+        ],
+        "title": "The Sunken Hall Debate"
+      },
+      "vectorRank": 1,
+      "vectorScore": 0.5589404702186584,
+      "snippet": "Ancient grammar names the root as the remembering subject and amber as golden sap retaining wounded forms.\nInterpretation: The Heartwood may be an enormous distributed memory rather than a conventional magical creature.\nEmotional impression: wonder approaching temptation\nVeyra Kest: “The tablet call",
+      "score": 0.5589404702186584,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "conv_7TC8QMY25DHKXCDDD6BRBZCAS0",
+        "sourcePath": "story/conversations/the-sunken-hall-debate--conv_7TC8QMY25DHKXCDDD6BRBZCAS0.md",
+        "section": "subjective-recollection"
+      }
+    },
+    {
+      "documentId": "doc:know_1DGNWGY4XX96ZZ124XVGGT221G:knowledge:0:a8bf19fce597",
+      "entityId": "know_1DGNWGY4XX96ZZ124XVGGT221G",
+      "documentKind": "knowledge",
+      "heading": null,
+      "audienceKind": "knowledge",
+      "metadata": {
+        "aliases": [],
+        "claimKey": "amber.stores-lived-impressions",
+        "domain": "knowledge.char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+        "kind": "knowledge",
+        "tags": [
+          "amber",
+          "ruins"
+        ],
+        "title": "Veyra Kest forms an underground amber theory"
+      },
+      "vectorRank": 2,
+      "vectorScore": 0.5064995884895325,
+      "snippet": "Amber stores structured lived impressions inside a larger root network and can project them as moving forms.",
+      "score": 0.5064995884895325,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "know_1DGNWGY4XX96ZZ124XVGGT221G",
+        "sourcePath": "story/knowledge/char-48qc9b4m2rfvxjksdfmrgjwg8y/veyra-kest-forms-an-underground-amber-theory--know_1DGNWGY4XX96ZZ124XVGGT221G.md",
+        "section": "knowledge"
+      }
+    },
+    {
+      "documentId": "doc:conv_7TC8QMY25DHKXCDDD6BRBZCAS0:conversation-turn:2:cf747906bdc9",
+      "entityId": "conv_7TC8QMY25DHKXCDDD6BRBZCAS0",
+      "documentKind": "conversation-turn",
+      "heading": "verbatim-turn",
+      "audienceKind": "conversation",
+      "metadata": {
+        "aliases": [],
+        "domain": "conversations.frontiersmen",
+        "fidelity": "verbatim",
+        "kind": "conversation",
+        "speaker": "Veyra Kest",
+        "tags": [
+          "amber",
+          "memory",
+          "reliquary"
+        ],
+        "title": "The Sunken Hall Debate",
+        "turnId": "turn_3WFT6EC9CP23J28YQ2ER7D9JKH"
+      },
+      "vectorRank": 3,
+      "vectorScore": 0.464215487241745,
+      "snippet": "Veyra Kest: “The tablet calls amber 'golden sap after the root has remembered the wound.'”",
+      "score": 0.464215487241745,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "conv_7TC8QMY25DHKXCDDD6BRBZCAS0",
+        "sourcePath": "story/conversations/the-sunken-hall-debate--conv_7TC8QMY25DHKXCDDD6BRBZCAS0.md",
+        "section": "verbatim-turn"
+      }
+    },
+    {
+      "documentId": "doc:know_1514C0YWW9GJCAKYGVXBNW54FH:knowledge:0:8f7080b2b595",
+      "entityId": "know_1514C0YWW9GJCAKYGVXBNW54FH",
+      "documentKind": "knowledge",
+      "heading": null,
+      "audienceKind": "knowledge",
+      "metadata": {
+        "aliases": [],
+        "claimKey": "amber.is.magically-active",
+        "domain": "knowledge.char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+        "kind": "knowledge",
+        "tags": [
+          "amber",
+          "magic"
+        ],
+        "title": "Veyra suspects amber is magically active"
+      },
+      "vectorRank": 5,
+      "vectorScore": 0.3587855100631714,
+      "snippet": "Amber is an active magical material rather than inert gemstone or resin.",
+      "score": 0.3587855100631714,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "know_1514C0YWW9GJCAKYGVXBNW54FH",
+        "sourcePath": "story/knowledge/char-48qc9b4m2rfvxjksdfmrgjwg8y/veyra-suspects-amber-is-magically-active--know_1514C0YWW9GJCAKYGVXBNW54FH.md",
+        "section": "knowledge"
+      }
+    },
+    {
+      "documentId": "doc:obj_481HCSTXARNTFBN36HP31HTYV2:entity-public:0:b6359b8501e2",
+      "entityId": "obj_481HCSTXARNTFBN36HP31HTYV2",
+      "documentKind": "entity-public",
+      "heading": "Sunken Hall Memory Tablet",
+      "audienceKind": "public",
+      "metadata": {
+        "aliases": [],
+        "domain": "props.frontiersmen",
+        "kind": "object",
+        "tags": [
+          "ruins",
+          "amber",
+          "lore"
+        ],
+        "title": "Sunken Hall Memory Tablet"
+      },
+      "vectorRank": 6,
+      "vectorScore": 0.35269832611083984,
+      "snippet": "# Sunken Hall Memory Tablet\n\nA stone tablet describing golden sap that keeps the shapes of hunted things after flesh is gone.",
+      "score": 0.35269832611083984,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "obj_481HCSTXARNTFBN36HP31HTYV2",
+        "sourcePath": "story/objects/sunken-hall-memory-tablet--obj_481HCSTXARNTFBN36HP31HTYV2.md",
+        "section": "Sunken Hall Memory Tablet"
+      }
+    },
+    {
+      "documentId": "doc:conv_2RBJYJKPMVB96P4S5PBQT10X9R:conversation-turn:5:56248be0b423",
+      "entityId": "conv_2RBJYJKPMVB96P4S5PBQT10X9R",
+      "documentKind": "conversation-turn",
+      "heading": "verbatim-turn",
+      "audienceKind": "conversation",
+      "metadata": {
+        "aliases": [],
+        "domain": "conversations.frontiersmen",
+        "fidelity": "verbatim",
+        "kind": "conversation",
+        "speaker": "Veyra Kest",
+        "tags": [
+          "road",
+          "amber",
+          "apparition"
+        ],
+        "title": "Saltmere Campfire",
+        "turnId": "turn_2E14R5AGVQ5R6ZXES1VYYPFRCG"
+      },
+      "vectorRank": 8,
+      "vectorScore": 0.29192519187927246,
+      "snippet": "Veyra Kest: “The wage amber warmed when the fox appeared.”",
+      "score": 0.29192519187927246,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "conv_2RBJYJKPMVB96P4S5PBQT10X9R",
+        "sourcePath": "story/conversations/saltmere-campfire--conv_2RBJYJKPMVB96P4S5PBQT10X9R.md",
+        "section": "verbatim-turn"
+      }
+    },
+    {
+      "documentId": "doc:scene_6N54SP1BTJ9GR036V9M9JCFDR4:scene-observation:3:3f2bb21028c1",
+      "entityId": "scene_6N54SP1BTJ9GR036V9M9JCFDR4",
+      "documentKind": "scene-observation",
+      "heading": "observation",
+      "audienceKind": "scene",
+      "metadata": {
+        "aliases": [],
+        "domain": "scenes.frontiersmen",
+        "kind": "scene",
+        "observationId": "obs_3YH7SSSSQFPXEGK320EMEWAFXV",
+        "tags": [
+          "surface",
+          "active"
+        ],
+        "title": "Hilltop Dawn"
+      },
+      "vectorRank": 13,
+      "vectorScore": 0.2647300660610199,
+      "snippet": "A narrow column of smoke rises two valleys north from a camp where animal-faced figures move in silence.",
+      "score": 0.2647300660610199,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "scene_6N54SP1BTJ9GR036V9M9JCFDR4",
+        "sourcePath": "story/scenes/hilltop-dawn--scene_6N54SP1BTJ9GR036V9M9JCFDR4.md",
+        "section": "observation"
+      }
+    },
+    {
+      "documentId": "doc:conv_7MV33E43SR2ZKC30REKAAC77DP:conversation-turn:3:98fb1ce5ca5b",
+      "entityId": "conv_7MV33E43SR2ZKC30REKAAC77DP",
+      "documentKind": "conversation-turn",
+      "heading": "verbatim-turn",
+      "audienceKind": "conversation",
+      "metadata": {
+        "aliases": [],
+        "domain": "conversations.frontiersmen",
+        "fidelity": "verbatim",
+        "kind": "conversation",
+        "speaker": "Sylvi Ashdown",
+        "tags": [
+          "fear",
+          "amber",
+          "guild"
+        ],
+        "title": "Second Night Below",
+        "turnId": "turn_5ZN84ZWVDXB5ZHAZR9EMWTEKVA"
+      },
+      "vectorRank": 14,
+      "vectorScore": 0.2629562020301819,
+      "snippet": "Sylvi Ashdown: “There are blind fish in the black water. Real ones. The amber has not emptied everything.”",
+      "score": 0.2629562020301819,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "conv_7MV33E43SR2ZKC30REKAAC77DP",
+        "sourcePath": "story/conversations/second-night-below--conv_7MV33E43SR2ZKC30REKAAC77DP.md",
+        "section": "verbatim-turn"
+      }
+    },
+    {
+      "documentId": "doc:conv_7MV33E43SR2ZKC30REKAAC77DP:conversation-recollection:3:7017d9985822",
+      "entityId": "conv_7MV33E43SR2ZKC30REKAAC77DP",
+      "documentKind": "conversation-recollection",
+      "heading": "subjective-recollection",
+      "audienceKind": "conversation",
+      "metadata": {
+        "aliases": [],
+        "confidence": 0.9,
+        "domain": "conversations.frontiersmen",
+        "fidelity": "subjective",
+        "kind": "conversation",
+        "recollectionId": "recol_2WHHTZGFZWPJQPRTJKZAC2DSZ5",
+        "state": "remembered",
+        "tags": [
+          "fear",
+          "amber",
+          "guild"
+        ],
+        "title": "Second Night Below"
+      },
+      "vectorRank": 15,
+      "vectorScore": 0.25474292039871216,
+      "snippet": "The roots brighten for emotionally real memories and respond weakly to fabricated statements.\nInterpretation: Amber may be a medium for structured lived impressions rather than a source of free magical energy.\nEmotional impression: intellectual hunger tempered by consent\nVeyra Kest: “The roots under",
+      "score": 0.25474292039871216,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "conv_7MV33E43SR2ZKC30REKAAC77DP",
+        "sourcePath": "story/conversations/second-night-below--conv_7MV33E43SR2ZKC30REKAAC77DP.md",
+        "section": "subjective-recollection"
+      }
+    },
+    {
+      "documentId": "doc:conv_2RBJYJKPMVB96P4S5PBQT10X9R:conversation-turn:6:af2c4de2f5eb",
+      "entityId": "conv_2RBJYJKPMVB96P4S5PBQT10X9R",
+      "documentKind": "conversation-turn",
+      "heading": "verbatim-turn",
+      "audienceKind": "conversation",
+      "metadata": {
+        "aliases": [],
+        "domain": "conversations.frontiersmen",
+        "fidelity": "verbatim",
+        "kind": "conversation",
+        "speaker": "Maela Brigg",
+        "tags": [
+          "road",
+          "amber",
+          "apparition"
+        ],
+        "title": "Saltmere Campfire",
+        "turnId": "turn_6R6Q2BHCS6HAMKRHGD39QQ8950"
+      },
+      "vectorRank": 16,
+      "vectorScore": 0.25121039152145386,
+      "snippet": "Maela Brigg: “Amber warms in coats, sunlight, fever, kitchens, arguments, and stories told by new hires.”",
+      "score": 0.25121039152145386,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "conv_2RBJYJKPMVB96P4S5PBQT10X9R",
+        "sourcePath": "story/conversations/saltmere-campfire--conv_2RBJYJKPMVB96P4S5PBQT10X9R.md",
+        "section": "verbatim-turn"
+      }
+    },
+    {
+      "documentId": "doc:conv_60R00C9GFDD8MPY5PBEX304S99:conversation-recollection:3:096defc3e9b4",
+      "entityId": "conv_60R00C9GFDD8MPY5PBEX304S99",
+      "documentKind": "conversation-recollection",
+      "heading": "subjective-recollection",
+      "audienceKind": "conversation",
+      "metadata": {
+        "aliases": [],
+        "confidence": 0.93,
+        "domain": "conversations.frontiersmen",
+        "fidelity": "subjective",
+        "kind": "conversation",
+        "recollectionId": "recol_30X11P3CSN57XS0C4Z8GGZ7C3J",
+        "state": "remembered",
+        "tags": [
+          "amber",
+          "dowsing",
+          "mine"
+        ],
+        "title": "Tillo and the Fork"
+      },
+      "vectorRank": 17,
+      "vectorScore": 0.24623942375183105,
+      "snippet": "Gnome dowsing senses amber through pressure on tuned materials, and quick amber creates old shapes without living bodies.\nInterpretation: Amber stores or transmits structured impressions rather than ordinary spell energy.\nEmotional impression: dangerous fascination\nVeyra Kest: “You can feel it befor",
+      "score": 0.24623942375183105,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "conv_60R00C9GFDD8MPY5PBEX304S99",
+        "sourcePath": "story/conversations/tillo-and-the-fork--conv_60R00C9GFDD8MPY5PBEX304S99.md",
+        "section": "subjective-recollection"
+      }
+    },
+    {
+      "documentId": "doc:know_4PMAFBAQY1T21BM5B636P01H2H:knowledge:0:75801f8d0215",
+      "entityId": "know_4PMAFBAQY1T21BM5B636P01H2H",
+      "documentKind": "knowledge",
+      "heading": null,
+      "audienceKind": "knowledge",
+      "metadata": {
+        "aliases": [],
+        "claimKey": "harrowcross.chest.quick-amber",
+        "domain": "knowledge.char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+        "kind": "knowledge",
+        "tags": [
+          "amber",
+          "wretch"
+        ],
+        "title": "Veyra Kest knows the chest contained quick amber"
+      },
+      "vectorRank": 21,
+      "vectorScore": 0.23318389058113098,
+      "snippet": "The Harrowcross payment chest contained raw amber that had become warm, backward-pulling, and capable of supporting wretch manifestations.",
+      "score": 0.23318389058113098,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "know_4PMAFBAQY1T21BM5B636P01H2H",
+        "sourcePath": "story/knowledge/char-48qc9b4m2rfvxjksdfmrgjwg8y/veyra-kest-knows-the-chest-contained-quick-amber--know_4PMAFBAQY1T21BM5B636P01H2H.md",
+        "section": "knowledge"
+      }
+    },
+    {
+      "documentId": "doc:know_4WABGVP968ESVHRRKEZ2GDRW57:knowledge:0:48de4e8f4490",
+      "entityId": "know_4WABGVP968ESVHRRKEZ2GDRW57",
+      "documentKind": "knowledge",
+      "heading": null,
+      "audienceKind": "knowledge",
+      "metadata": {
+        "aliases": [],
+        "claimKey": "amber.pulses-shape-wretch",
+        "domain": "knowledge.char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+        "kind": "knowledge",
+        "tags": [
+          "wretch",
+          "amber"
+        ],
+        "title": "Veyra observes amber pulses shaping the wretch"
+      },
+      "vectorRank": 30,
+      "vectorScore": 0.2200741022825241,
+      "snippet": "Pulses from the raw amber chest corresponded to the wretch's changing borrowed anatomy.",
+      "score": 0.2200741022825241,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "know_4WABGVP968ESVHRRKEZ2GDRW57",
+        "sourcePath": "story/knowledge/char-48qc9b4m2rfvxjksdfmrgjwg8y/veyra-observes-amber-pulses-shaping-the-wretch--know_4WABGVP968ESVHRRKEZ2GDRW57.md",
+        "section": "knowledge"
+      }
+    },
+    {
+      "documentId": "doc:conv_33YJSY1GRTYH06S8JD2Q6TKWJ1:conversation-recollection:3:12ca79b6c27d",
+      "entityId": "conv_33YJSY1GRTYH06S8JD2Q6TKWJ1",
+      "documentKind": "conversation-recollection",
+      "heading": "subjective-recollection",
+      "audienceKind": "conversation",
+      "metadata": {
+        "aliases": [],
+        "confidence": 0.88,
+        "domain": "conversations.frontiersmen",
+        "fidelity": "subjective",
+        "kind": "conversation",
+        "recollectionId": "recol_28G01KDRT7T29GVN51FJN9AAT9",
+        "state": "remembered",
+        "tags": [
+          "mine",
+          "sealed-drift",
+          "guild"
+        ],
+        "title": "Jorund's Terms"
+      },
+      "vectorRank": 43,
+      "vectorScore": 0.19519412517547607,
+      "snippet": "The lamp reacts at the yard and the warm seam lies through black rootstone rather than ordinary ore.\nInterpretation: The mine has intersected a larger active structure rather than an isolated amber pocket.\nEmotional impression: awe restrained by fear\nJorund Bale: “We followed a new seam through blac",
+      "score": 0.19519412517547607,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "conv_33YJSY1GRTYH06S8JD2Q6TKWJ1",
+        "sourcePath": "story/conversations/jorund-s-terms--conv_33YJSY1GRTYH06S8JD2Q6TKWJ1.md",
+        "section": "subjective-recollection"
+      }
+    },
+    {
+      "documentId": "doc:conv_4R3Y82F5GYV74A24GJJ6WAYAT5:conversation-turn:7:03b7c91a76f4",
+      "entityId": "conv_4R3Y82F5GYV74A24GJJ6WAYAT5",
+      "documentKind": "conversation-turn",
+      "heading": "verbatim-turn",
+      "audienceKind": "conversation",
+      "metadata": {
+        "aliases": [],
+        "domain": "conversations.frontiersmen",
+        "fidelity": "verbatim",
+        "kind": "conversation",
+        "speaker": "Sylvi Ashdown",
+        "tags": [
+          "amber",
+          "wages",
+          "frontier-custom"
+        ],
+        "title": "Amber Wages",
+        "turnId": "turn_6CH5GYXH5NBV6EGMTCMYDMJ1YJ"
+      },
+      "vectorRank": 46,
+      "vectorScore": 0.18254989385604858,
+      "snippet": "Sylvi Ashdown: “Amber sweats?”",
+      "score": 0.18254989385604858,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "conv_4R3Y82F5GYV74A24GJJ6WAYAT5",
+        "sourcePath": "story/conversations/amber-wages--conv_4R3Y82F5GYV74A24GJJ6WAYAT5.md",
+        "section": "verbatim-turn"
+      }
+    },
+    {
+      "documentId": "doc:conv_4R3Y82F5GYV74A24GJJ6WAYAT5:conversation-turn:1:c46064bbfec5",
+      "entityId": "conv_4R3Y82F5GYV74A24GJJ6WAYAT5",
+      "documentKind": "conversation-turn",
+      "heading": "verbatim-turn",
+      "audienceKind": "conversation",
+      "metadata": {
+        "aliases": [],
+        "domain": "conversations.frontiersmen",
+        "fidelity": "verbatim",
+        "kind": "conversation",
+        "speaker": "Pip Fenlock",
+        "tags": [
+          "amber",
+          "wages",
+          "frontier-custom"
+        ],
+        "title": "Amber Wages",
+        "turnId": "turn_0QP1E94NFCTXWKY1Q981CV3X0Q"
+      },
+      "vectorRank": 47,
+      "vectorScore": 0.1780426800251007,
+      "snippet": "Pip Fenlock: “This is amber.”",
+      "score": 0.1780426800251007,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "conv_4R3Y82F5GYV74A24GJJ6WAYAT5",
+        "sourcePath": "story/conversations/amber-wages--conv_4R3Y82F5GYV74A24GJJ6WAYAT5.md",
+        "section": "verbatim-turn"
+      }
+    },
+    {
+      "documentId": "doc:conv_60R00C9GFDD8MPY5PBEX304S99:conversation-turn:4:55b81e3c59a5",
+      "entityId": "conv_60R00C9GFDD8MPY5PBEX304S99",
+      "documentKind": "conversation-turn",
+      "heading": "verbatim-turn",
+      "audienceKind": "conversation",
+      "metadata": {
+        "aliases": [],
+        "domain": "conversations.frontiersmen",
+        "fidelity": "verbatim",
+        "kind": "conversation",
+        "speaker": "Tillo Wick",
+        "tags": [
+          "amber",
+          "dowsing",
+          "mine"
+        ],
+        "title": "Tillo and the Fork",
+        "turnId": "turn_4G5BG7R76RKCJ9AGVRFMTFGYM6"
+      },
+      "vectorRank": 53,
+      "vectorScore": 0.16938814520835876,
+      "snippet": "Tillo Wick: “Warm without fire. Pulls the fork backward. Makes old shapes where no animal stands.”",
+      "score": 0.16938814520835876,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "conv_60R00C9GFDD8MPY5PBEX304S99",
+        "sourcePath": "story/conversations/tillo-and-the-fork--conv_60R00C9GFDD8MPY5PBEX304S99.md",
+        "section": "verbatim-turn"
+      }
+    },
+    {
+      "documentId": "doc:know_5GYJNX0X06PH15DQ2BBM9AWTTX:knowledge:0:00d92c3b3a16",
+      "entityId": "know_5GYJNX0X06PH15DQ2BBM9AWTTX",
+      "documentKind": "knowledge",
+      "heading": null,
+      "audienceKind": "knowledge",
+      "metadata": {
+        "aliases": [],
+        "claimKey": "amber.pockets.dowsed-by-gnomes",
+        "domain": "knowledge.char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+        "kind": "knowledge",
+        "tags": [
+          "amber",
+          "dowsing"
+        ],
+        "title": "Veyra Kest knows gnomes dowse for amber pockets"
+      },
+      "vectorRank": 56,
+      "vectorScore": 0.1621672660112381,
+      "snippet": "Gnome dowsers locate shallow amber pockets using tuned forks that pull toward the material.",
+      "score": 0.1621672660112381,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "know_5GYJNX0X06PH15DQ2BBM9AWTTX",
+        "sourcePath": "story/knowledge/char-48qc9b4m2rfvxjksdfmrgjwg8y/veyra-kest-knows-gnomes-dowse-for-amber-pockets--know_5GYJNX0X06PH15DQ2BBM9AWTTX.md",
+        "section": "knowledge"
+      }
+    },
+    {
+      "documentId": "doc:know_587B15ZZB77TDA8BEEPKY6RS0J:knowledge:0:08d6a33bbce6",
+      "entityId": "know_587B15ZZB77TDA8BEEPKY6RS0J",
+      "documentKind": "knowledge",
+      "heading": null,
+      "audienceKind": "knowledge",
+      "metadata": {
+        "aliases": [],
+        "claimKey": "amber.warmed.during-apparition",
+        "domain": "knowledge.char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+        "kind": "knowledge",
+        "tags": [
+          "amber",
+          "wretch"
+        ],
+        "title": "Veyra links the warm wage pouch to the road apparition"
+      },
+      "vectorRank": 57,
+      "vectorScore": 0.15962445735931396,
+      "snippet": "The party's amber wages became warm during the fox-shaped apparition.",
+      "score": 0.15962445735931396,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "know_587B15ZZB77TDA8BEEPKY6RS0J",
+        "sourcePath": "story/knowledge/char-48qc9b4m2rfvxjksdfmrgjwg8y/veyra-links-the-warm-wage-pouch-to-the-road-apparition--know_587B15ZZB77TDA8BEEPKY6RS0J.md",
+        "section": "knowledge"
+      }
+    },
+    {
+      "documentId": "doc:know_0GM73CVAVY50HKTFM44BWB250W:knowledge:0:3c8eead908aa",
+      "entityId": "know_0GM73CVAVY50HKTFM44BWB250W",
+      "documentKind": "knowledge",
+      "heading": null,
+      "audienceKind": "knowledge",
+      "metadata": {
+        "aliases": [],
+        "claimKey": "amber.functions.as-currency",
+        "domain": "knowledge.char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+        "kind": "knowledge",
+        "tags": [
+          "amber",
+          "currency"
+        ],
+        "title": "Veyra Kest knows amber is frontier currency"
+      },
+      "vectorRank": 59,
+      "vectorScore": 0.15739744901657104,
+      "snippet": "Refined amber discs function as ordinary wages and exchange value across the Frontier.",
+      "score": 0.15739744901657104,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "know_0GM73CVAVY50HKTFM44BWB250W",
+        "sourcePath": "story/knowledge/char-48qc9b4m2rfvxjksdfmrgjwg8y/veyra-kest-knows-amber-is-frontier-currency--know_0GM73CVAVY50HKTFM44BWB250W.md",
+        "section": "knowledge"
+      }
+    },
+    {
+      "documentId": "doc:conv_5Q4V1ATZE1B2XWQRTJ4XG9NEC1:conversation-recollection:3:4126b9c8f1d3",
+      "entityId": "conv_5Q4V1ATZE1B2XWQRTJ4XG9NEC1",
+      "documentKind": "conversation-recollection",
+      "heading": "subjective-recollection",
+      "audienceKind": "conversation",
+      "metadata": {
+        "aliases": [],
+        "confidence": 0.94,
+        "domain": "conversations.frontiersmen",
+        "fidelity": "subjective",
+        "kind": "conversation",
+        "recollectionId": "recol_26P4TZ762HDB6TX8F74QMSFPRD",
+        "state": "remembered",
+        "tags": [
+          "contract",
+          "abandonment",
+          "amber-payment"
+        ],
+        "title": "Maela's Departure"
+      },
+      "vectorRank": 64,
+      "vectorScore": 0.14861121773719788,
+      "snippet": "Raw amber is transferred directly from Saint Orra Mine to the guild as payment.\nInterpretation: The guild has institutional access to the material it refuses to explain.\nEmotional impression: vindicated suspicion\nReeve Hessa Noll: “Amber. Three measures from Saint Orra each quarter, plus stamped dis",
+      "score": 0.14861121773719788,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "conv_5Q4V1ATZE1B2XWQRTJ4XG9NEC1",
+        "sourcePath": "story/conversations/maela-s-departure--conv_5Q4V1ATZE1B2XWQRTJ4XG9NEC1.md",
+        "section": "subjective-recollection"
+      }
+    },
+    {
+      "documentId": "doc:conv_5Q4V1ATZE1B2XWQRTJ4XG9NEC1:conversation-turn:5:3d5304dc1582",
+      "entityId": "conv_5Q4V1ATZE1B2XWQRTJ4XG9NEC1",
+      "documentKind": "conversation-turn",
+      "heading": "verbatim-turn",
+      "audienceKind": "conversation",
+      "metadata": {
+        "aliases": [],
+        "domain": "conversations.frontiersmen",
+        "fidelity": "verbatim",
+        "kind": "conversation",
+        "speaker": "Veyra Kest",
+        "tags": [
+          "contract",
+          "abandonment",
+          "amber-payment"
+        ],
+        "title": "Maela's Departure",
+        "turnId": "turn_6TGVZ4X14G7SG5G4RJZHM02BXN"
+      },
+      "vectorRank": 67,
+      "vectorScore": 0.1446194350719452,
+      "snippet": "Veyra Kest: “Raw amber is a protection fee?”",
+      "score": 0.1446194350719452,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "conv_5Q4V1ATZE1B2XWQRTJ4XG9NEC1",
+        "sourcePath": "story/conversations/maela-s-departure--conv_5Q4V1ATZE1B2XWQRTJ4XG9NEC1.md",
+        "section": "verbatim-turn"
+      }
+    },
+    {
+      "documentId": "doc:conv_1WF5SDFJPJJCMM57MCZ7KTGMWA:conversation-recollection:3:bf7596862574",
+      "entityId": "conv_1WF5SDFJPJJCMM57MCZ7KTGMWA",
+      "documentKind": "conversation-recollection",
+      "heading": "subjective-recollection",
+      "audienceKind": "conversation",
+      "metadata": {
+        "aliases": [],
+        "confidence": 0.93,
+        "domain": "conversations.frontiersmen",
+        "fidelity": "subjective",
+        "kind": "conversation",
+        "recollectionId": "recol_3WV31577GDFQNXSAG2YG45KNMV",
+        "state": "remembered",
+        "tags": [
+          "massacre",
+          "assignment",
+          "harrowcross"
+        ],
+        "title": "The Sergeant's Account"
+      },
+      "vectorRank": 74,
+      "vectorScore": 0.12885816395282745,
+      "snippet": "The slaughter room contained mixed raw and refined amber stored beneath the bunks.\nInterpretation: The chest is a material variable the locals are reluctant to discuss.\nEmotional impression: focused suspicion\nVeyra Kest: “What was stored beneath the bunks?” (exact)\nSergeant Edrik Morn: “Quarterly gu",
+      "score": 0.12885816395282745,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "conv_1WF5SDFJPJJCMM57MCZ7KTGMWA",
+        "sourcePath": "story/conversations/the-sergeant-s-account--conv_1WF5SDFJPJJCMM57MCZ7KTGMWA.md",
+        "section": "subjective-recollection"
+      }
+    },
+    {
+      "documentId": "doc:env_77WH7B5PBB2XZYBNDWNVCY2XGP:entity-public:0:44d85577dff9",
+      "entityId": "env_77WH7B5PBB2XZYBNDWNVCY2XGP",
+      "documentKind": "entity-public",
+      "heading": "Hilltop Dawn",
+      "audienceKind": "public",
+      "metadata": {
+        "aliases": [],
+        "domain": "environment.frontier",
+        "kind": "environment",
+        "tags": [
+          "frontier"
+        ],
+        "title": "Hilltop Dawn"
+      },
+      "vectorRank": 77,
+      "vectorScore": 0.12607567012310028,
+      "snippet": "# Hilltop Dawn\n\nRelief at reaching the surface becomes the temptation to approach the only visible camp.",
+      "score": 0.12607567012310028,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "env_77WH7B5PBB2XZYBNDWNVCY2XGP",
+        "sourcePath": "story/environments/hilltop-dawn--env_77WH7B5PBB2XZYBNDWNVCY2XGP.md",
+        "section": "Hilltop Dawn"
+      }
+    },
+    {
+      "documentId": "doc:conv_3TH0GGWH9AFGWGND2BFPA6MTKG:conversation-turn:1:1103a64ef02d",
+      "entityId": "conv_3TH0GGWH9AFGWGND2BFPA6MTKG",
+      "documentKind": "conversation-turn",
+      "heading": "verbatim-turn",
+      "audienceKind": "conversation",
+      "metadata": {
+        "aliases": [],
+        "domain": "conversations.frontiersmen",
+        "fidelity": "verbatim",
+        "kind": "conversation",
+        "speaker": "Veyra Kest",
+        "tags": [
+          "massacre",
+          "amber",
+          "wretch"
+        ],
+        "title": "Kellan's Broken Watch",
+        "turnId": "turn_270K467C1VPSC9R6VCJSJR5K8N"
+      },
+      "vectorRank": 82,
+      "vectorScore": 0.11017066240310669,
+      "snippet": "Veyra Kest: “The chest was already warm?”",
+      "score": 0.11017066240310669,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "conv_3TH0GGWH9AFGWGND2BFPA6MTKG",
+        "sourcePath": "story/conversations/kellan-s-broken-watch--conv_3TH0GGWH9AFGWGND2BFPA6MTKG.md",
+        "section": "verbatim-turn"
+      }
+    }
+  ]
+}

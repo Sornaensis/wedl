@@ -1,0 +1,19 @@
+{
+  "protocol": "wedl-context/v3",
+  "revision": "4267d78b9002889ae084bd8ef3884b2df964f7d1",
+  "perspective": "author",
+  "characterId": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+  "sceneId": "scene_6N54SP1BTJ9GR036V9M9JCFDR4",
+  "effectiveTime": {
+    "timeline": "main",
+    "tick": 160,
+    "order": 0
+  },
+  "promptText": "# Author margin — Hilltop Dawn\n\nCanonical truth, dramatic pressure, and dialogue provenance for constructing the next beat.\n\n## Present moment\n- Canonical author view of **Hilltop Dawn** at **main 160:0**. [s1.1]\n\n## What matters\n- **Sylvi Ashdown — Author notes:** She is the party's ecological intelligence. Her interpretations are often correct but couched as tracking rather than magic. [s2.1]\n- **Sylvi Ashdown — Goals:** Map a road no ranger has made safe, prove she can work with people rather than around them, and learn why ordinary animals avoid amber-bearing ground. [s2.2]\n- **Hilltop Dawn — Hilltop Dawn:** The underground arc ends with apparent escape and a worse isolation. The first human camp in sight belongs to someone already resonating with what the party carries. [s1.2]\n- **Escape Before the Blood Sport:** eligible; priority 100. [s3.1]\n- **Replace the Dead Watch:** active; priority 94. [s4.1]\n- **Return to Harrowcross:** active; priority 84. [s5.1]\n- **Understand the Tree King:** active; priority 95. [s6.1]\n- **Expose the Blackroot Compact:** active; priority 91. [s7.1]\n- **Flee the Root Host:** eligible; priority 100. [s8.1]\n\n## Writing boundary\n- This margin may contain canonical truth and dramatic irony. Never attribute it to the viewpoint character unless the character packet independently supplies that knowledge.\n- The party does not know the Tree King's identity or Moth's role. [s1.3]\n- Approaching the camp is a survival decision under hunger and isolation, not implausible trust. [s1.4]\n\n## Provenance\n- [s1] `scene_6N54SP1BTJ9GR036V9M9JCFDR4` — 1 author-frame; 2 Hilltop Dawn; 3 constraint:0; 4 constraint:1\n- [s2] `char_0NQKTG3NQZFSVFKXS901NJD82E` — 1 Author notes; 2 Goals\n- [s3] `sp_036KDER9FKFVCH734QS3QS34TC` — 1 story-point-state\n- [s4] `sp_0KBNVM3A3AVCG4Z88ETRQM1K78` — 1 story-point-state\n- [s5] `sp_2CS9JPWCRVZJQ6YS41M2BAS4JV` — 1 story-point-state\n- [s6] `sp_56BDX8H6ZW2K20S7Z9EV5RBRTR` — 1 story-point-state\n- [s7] `sp_738TMHY3Y8CZK6V7KK1BWXPRZJ` — 1 story-point-state\n- [s8] `sp_7VDVQCDD7VGSGHMD95RT3SJ0TN` — 1 story-point-state\n",
+  "selection": {
+    "included": 13,
+    "omitted": 0,
+    "budgetCharacters": 7500,
+    "serializedCharacters": 2483
+  }
+}

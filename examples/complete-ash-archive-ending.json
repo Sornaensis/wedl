@@ -1,0 +1,4347 @@
+{
+  "protocol": "wedl-changeset/v1",
+  "expectedHead": "9c93e4b7630a098b659831d4771219d6c33557b6",
+  "idempotencyKey": "ash-archive-coherent-ending-v1",
+  "summary": "Complete the Ash Archive with threefold custody, river escape, Ember Hall reckoning, and an honest-absence epilogue",
+  "actor": {
+    "kind": "system",
+    "id": "local:story-author"
+  },
+  "operations": [
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "object",
+          "id": "obj_63FCYHT5G7QX47ECXZNBGTNC0H",
+          "title": "Unindexed Identity Packets",
+          "domain": "props.ash-archive.ending",
+          "status": "canonical",
+          "tags": [
+            "identity",
+            "distributed-custody"
+          ],
+          "aliases": [],
+          "object_type": "sealed-identity-packets",
+          "initial_state": {
+            "holder": {
+              "entity": "char_0JS5X2Q20CFGQTHD59XZGW684E"
+            },
+            "condition": "one family per packet; no surviving cross-index"
+          },
+          "capabilities": []
+        },
+        "bodyMarkdown": "# Unindexed Identity Packets\n\nThe identity-bearing folios cut from the descendant ledger, sealed one family per packet. Each packet identifies its own subjects but contains no route, proof sequence, or index to the others.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "object",
+          "id": "obj_71G9T35KKZ4TP861PMSNFW83W8",
+          "title": "Threefold Custody Instrument",
+          "domain": "props.ash-archive.ending",
+          "status": "canonical",
+          "tags": [
+            "custody",
+            "notarial",
+            "provenance"
+          ],
+          "aliases": [],
+          "object_type": "notarial-instrument",
+          "initial_state": {
+            "holder": {
+              "entity": "char_71R4G38WFZRCM9GXRFP51WSKW5"
+            },
+            "condition": "signed by five witnesses; expires after ninety days unless renewed"
+          },
+          "capabilities": []
+        },
+        "bodyMarkdown": "# Threefold Custody Instrument\n\nYsabet’s witnessed instrument records that proof, route, and identity were separated; names no living descendant; requires independent warrants to reconstruct any connection; and records the destruction of the original cross-index.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "object",
+          "id": "obj_137433HR6P0H8RNGP9HDE9W8Z5",
+          "title": "Ledger of Honest Absences",
+          "domain": "props.ash-archive.ending",
+          "status": "canonical",
+          "tags": [
+            "archive-reform",
+            "provenance"
+          ],
+          "aliases": [],
+          "object_type": "catalog-ledger",
+          "initial_state": {
+            "location": {
+              "entity": "loc_0E434X5XGQVW7S6T5Z8H5RAP68"
+            },
+            "condition": "newly opened"
+          },
+          "capabilities": []
+        },
+        "bodyMarkdown": "# Ledger of Honest Absences\n\nA new Archive ledger recording that material was removed, divided, sealed, or withheld; the authority and witnesses for doing so; and when the decision must be reviewed—without retaining the information needed to reverse the protection.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "conversation",
+          "id": "conv_4Q80NQ0AA0X8EP3N352BRGS10Z",
+          "title": "The Choice of Records",
+          "domain": "conversations.ash-archive.second-act",
+          "status": "closed",
+          "tags": [
+            "active",
+            "records",
+            "custody"
+          ],
+          "aliases": [],
+          "time": {
+            "start": {
+              "timeline": "main",
+              "tick": 176,
+              "order": 0
+            },
+            "end": {
+              "timeline": "main",
+              "tick": 179,
+              "order": 20
+            }
+          },
+          "scene": "scene_45FYHCR4ZHK90ZFTPF0WADM6GZ",
+          "location": "loc_3H4FSX8A89550R8QVQQAKCKECZ",
+          "participants": [
+            {
+              "character": "char_00HBQM4T4CMF11RKMNDBRP92QC",
+              "role": "viewpoint",
+              "from": {
+                "timeline": "main",
+                "tick": 176,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_0JS5X2Q20CFGQTHD59XZGW684E",
+              "role": "chief-archivist",
+              "from": {
+                "timeline": "main",
+                "tick": 176,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_0T8KVZX33X5FQJFYPMH70FADD9",
+              "role": "designer",
+              "from": {
+                "timeline": "main",
+                "tick": 176,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_71R4G38WFZRCM9GXRFP51WSKW5",
+              "role": "notary",
+              "from": {
+                "timeline": "main",
+                "tick": 176,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_6KEWZ38RZPGDMJRFY3MY6DV56W",
+              "role": "gate-keeper",
+              "from": {
+                "timeline": "main",
+                "tick": 178,
+                "order": 0
+              }
+            }
+          ],
+          "topics": [
+            "active",
+            "records",
+            "custody"
+          ],
+          "turns": [
+            {
+              "id": "turn_1EC07QTA9XA7E40JS9KY67D6ZG",
+              "at": {
+                "timeline": "main",
+                "tick": 176,
+                "order": 10
+              },
+              "speaker": "char_00HBQM4T4CMF11RKMNDBRP92QC",
+              "text": "We will not destroy names without recording what was removed and why.",
+              "audience": [
+                "participants"
+              ],
+              "delivery": "formal"
+            },
+            {
+              "id": "turn_7A6QQ7YSDKSZCQE17KM9BBRXHH",
+              "at": {
+                "timeline": "main",
+                "tick": 176,
+                "order": 20
+              },
+              "speaker": "char_0JS5X2Q20CFGQTHD59XZGW684E",
+              "text": "A redaction ledger is another map to the names.",
+              "audience": [
+                "participants"
+              ],
+              "delivery": "tired"
+            },
+            {
+              "id": "turn_5BR8K8KMRY21JMKY31ZD1QGPCK",
+              "at": {
+                "timeline": "main",
+                "tick": 176,
+                "order": 30
+              },
+              "speaker": "char_71R4G38WFZRCM9GXRFP51WSKW5",
+              "text": "Not if custody is divided and reconstruction requires independent warrants.",
+              "audience": [
+                "participants"
+              ],
+              "delivery": "precise"
+            },
+            {
+              "id": "turn_5P9FV6RCQE6JSQYT2TQPMPAY5M",
+              "at": {
+                "timeline": "main",
+                "tick": 177,
+                "order": 0
+              },
+              "speaker": "char_0T8KVZX33X5FQJFYPMH70FADD9",
+              "text": "Then make three partial records: proof, route, and identity. No one office keeps two.",
+              "audience": [
+                "participants"
+              ],
+              "delivery": "rapid"
+            },
+            {
+              "id": "turn_1JDNQT7GGAF6WPPEQD8470CKJ8",
+              "at": {
+                "timeline": "main",
+                "tick": 177,
+                "order": 10
+              },
+              "speaker": "char_00HBQM4T4CMF11RKMNDBRP92QC",
+              "text": "And the original?",
+              "audience": [
+                "participants"
+              ],
+              "delivery": "quiet"
+            },
+            {
+              "id": "turn_6MDQ2PCX5434067RK6N9HW7M9S",
+              "at": {
+                "timeline": "main",
+                "tick": 177,
+                "order": 20
+              },
+              "speaker": "char_0JS5X2Q20CFGQTHD59XZGW684E",
+              "text": "The original is why we are all underground.",
+              "audience": [
+                "participants"
+              ],
+              "delivery": "flat"
+            },
+            {
+              "id": "turn_2QNBDZA4J4ETDS70J8WCRXKSND",
+              "at": {
+                "timeline": "main",
+                "tick": 178,
+                "order": 0
+              },
+              "speaker": "char_6KEWZ38RZPGDMJRFY3MY6DV56W",
+              "text": "The shutters are closing. Argue while walking.",
+              "audience": [
+                "participants"
+              ],
+              "delivery": "from the gate"
+            },
+            {
+              "at": {
+                "timeline": "main",
+                "tick": 178,
+                "order": 20
+              },
+              "speaker": "char_00HBQM4T4CMF11RKMNDBRP92QC",
+              "text": "Ysabet seals the proof copy. Ansel carries the route key. Ilyra keeps the identities until we can divide custody without building another index.",
+              "delivery": "formal and hurried",
+              "audience": [
+                "participants"
+              ],
+              "id": "turn_5JYKVHFP1FPH6C7VVGXEBBGSWK"
+            },
+            {
+              "id": "turn_7XY6SRZB84H0DCJTBPX8Z38ZZ1",
+              "at": {
+                "timeline": "main",
+                "tick": 178,
+                "order": 40
+              },
+              "speaker": "char_0JS5X2Q20CFGQTHD59XZGW684E",
+              "text": "Temporary is how permanent systems are born.",
+              "delivery": "warning",
+              "audience": [
+                "participants"
+              ]
+            },
+            {
+              "id": "turn_4SBHSDGSNBTSEC88VS82WSQ4SG",
+              "at": {
+                "timeline": "main",
+                "tick": 178,
+                "order": 50
+              },
+              "speaker": "char_00HBQM4T4CMF11RKMNDBRP92QC",
+              "text": "Then the instrument expires. Ninety days, five witnesses, and no renewal without all three custodians.",
+              "delivery": "formal",
+              "audience": [
+                "participants"
+              ]
+            },
+            {
+              "id": "turn_2JKS19NBRH5FNBRPQG8F26Q0ND",
+              "at": {
+                "timeline": "main",
+                "tick": 179,
+                "order": 0
+              },
+              "speaker": "char_0JS5X2Q20CFGQTHD59XZGW684E",
+              "text": "And the cross-index?",
+              "delivery": "quiet",
+              "audience": [
+                "participants"
+              ]
+            },
+            {
+              "id": "turn_60PBBHEHW6T7BXS9MVPS35TPMS",
+              "at": {
+                "timeline": "main",
+                "tick": 179,
+                "order": 5
+              },
+              "speaker": "char_00HBQM4T4CMF11RKMNDBRP92QC",
+              "text": "Destroyed under witness. We record that it existed, what it connected, and why we destroyed it. Not whom.",
+              "delivery": "precise",
+              "audience": [
+                "participants"
+              ]
+            },
+            {
+              "id": "turn_5HJ3GZ0AMCB8FZCFXF4RGSP7WV",
+              "at": {
+                "timeline": "main",
+                "tick": 179,
+                "order": 10
+              },
+              "speaker": "char_0T8KVZX33X5FQJFYPMH70FADD9",
+              "text": "An honest absence.",
+              "delivery": "soft",
+              "audience": [
+                "participants"
+              ]
+            },
+            {
+              "id": "turn_1TF13F4ZQAR5X9RVWFKWXBHYYG",
+              "at": {
+                "timeline": "main",
+                "tick": 179,
+                "order": 15
+              },
+              "speaker": "char_71R4G38WFZRCM9GXRFP51WSKW5",
+              "text": "Three custodians, five signatures, one time. I can defend that.",
+              "delivery": "decisive",
+              "audience": [
+                "participants"
+              ]
+            },
+            {
+              "id": "turn_02EG5Z00TGDBFVCS1RDQWJARTJ",
+              "at": {
+                "timeline": "main",
+                "tick": 179,
+                "order": 20
+              },
+              "speaker": "char_6KEWZ38RZPGDMJRFY3MY6DV56W",
+              "text": "Defend it while moving. The next tooth closes the north passage.",
+              "delivery": "urgent",
+              "audience": [
+                "participants"
+              ]
+            }
+          ],
+          "recollections": [
+            {
+              "id": "recol_3GRE7AEGM8XVR8ZGSPA8JMMKY9",
+              "character": "char_00HBQM4T4CMF11RKMNDBRP92QC",
+              "at": {
+                "timeline": "main",
+                "tick": 178,
+                "order": 10
+              },
+              "state": "remembered",
+              "summary": "Nessa proposed splitting proof, route, and identity among independent custodians while Ilyra still wants the original destroyed.",
+              "interpretation": "A distributed record may preserve history without recreating the weapon, but no custody design is settled.",
+              "emotional_impression": "urgent concentration",
+              "confidence": 0.82,
+              "exact_turns": [
+                "turn_5BR8K8KMRY21JMKY31ZD1QGPCK",
+                "turn_5P9FV6RCQE6JSQYT2TQPMPAY5M"
+              ],
+              "remembered_quotes": []
+            },
+            {
+              "id": "recol_494X2Q6FW32T89AXJAWBYSRBBT",
+              "character": "char_0JS5X2Q20CFGQTHD59XZGW684E",
+              "at": {
+                "timeline": "main",
+                "tick": 178,
+                "order": 10
+              },
+              "state": "remembered",
+              "summary": "Mara refuses unrecorded destruction; Nessa proposes three incomplete records.",
+              "interpretation": "They may build a safer Archive than the one Ilyra protected, if they survive the alarm.",
+              "emotional_impression": "fear mixed with hope",
+              "confidence": 0.7,
+              "exact_turns": [
+                "turn_1EC07QTA9XA7E40JS9KY67D6ZG",
+                "turn_5P9FV6RCQE6JSQYT2TQPMPAY5M"
+              ],
+              "remembered_quotes": []
+            },
+            {
+              "character": "char_00HBQM4T4CMF11RKMNDBRP92QC",
+              "at": {
+                "timeline": "main",
+                "tick": 178,
+                "order": 30
+              },
+              "state": "remembered",
+              "summary": "Mara proposed a temporary split: proof with Ysabet, route with Ansel, identities with Ilyra.",
+              "interpretation": "The arrangement buys time but is not yet a durable custody design.",
+              "emotional_impression": "decisive under pressure",
+              "confidence": 0.98,
+              "exact_turns": [
+                "turn_5JYKVHFP1FPH6C7VVGXEBBGSWK"
+              ],
+              "remembered_quotes": [],
+              "id": "recol_0DH8RM9RR91FJRDHGBTPKDJ7P6"
+            },
+            {
+              "character": "char_0T8KVZX33X5FQJFYPMH70FADD9",
+              "at": {
+                "timeline": "main",
+                "tick": 178,
+                "order": 30
+              },
+              "state": "remembered",
+              "summary": "Mara assigned three temporary custodians but refused to create a reconstruction index.",
+              "interpretation": "Mara accepted Nessa's distributed idea while keeping the design provisional.",
+              "emotional_impression": "relief constrained by urgency",
+              "confidence": 0.93,
+              "exact_turns": [
+                "turn_5JYKVHFP1FPH6C7VVGXEBBGSWK"
+              ],
+              "remembered_quotes": [],
+              "id": "recol_4Q9FFEXRH5V12TX0PZX7KCBEV4"
+            },
+            {
+              "id": "recol_3JBR32SGB2E4P856PY5A64H0X6",
+              "character": "char_00HBQM4T4CMF11RKMNDBRP92QC",
+              "at": {
+                "timeline": "main",
+                "tick": 180,
+                "order": 0
+              },
+              "state": "remembered",
+              "summary": "Mara made the provisional split expire, required all three custodians for renewal, and ordered the cross-index destroyed under witness.",
+              "interpretation": "Protection is legitimate only if the omission itself remains reviewable.",
+              "emotional_impression": "fear sharpened into authority",
+              "confidence": 0.97,
+              "exact_turns": [
+                "turn_4SBHSDGSNBTSEC88VS82WSQ4SG",
+                "turn_60PBBHEHW6T7BXS9MVPS35TPMS",
+                "turn_5HJ3GZ0AMCB8FZCFXF4RGSP7WV"
+              ],
+              "remembered_quotes": []
+            },
+            {
+              "id": "recol_2SP1H19H89T5F3470S0249A8JY",
+              "character": "char_0JS5X2Q20CFGQTHD59XZGW684E",
+              "at": {
+                "timeline": "main",
+                "tick": 180,
+                "order": 0
+              },
+              "state": "remembered",
+              "summary": "Mara answered the danger of permanent emergency custody with an expiring instrument and a witnessed destruction record.",
+              "interpretation": "Mara is not repeating Ilyra’s solution; she is making concealment accountable.",
+              "emotional_impression": "reluctant relief",
+              "confidence": 0.84,
+              "exact_turns": [
+                "turn_4SBHSDGSNBTSEC88VS82WSQ4SG",
+                "turn_60PBBHEHW6T7BXS9MVPS35TPMS"
+              ],
+              "remembered_quotes": []
+            },
+            {
+              "id": "recol_0X82E5Y73NSJPXHEP438WXX7NV",
+              "character": "char_0T8KVZX33X5FQJFYPMH70FADD9",
+              "at": {
+                "timeline": "main",
+                "tick": 180,
+                "order": 0
+              },
+              "state": "remembered",
+              "summary": "The group adopted three custodians, destroyed only the cross-index, and recorded the resulting absence.",
+              "interpretation": "A catalog can admit what it refuses to centralize.",
+              "emotional_impression": "intellectual exhilaration under panic",
+              "confidence": 0.96,
+              "exact_turns": [
+                "turn_5HJ3GZ0AMCB8FZCFXF4RGSP7WV",
+                "turn_1TF13F4ZQAR5X9RVWFKWXBHYYG"
+              ],
+              "remembered_quotes": []
+            },
+            {
+              "id": "recol_7HD42W9FRAS8J5RM8ABJ11KWVB",
+              "character": "char_71R4G38WFZRCM9GXRFP51WSKW5",
+              "at": {
+                "timeline": "main",
+                "tick": 180,
+                "order": 0
+              },
+              "state": "remembered",
+              "summary": "Mara supplied an expiry, unanimity rule, and witnessed destruction scope for Nessa’s three-part design.",
+              "interpretation": "The arrangement is defensible because it limits both custody and duration.",
+              "emotional_impression": "professional confidence",
+              "confidence": 0.94,
+              "exact_turns": [
+                "turn_4SBHSDGSNBTSEC88VS82WSQ4SG",
+                "turn_1TF13F4ZQAR5X9RVWFKWXBHYYG"
+              ],
+              "remembered_quotes": []
+            },
+            {
+              "id": "recol_7ZR2RJ9N0QD52N4FKH3BV7F329",
+              "character": "char_6KEWZ38RZPGDMJRFY3MY6DV56W",
+              "at": {
+                "timeline": "main",
+                "tick": 180,
+                "order": 0
+              },
+              "state": "remembered",
+              "summary": "The archivists finally chose three custodians while the north shutter was one tooth from closing.",
+              "interpretation": "Their principles may be sound, but principles that cannot walk will drown.",
+              "emotional_impression": "impatient approval",
+              "confidence": 0.88,
+              "exact_turns": [
+                "turn_02EG5Z00TGDBFVCS1RDQWJARTJ"
+              ],
+              "remembered_quotes": []
+            }
+          ]
+        },
+        "bodyMarkdown": "# The Choice of Records\n\nThe active conversation turns archival design into the immediate dramatic conflict while the fire shutters close.\n\nThe turn list is canonical verbatim provenance. Recollections are character-owned interpretations and may diverge.\n\nThe conversation closes when the custody design becomes concrete enough to execute under the alarm.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "scene",
+          "id": "scene_45FYHCR4ZHK90ZFTPF0WADM6GZ",
+          "title": "The Choice of Records",
+          "domain": "scenes.ash-archive.second-act",
+          "status": "closed",
+          "tags": [
+            "active",
+            "second-act"
+          ],
+          "aliases": [],
+          "time": {
+            "start": {
+              "timeline": "main",
+              "tick": 176,
+              "order": 0
+            },
+            "current": {
+              "timeline": "main",
+              "tick": 179,
+              "order": 30
+            },
+            "end": {
+              "timeline": "main",
+              "tick": 179,
+              "order": 30
+            }
+          },
+          "location": "loc_3H4FSX8A89550R8QVQQAKCKECZ",
+          "participants": [
+            {
+              "character": "char_00HBQM4T4CMF11RKMNDBRP92QC",
+              "role": "viewpoint",
+              "point_of_view": true,
+              "from": {
+                "timeline": "main",
+                "tick": 176,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 179,
+                "order": 30
+              }
+            },
+            {
+              "character": "char_0JS5X2Q20CFGQTHD59XZGW684E",
+              "role": "chief-archivist",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 176,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 179,
+                "order": 30
+              }
+            },
+            {
+              "character": "char_0T8KVZX33X5FQJFYPMH70FADD9",
+              "role": "designer",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 176,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 179,
+                "order": 30
+              }
+            },
+            {
+              "character": "char_71R4G38WFZRCM9GXRFP51WSKW5",
+              "role": "notary",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 176,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 179,
+                "order": 30
+              }
+            },
+            {
+              "character": "char_6KEWZ38RZPGDMJRFY3MY6DV56W",
+              "role": "gate-keeper",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 178,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 179,
+                "order": 30
+              }
+            }
+          ],
+          "objects": [
+            "obj_3A8M9EA6VN5CS8TJ192AEZ0Q85",
+            "obj_5HC3RC1WNVEY2F3DC4N12K719J",
+            "obj_2F4BE8XA9E18V6C0C4CSS5HA5W"
+          ],
+          "environments": [
+            "env_34SRE2ZRPVN4RZ1FP1W1BW2H1R",
+            "env_1EQGQM6JFM2D6BAPF6XTQ6HCGJ"
+          ],
+          "story_points": [
+            "sp_258VWM7VDJ9QD9G6CG6ND5ZVGS",
+            "sp_479RVM01EJPQMY3SA6PG2ATXC1"
+          ],
+          "observations": [
+            {
+              "id": "obs_67WTXQQJMAXCE8A03GW18DZN9N",
+              "at": {
+                "timeline": "main",
+                "tick": 177,
+                "order": 30
+              },
+              "audience": [
+                "char_00HBQM4T4CMF11RKMNDBRP92QC",
+                "char_0T8KVZX33X5FQJFYPMH70FADD9",
+                "char_0JS5X2Q20CFGQTHD59XZGW684E",
+                "char_71R4G38WFZRCM9GXRFP51WSKW5"
+              ],
+              "salience": 1.4,
+              "text": "The north fire shutter drops one tooth each time the bell strikes."
+            },
+            {
+              "id": "obs_7SB6NPPRFP15X32KX7FZQ1YW7A",
+              "at": {
+                "timeline": "main",
+                "tick": 176,
+                "order": 10
+              },
+              "audience": [
+                "char_00HBQM4T4CMF11RKMNDBRP92QC"
+              ],
+              "salience": 1.3,
+              "text": "Ilyra's hand tightens on the waxcloth whenever the word provenance is used."
+            },
+            {
+              "id": "obs_1RND9CQFEXRS7BSN3T5QSXK18R",
+              "at": {
+                "timeline": "main",
+                "tick": 178,
+                "order": 0
+              },
+              "audience": [
+                "char_6KEWZ38RZPGDMJRFY3MY6DV56W"
+              ],
+              "salience": 1.5,
+              "text": "Only two pressure cycles remain before the south passage floods."
+            },
+            {
+              "id": "obs_76PZM5DX8X3XNR6201H1GCRZ66",
+              "at": {
+                "timeline": "main",
+                "tick": 179,
+                "order": 5
+              },
+              "audience": [
+                "char_00HBQM4T4CMF11RKMNDBRP92QC",
+                "char_0JS5X2Q20CFGQTHD59XZGW684E",
+                "char_0T8KVZX33X5FQJFYPMH70FADD9",
+                "char_71R4G38WFZRCM9GXRFP51WSKW5"
+              ],
+              "salience": 1.5,
+              "text": "The cross-index page is the only sheet that directly joins every living identity to a route and proof number."
+            },
+            {
+              "id": "obs_1VGNZMMGCTY6RJDSFX9NH5VKVV",
+              "at": {
+                "timeline": "main",
+                "tick": 179,
+                "order": 25
+              },
+              "audience": [
+                "participants"
+              ],
+              "salience": 1.4,
+              "text": "Ysabet writes five witness lines while the shutter bell strikes again."
+            }
+          ],
+          "conversations": [
+            "conv_4Q80NQ0AA0X8EP3N352BRGS10Z"
+          ],
+          "author_constraints": [
+            "The custody design is now canonical and provisional for ninety days.",
+            "The identity packets remain dangerous but are no longer centrally indexed.",
+            "The alarm remains active until the river-gate escape event."
+          ]
+        },
+        "bodyMarkdown": "# The Choice of Records\n\nMara turns Nessa’s three-part proposal into an expiring, witnessed custody instrument. Proof goes to Ysabet, route to Ansel, identities to Ilyra, and the cross-index alone is destroyed under five signatures as the shutters close.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "event",
+          "id": "event_3XWNSHT5NFRM0SN2WJDV0Y25ZX",
+          "title": "The Threefold Custody Is Witnessed",
+          "domain": "plot.ash-archive.ending",
+          "status": "canonical",
+          "tags": [
+            "custody",
+            "provenance",
+            "decision"
+          ],
+          "aliases": [],
+          "time": {
+            "timeline": "main",
+            "tick": 179,
+            "order": 30
+          },
+          "location": "loc_3H4FSX8A89550R8QVQQAKCKECZ",
+          "participants": [
+            {
+              "character": "char_00HBQM4T4CMF11RKMNDBRP92QC",
+              "role": "designing-custodian"
+            },
+            {
+              "character": "char_0JS5X2Q20CFGQTHD59XZGW684E",
+              "role": "identity-custodian"
+            },
+            {
+              "character": "char_0T8KVZX33X5FQJFYPMH70FADD9",
+              "role": "designer-and-witness"
+            },
+            {
+              "character": "char_71R4G38WFZRCM9GXRFP51WSKW5",
+              "role": "proof-custodian"
+            },
+            {
+              "character": "char_6KEWZ38RZPGDMJRFY3MY6DV56W",
+              "role": "route-custodian"
+            }
+          ],
+          "causes": [
+            "event_6CFBFNB9ECAM19TW0R1BNBTAMN"
+          ],
+          "related_story_points": [
+            "sp_258VWM7VDJ9QD9G6CG6ND5ZVGS",
+            "sp_479RVM01EJPQMY3SA6PG2ATXC1"
+          ],
+          "effects": [
+            {
+              "id": "effect_7TNYH05EBXZGT4PMTZB4Y9341R",
+              "target": "obj_5HC3RC1WNVEY2F3DC4N12K719J",
+              "key": "holder",
+              "operation": "clear"
+            },
+            {
+              "id": "effect_0MN7X3RGBQ7CVAEDEVGMC2P0S1",
+              "target": "obj_5HC3RC1WNVEY2F3DC4N12K719J",
+              "key": "holder",
+              "operation": "set",
+              "value": {
+                "entity": "char_71R4G38WFZRCM9GXRFP51WSKW5"
+              }
+            },
+            {
+              "id": "effect_61HPND3J8E045EBVP1XE90FYK0",
+              "target": "obj_2F4BE8XA9E18V6C0C4CSS5HA5W",
+              "key": "holder",
+              "operation": "clear"
+            },
+            {
+              "id": "effect_656HZEG7435B9TTJ6GYN3XDKB7",
+              "target": "obj_2F4BE8XA9E18V6C0C4CSS5HA5W",
+              "key": "holder",
+              "operation": "set",
+              "value": {
+                "entity": "char_6KEWZ38RZPGDMJRFY3MY6DV56W"
+              }
+            },
+            {
+              "id": "effect_2DH9T4S6GNA103SACGV3HJBWCF",
+              "target": "obj_3A8M9EA6VN5CS8TJ192AEZ0Q85",
+              "key": "holder",
+              "operation": "clear"
+            },
+            {
+              "id": "effect_7NFDFE6EBP0ZCXYZZFXNAA2H8P",
+              "target": "obj_3A8M9EA6VN5CS8TJ192AEZ0Q85",
+              "key": "condition",
+              "operation": "set",
+              "value": "dismantled; cross-index destroyed under witness"
+            }
+          ]
+        },
+        "bodyMarkdown": "# The Threefold Custody Is Witnessed\n\nYsabet records an expiring threefold custody instrument. The witness copy passes to her, the erased-wing route cord passes to Ansel, Ilyra receives unindexed family packets, and the original ledger’s cross-index is destroyed under five signatures. The destruction record states scope and reason without reproducing the names.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "event",
+          "id": "event_5HCF55VTB48ADS5XTJAE5S51DX",
+          "title": "The Custodians Separate Under the Alarm",
+          "domain": "plot.ash-archive.ending",
+          "status": "canonical",
+          "tags": [
+            "escape",
+            "distributed-custody"
+          ],
+          "aliases": [],
+          "time": {
+            "timeline": "main",
+            "tick": 180,
+            "order": 10
+          },
+          "location": "loc_3H4FSX8A89550R8QVQQAKCKECZ",
+          "participants": [
+            {
+              "character": "char_00HBQM4T4CMF11RKMNDBRP92QC",
+              "role": "route-witness"
+            },
+            {
+              "character": "char_6KEWZ38RZPGDMJRFY3MY6DV56W",
+              "role": "route-custodian"
+            },
+            {
+              "character": "char_0JS5X2Q20CFGQTHD59XZGW684E",
+              "role": "identity-custodian"
+            },
+            {
+              "character": "char_0T8KVZX33X5FQJFYPMH70FADD9",
+              "role": "identity-witness"
+            },
+            {
+              "character": "char_71R4G38WFZRCM9GXRFP51WSKW5",
+              "role": "proof-custodian"
+            }
+          ],
+          "causes": [
+            "event_3XWNSHT5NFRM0SN2WJDV0Y25ZX"
+          ],
+          "related_story_points": [
+            "sp_479RVM01EJPQMY3SA6PG2ATXC1"
+          ],
+          "effects": [
+            {
+              "id": "effect_101X1MWACSJYS9MPPJ97TZWAT6",
+              "target": "char_00HBQM4T4CMF11RKMNDBRP92QC",
+              "key": "location",
+              "operation": "set",
+              "value": {
+                "entity": "loc_0HN48QWYRXF0TYV1EFE3RPA9G5"
+              }
+            },
+            {
+              "id": "effect_68G5GRQ6DSAJM3RXFTYA5DKDZN",
+              "target": "char_6KEWZ38RZPGDMJRFY3MY6DV56W",
+              "key": "location",
+              "operation": "set",
+              "value": {
+                "entity": "loc_0HN48QWYRXF0TYV1EFE3RPA9G5"
+              }
+            },
+            {
+              "id": "effect_5FVXJX1DQ6118B8YTGHV2KT9S9",
+              "target": "char_0JS5X2Q20CFGQTHD59XZGW684E",
+              "key": "location",
+              "operation": "set",
+              "value": {
+                "entity": "loc_0E434X5XGQVW7S6T5Z8H5RAP68"
+              }
+            },
+            {
+              "id": "effect_1W4J8J367QNTADZ5JECXZTC7J9",
+              "target": "char_0T8KVZX33X5FQJFYPMH70FADD9",
+              "key": "location",
+              "operation": "set",
+              "value": {
+                "entity": "loc_0E434X5XGQVW7S6T5Z8H5RAP68"
+              }
+            },
+            {
+              "id": "effect_7KM7BY3BVR9F14BVAKHBW34TE4",
+              "target": "char_71R4G38WFZRCM9GXRFP51WSKW5",
+              "key": "location",
+              "operation": "set",
+              "value": {
+                "entity": "loc_0N1RKJ9ANT1YZZHSR62JFADYNH"
+              }
+            }
+          ]
+        },
+        "bodyMarkdown": "# The Custodians Separate Under the Alarm\n\nAnsel takes Mara and the route cord toward the river gate. Ilyra and Nessa carry the identity packets through the archive service stair. Ysabet takes the witness copy and custody instrument toward Ember Hall. The five leave by different passages so no pursuer can seize two components at once.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "knowledge",
+          "id": "know_5FYZC5YK86BB7C379AWZQJVNV7",
+          "title": "Mara knows the threefold custody terms",
+          "domain": "knowledge.char_00HBQM4T4CMF11RKMNDBRP92QC",
+          "status": "canonical",
+          "tags": [
+            "ending"
+          ],
+          "aliases": [],
+          "knower": "char_00HBQM4T4CMF11RKMNDBRP92QC",
+          "claim": {
+            "key": "custody.threefold.provisional",
+            "statement": "Proof, route, and identity are held by independent custodians; reconstruction requires all three; the arrangement expires after ninety days; and the original cross-index was destroyed under five witnesses.",
+            "author_truth_status": "true",
+            "subject": "obj_71G9T35KKZ4TP861PMSNFW83W8",
+            "predicate": "records",
+            "object": {
+              "text": "threefold provisional custody"
+            }
+          },
+          "transitions": [
+            {
+              "id": "kt_30ED320ESD1MEG0TKPE43C0M06",
+              "time": {
+                "timeline": "main",
+                "tick": 179,
+                "order": 35
+              },
+              "state": "accepted",
+              "confidence": 0.99,
+              "acquisition": "observed",
+              "causing_event": "event_3XWNSHT5NFRM0SN2WJDV0Y25ZX",
+              "source_entity": "obj_71G9T35KKZ4TP861PMSNFW83W8"
+            }
+          ]
+        },
+        "bodyMarkdown": "# Mara knows the threefold custody terms\n\nProof, route, and identity are held by independent custodians; reconstruction requires all three; the arrangement expires after ninety days; and the original cross-index was destroyed under five witnesses.\n\nThis record belongs to the named knower and does not replace the canonical event or transcript.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "knowledge",
+          "id": "know_1JKR5D5KAR220E8ZRM2B1AKJMZ",
+          "title": "Ilyra knows the threefold custody terms",
+          "domain": "knowledge.char_0JS5X2Q20CFGQTHD59XZGW684E",
+          "status": "canonical",
+          "tags": [
+            "ending"
+          ],
+          "aliases": [],
+          "knower": "char_0JS5X2Q20CFGQTHD59XZGW684E",
+          "claim": {
+            "key": "custody.threefold.provisional",
+            "statement": "Proof, route, and identity are held by independent custodians; reconstruction requires all three; the arrangement expires after ninety days; and the original cross-index was destroyed under five witnesses.",
+            "author_truth_status": "true",
+            "subject": "obj_71G9T35KKZ4TP861PMSNFW83W8",
+            "predicate": "records",
+            "object": {
+              "text": "threefold provisional custody"
+            }
+          },
+          "transitions": [
+            {
+              "id": "kt_680EH8A0NY638N583ZXYH1K3TK",
+              "time": {
+                "timeline": "main",
+                "tick": 179,
+                "order": 35
+              },
+              "state": "accepted",
+              "confidence": 0.99,
+              "acquisition": "observed",
+              "causing_event": "event_3XWNSHT5NFRM0SN2WJDV0Y25ZX",
+              "source_entity": "obj_71G9T35KKZ4TP861PMSNFW83W8"
+            }
+          ]
+        },
+        "bodyMarkdown": "# Ilyra knows the threefold custody terms\n\nProof, route, and identity are held by independent custodians; reconstruction requires all three; the arrangement expires after ninety days; and the original cross-index was destroyed under five witnesses.\n\nThis record belongs to the named knower and does not replace the canonical event or transcript.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "knowledge",
+          "id": "know_034T26DF3PN16DKTP21RY7PYFP",
+          "title": "Nessa knows the threefold custody terms",
+          "domain": "knowledge.char_0T8KVZX33X5FQJFYPMH70FADD9",
+          "status": "canonical",
+          "tags": [
+            "ending"
+          ],
+          "aliases": [],
+          "knower": "char_0T8KVZX33X5FQJFYPMH70FADD9",
+          "claim": {
+            "key": "custody.threefold.provisional",
+            "statement": "Proof, route, and identity are held by independent custodians; reconstruction requires all three; the arrangement expires after ninety days; and the original cross-index was destroyed under five witnesses.",
+            "author_truth_status": "true",
+            "subject": "obj_71G9T35KKZ4TP861PMSNFW83W8",
+            "predicate": "records",
+            "object": {
+              "text": "threefold provisional custody"
+            }
+          },
+          "transitions": [
+            {
+              "id": "kt_7J0QE26T28C90TW193V1B2QG0N",
+              "time": {
+                "timeline": "main",
+                "tick": 179,
+                "order": 35
+              },
+              "state": "accepted",
+              "confidence": 0.99,
+              "acquisition": "observed",
+              "causing_event": "event_3XWNSHT5NFRM0SN2WJDV0Y25ZX",
+              "source_entity": "obj_71G9T35KKZ4TP861PMSNFW83W8"
+            }
+          ]
+        },
+        "bodyMarkdown": "# Nessa knows the threefold custody terms\n\nProof, route, and identity are held by independent custodians; reconstruction requires all three; the arrangement expires after ninety days; and the original cross-index was destroyed under five witnesses.\n\nThis record belongs to the named knower and does not replace the canonical event or transcript.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "knowledge",
+          "id": "know_3W885THB7ZQTTA5AG8542NRQQW",
+          "title": "Ysabet knows the threefold custody terms",
+          "domain": "knowledge.char_71R4G38WFZRCM9GXRFP51WSKW5",
+          "status": "canonical",
+          "tags": [
+            "ending"
+          ],
+          "aliases": [],
+          "knower": "char_71R4G38WFZRCM9GXRFP51WSKW5",
+          "claim": {
+            "key": "custody.threefold.provisional",
+            "statement": "Proof, route, and identity are held by independent custodians; reconstruction requires all three; the arrangement expires after ninety days; and the original cross-index was destroyed under five witnesses.",
+            "author_truth_status": "true",
+            "subject": "obj_71G9T35KKZ4TP861PMSNFW83W8",
+            "predicate": "records",
+            "object": {
+              "text": "threefold provisional custody"
+            }
+          },
+          "transitions": [
+            {
+              "id": "kt_67BY5C83Q0BQTVWGX4JS95D38Y",
+              "time": {
+                "timeline": "main",
+                "tick": 179,
+                "order": 35
+              },
+              "state": "accepted",
+              "confidence": 0.99,
+              "acquisition": "observed",
+              "causing_event": "event_3XWNSHT5NFRM0SN2WJDV0Y25ZX",
+              "source_entity": "obj_71G9T35KKZ4TP861PMSNFW83W8"
+            }
+          ]
+        },
+        "bodyMarkdown": "# Ysabet knows the threefold custody terms\n\nProof, route, and identity are held by independent custodians; reconstruction requires all three; the arrangement expires after ninety days; and the original cross-index was destroyed under five witnesses.\n\nThis record belongs to the named knower and does not replace the canonical event or transcript.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "knowledge",
+          "id": "know_21SEYNWB4NASDGCZJFJWRFBTHB",
+          "title": "Ansel knows the threefold custody terms",
+          "domain": "knowledge.char_6KEWZ38RZPGDMJRFY3MY6DV56W",
+          "status": "canonical",
+          "tags": [
+            "ending"
+          ],
+          "aliases": [],
+          "knower": "char_6KEWZ38RZPGDMJRFY3MY6DV56W",
+          "claim": {
+            "key": "custody.threefold.provisional",
+            "statement": "Proof, route, and identity are held by independent custodians; reconstruction requires all three; the arrangement expires after ninety days; and the original cross-index was destroyed under five witnesses.",
+            "author_truth_status": "true",
+            "subject": "obj_71G9T35KKZ4TP861PMSNFW83W8",
+            "predicate": "records",
+            "object": {
+              "text": "threefold provisional custody"
+            }
+          },
+          "transitions": [
+            {
+              "id": "kt_3VSB139YCR7SA84XSDC87MP0BK",
+              "time": {
+                "timeline": "main",
+                "tick": 179,
+                "order": 35
+              },
+              "state": "accepted",
+              "confidence": 0.99,
+              "acquisition": "observed",
+              "causing_event": "event_3XWNSHT5NFRM0SN2WJDV0Y25ZX",
+              "source_entity": "obj_71G9T35KKZ4TP861PMSNFW83W8"
+            }
+          ]
+        },
+        "bodyMarkdown": "# Ansel knows the threefold custody terms\n\nProof, route, and identity are held by independent custodians; reconstruction requires all three; the arrangement expires after ninety days; and the original cross-index was destroyed under five witnesses.\n\nThis record belongs to the named knower and does not replace the canonical event or transcript.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "story-point",
+          "id": "sp_258VWM7VDJ9QD9G6CG6ND5ZVGS",
+          "title": "Decide the Fate of the Descendant Ledger",
+          "domain": "plot.ash-archive.second-act",
+          "status": "canonical",
+          "tags": [
+            "second-act"
+          ],
+          "aliases": [],
+          "lifecycle": {
+            "initial_state": "dormant",
+            "transitions": [
+              {
+                "id": "spt_4N9HKQ6EZD7RZ1599FWJVPKQQV",
+                "time": {
+                  "timeline": "main",
+                  "tick": 171,
+                  "order": 20
+                },
+                "state": "active",
+                "causing_event": "event_545ZXMGNRB16VVV7HGWD7W9J17",
+                "note": "Ilyra explains the ledger's danger."
+              },
+              {
+                "id": "spt_3YBCJJ4AWX5PZFA7MMBKBME02Z",
+                "time": {
+                  "timeline": "main",
+                  "tick": 179,
+                  "order": 35
+                },
+                "state": "resolved",
+                "causing_event": "event_3XWNSHT5NFRM0SN2WJDV0Y25ZX",
+                "note": "The ledger is dismantled into unindexed identity packets and placed under expiring threefold custody."
+              }
+            ]
+          },
+          "activation_policy": "manual",
+          "priority": 100,
+          "repeat_policy": "once",
+          "dependencies": {
+            "all": []
+          },
+          "trigger": {
+            "event": {
+              "event": "event_545ZXMGNRB16VVV7HGWD7W9J17"
+            }
+          },
+          "on_activate": {
+            "create_draft_scene": false
+          },
+          "outcome_events": [
+            "event_3XWNSHT5NFRM0SN2WJDV0Y25ZX"
+          ]
+        },
+        "bodyMarkdown": "# Decide the Fate of the Descendant Ledger\n\nChoose destruction, redaction, distributed custody, or another design for a record that is both proof and weapon.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "conversation",
+          "id": "conv_29MYS0M4T32R8Y037TSN5SV9F4",
+          "title": "River Gate Pursuit",
+          "domain": "conversations.ash-archive.ending",
+          "status": "closed",
+          "tags": [
+            "river",
+            "pursuit",
+            "custody"
+          ],
+          "aliases": [],
+          "time": {
+            "start": {
+              "timeline": "main",
+              "tick": 182,
+              "order": 10
+            },
+            "end": {
+              "timeline": "main",
+              "tick": 187,
+              "order": 0
+            }
+          },
+          "scene": "scene_745E5B2P62ZBGK7BJ0H1MMTPX0",
+          "location": "loc_0HN48QWYRXF0TYV1EFE3RPA9G5",
+          "participants": [
+            {
+              "character": "char_00HBQM4T4CMF11RKMNDBRP92QC",
+              "role": "archivist",
+              "from": {
+                "timeline": "main",
+                "tick": 182,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 188,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_6KEWZ38RZPGDMJRFY3MY6DV56W",
+              "role": "route-custodian",
+              "from": {
+                "timeline": "main",
+                "tick": 182,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 188,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_0X4VD0CAGNK7PYKV7C98GS77D9",
+              "role": "river-guide",
+              "from": {
+                "timeline": "main",
+                "tick": 182,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 188,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_01ZTB51MAG1BYDMKHYPY4Y2Z81",
+              "role": "pursuing-witness",
+              "from": {
+                "timeline": "main",
+                "tick": 184,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 188,
+                "order": 0
+              }
+            }
+          ],
+          "topics": [
+            "river",
+            "pursuit",
+            "custody"
+          ],
+          "turns": [
+            {
+              "id": "turn_0N3TMAN6NEJHSVZ9EF50EMM02G",
+              "at": {
+                "timeline": "main",
+                "tick": 182,
+                "order": 10
+              },
+              "speaker": "char_0X4VD0CAGNK7PYKV7C98GS77D9",
+              "text": "You brought the cord. Where are the names?",
+              "delivery": "immediate",
+              "audience": [
+                "participants"
+              ]
+            },
+            {
+              "id": "turn_39B7PBADZ8ZWSNZZVEJ44RXS29",
+              "at": {
+                "timeline": "main",
+                "tick": 182,
+                "order": 20
+              },
+              "speaker": "char_00HBQM4T4CMF11RKMNDBRP92QC",
+              "text": "Somewhere the cord cannot reach.",
+              "delivery": "flat",
+              "audience": [
+                "participants"
+              ]
+            },
+            {
+              "id": "turn_0P50AES5TGSDMM6JF8T3AMTE05",
+              "at": {
+                "timeline": "main",
+                "tick": 182,
+                "order": 30
+              },
+              "speaker": "char_6KEWZ38RZPGDMJRFY3MY6DV56W",
+              "text": "One pressure cycle. Then the lower sluice locks until noon.",
+              "delivery": "urgent",
+              "audience": [
+                "participants"
+              ]
+            },
+            {
+              "id": "turn_1S8TJA056M4DBFJNQ9QDFGTKKD",
+              "at": {
+                "timeline": "main",
+                "tick": 184,
+                "order": 0
+              },
+              "speaker": "char_01ZTB51MAG1BYDMKHYPY4Y2Z81",
+              "text": "Give me the route key.",
+              "delivery": "from the fog",
+              "audience": [
+                "participants"
+              ]
+            },
+            {
+              "id": "turn_0FA3VVP32GD8D6YMXH1ZDF67ET",
+              "at": {
+                "timeline": "main",
+                "tick": 184,
+                "order": 10
+              },
+              "speaker": "char_00HBQM4T4CMF11RKMNDBRP92QC",
+              "text": "Under whose order?",
+              "delivery": "formal",
+              "audience": [
+                "participants"
+              ]
+            },
+            {
+              "id": "turn_4MDNBFVRK95TC7QNPPY5YX0FF2",
+              "at": {
+                "timeline": "main",
+                "tick": 184,
+                "order": 20
+              },
+              "speaker": "char_01ZTB51MAG1BYDMKHYPY4Y2Z81",
+              "text": "Mine, this time.",
+              "delivery": "tired",
+              "audience": [
+                "participants"
+              ]
+            },
+            {
+              "id": "turn_1SSTV7XAZ0PCS1P2PQ8K80BCCQ",
+              "at": {
+                "timeline": "main",
+                "tick": 184,
+                "order": 30
+              },
+              "speaker": "char_0X4VD0CAGNK7PYKV7C98GS77D9",
+              "text": "That is almost honest.",
+              "delivery": "dry",
+              "audience": [
+                "participants"
+              ]
+            },
+            {
+              "id": "turn_52QH60CF0SHAEK32YFHH2KQR6R",
+              "at": {
+                "timeline": "main",
+                "tick": 185,
+                "order": 0
+              },
+              "speaker": "char_01ZTB51MAG1BYDMKHYPY4Y2Z81",
+              "text": "If the proof reaches Ember Hall without a witnessed route, Caldrin will call it invention.",
+              "delivery": "controlled",
+              "audience": [
+                "participants"
+              ]
+            },
+            {
+              "id": "turn_5XA5KK92ABVREAR5XGHCBFBSJT",
+              "at": {
+                "timeline": "main",
+                "tick": 185,
+                "order": 10
+              },
+              "speaker": "char_00HBQM4T4CMF11RKMNDBRP92QC",
+              "text": "Then witness the route. Do not hold it.",
+              "delivery": "precise",
+              "audience": [
+                "participants"
+              ]
+            },
+            {
+              "id": "turn_7NE439JSX6BG6JPAGDGVZR5AKA",
+              "at": {
+                "timeline": "main",
+                "tick": 185,
+                "order": 20
+              },
+              "speaker": "char_01ZTB51MAG1BYDMKHYPY4Y2Z81",
+              "text": "Sable. Your map. I should have returned it before I knew what it was.",
+              "delivery": "quiet",
+              "audience": [
+                "participants"
+              ]
+            },
+            {
+              "id": "turn_7ZDJ0HDHC2EE4BQNYQZCJA7FK4",
+              "at": {
+                "timeline": "main",
+                "tick": 185,
+                "order": 30
+              },
+              "speaker": "char_0X4VD0CAGNK7PYKV7C98GS77D9",
+              "text": "Late honesty still has to row.",
+              "delivery": "dry",
+              "audience": [
+                "participants"
+              ]
+            },
+            {
+              "id": "turn_16XJNJTXDSD9MXXXQ7AK01KZB8",
+              "at": {
+                "timeline": "main",
+                "tick": 186,
+                "order": 0
+              },
+              "speaker": "char_6KEWZ38RZPGDMJRFY3MY6DV56W",
+              "text": "I keep the cord. Sable keeps the map. Rusk keeps the statement he will make in public.",
+              "delivery": "decisive",
+              "audience": [
+                "participants"
+              ]
+            },
+            {
+              "id": "turn_4ZQHX6NAS70MW1JTQ56GJX3SAV",
+              "at": {
+                "timeline": "main",
+                "tick": 186,
+                "order": 10
+              },
+              "speaker": "char_01ZTB51MAG1BYDMKHYPY4Y2Z81",
+              "text": "Agreed.",
+              "delivery": "barely audible",
+              "audience": [
+                "participants"
+              ]
+            },
+            {
+              "id": "turn_37FJAKDK15HFA0JBSMVBQ5238Z",
+              "at": {
+                "timeline": "main",
+                "tick": 187,
+                "order": 0
+              },
+              "speaker": "char_00HBQM4T4CMF11RKMNDBRP92QC",
+              "text": "Open the sluice.",
+              "delivery": "command",
+              "audience": [
+                "participants"
+              ]
+            }
+          ],
+          "recollections": [
+            {
+              "id": "recol_1KZJVW7KCX36WD9A2VPXNXQR9G",
+              "character": "char_00HBQM4T4CMF11RKMNDBRP92QC",
+              "at": {
+                "timeline": "main",
+                "tick": 188,
+                "order": 0
+              },
+              "state": "remembered",
+              "summary": "Rusk demanded the route key, then accepted a witness role and returned Sable’s map instead of seizing Ansel’s cord.",
+              "interpretation": "He is trying to limit damage after helping create it; that is evidence of choice, not innocence.",
+              "emotional_impression": "exhausted vigilance",
+              "confidence": 0.9,
+              "exact_turns": [
+                "turn_5XA5KK92ABVREAR5XGHCBFBSJT",
+                "turn_7NE439JSX6BG6JPAGDGVZR5AKA",
+                "turn_4ZQHX6NAS70MW1JTQ56GJX3SAV"
+              ],
+              "remembered_quotes": []
+            },
+            {
+              "id": "recol_2NR32CM37TT07161P98F00HHC0",
+              "character": "char_6KEWZ38RZPGDMJRFY3MY6DV56W",
+              "at": {
+                "timeline": "main",
+                "tick": 188,
+                "order": 0
+              },
+              "state": "remembered",
+              "summary": "Mara made Rusk witness a route he could not possess, while Sable recovered the map and Ansel retained the cord.",
+              "interpretation": "The custody design survived its first attempt at seizure.",
+              "emotional_impression": "grim satisfaction",
+              "confidence": 0.95,
+              "exact_turns": [
+                "turn_5XA5KK92ABVREAR5XGHCBFBSJT",
+                "turn_16XJNJTXDSD9MXXXQ7AK01KZB8"
+              ],
+              "remembered_quotes": []
+            },
+            {
+              "id": "recol_2ZV8Z5SRTFHS97ADVHAP45DWFV",
+              "character": "char_0X4VD0CAGNK7PYKV7C98GS77D9",
+              "at": {
+                "timeline": "main",
+                "tick": 188,
+                "order": 0
+              },
+              "state": "remembered",
+              "summary": "Rusk returned the ash-glass map and agreed to testify without holding the route key.",
+              "interpretation": "He may be useful in daylight because he finally fears the dark record more than embarrassment.",
+              "emotional_impression": "skeptical amusement",
+              "confidence": 0.73,
+              "exact_turns": [
+                "turn_7NE439JSX6BG6JPAGDGVZR5AKA",
+                "turn_4ZQHX6NAS70MW1JTQ56GJX3SAV"
+              ],
+              "remembered_quotes": []
+            },
+            {
+              "id": "recol_3J87KRA46Y3C3CDZP5XG8AWN37",
+              "character": "char_01ZTB51MAG1BYDMKHYPY4Y2Z81",
+              "at": {
+                "timeline": "main",
+                "tick": 188,
+                "order": 0
+              },
+              "state": "remembered",
+              "summary": "Mara refused custody but offered him a place in the evidence chain; Ansel and Sable kept the route artifacts separate.",
+              "interpretation": "The only remaining lawful act is to testify to what he did and what Caldrin ordered.",
+              "emotional_impression": "shame converted into resolve",
+              "confidence": 0.86,
+              "exact_turns": [
+                "turn_5XA5KK92ABVREAR5XGHCBFBSJT",
+                "turn_16XJNJTXDSD9MXXXQ7AK01KZB8"
+              ],
+              "remembered_quotes": []
+            }
+          ]
+        },
+        "bodyMarkdown": "# River Gate Pursuit\n\nAt the fogged River Gate, Rusk catches the route custodians and is forced to choose between seizure and testimony.\n\nThe turn list is canonical verbatim provenance. Recollections remain character-owned interpretations.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "scene",
+          "id": "scene_745E5B2P62ZBGK7BJ0H1MMTPX0",
+          "title": "River Gate Pursuit",
+          "domain": "scenes.ash-archive.ending",
+          "status": "closed",
+          "tags": [
+            "closed",
+            "river",
+            "escape"
+          ],
+          "aliases": [],
+          "time": {
+            "start": {
+              "timeline": "main",
+              "tick": 182,
+              "order": 0
+            },
+            "current": {
+              "timeline": "main",
+              "tick": 188,
+              "order": 0
+            },
+            "end": {
+              "timeline": "main",
+              "tick": 188,
+              "order": 0
+            }
+          },
+          "location": "loc_0HN48QWYRXF0TYV1EFE3RPA9G5",
+          "participants": [
+            {
+              "character": "char_00HBQM4T4CMF11RKMNDBRP92QC",
+              "role": "viewpoint",
+              "point_of_view": true,
+              "from": {
+                "timeline": "main",
+                "tick": 182,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 188,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_6KEWZ38RZPGDMJRFY3MY6DV56W",
+              "role": "route-custodian",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 182,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 188,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_0X4VD0CAGNK7PYKV7C98GS77D9",
+              "role": "guide",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 182,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 188,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_01ZTB51MAG1BYDMKHYPY4Y2Z81",
+              "role": "pursuing-witness",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 184,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 188,
+                "order": 0
+              }
+            }
+          ],
+          "objects": [
+            "obj_2F4BE8XA9E18V6C0C4CSS5HA5W",
+            "obj_0FC34G7EBBC03HMGB9Z20WWPDB"
+          ],
+          "environments": [
+            "env_0SHY94F4V1RZ970JG8K2RWPB52",
+            "env_0HW1AYVS03EGA5G4JRETVMSKJP",
+            "env_60G5PF37YHXHG98FK0Q8YGH5PZ"
+          ],
+          "story_points": [
+            "sp_479RVM01EJPQMY3SA6PG2ATXC1",
+            "sp_013ACJ6297Q206Q3PECAERP90R"
+          ],
+          "observations": [
+            {
+              "id": "obs_4R7207NBAV7P1CW0A7WK4PSEYC",
+              "at": {
+                "timeline": "main",
+                "tick": 182,
+                "order": 0
+              },
+              "audience": [
+                "participants"
+              ],
+              "salience": 1.1,
+              "text": "The gate chain is wet with fog and moving against the current without wind."
+            },
+            {
+              "id": "obs_7NSY7MDQH1NVYBCKB3CY5ABEZ9",
+              "at": {
+                "timeline": "main",
+                "tick": 185,
+                "order": 20
+              },
+              "audience": [
+                "char_00HBQM4T4CMF11RKMNDBRP92QC",
+                "char_6KEWZ38RZPGDMJRFY3MY6DV56W",
+                "char_0X4VD0CAGNK7PYKV7C98GS77D9"
+              ],
+              "salience": 1.4,
+              "text": "Rusk holds the ash-glass map out flat on both palms before Sable takes it."
+            },
+            {
+              "id": "obs_7K74BYSAB1RC29NTZ1E192B7CT",
+              "at": {
+                "timeline": "main",
+                "tick": 187,
+                "order": 0
+              },
+              "audience": [
+                "participants"
+              ],
+              "salience": 1.5,
+              "text": "The lower sluice opens just wide enough for one skiff before the pressure gate locks."
+            }
+          ],
+          "conversations": [
+            "conv_29MYS0M4T32R8Y037TSN5SV9F4"
+          ],
+          "author_constraints": [
+            "Rusk witnesses the route but never receives custody of the cord or map.",
+            "The identity packets and proof copy are elsewhere and cannot be reconstructed from this scene.",
+            "The escape resolves the vault alarm without resolving Rusk’s culpability."
+          ]
+        },
+        "bodyMarkdown": "# River Gate Pursuit\n\nMara and Ansel reach Sable at the River Gate. Rusk catches them, returns the confiscated map, and agrees to become a public witness rather than seize the route key. The sluice opens before the final pressure lock.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "event",
+          "id": "event_58CM80QVNH32PQGP19HCPMGWWZ",
+          "title": "Rusk Returns the Ash-Glass Map",
+          "domain": "plot.ash-archive.ending",
+          "status": "canonical",
+          "tags": [
+            "map",
+            "restitution"
+          ],
+          "aliases": [],
+          "time": {
+            "timeline": "main",
+            "tick": 185,
+            "order": 20
+          },
+          "location": "loc_0HN48QWYRXF0TYV1EFE3RPA9G5",
+          "participants": [
+            {
+              "character": "char_01ZTB51MAG1BYDMKHYPY4Y2Z81",
+              "role": "returning-custodian"
+            },
+            {
+              "character": "char_0X4VD0CAGNK7PYKV7C98GS77D9",
+              "role": "recipient"
+            },
+            {
+              "character": "char_00HBQM4T4CMF11RKMNDBRP92QC",
+              "role": "witness"
+            },
+            {
+              "character": "char_6KEWZ38RZPGDMJRFY3MY6DV56W",
+              "role": "witness"
+            }
+          ],
+          "causes": [
+            "event_0MV5RDXNPCJD7VCEG4Y4V99XM1"
+          ],
+          "related_story_points": [
+            "sp_013ACJ6297Q206Q3PECAERP90R"
+          ],
+          "effects": [
+            {
+              "id": "effect_6D8T00A1QD5KMCFQPAPN5VE48B",
+              "target": "obj_0FC34G7EBBC03HMGB9Z20WWPDB",
+              "key": "holder",
+              "operation": "clear"
+            },
+            {
+              "id": "effect_6CNEERB7ZFV03H8DT9421SHBAQ",
+              "target": "obj_0FC34G7EBBC03HMGB9Z20WWPDB",
+              "key": "holder",
+              "operation": "set",
+              "value": {
+                "entity": "char_0X4VD0CAGNK7PYKV7C98GS77D9"
+              }
+            }
+          ]
+        },
+        "bodyMarkdown": "# Rusk Returns the Ash-Glass Map\n\nRusk returns the confiscated ash-glass map to Sable in full view of Mara and Ansel. The act restores the map to its river custodian but does not erase the confiscation or his use of it.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "event",
+          "id": "event_2H5KG82XHG18KWE5WERDBQVSE8",
+          "title": "The Route Passes the River Gate",
+          "domain": "plot.ash-archive.ending",
+          "status": "canonical",
+          "tags": [
+            "escape",
+            "route",
+            "witness"
+          ],
+          "aliases": [],
+          "time": {
+            "timeline": "main",
+            "tick": 188,
+            "order": 0
+          },
+          "location": "loc_0HN48QWYRXF0TYV1EFE3RPA9G5",
+          "participants": [
+            {
+              "character": "char_00HBQM4T4CMF11RKMNDBRP92QC",
+              "role": "archive-witness"
+            },
+            {
+              "character": "char_6KEWZ38RZPGDMJRFY3MY6DV56W",
+              "role": "route-custodian"
+            },
+            {
+              "character": "char_0X4VD0CAGNK7PYKV7C98GS77D9",
+              "role": "river-guide"
+            },
+            {
+              "character": "char_01ZTB51MAG1BYDMKHYPY4Y2Z81",
+              "role": "watch-witness"
+            }
+          ],
+          "causes": [
+            "event_58CM80QVNH32PQGP19HCPMGWWZ",
+            "event_5HCF55VTB48ADS5XTJAE5S51DX"
+          ],
+          "related_story_points": [
+            "sp_479RVM01EJPQMY3SA6PG2ATXC1",
+            "sp_013ACJ6297Q206Q3PECAERP90R"
+          ],
+          "effects": [
+            {
+              "id": "effect_5TVZJF05T0BE6G1HB1RJ40TA6A",
+              "target": "char_00HBQM4T4CMF11RKMNDBRP92QC",
+              "key": "location",
+              "operation": "set",
+              "value": {
+                "entity": "loc_0ARQQX1SE921A6STPFMD8QBRCR"
+              }
+            },
+            {
+              "id": "effect_0DP73YANT268HHMBGEWBS3DWG0",
+              "target": "char_6KEWZ38RZPGDMJRFY3MY6DV56W",
+              "key": "location",
+              "operation": "set",
+              "value": {
+                "entity": "loc_0ARQQX1SE921A6STPFMD8QBRCR"
+              }
+            },
+            {
+              "id": "effect_1SYDWAWRKR6KCNW4QBWDB85HDN",
+              "target": "char_0X4VD0CAGNK7PYKV7C98GS77D9",
+              "key": "location",
+              "operation": "set",
+              "value": {
+                "entity": "loc_0ARQQX1SE921A6STPFMD8QBRCR"
+              }
+            },
+            {
+              "id": "effect_2ETSAE77NVQK9DXZ1GBG8201DX",
+              "target": "char_01ZTB51MAG1BYDMKHYPY4Y2Z81",
+              "key": "location",
+              "operation": "set",
+              "value": {
+                "entity": "loc_0ARQQX1SE921A6STPFMD8QBRCR"
+              }
+            }
+          ]
+        },
+        "bodyMarkdown": "# The Route Passes the River Gate\n\nAnsel carries the erased-wing cord through the lower sluice while Sable retains the ash-glass map. Rusk does not seize either object and commits himself to testify that the route exists without placing it in watch custody.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "story-point",
+          "id": "sp_479RVM01EJPQMY3SA6PG2ATXC1",
+          "title": "Survive the Vault Alarm",
+          "domain": "plot.ash-archive.second-act",
+          "status": "canonical",
+          "tags": [
+            "second-act"
+          ],
+          "aliases": [],
+          "lifecycle": {
+            "initial_state": "dormant",
+            "transitions": [
+              {
+                "id": "spt_767FXVAQAV85TV4C5ZQRWZWSDD",
+                "time": {
+                  "timeline": "main",
+                  "tick": 177,
+                  "order": 30
+                },
+                "state": "active",
+                "causing_event": "event_5P7XRVSGPQ0WJZKKHYZYKFCDZC",
+                "note": "The shutters begin closing."
+              },
+              {
+                "id": "spt_037X3ZNAGCRF641QZYF43KRYTB",
+                "time": {
+                  "timeline": "main",
+                  "tick": 188,
+                  "order": 0
+                },
+                "state": "resolved",
+                "causing_event": "event_2H5KG82XHG18KWE5WERDBQVSE8",
+                "note": "The custodians clear the flood route before the shutters and pressure gate close."
+              }
+            ]
+          },
+          "activation_policy": "manual",
+          "priority": 100,
+          "repeat_policy": "once",
+          "dependencies": {
+            "all": []
+          },
+          "trigger": {
+            "event": {
+              "event": "event_5P7XRVSGPQ0WJZKKHYZYKFCDZC"
+            }
+          },
+          "on_activate": {
+            "create_draft_scene": false
+          },
+          "outcome_events": [
+            "event_2H5KG82XHG18KWE5WERDBQVSE8"
+          ]
+        },
+        "bodyMarkdown": "# Survive the Vault Alarm\n\nReach a safe exit before the fire shutters and flood pressure close both routes.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "story-point",
+          "id": "sp_013ACJ6297Q206Q3PECAERP90R",
+          "title": "Question Sable at the River Gate",
+          "domain": "plot.river",
+          "status": "canonical",
+          "tags": [
+            "sable",
+            "river"
+          ],
+          "aliases": [],
+          "lifecycle": {
+            "initial_state": "dormant",
+            "transitions": [
+              {
+                "id": "spt_4TEV3M4ZM5R86PFVPYC534TKET",
+                "time": {
+                  "timeline": "main",
+                  "tick": 182,
+                  "order": 0
+                },
+                "state": "active",
+                "causing_event": "event_5HCF55VTB48ADS5XTJAE5S51DX",
+                "note": "Mara reaches Sable with the route cord."
+              },
+              {
+                "id": "spt_2D5YWMFMFZHTVJVA021EBCME4N",
+                "time": {
+                  "timeline": "main",
+                  "tick": 188,
+                  "order": 0
+                },
+                "state": "resolved",
+                "causing_event": "event_2H5KG82XHG18KWE5WERDBQVSE8",
+                "note": "Sable recovers the map and helps carry the route out of watch custody."
+              }
+            ]
+          },
+          "activation_policy": "suggest",
+          "priority": 55,
+          "repeat_policy": "once",
+          "dependencies": {
+            "all": []
+          },
+          "trigger": {
+            "all": [
+              {
+                "knowledge": {
+                  "knower": "char_0PWVJ91SCDP5TFAJRAGNPXDAEB",
+                  "claim_key": "letter.source.sable",
+                  "state_in": [
+                    "accepted"
+                  ],
+                  "minimum_confidence": 0.8
+                }
+              },
+              {
+                "relationship": {
+                  "relationship": "rel_0F6WP6V7TC3SADKTFNWD5WJ822",
+                  "metric": "trust",
+                  "greater_than_or_equal": 0.3
+                }
+              }
+            ]
+          },
+          "on_activate": {
+            "create_draft_scene": false
+          },
+          "outcome_events": [
+            "event_58CM80QVNH32PQGP19HCPMGWWZ",
+            "event_2H5KG82XHG18KWE5WERDBQVSE8"
+          ],
+          "provenance": "eyJ2IjoxLCJ0eCI6InR4XzBGVE5HOE5DN1RCNU5ZSjZDNkdLRUdXOUtRIiwiY29tbWFuZCI6ImV4YW1wbGUuc2VlZCIsImFjdG9yIjoiZXhhbXBsZSIsImdlbmVyYXRvciI6IndlZGwvMC4xLjAtZGV2IiwicGFyZW50IjoiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMCJ9"
+        },
+        "bodyMarkdown": "# Question Sable at the River Gate\n\nThe author knows Oren can lead Mara toward Sable, even though Mara does not yet know Sable handled the letter.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "conversation",
+          "id": "conv_21ZJ5RR7RGVWKS84X0KPD1G1Q9",
+          "title": "The Heron Without Wings",
+          "domain": "conversations.ash-archive.ending",
+          "status": "closed",
+          "tags": [
+            "hearing",
+            "caldrin",
+            "reckoning"
+          ],
+          "aliases": [],
+          "time": {
+            "start": {
+              "timeline": "main",
+              "tick": 190,
+              "order": 20
+            },
+            "end": {
+              "timeline": "main",
+              "tick": 197,
+              "order": 20
+            }
+          },
+          "scene": "scene_388VSCZ2BD0KBAV80ZRJ51J3CF",
+          "location": "loc_0N1RKJ9ANT1YZZHSR62JFADYNH",
+          "participants": [
+            {
+              "character": "char_00HBQM4T4CMF11RKMNDBRP92QC",
+              "role": "archivist",
+              "from": {
+                "timeline": "main",
+                "tick": 190,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 198,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_0JS5X2Q20CFGQTHD59XZGW684E",
+              "role": "chief-archivist",
+              "from": {
+                "timeline": "main",
+                "tick": 190,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 198,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_71R4G38WFZRCM9GXRFP51WSKW5",
+              "role": "notary",
+              "from": {
+                "timeline": "main",
+                "tick": 190,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 198,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_0VEEWF422PP4APZK5F7DPAWYWH",
+              "role": "councillor",
+              "from": {
+                "timeline": "main",
+                "tick": 190,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 198,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_01ZTB51MAG1BYDMKHYPY4Y2Z81",
+              "role": "watch-captain",
+              "from": {
+                "timeline": "main",
+                "tick": 190,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 198,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_0T8KVZX33X5FQJFYPMH70FADD9",
+              "role": "witness",
+              "from": {
+                "timeline": "main",
+                "tick": 190,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 198,
+                "order": 0
+              }
+            }
+          ],
+          "topics": [
+            "hearing",
+            "caldrin",
+            "reckoning"
+          ],
+          "turns": [
+            {
+              "id": "turn_731PCFJZ9GBHRHSY7HH0BVS3Q6",
+              "at": {
+                "timeline": "main",
+                "tick": 190,
+                "order": 20
+              },
+              "speaker": "char_71R4G38WFZRCM9GXRFP51WSKW5",
+              "text": "The proof is in notarial custody. The route is absent from this hall. The identities are absent from this record.",
+              "delivery": "ruling",
+              "audience": [
+                "participants"
+              ]
+            },
+            {
+              "id": "turn_054E4106PWSHJ2GBDW6BW4D2T0",
+              "at": {
+                "timeline": "main",
+                "tick": 190,
+                "order": 30
+              },
+              "speaker": "char_0VEEWF422PP4APZK5F7DPAWYWH",
+              "text": "Then you have severed evidence from meaning.",
+              "delivery": "contemptuous",
+              "audience": [
+                "participants"
+              ]
+            },
+            {
+              "id": "turn_7G22BD3YZ74BNWP1B3Q3XVM2SK",
+              "at": {
+                "timeline": "main",
+                "tick": 190,
+                "order": 40
+              },
+              "speaker": "char_00HBQM4T4CMF11RKMNDBRP92QC",
+              "text": "We severed your access from living people.",
+              "delivery": "formal",
+              "audience": [
+                "participants"
+              ]
+            },
+            {
+              "id": "turn_213ZRSDTMM0ACCCPKGZ16JARQE",
+              "at": {
+                "timeline": "main",
+                "tick": 191,
+                "order": 0
+              },
+              "speaker": "char_01ZTB51MAG1BYDMKHYPY4Y2Z81",
+              "text": "The classifications came from Councillor Vey’s office. I enforced them.",
+              "delivery": "plain",
+              "audience": [
+                "participants"
+              ]
+            },
+            {
+              "id": "turn_0J88TRPBMTAFJNFQ9RYGYCF3MY",
+              "at": {
+                "timeline": "main",
+                "tick": 191,
+                "order": 10
+              },
+              "speaker": "char_0VEEWF422PP4APZK5F7DPAWYWH",
+              "text": "And you executed them without objection.",
+              "delivery": "sharp",
+              "audience": [
+                "participants"
+              ]
+            },
+            {
+              "id": "turn_7THQM5MKM11H9BAHBFVKBT704X",
+              "at": {
+                "timeline": "main",
+                "tick": 191,
+                "order": 20
+              },
+              "speaker": "char_01ZTB51MAG1BYDMKHYPY4Y2Z81",
+              "text": "Yes.",
+              "delivery": "unadorned",
+              "audience": [
+                "participants"
+              ]
+            },
+            {
+              "id": "turn_7F0X0J6793Y0YFS3SZXQV31PD5",
+              "at": {
+                "timeline": "main",
+                "tick": 191,
+                "order": 30
+              },
+              "speaker": "char_0JS5X2Q20CFGQTHD59XZGW684E",
+              "text": "That is the first complete sentence spoken in this hall.",
+              "delivery": "dry",
+              "audience": [
+                "participants"
+              ]
+            },
+            {
+              "id": "turn_63ZB0A23BDRDSXG4N5VZ3SZMV8",
+              "at": {
+                "timeline": "main",
+                "tick": 192,
+                "order": 0
+              },
+              "speaker": "char_0VEEWF422PP4APZK5F7DPAWYWH",
+              "text": "This signet predates your improvised heresy.",
+              "delivery": "cold",
+              "audience": [
+                "participants"
+              ]
+            },
+            {
+              "id": "turn_3TV625S06XMX34FZ6GATAJRZZD",
+              "at": {
+                "timeline": "main",
+                "tick": 192,
+                "order": 10
+              },
+              "speaker": "char_00HBQM4T4CMF11RKMNDBRP92QC",
+              "text": "The intact wing is the warning.",
+              "delivery": "quiet",
+              "audience": [
+                "participants"
+              ]
+            },
+            {
+              "id": "turn_0HVZR31CERBCGVQEH7FK05CHDV",
+              "at": {
+                "timeline": "main",
+                "tick": 197,
+                "order": 0
+              },
+              "speaker": "char_71R4G38WFZRCM9GXRFP51WSKW5",
+              "text": "Pending inquiry, Caldrin Vey is suspended from Archive authority. Captain Rusk is suspended from Archive access and remains a compelled witness.",
+              "delivery": "formal",
+              "audience": [
+                "participants"
+              ]
+            },
+            {
+              "id": "turn_1RATPADHM195FPSJY79NKQ615Z",
+              "at": {
+                "timeline": "main",
+                "tick": 197,
+                "order": 10
+              },
+              "speaker": "char_0VEEWF422PP4APZK5F7DPAWYWH",
+              "text": "You think a record can survive without power.",
+              "delivery": "low",
+              "audience": [
+                "participants"
+              ]
+            },
+            {
+              "id": "turn_5GA7RT7SYNC9HXBQ9B3SS64KYA",
+              "at": {
+                "timeline": "main",
+                "tick": 197,
+                "order": 20
+              },
+              "speaker": "char_00HBQM4T4CMF11RKMNDBRP92QC",
+              "text": "No. I think power should have to survive the record.",
+              "delivery": "precise",
+              "audience": [
+                "participants"
+              ]
+            }
+          ],
+          "recollections": [
+            {
+              "id": "recol_47MB8WG687WVYZ6G8TQ48857HB",
+              "character": "char_00HBQM4T4CMF11RKMNDBRP92QC",
+              "at": {
+                "timeline": "main",
+                "tick": 198,
+                "order": 0
+              },
+              "state": "remembered",
+              "summary": "Ysabet suspended Caldrin’s Archive authority and Rusk’s access; Rusk admitted enforcing classifications from Caldrin’s office.",
+              "interpretation": "The outcome distinguishes command, execution, and concealment without pretending any one admission completes the case.",
+              "emotional_impression": "steadiness after anger",
+              "confidence": 0.96,
+              "exact_turns": [
+                "turn_213ZRSDTMM0ACCCPKGZ16JARQE",
+                "turn_0HVZR31CERBCGVQEH7FK05CHDV",
+                "turn_5GA7RT7SYNC9HXBQ9B3SS64KYA"
+              ],
+              "remembered_quotes": []
+            },
+            {
+              "id": "recol_1GAECG2SPXG7JQZ5A3N6SKQ0V7",
+              "character": "char_0JS5X2Q20CFGQTHD59XZGW684E",
+              "at": {
+                "timeline": "main",
+                "tick": 198,
+                "order": 0
+              },
+              "state": "remembered",
+              "summary": "Mara answered Caldrin’s appeal to inherited authority by treating the intact heron as the warning Ilyra intended.",
+              "interpretation": "Mara can oppose power without pretending the Archive is outside it.",
+              "emotional_impression": "pride tempered by grief",
+              "confidence": 0.9,
+              "exact_turns": [
+                "turn_3TV625S06XMX34FZ6GATAJRZZD",
+                "turn_5GA7RT7SYNC9HXBQ9B3SS64KYA"
+              ],
+              "remembered_quotes": []
+            },
+            {
+              "id": "recol_7HN8AFWF5C1YYF3055FVQ0E7BY",
+              "character": "char_71R4G38WFZRCM9GXRFP51WSKW5",
+              "at": {
+                "timeline": "main",
+                "tick": 198,
+                "order": 0
+              },
+              "state": "remembered",
+              "summary": "Rusk admitted execution, Caldrin exposed the logic of authority, and Mara kept identities outside the hearing while preserving proof.",
+              "interpretation": "The distributed chain made a lawful ruling possible without sacrificing the protected people.",
+              "emotional_impression": "professional vindication",
+              "confidence": 0.97,
+              "exact_turns": [
+                "turn_731PCFJZ9GBHRHSY7HH0BVS3Q6",
+                "turn_213ZRSDTMM0ACCCPKGZ16JARQE",
+                "turn_0HVZR31CERBCGVQEH7FK05CHDV"
+              ],
+              "remembered_quotes": []
+            },
+            {
+              "id": "recol_36T3T8PB98STD39T8JJ17943Z0",
+              "character": "char_01ZTB51MAG1BYDMKHYPY4Y2Z81",
+              "at": {
+                "timeline": "main",
+                "tick": 198,
+                "order": 0
+              },
+              "state": "remembered",
+              "summary": "He admitted enforcing Caldrin’s classifications and accepted suspension as the price of remaining a witness.",
+              "interpretation": "Candor cannot undo obedience, but further obedience would compound it.",
+              "emotional_impression": "shame without self-exoneration",
+              "confidence": 0.91,
+              "exact_turns": [
+                "turn_213ZRSDTMM0ACCCPKGZ16JARQE",
+                "turn_7THQM5MKM11H9BAHBFVKBT704X",
+                "turn_0HVZR31CERBCGVQEH7FK05CHDV"
+              ],
+              "remembered_quotes": []
+            },
+            {
+              "id": "recol_4YTMTZKRDZ9PHC0A3MJFX168J9",
+              "character": "char_0VEEWF422PP4APZK5F7DPAWYWH",
+              "at": {
+                "timeline": "main",
+                "tick": 198,
+                "order": 0
+              },
+              "state": "remembered",
+              "summary": "Ysabet suspended his authority after Rusk shifted responsibility upward and Mara withheld the identities from the hall.",
+              "interpretation": "The archivists have made themselves a rival constitutional power under the language of custody.",
+              "emotional_impression": "controlled fury",
+              "confidence": 0.84,
+              "exact_turns": [
+                "turn_731PCFJZ9GBHRHSY7HH0BVS3Q6",
+                "turn_0HVZR31CERBCGVQEH7FK05CHDV"
+              ],
+              "remembered_quotes": []
+            }
+          ]
+        },
+        "bodyMarkdown": "# The Heron Without Wings\n\nThe final public confrontation separates Caldrin’s command from Rusk’s execution and tests whether evidence can remain admissible after identities and routes have been removed from the hall.\n\nThe turn list is canonical verbatim provenance. Recollections remain character-owned interpretations.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "scene",
+          "id": "scene_388VSCZ2BD0KBAV80ZRJ51J3CF",
+          "title": "Ember Hall Reckoning",
+          "domain": "scenes.ash-archive.ending",
+          "status": "closed",
+          "tags": [
+            "closed",
+            "hearing",
+            "reckoning"
+          ],
+          "aliases": [],
+          "time": {
+            "start": {
+              "timeline": "main",
+              "tick": 190,
+              "order": 0
+            },
+            "current": {
+              "timeline": "main",
+              "tick": 198,
+              "order": 0
+            },
+            "end": {
+              "timeline": "main",
+              "tick": 198,
+              "order": 0
+            }
+          },
+          "location": "loc_0N1RKJ9ANT1YZZHSR62JFADYNH",
+          "participants": [
+            {
+              "character": "char_00HBQM4T4CMF11RKMNDBRP92QC",
+              "role": "viewpoint",
+              "point_of_view": true,
+              "from": {
+                "timeline": "main",
+                "tick": 190,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 198,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_0JS5X2Q20CFGQTHD59XZGW684E",
+              "role": "chief-archivist",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 190,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 198,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_71R4G38WFZRCM9GXRFP51WSKW5",
+              "role": "notary",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 190,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 198,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_0VEEWF422PP4APZK5F7DPAWYWH",
+              "role": "councillor",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 190,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 198,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_01ZTB51MAG1BYDMKHYPY4Y2Z81",
+              "role": "watch-captain",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 190,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 198,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_0T8KVZX33X5FQJFYPMH70FADD9",
+              "role": "witness",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 190,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 198,
+                "order": 0
+              }
+            }
+          ],
+          "objects": [
+            "obj_5HC3RC1WNVEY2F3DC4N12K719J",
+            "obj_7XJ6XE0FSYHRV8R4NYGTKAXF2Z",
+            "obj_6G005AP5ZHR9YK0BPBY4WPR9CQ",
+            "obj_04E561VA7ZW84KXEWE4SK2D4ZP",
+            "obj_71G9T35KKZ4TP861PMSNFW83W8"
+          ],
+          "environments": [
+            "env_4M5JWTJ9VY0X1ZYJT7N3QMW5DB",
+            "env_01XMRNW8PD8KPAT455ZSX90HDH"
+          ],
+          "story_points": [
+            "sp_03D8BERZXNN1C6NDJM27CR45P5"
+          ],
+          "observations": [
+            {
+              "id": "obs_6C7GGQMKV81Y8158716QW3K6DN",
+              "at": {
+                "timeline": "main",
+                "tick": 190,
+                "order": 0
+              },
+              "audience": [
+                "participants"
+              ],
+              "salience": 1.4,
+              "text": "The evidence table contains proof and custody instruments but no identity-bearing page and no route key."
+            },
+            {
+              "id": "obs_29MF6XY9TGB6AHEFXV1S3F2W35",
+              "at": {
+                "timeline": "main",
+                "tick": 191,
+                "order": 20
+              },
+              "audience": [
+                "char_00HBQM4T4CMF11RKMNDBRP92QC",
+                "char_0JS5X2Q20CFGQTHD59XZGW684E",
+                "char_71R4G38WFZRCM9GXRFP51WSKW5",
+                "char_0T8KVZX33X5FQJFYPMH70FADD9"
+              ],
+              "salience": 1.3,
+              "text": "Rusk says yes without looking at Caldrin or the gallery."
+            },
+            {
+              "id": "obs_78Y9RXGM0FBA12FC9QVE4MAB9S",
+              "at": {
+                "timeline": "main",
+                "tick": 192,
+                "order": 0
+              },
+              "audience": [
+                "char_00HBQM4T4CMF11RKMNDBRP92QC",
+                "char_0JS5X2Q20CFGQTHD59XZGW684E"
+              ],
+              "salience": 1.2,
+              "text": "Caldrin turns the intact heron signet outward as though its age were an argument."
+            }
+          ],
+          "conversations": [
+            "conv_21ZJ5RR7RGVWKS84X0KPD1G1Q9"
+          ],
+          "author_constraints": [
+            "The hearing may suspend authority but does not determine final criminal guilt.",
+            "No participant can reconstruct descendant identities or the undercroft route from the material in Ember Hall.",
+            "Rusk’s admission does not absolve his actions."
+          ]
+        },
+        "bodyMarkdown": "# Ember Hall Reckoning\n\nThe distributed evidence chain survives public challenge. Rusk admits enforcement, Caldrin exposes his theory of authority, and Ysabet suspends both men from control of the Archive while preserving the distinction between command and execution.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "event",
+          "id": "event_1H444APDHD9WCRNJB9MJGJHD56",
+          "title": "Caldrin’s Archive Authority Is Suspended",
+          "domain": "plot.ash-archive.ending",
+          "status": "canonical",
+          "tags": [
+            "ruling",
+            "caldrin",
+            "accountability"
+          ],
+          "aliases": [],
+          "time": {
+            "timeline": "main",
+            "tick": 197,
+            "order": 20
+          },
+          "location": "loc_0N1RKJ9ANT1YZZHSR62JFADYNH",
+          "participants": [
+            {
+              "character": "char_71R4G38WFZRCM9GXRFP51WSKW5",
+              "role": "ruling-notary"
+            },
+            {
+              "character": "char_00HBQM4T4CMF11RKMNDBRP92QC",
+              "role": "archive-witness"
+            },
+            {
+              "character": "char_0JS5X2Q20CFGQTHD59XZGW684E",
+              "role": "chief-archivist"
+            },
+            {
+              "character": "char_0VEEWF422PP4APZK5F7DPAWYWH",
+              "role": "suspended-councillor"
+            },
+            {
+              "character": "char_01ZTB51MAG1BYDMKHYPY4Y2Z81",
+              "role": "compelled-witness"
+            },
+            {
+              "character": "char_0T8KVZX33X5FQJFYPMH70FADD9",
+              "role": "witness"
+            }
+          ],
+          "causes": [
+            "event_1XQBWXQ1K90F9HKHCQK3R25B3P",
+            "event_2H5KG82XHG18KWE5WERDBQVSE8",
+            "event_3XWNSHT5NFRM0SN2WJDV0Y25ZX"
+          ],
+          "related_story_points": [
+            "sp_03D8BERZXNN1C6NDJM27CR45P5"
+          ],
+          "effects": [
+            {
+              "id": "effect_1M78DVTM4EPM80HQ3XS09CBNDS",
+              "target": "char_0VEEWF422PP4APZK5F7DPAWYWH",
+              "key": "condition",
+              "operation": "set",
+              "value": "suspended from Archive authority pending inquiry"
+            },
+            {
+              "id": "effect_6Q3BC8QV421QAXXZYZY4CRP43F",
+              "target": "char_01ZTB51MAG1BYDMKHYPY4Y2Z81",
+              "key": "condition",
+              "operation": "set",
+              "value": "suspended from Archive access; compelled witness"
+            },
+            {
+              "id": "effect_6Q3CHA3X8BBENA3KQDB92BZTZD",
+              "target": "char_00HBQM4T4CMF11RKMNDBRP92QC",
+              "key": "condition",
+              "operation": "set",
+              "value": "acting chief archivist"
+            }
+          ]
+        },
+        "bodyMarkdown": "# Caldrin’s Archive Authority Is Suspended\n\nYsabet suspends Caldrin from Archive authority pending inquiry and suspends Rusk from Archive access while preserving him as a compelled witness. The proof remains admissible without route or identities in the hall.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "story-point",
+          "id": "sp_03D8BERZXNN1C6NDJM27CR45P5",
+          "title": "Confront Caldrin Vey",
+          "domain": "plot.council",
+          "status": "canonical",
+          "tags": [
+            "caldrin",
+            "confrontation"
+          ],
+          "aliases": [],
+          "lifecycle": {
+            "initial_state": "dormant",
+            "transitions": [
+              {
+                "id": "spt_1ZYYTS170A95AC8K5JWW7B5YS4",
+                "time": {
+                  "timeline": "main",
+                  "tick": 160,
+                  "order": 0
+                },
+                "state": "active",
+                "causing_event": "event_03W0PC6646ZK48PEQXFQ6Q3BGB",
+                "note": "The ledger hearing puts Caldrin's account under public challenge."
+              },
+              {
+                "id": "spt_4F5HBEW2D09V9CTAAK3WMRGR7M",
+                "time": {
+                  "timeline": "main",
+                  "tick": 197,
+                  "order": 20
+                },
+                "state": "resolved",
+                "causing_event": "event_1H444APDHD9WCRNJB9MJGJHD56",
+                "note": "Caldrin is confronted in Ember Hall and suspended from Archive authority while the inquiry continues."
+              }
+            ]
+          },
+          "activation_policy": "manual",
+          "priority": 40,
+          "repeat_policy": "once",
+          "dependencies": {
+            "all": []
+          },
+          "trigger": {
+            "all": [
+              {
+                "knowledge": {
+                  "knower": "char_00HBQM4T4CMF11RKMNDBRP92QC",
+                  "claim_key": "caldrin.involvement.suspected",
+                  "state_in": [
+                    "suspected",
+                    "accepted"
+                  ],
+                  "minimum_confidence": 0.5
+                }
+              },
+              {
+                "relationship": {
+                  "relationship": "rel_0150APAYS9V1YWQNESA1GVPZ4R",
+                  "metric": "trust",
+                  "less_than_or_equal": 0.0
+                }
+              }
+            ]
+          },
+          "on_activate": {
+            "create_draft_scene": false
+          },
+          "outcome_events": [
+            "event_1H444APDHD9WCRNJB9MJGJHD56"
+          ],
+          "provenance": "eyJ2IjoxLCJ0eCI6InR4XzBGVE5HOE5DN1RCNU5ZSjZDNkdLRUdXOUtRIiwiY29tbWFuZCI6ImV4YW1wbGUuc2VlZCIsImFjdG9yIjoiZXhhbXBsZSIsImdlbmVyYXRvciI6IndlZGwvMC4xLjAtZGV2IiwicGFyZW50IjoiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMCJ9"
+        },
+        "bodyMarkdown": "# Confront Caldrin Vey\n\nMara has enough suspicion to confront Caldrin, but not enough evidence for the confrontation to be safe or decisive.\n\n\nThe confrontation is active after the hearing, but final responsibility remains contested.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "knowledge",
+          "id": "know_15SY5WFXWK2XQ9SWDWSVXMCQCA",
+          "title": "Mara knows Caldrin’s Archive authority is suspended",
+          "domain": "knowledge.char_00HBQM4T4CMF11RKMNDBRP92QC",
+          "status": "canonical",
+          "tags": [
+            "ending"
+          ],
+          "aliases": [],
+          "knower": "char_00HBQM4T4CMF11RKMNDBRP92QC",
+          "claim": {
+            "key": "caldrin.archive-authority.suspended",
+            "statement": "Caldrin Vey is suspended from Archive authority pending inquiry; Rusk is suspended from Archive access and remains a compelled witness.",
+            "author_truth_status": "true",
+            "subject": "char_0VEEWF422PP4APZK5F7DPAWYWH",
+            "predicate": "suspended-from",
+            "object": {
+              "entity": "world_0CQJZAMW59JQXVY75312HDXH8F"
+            }
+          },
+          "transitions": [
+            {
+              "id": "kt_7CMYN49PFRSE8X9RGVG99XEQPF",
+              "time": {
+                "timeline": "main",
+                "tick": 197,
+                "order": 25
+              },
+              "state": "accepted",
+              "confidence": 1.0,
+              "acquisition": "observed",
+              "causing_event": "event_1H444APDHD9WCRNJB9MJGJHD56",
+              "source_entity": "char_71R4G38WFZRCM9GXRFP51WSKW5"
+            }
+          ]
+        },
+        "bodyMarkdown": "# Mara knows Caldrin’s Archive authority is suspended\n\nCaldrin Vey is suspended from Archive authority pending inquiry; Rusk is suspended from Archive access and remains a compelled witness.\n\nThis record belongs to the named knower and does not replace the canonical event or transcript.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "relationship",
+          "id": "rel_0BCVTBJF5Y4XX8D3SQKJ1PZVRQ",
+          "title": "Mara’s view of Ilyra",
+          "domain": "relationships.cindervale",
+          "status": "canonical",
+          "tags": [
+            "mara",
+            "ilyra"
+          ],
+          "aliases": [],
+          "from": "char_00HBQM4T4CMF11RKMNDBRP92QC",
+          "to": "char_0JS5X2Q20CFGQTHD59XZGW684E",
+          "relationship_kind": "mentor-and-chief",
+          "inverse": "rel_0SPCR5YRQZAWHGF8PJF3ADSC82",
+          "transitions": [
+            {
+              "id": "rt_01T5ZMPYPC6YQSWPD9DGRG92VB",
+              "time": {
+                "timeline": "main",
+                "tick": 0,
+                "order": 0
+              },
+              "relationship_status": "active",
+              "metrics": {
+                "trust": 0.82,
+                "affinity": 0.65,
+                "fear": 0.05,
+                "obligation": 0.25
+              },
+              "facets": [
+                "trusted-mentor",
+                "institutional-superior"
+              ],
+              "causing_event": null,
+              "note": "Initial relationship."
+            },
+            {
+              "id": "rt_27C8TG1J5K6WZZ6W177254TH2J",
+              "time": {
+                "timeline": "main",
+                "tick": 206,
+                "order": 30
+              },
+              "relationship_status": "active",
+              "metrics": {
+                "trust": 0.9,
+                "affinity": 0.72,
+                "fear": 0.04,
+                "obligation": 0.34
+              },
+              "facets": [
+                "mentor",
+                "predecessor",
+                "trusted-critic"
+              ],
+              "causing_event": "event_65QYK2GWA9WV70TYXSMK8CZG7R",
+              "note": "Ilyra returns the key and accepts Mara’s accountable form of incompleteness."
+            }
+          ],
+          "provenance": "eyJ2IjoxLCJ0eCI6InR4XzBGVE5HOE5DN1RCNU5ZSjZDNkdLRUdXOUtRIiwiY29tbWFuZCI6ImV4YW1wbGUuc2VlZCIsImFjdG9yIjoiZXhhbXBsZSIsImdlbmVyYXRvciI6IndlZGwvMC4xLjAtZGV2IiwicGFyZW50IjoiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMCJ9"
+        },
+        "bodyMarkdown": "# Mara’s view of Ilyra\n\nThis record is directional: it describes **Mara Vale → Ilyra Sorn** only. Its inverse is a separate record with independent metrics.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "relationship",
+          "id": "rel_0SPCR5YRQZAWHGF8PJF3ADSC82",
+          "title": "Ilyra’s view of Mara",
+          "domain": "relationships.cindervale",
+          "status": "canonical",
+          "tags": [
+            "ilyra",
+            "mara"
+          ],
+          "aliases": [],
+          "from": "char_0JS5X2Q20CFGQTHD59XZGW684E",
+          "to": "char_00HBQM4T4CMF11RKMNDBRP92QC",
+          "relationship_kind": "mentor-and-protege",
+          "inverse": "rel_0BCVTBJF5Y4XX8D3SQKJ1PZVRQ",
+          "transitions": [
+            {
+              "id": "rt_01BCW5QJ6DQ7XZ1XF2RAQBFBVX",
+              "time": {
+                "timeline": "main",
+                "tick": 0,
+                "order": 0
+              },
+              "relationship_status": "active",
+              "metrics": {
+                "trust": 0.78,
+                "affinity": 0.55,
+                "fear": 0.02,
+                "obligation": 0.45
+              },
+              "facets": [
+                "promising-protege",
+                "protected"
+              ],
+              "causing_event": null,
+              "note": "Initial relationship."
+            },
+            {
+              "id": "rt_03FFP95D8DYZ0SZ9PZ2Z7FTY6M",
+              "time": {
+                "timeline": "main",
+                "tick": 88,
+                "order": 30
+              },
+              "relationship_status": "active",
+              "metrics": {
+                "trust": 0.86,
+                "affinity": 0.62,
+                "fear": 0.1,
+                "obligation": 0.65
+              },
+              "facets": [
+                "successor",
+                "protected"
+              ],
+              "causing_event": "event_0YR925AGMCTHFZA1R6V90TW02F",
+              "note": "Ilyra’s contingency assumes Mara can continue the investigation."
+            },
+            {
+              "id": "rt_39488XZKGDWBWXE96Y27EGDCXJ",
+              "time": {
+                "timeline": "main",
+                "tick": 206,
+                "order": 30
+              },
+              "relationship_status": "active",
+              "metrics": {
+                "trust": 0.94,
+                "affinity": 0.66,
+                "fear": 0.03,
+                "obligation": 0.24
+              },
+              "facets": [
+                "successor",
+                "independent-archivist",
+                "trusted-critic"
+              ],
+              "causing_event": "event_65QYK2GWA9WV70TYXSMK8CZG7R",
+              "note": "Mara proves ready by refusing both perfect preservation and unrecorded destruction."
+            }
+          ],
+          "provenance": "eyJ2IjoxLCJ0eCI6InR4XzBGVE5HOE5DN1RCNU5ZSjZDNkdLRUdXOUtRIiwiY29tbWFuZCI6ImV4YW1wbGUuc2VlZCIsImFjdG9yIjoiZXhhbXBsZSIsImdlbmVyYXRvciI6IndlZGwvMC4xLjAtZGV2IiwicGFyZW50IjoiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMCJ9"
+        },
+        "bodyMarkdown": "# Ilyra’s view of Mara\n\nThis record is directional: it describes **Ilyra Sorn → Mara Vale** only. Its inverse is a separate record with independent metrics.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "relationship",
+          "id": "rel_0150APAYS9V1YWQNESA1GVPZ4R",
+          "title": "Mara’s view of Caldrin",
+          "domain": "relationships.cindervale",
+          "status": "canonical",
+          "tags": [
+            "mara",
+            "caldrin"
+          ],
+          "aliases": [],
+          "from": "char_00HBQM4T4CMF11RKMNDBRP92QC",
+          "to": "char_0VEEWF422PP4APZK5F7DPAWYWH",
+          "relationship_kind": "institutional-patron",
+          "inverse": "rel_00CSRH5794MPBJFE48FA5WD1H6",
+          "transitions": [
+            {
+              "id": "rt_07EY0C4AGEVXYZ4624K6489WNA",
+              "time": {
+                "timeline": "main",
+                "tick": 0,
+                "order": 0
+              },
+              "relationship_status": "active",
+              "metrics": {
+                "trust": 0.05,
+                "affinity": -0.05,
+                "fear": 0.08,
+                "obligation": 0.12
+              },
+              "facets": [
+                "patron",
+                "political-risk"
+              ],
+              "causing_event": null,
+              "note": "Initial relationship."
+            },
+            {
+              "id": "rt_04SKCRDCTGKDAP2G9KEE4M8F19",
+              "time": {
+                "timeline": "main",
+                "tick": 64,
+                "order": 30
+              },
+              "relationship_status": "active",
+              "metrics": {
+                "trust": -0.12,
+                "affinity": -0.1,
+                "fear": 0.14,
+                "obligation": 0.08
+              },
+              "facets": [
+                "intrusive-patron",
+                "watched"
+              ],
+              "causing_event": "event_0S0E5PQSBXBH0E0VJJ7BFB4QXR",
+              "note": "His request feels procedurally improper."
+            },
+            {
+              "id": "rt_0DC2DTYP0CRSNGRH7YCYWJCKQD",
+              "time": {
+                "timeline": "main",
+                "tick": 106,
+                "order": 35
+              },
+              "relationship_status": "active",
+              "metrics": {
+                "trust": -0.36,
+                "affinity": -0.18,
+                "fear": 0.28,
+                "obligation": 0.04
+              },
+              "facets": [
+                "suspect",
+                "dangerous-patron"
+              ],
+              "causing_event": "event_0XM7JBEXR460T42M0HM259YA3T",
+              "note": "The service-court visit deepens suspicion."
+            },
+            {
+              "id": "rt_08VFHCYTNAD10C5FZMPTT3ESSR",
+              "time": {
+                "timeline": "main",
+                "tick": 197,
+                "order": 25
+              },
+              "relationship_status": "active",
+              "metrics": {
+                "trust": -0.82,
+                "affinity": -0.42,
+                "fear": 0.18,
+                "obligation": 0.0
+              },
+              "facets": [
+                "suspended-adversary",
+                "publicly-contested"
+              ],
+              "causing_event": "event_1H444APDHD9WCRNJB9MJGJHD56",
+              "note": "Caldrin’s access is constrained, but his political power survives the ruling."
+            }
+          ],
+          "provenance": "eyJ2IjoxLCJ0eCI6InR4XzBGVE5HOE5DN1RCNU5ZSjZDNkdLRUdXOUtRIiwiY29tbWFuZCI6ImV4YW1wbGUuc2VlZCIsImFjdG9yIjoiZXhhbXBsZSIsImdlbmVyYXRvciI6IndlZGwvMC4xLjAtZGV2IiwicGFyZW50IjoiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMCJ9"
+        },
+        "bodyMarkdown": "# Mara’s view of Caldrin\n\nThis record is directional: it describes **Mara Vale → Councillor Caldrin Vey** only. Its inverse is a separate record with independent metrics.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "relationship",
+          "id": "rel_00CSRH5794MPBJFE48FA5WD1H6",
+          "title": "Caldrin’s view of Mara",
+          "domain": "relationships.cindervale",
+          "status": "canonical",
+          "tags": [
+            "caldrin",
+            "mara"
+          ],
+          "aliases": [],
+          "from": "char_0VEEWF422PP4APZK5F7DPAWYWH",
+          "to": "char_00HBQM4T4CMF11RKMNDBRP92QC",
+          "relationship_kind": "minor-archive-official",
+          "inverse": "rel_0150APAYS9V1YWQNESA1GVPZ4R",
+          "transitions": [
+            {
+              "id": "rt_0VCKZ14JKASZ5AXGMXJ9BX6GMM",
+              "time": {
+                "timeline": "main",
+                "tick": 0,
+                "order": 0
+              },
+              "relationship_status": "active",
+              "metrics": {
+                "trust": 0.0,
+                "affinity": -0.05,
+                "fear": 0.0,
+                "obligation": 0.0
+              },
+              "facets": [
+                "minor-clerk"
+              ],
+              "causing_event": null,
+              "note": "Initial relationship."
+            },
+            {
+              "id": "rt_0GYZSN7EZ5Q1K3NGB2JXGXBVG7",
+              "time": {
+                "timeline": "main",
+                "tick": 64,
+                "order": 35
+              },
+              "relationship_status": "active",
+              "metrics": {
+                "trust": -0.08,
+                "affinity": -0.08,
+                "fear": 0.0,
+                "obligation": 0.0
+              },
+              "facets": [
+                "potential-obstacle",
+                "observant"
+              ],
+              "causing_event": "event_0S0E5PQSBXBH0E0VJJ7BFB4QXR",
+              "note": "Caldrin notices Mara listening closely."
+            },
+            {
+              "id": "rt_084DQW20M4WNMSBF4V1C59GEZS",
+              "time": {
+                "timeline": "main",
+                "tick": 197,
+                "order": 25
+              },
+              "relationship_status": "active",
+              "metrics": {
+                "trust": -0.75,
+                "affinity": -0.4,
+                "fear": 0.32,
+                "obligation": 0.0
+              },
+              "facets": [
+                "institutional-rival",
+                "dangerous-reformer"
+              ],
+              "causing_event": "event_1H444APDHD9WCRNJB9MJGJHD56",
+              "note": "Mara converts archival custody into a limit on Council authority."
+            }
+          ],
+          "provenance": "eyJ2IjoxLCJ0eCI6InR4XzBGVE5HOE5DN1RCNU5ZSjZDNkdLRUdXOUtRIiwiY29tbWFuZCI6ImV4YW1wbGUuc2VlZCIsImFjdG9yIjoiZXhhbXBsZSIsImdlbmVyYXRvciI6IndlZGwvMC4xLjAtZGV2IiwicGFyZW50IjoiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMCJ9"
+        },
+        "bodyMarkdown": "# Caldrin’s view of Mara\n\nThis record is directional: it describes **Councillor Caldrin Vey → Mara Vale** only. Its inverse is a separate record with independent metrics.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "relationship",
+          "id": "rel_0Y8HQH55TD1JYG6WMM9XJ3NHXT",
+          "title": "Mara’s view of Rusk",
+          "domain": "relationships.cindervale",
+          "status": "canonical",
+          "tags": [
+            "mara",
+            "rusk"
+          ],
+          "aliases": [],
+          "from": "char_00HBQM4T4CMF11RKMNDBRP92QC",
+          "to": "char_01ZTB51MAG1BYDMKHYPY4Y2Z81",
+          "relationship_kind": "investigator-and-witness",
+          "inverse": "rel_0VK8M1FJFKBDQVGBBKZ7S44HAR",
+          "transitions": [
+            {
+              "id": "rt_0BPMXN989MBR5ZJ0GNE8HH5JJR",
+              "time": {
+                "timeline": "main",
+                "tick": 0,
+                "order": 0
+              },
+              "relationship_status": "active",
+              "metrics": {
+                "trust": 0.1,
+                "affinity": -0.02,
+                "fear": 0.16,
+                "obligation": 0.04
+              },
+              "facets": [
+                "watch-authority"
+              ],
+              "causing_event": null,
+              "note": "Initial relationship."
+            },
+            {
+              "id": "rt_0ZRJFNHMTQRGRRST4Z19YXRTJY",
+              "time": {
+                "timeline": "main",
+                "tick": 101,
+                "order": 45
+              },
+              "relationship_status": "active",
+              "metrics": {
+                "trust": 0.02,
+                "affinity": -0.08,
+                "fear": 0.24,
+                "obligation": 0.02
+              },
+              "facets": [
+                "necessary-investigator",
+                "vault-blocker"
+              ],
+              "causing_event": "event_0Z53ASE2D15XFSS8GE47P9Q8BD",
+              "note": "Sealing the vault frustrates Mara’s investigation."
+            },
+            {
+              "id": "rt_1B4TGV6VMA5R1SVYVHTDKF9HH6",
+              "time": {
+                "timeline": "main",
+                "tick": 198,
+                "order": 0
+              },
+              "relationship_status": "active",
+              "metrics": {
+                "trust": -0.18,
+                "affinity": -0.08,
+                "fear": 0.12,
+                "obligation": 0.05
+              },
+              "facets": [
+                "culpable-witness",
+                "limited-candor"
+              ],
+              "causing_event": "event_1H444APDHD9WCRNJB9MJGJHD56",
+              "note": "Rusk’s testimony is useful because it is against his interest; it does not erase his obedience."
+            }
+          ],
+          "provenance": "eyJ2IjoxLCJ0eCI6InR4XzBGVE5HOE5DN1RCNU5ZSjZDNkdLRUdXOUtRIiwiY29tbWFuZCI6ImV4YW1wbGUuc2VlZCIsImFjdG9yIjoiZXhhbXBsZSIsImdlbmVyYXRvciI6IndlZGwvMC4xLjAtZGV2IiwicGFyZW50IjoiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMCJ9"
+        },
+        "bodyMarkdown": "# Mara’s view of Rusk\n\nThis record is directional: it describes **Mara Vale → Captain Tomas Rusk** only. Its inverse is a separate record with independent metrics.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "relationship",
+          "id": "rel_0VK8M1FJFKBDQVGBBKZ7S44HAR",
+          "title": "Rusk’s view of Mara",
+          "domain": "relationships.cindervale",
+          "status": "canonical",
+          "tags": [
+            "rusk",
+            "mara"
+          ],
+          "aliases": [],
+          "from": "char_01ZTB51MAG1BYDMKHYPY4Y2Z81",
+          "to": "char_00HBQM4T4CMF11RKMNDBRP92QC",
+          "relationship_kind": "investigator-and-witness",
+          "inverse": "rel_0Y8HQH55TD1JYG6WMM9XJ3NHXT",
+          "transitions": [
+            {
+              "id": "rt_0DS9WY4CBJFZ5RPBZ907SZZC84",
+              "time": {
+                "timeline": "main",
+                "tick": 0,
+                "order": 0
+              },
+              "relationship_status": "active",
+              "metrics": {
+                "trust": 0.08,
+                "affinity": 0.0,
+                "fear": 0.02,
+                "obligation": 0.0
+              },
+              "facets": [
+                "archive-witness"
+              ],
+              "causing_event": null,
+              "note": "Initial relationship."
+            },
+            {
+              "id": "rt_0FFHXRKT5VP7D6DV23WF9AQKZ0",
+              "time": {
+                "timeline": "main",
+                "tick": 101,
+                "order": 50
+              },
+              "relationship_status": "active",
+              "metrics": {
+                "trust": 0.18,
+                "affinity": 0.02,
+                "fear": 0.04,
+                "obligation": 0.0
+              },
+              "facets": [
+                "useful-witness",
+                "possible-withholder"
+              ],
+              "causing_event": "event_0Z53ASE2D15XFSS8GE47P9Q8BD",
+              "note": "Mara is informed but visibly withholding some concern."
+            },
+            {
+              "id": "rt_0SV4KGFAQKP3ST2P0FKNKV4SJ2",
+              "time": {
+                "timeline": "main",
+                "tick": 198,
+                "order": 0
+              },
+              "relationship_status": "active",
+              "metrics": {
+                "trust": 0.38,
+                "affinity": 0.08,
+                "fear": 0.21,
+                "obligation": 0.18
+              },
+              "facets": [
+                "credible-adversary",
+                "offered-witness-role"
+              ],
+              "causing_event": "event_1H444APDHD9WCRNJB9MJGJHD56",
+              "note": "Mara refused to absolve him and still gave him a lawful action he could take."
+            }
+          ],
+          "provenance": "eyJ2IjoxLCJ0eCI6InR4XzBGVE5HOE5DN1RCNU5ZSjZDNkdLRUdXOUtRIiwiY29tbWFuZCI6ImV4YW1wbGUuc2VlZCIsImFjdG9yIjoiZXhhbXBsZSIsImdlbmVyYXRvciI6IndlZGwvMC4xLjAtZGV2IiwicGFyZW50IjoiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMCJ9"
+        },
+        "bodyMarkdown": "# Rusk’s view of Mara\n\nThis record is directional: it describes **Captain Tomas Rusk → Mara Vale** only. Its inverse is a separate record with independent metrics.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "conversation",
+          "id": "conv_4R23T579C9Q21A36C6XFGSAMAC",
+          "title": "An Honest Absence",
+          "domain": "conversations.ash-archive.ending",
+          "status": "closed",
+          "tags": [
+            "epilogue",
+            "archive-reform"
+          ],
+          "aliases": [],
+          "time": {
+            "start": {
+              "timeline": "main",
+              "tick": 205,
+              "order": 20
+            },
+            "end": {
+              "timeline": "main",
+              "tick": 207,
+              "order": 10
+            }
+          },
+          "scene": "scene_5DD6CMYR5KNYXNVGEJ8EZ3SQ7A",
+          "location": "loc_0E434X5XGQVW7S6T5Z8H5RAP68",
+          "participants": [
+            {
+              "character": "char_00HBQM4T4CMF11RKMNDBRP92QC",
+              "role": "acting-chief",
+              "from": {
+                "timeline": "main",
+                "tick": 205,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 208,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_0JS5X2Q20CFGQTHD59XZGW684E",
+              "role": "predecessor",
+              "from": {
+                "timeline": "main",
+                "tick": 205,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 208,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_0T8KVZX33X5FQJFYPMH70FADD9",
+              "role": "catalog-designer",
+              "from": {
+                "timeline": "main",
+                "tick": 205,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 208,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_0PWVJ91SCDP5TFAJRAGNPXDAEB",
+              "role": "courier",
+              "from": {
+                "timeline": "main",
+                "tick": 207,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 208,
+                "order": 0
+              }
+            }
+          ],
+          "topics": [
+            "epilogue",
+            "archive-reform"
+          ],
+          "turns": [
+            {
+              "id": "turn_42H7FA7RBDEQWK80BFJJN73C3G",
+              "at": {
+                "timeline": "main",
+                "tick": 205,
+                "order": 20
+              },
+              "speaker": "char_0T8KVZX33X5FQJFYPMH70FADD9",
+              "text": "The first entry has no names.",
+              "delivery": "uncertain",
+              "audience": [
+                "participants"
+              ]
+            },
+            {
+              "id": "turn_14023JXW13FDRPX74EFZRXP4K3",
+              "at": {
+                "timeline": "main",
+                "tick": 205,
+                "order": 30
+              },
+              "speaker": "char_00HBQM4T4CMF11RKMNDBRP92QC",
+              "text": "It has the count, the witnesses, the custody periods, the reason, and the review date.",
+              "delivery": "precise",
+              "audience": [
+                "participants"
+              ]
+            },
+            {
+              "id": "turn_3PX9VC6JY8P3HTM4B8XRQ4W9BW",
+              "at": {
+                "timeline": "main",
+                "tick": 205,
+                "order": 40
+              },
+              "speaker": "char_0JS5X2Q20CFGQTHD59XZGW684E",
+              "text": "You have made incompleteness into a rule.",
+              "delivery": "dry",
+              "audience": [
+                "participants"
+              ]
+            },
+            {
+              "id": "turn_4H0ASTRXQ2KCAC8SRD92BHK2MH",
+              "at": {
+                "timeline": "main",
+                "tick": 205,
+                "order": 50
+              },
+              "speaker": "char_00HBQM4T4CMF11RKMNDBRP92QC",
+              "text": "No. Into a record.",
+              "delivery": "quiet",
+              "audience": [
+                "participants"
+              ]
+            },
+            {
+              "id": "turn_2EGYR1NVVER4KYD90Q41V3C1R9",
+              "at": {
+                "timeline": "main",
+                "tick": 206,
+                "order": 0
+              },
+              "speaker": "char_0T8KVZX33X5FQJFYPMH70FADD9",
+              "text": "That should be written over the door.",
+              "delivery": "soft",
+              "audience": [
+                "participants"
+              ]
+            },
+            {
+              "id": "turn_3VSG7334JZENJTREZBQVNKDJPK",
+              "at": {
+                "timeline": "main",
+                "tick": 206,
+                "order": 10
+              },
+              "speaker": "char_0JS5X2Q20CFGQTHD59XZGW684E",
+              "text": "The door already has a key. It should belong to the person who knows when not to use it.",
+              "delivery": "formal",
+              "audience": [
+                "participants"
+              ]
+            },
+            {
+              "id": "turn_3331F8EAYYVHCRT72GWMD4FKFT",
+              "at": {
+                "timeline": "main",
+                "tick": 206,
+                "order": 20
+              },
+              "speaker": "char_00HBQM4T4CMF11RKMNDBRP92QC",
+              "text": "I accept the custody. Not the permission to stop arguing.",
+              "delivery": "formal",
+              "audience": [
+                "participants"
+              ]
+            },
+            {
+              "id": "turn_03RWHQEYARXVP3G93EA0MN48PT",
+              "at": {
+                "timeline": "main",
+                "tick": 207,
+                "order": 0
+              },
+              "speaker": "char_0PWVJ91SCDP5TFAJRAGNPXDAEB",
+              "text": "Sable says the river still has no shelf mark.",
+              "delivery": "from the doorway",
+              "audience": [
+                "participants"
+              ]
+            },
+            {
+              "id": "turn_52YNNESCZCBND26A9BXG5FDD94",
+              "at": {
+                "timeline": "main",
+                "tick": 207,
+                "order": 10
+              },
+              "speaker": "char_0T8KVZX33X5FQJFYPMH70FADD9",
+              "text": "We can give it one that points nowhere.",
+              "delivery": "bright",
+              "audience": [
+                "participants"
+              ]
+            }
+          ],
+          "recollections": [
+            {
+              "id": "recol_03JJ0BKF8SMXS9EKFHKP2NFNSM",
+              "character": "char_00HBQM4T4CMF11RKMNDBRP92QC",
+              "at": {
+                "timeline": "main",
+                "tick": 208,
+                "order": 0
+              },
+              "state": "remembered",
+              "summary": "Ilyra gave Mara the restricted-vault key after Mara opened the Ledger of Honest Absences; Nessa proposed recording an index that points nowhere.",
+              "interpretation": "The Archive can preserve accountability without pretending that possession and truth are the same thing.",
+              "emotional_impression": "quiet responsibility",
+              "confidence": 0.97,
+              "exact_turns": [
+                "turn_4H0ASTRXQ2KCAC8SRD92BHK2MH",
+                "turn_3VSG7334JZENJTREZBQVNKDJPK",
+                "turn_3331F8EAYYVHCRT72GWMD4FKFT"
+              ],
+              "remembered_quotes": []
+            },
+            {
+              "id": "recol_6K8XTN97V4HKWYE0TY3VZ092CX",
+              "character": "char_0JS5X2Q20CFGQTHD59XZGW684E",
+              "at": {
+                "timeline": "main",
+                "tick": 208,
+                "order": 0
+              },
+              "state": "remembered",
+              "summary": "Mara accepted the key while explicitly refusing unquestioned authority, and Nessa treated non-location as a catalogable fact.",
+              "interpretation": "The Archive will be safer because its successor distrusts the office she now holds.",
+              "emotional_impression": "grief relieved by confidence",
+              "confidence": 0.92,
+              "exact_turns": [
+                "turn_3331F8EAYYVHCRT72GWMD4FKFT",
+                "turn_52YNNESCZCBND26A9BXG5FDD94"
+              ],
+              "remembered_quotes": []
+            },
+            {
+              "id": "recol_4QTK1TP4MNGHP1PC0FJ1P4077H",
+              "character": "char_0T8KVZX33X5FQJFYPMH70FADD9",
+              "at": {
+                "timeline": "main",
+                "tick": 208,
+                "order": 0
+              },
+              "state": "remembered",
+              "summary": "The first absence entry contains witnesses, reason, and review date but no names; Mara called incompleteness a record.",
+              "interpretation": "A catalog can be exact about the limits of what it centralizes.",
+              "emotional_impression": "hopeful concentration",
+              "confidence": 0.99,
+              "exact_turns": [
+                "turn_14023JXW13FDRPX74EFZRXP4K3",
+                "turn_4H0ASTRXQ2KCAC8SRD92BHK2MH",
+                "turn_52YNNESCZCBND26A9BXG5FDD94"
+              ],
+              "remembered_quotes": []
+            }
+          ]
+        },
+        "bodyMarkdown": "# An Honest Absence\n\nThe first entry in the reformed Archive records an intentional absence. Ilyra returns the vault key, Mara accepts accountable custody, and Nessa invents a catalog reference that certifies without locating.\n\nThe turn list is canonical verbatim provenance. Recollections remain character-owned interpretations.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "scene",
+          "id": "scene_5DD6CMYR5KNYXNVGEJ8EZ3SQ7A",
+          "title": "An Honest Absence",
+          "domain": "scenes.ash-archive.ending",
+          "status": "closed",
+          "tags": [
+            "closed",
+            "epilogue",
+            "archive-reform"
+          ],
+          "aliases": [],
+          "time": {
+            "start": {
+              "timeline": "main",
+              "tick": 205,
+              "order": 0
+            },
+            "current": {
+              "timeline": "main",
+              "tick": 208,
+              "order": 0
+            },
+            "end": {
+              "timeline": "main",
+              "tick": 208,
+              "order": 0
+            }
+          },
+          "location": "loc_0E434X5XGQVW7S6T5Z8H5RAP68",
+          "participants": [
+            {
+              "character": "char_00HBQM4T4CMF11RKMNDBRP92QC",
+              "role": "viewpoint",
+              "point_of_view": true,
+              "from": {
+                "timeline": "main",
+                "tick": 205,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 208,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_0JS5X2Q20CFGQTHD59XZGW684E",
+              "role": "predecessor",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 205,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 208,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_0T8KVZX33X5FQJFYPMH70FADD9",
+              "role": "catalog-designer",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 205,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 208,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_0PWVJ91SCDP5TFAJRAGNPXDAEB",
+              "role": "courier",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 207,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 208,
+                "order": 0
+              }
+            }
+          ],
+          "objects": [
+            "obj_137433HR6P0H8RNGP9HDE9W8Z5",
+            "obj_0KC1YJH9MFDT31AWC1M7HKD36X"
+          ],
+          "environments": [
+            "env_60G5PF37YHXHG98FK0Q8YGH5PZ"
+          ],
+          "story_points": [
+            "sp_05KWYYN6G5CFVZR0EN1MNCVQGQ",
+            "sp_1XF04FY4NNAWAFBG2W68J7QQN3"
+          ],
+          "observations": [
+            {
+              "id": "obs_4DY5595B5XG23NVRPYYTFN2D91",
+              "at": {
+                "timeline": "main",
+                "tick": 205,
+                "order": 0
+              },
+              "audience": [
+                "participants"
+              ],
+              "salience": 1.3,
+              "text": "The new ledger’s first ruled page contains witnesses, dates, counts, and a blank space where names would normally begin."
+            },
+            {
+              "id": "obs_3YXY145KXZFE8AWTY406MS411K",
+              "at": {
+                "timeline": "main",
+                "tick": 206,
+                "order": 10
+              },
+              "audience": [
+                "char_00HBQM4T4CMF11RKMNDBRP92QC",
+                "char_0JS5X2Q20CFGQTHD59XZGW684E",
+                "char_0T8KVZX33X5FQJFYPMH70FADD9"
+              ],
+              "salience": 1.4,
+              "text": "Ilyra lays the brass restricted-vault key across the line marked next review."
+            },
+            {
+              "id": "obs_4KPAHE1K4M40YSXW47H2MP66SM",
+              "at": {
+                "timeline": "main",
+                "tick": 207,
+                "order": 0
+              },
+              "audience": [
+                "participants"
+              ],
+              "salience": 1.0,
+              "text": "Oren waits in the open doorway instead of using the licensed courier knock."
+            }
+          ],
+          "conversations": [
+            "conv_4R23T579C9Q21A36C6XFGSAMAC"
+          ],
+          "author_constraints": [
+            "The story ends with accountable incompleteness, not perfect safety.",
+            "The identity packets remain distributed and subject to future review.",
+            "Caldrin’s political fate remains open beyond his loss of Archive authority."
+          ]
+        },
+        "bodyMarkdown": "# An Honest Absence\n\nIn the reopened Reading Room, Mara, Ilyra, and Nessa enter the first deliberate omission into a new ledger. Ilyra returns the restricted-vault key. Oren arrives with a message from Sable, and the Archive begins again by recording what it refuses to centralize.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "event",
+          "id": "event_65QYK2GWA9WV70TYXSMK8CZG7R",
+          "title": "The Incomplete Archive Is Founded",
+          "domain": "plot.ash-archive.ending",
+          "status": "canonical",
+          "tags": [
+            "epilogue",
+            "archive-reform",
+            "key"
+          ],
+          "aliases": [],
+          "time": {
+            "timeline": "main",
+            "tick": 206,
+            "order": 20
+          },
+          "location": "loc_0E434X5XGQVW7S6T5Z8H5RAP68",
+          "participants": [
+            {
+              "character": "char_00HBQM4T4CMF11RKMNDBRP92QC",
+              "role": "acting-chief"
+            },
+            {
+              "character": "char_0JS5X2Q20CFGQTHD59XZGW684E",
+              "role": "predecessor"
+            },
+            {
+              "character": "char_0T8KVZX33X5FQJFYPMH70FADD9",
+              "role": "catalog-designer"
+            }
+          ],
+          "causes": [
+            "event_3XWNSHT5NFRM0SN2WJDV0Y25ZX",
+            "event_1H444APDHD9WCRNJB9MJGJHD56"
+          ],
+          "related_story_points": [
+            "sp_05KWYYN6G5CFVZR0EN1MNCVQGQ",
+            "sp_1XF04FY4NNAWAFBG2W68J7QQN3"
+          ],
+          "effects": [
+            {
+              "id": "effect_4MRV6PD9F5NQRS5XRZ34V9M0NW",
+              "target": "obj_0KC1YJH9MFDT31AWC1M7HKD36X",
+              "key": "holder",
+              "operation": "clear"
+            },
+            {
+              "id": "effect_4T9T8WWDVWN3KBZWP5NZPPSKA8",
+              "target": "obj_0KC1YJH9MFDT31AWC1M7HKD36X",
+              "key": "holder",
+              "operation": "set",
+              "value": {
+                "entity": "char_00HBQM4T4CMF11RKMNDBRP92QC"
+              }
+            },
+            {
+              "id": "effect_1W9RKKBBW814K4YNJADA245ZFT",
+              "target": "char_00HBQM4T4CMF11RKMNDBRP92QC",
+              "key": "condition",
+              "operation": "set",
+              "value": "acting chief archivist; custodian under review"
+            },
+            {
+              "id": "effect_6DPN8CTT8NN55EB0YERXN1BE9W",
+              "target": "char_0JS5X2Q20CFGQTHD59XZGW684E",
+              "key": "condition",
+              "operation": "set",
+              "value": "former chief archivist; identity custodian"
+            }
+          ]
+        },
+        "bodyMarkdown": "# The Incomplete Archive Is Founded\n\nMara opens the Ledger of Honest Absences and accepts the restricted-vault key from Ilyra. The first entry records the threefold custody decision, its witnesses, its expiration, and the destruction of the cross-index without reproducing protected identities.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "story-point",
+          "id": "sp_1XF04FY4NNAWAFBG2W68J7QQN3",
+          "title": "Build the Incomplete Archive",
+          "domain": "plot.ash-archive.ending",
+          "status": "canonical",
+          "tags": [
+            "archive-reform",
+            "epilogue"
+          ],
+          "aliases": [],
+          "lifecycle": {
+            "initial_state": "dormant",
+            "transitions": [
+              {
+                "id": "spt_13H6GD8MRXB0147XGCNVX3002K",
+                "time": {
+                  "timeline": "main",
+                  "tick": 205,
+                  "order": 0
+                },
+                "state": "active",
+                "causing_event": "event_1H444APDHD9WCRNJB9MJGJHD56",
+                "note": "The Archive can reopen only after defining accountable absence."
+              },
+              {
+                "id": "spt_47VNNJH9GCK97S5610FHGW7NZM",
+                "time": {
+                  "timeline": "main",
+                  "tick": 206,
+                  "order": 20
+                },
+                "state": "resolved",
+                "causing_event": "event_65QYK2GWA9WV70TYXSMK8CZG7R",
+                "note": "The first absence entry and review rule are recorded."
+              }
+            ]
+          },
+          "activation_policy": "manual",
+          "priority": 90,
+          "repeat_policy": "once",
+          "dependencies": {
+            "all": [
+              {
+                "story_point": "sp_258VWM7VDJ9QD9G6CG6ND5ZVGS",
+                "state_in": [
+                  "resolved"
+                ]
+              }
+            ]
+          },
+          "trigger": {
+            "event": {
+              "event": "event_1H444APDHD9WCRNJB9MJGJHD56"
+            }
+          },
+          "on_activate": {
+            "create_draft_scene": false
+          },
+          "outcome_events": [
+            "event_65QYK2GWA9WV70TYXSMK8CZG7R"
+          ]
+        },
+        "bodyMarkdown": "# Build the Incomplete Archive\n\nCreate a catalog that records accountable omissions without preserving a central reconstruction key.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "story-point",
+          "id": "sp_05KWYYN6G5CFVZR0EN1MNCVQGQ",
+          "title": "Recover the Restricted-Vault Key",
+          "domain": "plot.vault",
+          "status": "canonical",
+          "tags": [
+            "key",
+            "vault"
+          ],
+          "aliases": [],
+          "lifecycle": {
+            "initial_state": "dormant",
+            "transitions": [
+              {
+                "id": "spt_1MXR60Z0VPGHK8F661WYFD9QNX",
+                "time": {
+                  "timeline": "main",
+                  "tick": 205,
+                  "order": 0
+                },
+                "state": "active",
+                "causing_event": "event_1H444APDHD9WCRNJB9MJGJHD56",
+                "note": "Ilyra can return the key once the Archive’s authority is redefined."
+              },
+              {
+                "id": "spt_7R83D4C93WW7CWYSKA0XG0ZHWS",
+                "time": {
+                  "timeline": "main",
+                  "tick": 206,
+                  "order": 20
+                },
+                "state": "resolved",
+                "causing_event": "event_65QYK2GWA9WV70TYXSMK8CZG7R",
+                "note": "Ilyra transfers the restricted-vault key to Mara under the new review rule."
+              }
+            ]
+          },
+          "activation_policy": "suggest",
+          "priority": 75,
+          "repeat_policy": "once",
+          "dependencies": {
+            "all": [
+              {
+                "story_point": "sp_0EWTQTRW748QTCS592XRSDVV80",
+                "state_in": [
+                  "active",
+                  "resolved"
+                ]
+              }
+            ]
+          },
+          "trigger": {
+            "all": [
+              {
+                "knowledge": {
+                  "knower": "char_00HBQM4T4CMF11RKMNDBRP92QC",
+                  "claim_key": "ilyra.status.missing",
+                  "state_in": [
+                    "accepted"
+                  ],
+                  "minimum_confidence": 0.6
+                }
+              },
+              {
+                "entity_state": {
+                  "target": "obj_0KC1YJH9MFDT31AWC1M7HKD36X",
+                  "key": "holder",
+                  "equals": {
+                    "entity": "char_0JS5X2Q20CFGQTHD59XZGW684E"
+                  }
+                }
+              }
+            ]
+          },
+          "on_activate": {
+            "create_draft_scene": false
+          },
+          "outcome_events": [
+            "event_65QYK2GWA9WV70TYXSMK8CZG7R"
+          ],
+          "provenance": "eyJ2IjoxLCJ0eCI6InR4XzBGVE5HOE5DN1RCNU5ZSjZDNkdLRUdXOUtRIiwiY29tbWFuZCI6ImV4YW1wbGUuc2VlZCIsImFjdG9yIjoiZXhhbXBsZSIsImdlbmVyYXRvciI6IndlZGwvMC4xLjAtZGV2IiwicGFyZW50IjoiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMCJ9"
+        },
+        "bodyMarkdown": "# Recover the Restricted-Vault Key\n\nThe vault cannot be opened lawfully while Ilyra and her key are both missing.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "knowledge",
+          "id": "know_7E4FSNDHGQ09P85XYSGMQHW858",
+          "title": "Mara knows the first honest-absence rule",
+          "domain": "knowledge.char_00HBQM4T4CMF11RKMNDBRP92QC",
+          "status": "canonical",
+          "tags": [
+            "ending"
+          ],
+          "aliases": [],
+          "knower": "char_00HBQM4T4CMF11RKMNDBRP92QC",
+          "claim": {
+            "key": "archive.absence.accountable",
+            "statement": "The Archive now records the scope, witnesses, reason, expiration, and review date of protected omissions without preserving a central reconstruction key.",
+            "author_truth_status": "true",
+            "subject": "obj_137433HR6P0H8RNGP9HDE9W8Z5",
+            "predicate": "records-rule",
+            "object": {
+              "text": "accountable omission"
+            }
+          },
+          "transitions": [
+            {
+              "id": "kt_7R4BQ3VMBK1KC2VYPYFZ3C22M7",
+              "time": {
+                "timeline": "main",
+                "tick": 206,
+                "order": 25
+              },
+              "state": "accepted",
+              "confidence": 1.0,
+              "acquisition": "authored",
+              "causing_event": "event_65QYK2GWA9WV70TYXSMK8CZG7R",
+              "source_entity": "obj_137433HR6P0H8RNGP9HDE9W8Z5"
+            }
+          ]
+        },
+        "bodyMarkdown": "# Mara knows the first honest-absence rule\n\nThe Archive now records the scope, witnesses, reason, expiration, and review date of protected omissions without preserving a central reconstruction key.\n\nThis record belongs to the named knower and does not replace the canonical event or transcript.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "knowledge",
+          "id": "know_73PF0CQP37JYY4KXWTJRC5NH9M",
+          "title": "Nessa knows the first honest-absence rule",
+          "domain": "knowledge.char_0T8KVZX33X5FQJFYPMH70FADD9",
+          "status": "canonical",
+          "tags": [
+            "ending"
+          ],
+          "aliases": [],
+          "knower": "char_0T8KVZX33X5FQJFYPMH70FADD9",
+          "claim": {
+            "key": "archive.absence.accountable",
+            "statement": "The Archive now records the scope, witnesses, reason, expiration, and review date of protected omissions without preserving a central reconstruction key.",
+            "author_truth_status": "true",
+            "subject": "obj_137433HR6P0H8RNGP9HDE9W8Z5",
+            "predicate": "records-rule",
+            "object": {
+              "text": "accountable omission"
+            }
+          },
+          "transitions": [
+            {
+              "id": "kt_3S3ZQVB4Y924EK03EM7STTV06V",
+              "time": {
+                "timeline": "main",
+                "tick": 206,
+                "order": 25
+              },
+              "state": "accepted",
+              "confidence": 1.0,
+              "acquisition": "authored",
+              "causing_event": "event_65QYK2GWA9WV70TYXSMK8CZG7R",
+              "source_entity": "obj_137433HR6P0H8RNGP9HDE9W8Z5"
+            }
+          ]
+        },
+        "bodyMarkdown": "# Nessa knows the first honest-absence rule\n\nThe Archive now records the scope, witnesses, reason, expiration, and review date of protected omissions without preserving a central reconstruction key.\n\nThis record belongs to the named knower and does not replace the canonical event or transcript.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "knowledge",
+          "id": "know_5M1DRD6MDK43RZ5RMR17YS5THH",
+          "title": "Ilyra knows Mara accepted the vault key under review",
+          "domain": "knowledge.char_0JS5X2Q20CFGQTHD59XZGW684E",
+          "status": "canonical",
+          "tags": [
+            "ending"
+          ],
+          "aliases": [],
+          "knower": "char_0JS5X2Q20CFGQTHD59XZGW684E",
+          "claim": {
+            "key": "mara.accepted-vault-key-under-review",
+            "statement": "Mara accepted the restricted-vault key while explicitly rejecting unquestioned authority over it.",
+            "author_truth_status": "true",
+            "subject": "char_00HBQM4T4CMF11RKMNDBRP92QC",
+            "predicate": "accepted-under-review",
+            "object": {
+              "entity": "obj_0KC1YJH9MFDT31AWC1M7HKD36X"
+            }
+          },
+          "transitions": [
+            {
+              "id": "kt_0TY8V4WFKN10HNEWSVDBACRV7R",
+              "time": {
+                "timeline": "main",
+                "tick": 206,
+                "order": 25
+              },
+              "state": "accepted",
+              "confidence": 1.0,
+              "acquisition": "observed",
+              "causing_event": "event_65QYK2GWA9WV70TYXSMK8CZG7R",
+              "source_entity": "char_00HBQM4T4CMF11RKMNDBRP92QC"
+            }
+          ]
+        },
+        "bodyMarkdown": "# Ilyra knows Mara accepted the vault key under review\n\nMara accepted the restricted-vault key while explicitly rejecting unquestioned authority over it.\n\nThis record belongs to the named knower and does not replace the canonical event or transcript.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "world",
+          "id": "world_0CQJZAMW59JQXVY75312HDXH8F",
+          "title": "The Ash Archive",
+          "domain": "world",
+          "status": "canonical",
+          "tags": [
+            "example",
+            "mystery",
+            "interactive"
+          ],
+          "aliases": [],
+          "default_timeline": "main",
+          "timelines": [
+            {
+              "id": "main",
+              "label": "Main chronology"
+            }
+          ],
+          "state_keys": {
+            "character": {
+              "location": {
+                "type": "entity",
+                "entity_kind": "location",
+                "exclusive": true
+              },
+              "condition": {
+                "type": "string"
+              }
+            },
+            "object": {
+              "holder": {
+                "type": "entity",
+                "entity_kind": "character",
+                "exclusive_group": "placement"
+              },
+              "location": {
+                "type": "entity",
+                "entity_kind": "location",
+                "exclusive_group": "placement"
+              },
+              "container": {
+                "type": "entity",
+                "entity_kind": "object",
+                "exclusive_group": "placement"
+              },
+              "condition": {
+                "type": "string"
+              }
+            }
+          },
+          "relationship_metrics": {
+            "trust": {
+              "minimum": -1.0,
+              "maximum": 1.0,
+              "default": 0.0
+            },
+            "affinity": {
+              "minimum": -1.0,
+              "maximum": 1.0,
+              "default": 0.0
+            },
+            "fear": {
+              "minimum": 0.0,
+              "maximum": 1.0,
+              "default": 0.0
+            },
+            "obligation": {
+              "minimum": 0.0,
+              "maximum": 1.0,
+              "default": 0.0
+            }
+          },
+          "embedding_policy": {
+            "provider": "lsa",
+            "model": "wedl-lsa-v1",
+            "dimensions": 192,
+            "max_features": 8192
+          },
+          "context_policy": {
+            "default_budget_characters": 8000,
+            "default_max_items": 24,
+            "conversation_turn_window": 6
+          },
+          "compilation_policy": {
+            "default_profile": "hybrid",
+            "retained_revisions": 5,
+            "vector_cache": true,
+            "source_parse_cache": true,
+            "atomic_publish": true,
+            "retrieval": {
+              "fts_candidate_limit": 120,
+              "vector_candidate_limit": 120,
+              "hybrid_fts_weight": 1.0,
+              "hybrid_vector_weight": 1.0,
+              "hybrid_rrf_k": 60.0
+            }
+          },
+          "provenance": "eyJ2IjoxLCJ0eCI6InR4XzBGVE5HOE5DN1RCNU5ZSjZDNkdLRUdXOUtRIiwiY29tbWFuZCI6ImV4YW1wbGUuc2VlZCIsImFjdG9yIjoiZXhhbXBsZSIsImdlbmVyYXRvciI6IndlZGwvMC4xLjAtZGV2IiwicGFyZW50IjoiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMCJ9"
+        },
+        "bodyMarkdown": "# The Ash Archive\n\nCindervale’s Ash Archive preserves fires, inheritances, civic debts, and the evidence powerful people would rather route elsewhere. Chief Archivist Ilyra Sorn disappeared after discovering that records of illegal river evacuations had been removed through a concealed listening-and-flood network. Mara Vale, Nessa Quill, Notary Ysabet Crane, river custodians, and compromised watch officers reconstructed enough of the chain to expose the abuse without surrendering living descendants to the same centralized index.\n\n## Completed canonical state\n\nAt tick 208 the investigation’s principal arc is complete. The descendant ledger has been dismantled into unindexed family packets. Proof, route, and identity are held by independent custodians under an expiring instrument. Caldrin Vey is suspended from Archive authority; Captain Rusk is suspended from Archive access and remains a compelled witness. Mara holds the restricted-vault key as acting chief archivist. The reopened Archive has begun a Ledger of Honest Absences: omissions must state their scope, witnesses, reason, expiration, and review date without retaining a central reconstruction key.\n\n## Fixture purpose\n\nThe world now supports a coherent completed mystery across three acts: discovery and pursuit, evidentiary reconstruction, and institutional resolution. It remains useful for temporal state, perspective-safe retrieval, verbatim dialogue provenance, conflicting recollections, distributed custody, historical queries, and sequel threads involving Sable, Caldrin’s political future, and review of the identity packets.\n"
+      }
+    }
+  ]
+}

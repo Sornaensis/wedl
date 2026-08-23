@@ -1,0 +1,111 @@
+{
+  "protocol": "wedl-command-result/v1",
+  "status": "committed",
+  "previousHead": "d61d3215a1567cf07759350dd2b73ef0eaaa1f79",
+  "newHead": "f85574031e9642b6cd7b05e084bc4d8f4589a602",
+  "generatedIds": {
+    "$tmp.recollection.pursuit-current-0": "recol_03540JM1JTZNR807VR45A0Y7FD",
+    "$tmp.recollection.pursuit-current-1": "recol_3YB6QZ9K6FJ7MXPF023P4JSSZA",
+    "$tmp.recollection.pursuit-current-2": "recol_3PS9XN9KAKJ895AM78CFSWK8H2",
+    "$tmp.recollection.pursuit-current-3": "recol_2XP156E12DA1KCC9ZC2DVKPPND",
+    "$tmp.recollection.pursuit-current-4": "recol_1Y4MEJF8FGFHQTYN5X74GX41DF"
+  },
+  "touchedEntityIds": [
+    "conv_6CAEJ0NV40CEBK9A8BGVK3CAFG",
+    "scene_508C0AN1PBBCHYZZDJCEVWGHR9"
+  ],
+  "compile": {
+    "status": "compiled",
+    "buildMode": "fast-forward-rebuild",
+    "revision": "f85574031e9642b6cd7b05e084bc4d8f4589a602",
+    "treeOid": "d288b5fee9a7667d0e5d81cca71e8f50a0079d4e",
+    "database": "/mnt/data/frontiersmen-build/frontiersmen-world/.wedl/world.sqlite",
+    "databaseBytes": 10829824,
+    "recordCount": 294,
+    "searchProfile": {
+      "name": "hybrid",
+      "ftsEnabled": true,
+      "vectorEnabled": true,
+      "vectorProvider": "lsa",
+      "vectorModel": "wedl-lsa-v1",
+      "vectorDimensions": 192,
+      "vectorMaxFeatures": 8192,
+      "ftsCandidateLimit": 120,
+      "vectorCandidateLimit": 120,
+      "hybridFtsWeight": 1.0,
+      "hybridVectorWeight": 1.0,
+      "hybridRrfK": 60.0
+    },
+    "searchDocumentCount": 2257,
+    "ftsDocumentCount": 2257,
+    "vectorDocumentCount": 2257,
+    "uniqueVectorCount": 939,
+    "vectorLinkCount": 2257,
+    "vectorModels": [
+      {
+        "scope": "author",
+        "modelId": "lsa:author:wedl-lsa-v1:192:3ba32aa0ba28d742",
+        "provider": "lsa",
+        "modelName": "wedl-lsa-v1",
+        "dimensions": 192,
+        "normalized": true,
+        "corpusHash": "3ba32aa0ba28d742f609e35be898157e3e725446e7e60f564a3ac3ee441c50eb"
+      },
+      {
+        "scope": "character",
+        "modelId": "lsa:character:wedl-lsa-v1:124:8e194a9a4e6b9d0b",
+        "provider": "lsa",
+        "modelName": "wedl-lsa-v1",
+        "dimensions": 124,
+        "normalized": true,
+        "corpusHash": "8e194a9a4e6b9d0b0dbaa09d7a96e392dacb490727eeb6c53698b5754d33fec8"
+      }
+    ],
+    "vectorCache": {
+      "reused": 630,
+      "generated": 309,
+      "uniqueInputs": 939
+    },
+    "searchProjection": {
+      "timingsMs": {
+        "buildDocuments": 26.459,
+        "hashInputs": 4.584,
+        "buildVectors": 703.782,
+        "prepareRows": 9.768,
+        "insertDocuments": 7.029,
+        "insertFts": 13.563,
+        "insertVectors": 17.548
+      }
+    },
+    "activeSceneId": "scene_508C0AN1PBBCHYZZDJCEVWGHR9",
+    "currentTime": {
+      "timeline": "main",
+      "tick": 195,
+      "order": 0
+    },
+    "changedPaths": [
+      "story/conversations/running-under-the-drums--conv_6CAEJ0NV40CEBK9A8BGVK3CAFG.md",
+      "story/scenes/the-hunt-begins--scene_508C0AN1PBBCHYZZDJCEVWGHR9.md"
+    ],
+    "sourceLoad": {
+      "mode": "parsed-source-cache",
+      "records": 294,
+      "parsed": 2,
+      "cacheHits": 292,
+      "blobReads": 2
+    },
+    "timingsMs": {
+      "resolveRevision": 2.642,
+      "loadSource": 17.545,
+      "validate": 12.481,
+      "schema": 1.807,
+      "entities": 17.049,
+      "narrative": 9.607,
+      "derived": 10.518,
+      "search": 784.776,
+      "indexes": 11.688,
+      "total": 892.123
+    }
+  },
+  "idempotentReplay": false
+}

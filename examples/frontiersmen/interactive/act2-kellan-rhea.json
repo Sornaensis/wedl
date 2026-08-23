@@ -1,0 +1,282 @@
+{
+  "protocol": "wedl-conversation/v1",
+  "revision": "74768378e7a222292257be1e6780e698a44b7ced",
+  "perspective": "character",
+  "conversationId": "conv_3TH0GGWH9AFGWGND2BFPA6MTKG",
+  "title": "Kellan's Broken Watch",
+  "characterId": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+  "conversationTime": {
+    "start": {
+      "order": 0,
+      "tick": 61,
+      "timeline": "main"
+    },
+    "end": {
+      "order": 40,
+      "tick": 62,
+      "timeline": "main"
+    }
+  },
+  "effectiveTime": {
+    "timeline": "main",
+    "tick": 85,
+    "order": 0
+  },
+  "heardVerbatimTurns": [
+    {
+      "id": "turn_4J8152GM5AM8RCYZC1SS11P6C0",
+      "at": {
+        "timeline": "main",
+        "tick": 61,
+        "order": 0
+      },
+      "speakerId": "char_7DS75TG6WFK6ZD1T9GCBJRMK1T",
+      "speaker": "Kellan Voss",
+      "text": "Asha heard the chest humming before Bran cut his hand.",
+      "delivery": "halting",
+      "audience": [
+        "participants"
+      ],
+      "citation": {
+        "entityId": "conv_3TH0GGWH9AFGWGND2BFPA6MTKG",
+        "kind": "conversation",
+        "sourcePath": "story/conversations/kellan-s-broken-watch--conv_3TH0GGWH9AFGWGND2BFPA6MTKG.md",
+        "blobOid": "7c9cf455b75f879abc95f7324522ba11fa9b44ac",
+        "revision": "74768378e7a222292257be1e6780e698a44b7ced",
+        "section": "turn:turn_4J8152GM5AM8RCYZC1SS11P6C0"
+      }
+    },
+    {
+      "id": "turn_270K467C1VPSC9R6VCJSJR5K8N",
+      "at": {
+        "timeline": "main",
+        "tick": 61,
+        "order": 10
+      },
+      "speakerId": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+      "speaker": "Veyra Kest",
+      "text": "The chest was already warm?",
+      "delivery": "precise",
+      "audience": [
+        "participants"
+      ],
+      "citation": {
+        "entityId": "conv_3TH0GGWH9AFGWGND2BFPA6MTKG",
+        "kind": "conversation",
+        "sourcePath": "story/conversations/kellan-s-broken-watch--conv_3TH0GGWH9AFGWGND2BFPA6MTKG.md",
+        "blobOid": "7c9cf455b75f879abc95f7324522ba11fa9b44ac",
+        "revision": "74768378e7a222292257be1e6780e698a44b7ced",
+        "section": "turn:turn_270K467C1VPSC9R6VCJSJR5K8N"
+      }
+    },
+    {
+      "id": "turn_53S7V6FG1F49F76RWX99GQ96C8",
+      "at": {
+        "timeline": "main",
+        "tick": 61,
+        "order": 20
+      },
+      "speakerId": "char_7DS75TG6WFK6ZD1T9GCBJRMK1T",
+      "speaker": "Kellan Voss",
+      "text": "Warm enough that the snow beneath it melted. Then Bran's blood ran uphill toward the crack.",
+      "delivery": "shaking",
+      "audience": [
+        "participants"
+      ],
+      "citation": {
+        "entityId": "conv_3TH0GGWH9AFGWGND2BFPA6MTKG",
+        "kind": "conversation",
+        "sourcePath": "story/conversations/kellan-s-broken-watch--conv_3TH0GGWH9AFGWGND2BFPA6MTKG.md",
+        "blobOid": "7c9cf455b75f879abc95f7324522ba11fa9b44ac",
+        "revision": "74768378e7a222292257be1e6780e698a44b7ced",
+        "section": "turn:turn_53S7V6FG1F49F76RWX99GQ96C8"
+      }
+    },
+    {
+      "id": "turn_6D6XTKDR9SX9PPM2V87VHFPWT6",
+      "at": {
+        "timeline": "main",
+        "tick": 61,
+        "order": 30
+      },
+      "speakerId": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+      "speaker": "Brother Garran Holt",
+      "text": "What did the first shape resemble?",
+      "delivery": "gentle",
+      "audience": [
+        "participants"
+      ],
+      "citation": {
+        "entityId": "conv_3TH0GGWH9AFGWGND2BFPA6MTKG",
+        "kind": "conversation",
+        "sourcePath": "story/conversations/kellan-s-broken-watch--conv_3TH0GGWH9AFGWGND2BFPA6MTKG.md",
+        "blobOid": "7c9cf455b75f879abc95f7324522ba11fa9b44ac",
+        "revision": "74768378e7a222292257be1e6780e698a44b7ced",
+        "section": "turn:turn_6D6XTKDR9SX9PPM2V87VHFPWT6"
+      }
+    },
+    {
+      "id": "turn_7TC2GZG5RKV4X3TSXBYRKCXW6S",
+      "at": {
+        "timeline": "main",
+        "tick": 61,
+        "order": 40
+      },
+      "speakerId": "char_7DS75TG6WFK6ZD1T9GCBJRMK1T",
+      "speaker": "Kellan Voss",
+      "text": "A deer until it turned its head. Then it had Bran's teeth and Asha's voice.",
+      "delivery": "distant",
+      "audience": [
+        "participants"
+      ],
+      "citation": {
+        "entityId": "conv_3TH0GGWH9AFGWGND2BFPA6MTKG",
+        "kind": "conversation",
+        "sourcePath": "story/conversations/kellan-s-broken-watch--conv_3TH0GGWH9AFGWGND2BFPA6MTKG.md",
+        "blobOid": "7c9cf455b75f879abc95f7324522ba11fa9b44ac",
+        "revision": "74768378e7a222292257be1e6780e698a44b7ced",
+        "section": "turn:turn_7TC2GZG5RKV4X3TSXBYRKCXW6S"
+      }
+    },
+    {
+      "id": "turn_02PCQA1SWTCFPN2ZAMJSTK1CWE",
+      "at": {
+        "timeline": "main",
+        "tick": 61,
+        "order": 50
+      },
+      "speakerId": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+      "speaker": "Sylvi Ashdown",
+      "text": "Did it leave a print? Hair? Blood?",
+      "delivery": "quiet",
+      "audience": [
+        "participants"
+      ],
+      "citation": {
+        "entityId": "conv_3TH0GGWH9AFGWGND2BFPA6MTKG",
+        "kind": "conversation",
+        "sourcePath": "story/conversations/kellan-s-broken-watch--conv_3TH0GGWH9AFGWGND2BFPA6MTKG.md",
+        "blobOid": "7c9cf455b75f879abc95f7324522ba11fa9b44ac",
+        "revision": "74768378e7a222292257be1e6780e698a44b7ced",
+        "section": "turn:turn_02PCQA1SWTCFPN2ZAMJSTK1CWE"
+      }
+    },
+    {
+      "id": "turn_59HBYH9NW6EGN8E331SMWA0TRC",
+      "at": {
+        "timeline": "main",
+        "tick": 62,
+        "order": 0
+      },
+      "speakerId": "char_7DS75TG6WFK6ZD1T9GCBJRMK1T",
+      "speaker": "Kellan Voss",
+      "text": "Only cold. It went through the wall when Asha struck it.",
+      "delivery": "certain",
+      "audience": [
+        "participants"
+      ],
+      "citation": {
+        "entityId": "conv_3TH0GGWH9AFGWGND2BFPA6MTKG",
+        "kind": "conversation",
+        "sourcePath": "story/conversations/kellan-s-broken-watch--conv_3TH0GGWH9AFGWGND2BFPA6MTKG.md",
+        "blobOid": "7c9cf455b75f879abc95f7324522ba11fa9b44ac",
+        "revision": "74768378e7a222292257be1e6780e698a44b7ced",
+        "section": "turn:turn_59HBYH9NW6EGN8E331SMWA0TRC"
+      }
+    },
+    {
+      "id": "turn_6WTSWXKBBVXCB9QT5175ZJWFYZ",
+      "at": {
+        "timeline": "main",
+        "tick": 62,
+        "order": 10
+      },
+      "speakerId": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+      "speaker": "Pip Fenlock",
+      "text": "And the wall remained a wall.",
+      "delivery": "confirming",
+      "audience": [
+        "participants"
+      ],
+      "citation": {
+        "entityId": "conv_3TH0GGWH9AFGWGND2BFPA6MTKG",
+        "kind": "conversation",
+        "sourcePath": "story/conversations/kellan-s-broken-watch--conv_3TH0GGWH9AFGWGND2BFPA6MTKG.md",
+        "blobOid": "7c9cf455b75f879abc95f7324522ba11fa9b44ac",
+        "revision": "74768378e7a222292257be1e6780e698a44b7ced",
+        "section": "turn:turn_6WTSWXKBBVXCB9QT5175ZJWFYZ"
+      }
+    },
+    {
+      "id": "turn_3ZYM6C8NFC4CN84718XSG5P1S4",
+      "at": {
+        "timeline": "main",
+        "tick": 62,
+        "order": 20
+      },
+      "speakerId": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+      "speaker": "Rhea Marrow",
+      "text": "We move the chest into the open yard and keep every blade covered.",
+      "delivery": "command",
+      "audience": [
+        "participants"
+      ],
+      "citation": {
+        "entityId": "conv_3TH0GGWH9AFGWGND2BFPA6MTKG",
+        "kind": "conversation",
+        "sourcePath": "story/conversations/kellan-s-broken-watch--conv_3TH0GGWH9AFGWGND2BFPA6MTKG.md",
+        "blobOid": "7c9cf455b75f879abc95f7324522ba11fa9b44ac",
+        "revision": "74768378e7a222292257be1e6780e698a44b7ced",
+        "section": "turn:turn_3ZYM6C8NFC4CN84718XSG5P1S4"
+      }
+    },
+    {
+      "id": "turn_51SC2A706VRAHPZMC0MMFF2D27",
+      "at": {
+        "timeline": "main",
+        "tick": 62,
+        "order": 30
+      },
+      "speakerId": "char_1F7JEGBD02MVY0J8M9X0967T5T",
+      "speaker": "Sergeant Edrik Morn",
+      "text": "The guild collector forbade moving it before tally.",
+      "delivery": "ashamed",
+      "audience": [
+        "participants"
+      ],
+      "citation": {
+        "entityId": "conv_3TH0GGWH9AFGWGND2BFPA6MTKG",
+        "kind": "conversation",
+        "sourcePath": "story/conversations/kellan-s-broken-watch--conv_3TH0GGWH9AFGWGND2BFPA6MTKG.md",
+        "blobOid": "7c9cf455b75f879abc95f7324522ba11fa9b44ac",
+        "revision": "74768378e7a222292257be1e6780e698a44b7ced",
+        "section": "turn:turn_51SC2A706VRAHPZMC0MMFF2D27"
+      }
+    },
+    {
+      "id": "turn_2BD94KXBNT26JEV92S2DJRB325",
+      "at": {
+        "timeline": "main",
+        "tick": 62,
+        "order": 40
+      },
+      "speakerId": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+      "speaker": "Rhea Marrow",
+      "text": "The collector is not here.",
+      "delivery": "final",
+      "audience": [
+        "participants"
+      ],
+      "citation": {
+        "entityId": "conv_3TH0GGWH9AFGWGND2BFPA6MTKG",
+        "kind": "conversation",
+        "sourcePath": "story/conversations/kellan-s-broken-watch--conv_3TH0GGWH9AFGWGND2BFPA6MTKG.md",
+        "blobOid": "7c9cf455b75f879abc95f7324522ba11fa9b44ac",
+        "revision": "74768378e7a222292257be1e6780e698a44b7ced",
+        "section": "turn:turn_2BD94KXBNT26JEV92S2DJRB325"
+      }
+    }
+  ],
+  "subjectiveRecollection": null,
+  "provenanceBoundary": "heardVerbatimTurns are canonical audible lines; subjectiveRecollection is separately authored memory and may disagree."
+}

@@ -1,0 +1,2254 @@
+{
+  "protocol": "wedl-changeset/v1",
+  "expectedHead": "e2a3432ab5cf7e838a8143236bf4a83f5d3c09de",
+  "idempotencyKey": "frontiersmen-act-6-drowned-waymark-v1",
+  "summary": "Break the immediate Root Host pursuit at a drowned waymark, recover bounded Blackroot evidence, and open the abandoned warden road south",
+  "actor": {
+    "kind": "author",
+    "id": "local:frontiersmen-builder"
+  },
+  "operations": [
+    {
+      "type": "entity.update",
+      "entity": "scene_508C0AN1PBBCHYZZDJCEVWGHR9",
+      "frontmatterPatch": {
+        "status": "closed",
+        "tags": [
+          "pursuit"
+        ],
+        "time": {
+          "start": {
+            "timeline": "main",
+            "tick": 191,
+            "order": 0
+          },
+          "current": {
+            "timeline": "main",
+            "tick": 195,
+            "order": 99
+          },
+          "end": {
+            "timeline": "main",
+            "tick": 195,
+            "order": 99
+          }
+        },
+        "participants": [
+          {
+            "character": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+            "role": "fleeing-frontiersman",
+            "point_of_view": true,
+            "from": {
+              "timeline": "main",
+              "tick": 191,
+              "order": 0
+            },
+            "to": {
+              "timeline": "main",
+              "tick": 195,
+              "order": 99
+            }
+          },
+          {
+            "character": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+            "role": "fleeing-frontiersman",
+            "point_of_view": false,
+            "from": {
+              "timeline": "main",
+              "tick": 191,
+              "order": 0
+            },
+            "to": {
+              "timeline": "main",
+              "tick": 195,
+              "order": 99
+            }
+          },
+          {
+            "character": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+            "role": "fleeing-frontiersman",
+            "point_of_view": false,
+            "from": {
+              "timeline": "main",
+              "tick": 191,
+              "order": 0
+            },
+            "to": {
+              "timeline": "main",
+              "tick": 195,
+              "order": 99
+            }
+          },
+          {
+            "character": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+            "role": "fleeing-frontiersman",
+            "point_of_view": false,
+            "from": {
+              "timeline": "main",
+              "tick": 191,
+              "order": 0
+            },
+            "to": {
+              "timeline": "main",
+              "tick": 195,
+              "order": 99
+            }
+          },
+          {
+            "character": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+            "role": "fleeing-frontiersman",
+            "point_of_view": false,
+            "from": {
+              "timeline": "main",
+              "tick": 191,
+              "order": 0
+            },
+            "to": {
+              "timeline": "main",
+              "tick": 195,
+              "order": 99
+            }
+          }
+        ],
+        "author_constraints": [
+          "The pursuit remains a historical chase, not a defeat of the Tree King or the Root Host as a campaign antagonist.",
+          "Moth's identity, intent beyond the witnessed escape, and fate remain unresolved.",
+          "The hooked notch on Moth's bone key remains unused and unexplained."
+        ]
+      },
+      "bodyMarkdown": "# The Hunt Begins\n\nThe first pursuit ends at drowned stone: the five remain together and reach running water before the host's southward line can close. Nothing here defeats Aldren or determines what became of those left in his camp.\n"
+    },
+    {
+      "type": "entity.update",
+      "entity": "conv_6CAEJ0NV40CEBK9A8BGVK3CAFG",
+      "frontmatterPatch": {
+        "status": "closed",
+        "time": {
+          "start": {
+            "timeline": "main",
+            "tick": 191,
+            "order": 0
+          },
+          "end": {
+            "timeline": "main",
+            "tick": 195,
+            "order": 99
+          }
+        },
+        "participants": [
+          {
+            "character": "char_5P1T0F31DJHKZHBC49XEHCX891",
+            "role": "distant-pursuer",
+            "point_of_view": false,
+            "from": {
+              "timeline": "main",
+              "tick": 193,
+              "order": 10
+            },
+            "to": {
+              "timeline": "main",
+              "tick": 195,
+              "order": 99
+            }
+          },
+          {
+            "character": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+            "role": "fleeing-frontiersman",
+            "point_of_view": false,
+            "from": {
+              "timeline": "main",
+              "tick": 191,
+              "order": 0
+            },
+            "to": {
+              "timeline": "main",
+              "tick": 195,
+              "order": 99
+            }
+          },
+          {
+            "character": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+            "role": "fleeing-frontiersman",
+            "point_of_view": false,
+            "from": {
+              "timeline": "main",
+              "tick": 191,
+              "order": 0
+            },
+            "to": {
+              "timeline": "main",
+              "tick": 195,
+              "order": 99
+            }
+          },
+          {
+            "character": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+            "role": "fleeing-frontiersman",
+            "point_of_view": false,
+            "from": {
+              "timeline": "main",
+              "tick": 191,
+              "order": 0
+            },
+            "to": {
+              "timeline": "main",
+              "tick": 195,
+              "order": 99
+            }
+          },
+          {
+            "character": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+            "role": "fleeing-frontiersman",
+            "point_of_view": false,
+            "from": {
+              "timeline": "main",
+              "tick": 191,
+              "order": 0
+            },
+            "to": {
+              "timeline": "main",
+              "tick": 195,
+              "order": 99
+            }
+          },
+          {
+            "character": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+            "role": "fleeing-frontiersman",
+            "point_of_view": false,
+            "from": {
+              "timeline": "main",
+              "tick": 191,
+              "order": 0
+            },
+            "to": {
+              "timeline": "main",
+              "tick": 195,
+              "order": 99
+            }
+          }
+        ]
+      },
+      "bodyMarkdown": "# Running Under the Drums\n\nThe escape exchange closes when the company drops from the northwood trail into the flooded works around an old waymark. Rootjaw's earlier bellow remains distant historical provenance; he is not present in the scenes that follow.\n\nThe turn list is canonical verbatim provenance. Character recollections are stored separately and may disagree.\n"
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "location",
+          "id": "loc_79B52X17CMZA7D5JJ7VYPT35X9",
+          "title": "Abandoned Warden Road",
+          "domain": "setting.frontier",
+          "status": "canonical",
+          "tags": [
+            "road",
+            "abandoned",
+            "southward"
+          ],
+          "aliases": [],
+          "location_type": "abandoned-road",
+          "parent": "loc_7ZCCW0DPCX525V7RQ76QTEBB7V",
+          "links": []
+        },
+        "bodyMarkdown": "# Abandoned Warden Road\n\nA raised strip of fitted stone and corduroy timber running south beneath alder, peat, and decades of flood wash. Its surviving cuts were made for wardens on foot, not wagons, and no current map promises where it ends.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "location",
+          "id": "loc_5CMHBETFRJB24HYCEPVD4PA3SJ",
+          "title": "Drowned Waymark",
+          "domain": "setting.frontier",
+          "status": "canonical",
+          "tags": [
+            "waymark",
+            "flooded",
+            "warden-road"
+          ],
+          "aliases": [],
+          "location_type": "flooded-waymark",
+          "parent": "loc_79B52X17CMZA7D5JJ7VYPT35X9",
+          "links": []
+        },
+        "bodyMarkdown": "# Drowned Waymark\n\nA shoulder-high road stone drowned to its carved triangle in a blackwater braid. Running channels divide around it, and a rusted survey slot survives behind the old route mark.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "object",
+          "id": "obj_1D9H5EGGTDJTD0FW01FS10PZ7W",
+          "title": "Blackroot Warden Counterfoil",
+          "domain": "props.frontiersmen",
+          "status": "canonical",
+          "tags": [
+            "blackroot",
+            "guild",
+            "bounded-evidence"
+          ],
+          "aliases": [],
+          "object_type": "route-counterfoil",
+          "initial_state": {
+            "location": {
+              "entity": "loc_5CMHBETFRJB24HYCEPVD4PA3SJ"
+            },
+            "condition": "sealed in the rusted survey slot"
+          },
+          "capabilities": [
+            "can-be-read"
+          ]
+        },
+        "bodyMarkdown": "# Blackroot Warden Counterfoil\n\nA water-stained Lantern Pike route counterfoil headed 'Blackroot Recovery 7.' Dated after three recorded deaths and initialed H. Doss, it orders raw amber carried under floodwater and charcoal and kept apart from refined pieces. It does not name wretches, the report classification, or any compact.\n"
+      }
+    },
+    {
+      "type": "event.create",
+      "id": "event_4ZEFR459JSCEX70AQT50GST2FQ",
+      "title": "The Frontiersmen Reach the Drowned Waymark",
+      "domain": "plot.frontiersmen",
+      "status": "canonical",
+      "tags": [
+        "pursuit",
+        "waymark"
+      ],
+      "time": {
+        "timeline": "main",
+        "tick": 196,
+        "order": 0
+      },
+      "location": "loc_5CMHBETFRJB24HYCEPVD4PA3SJ",
+      "participants": [
+        {
+          "character": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "role": "leader"
+        },
+        {
+          "character": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+          "role": "route-finder"
+        },
+        {
+          "character": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+          "role": "warder"
+        },
+        {
+          "character": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "role": "reliquary-bearer"
+        },
+        {
+          "character": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "role": "mapper"
+        }
+      ],
+      "causes": [
+        "event_6N1R17E2SH4YDVEST1TB72E5FQ"
+      ],
+      "relatedStoryPoints": [
+        "sp_7VDVQCDD7VGSGHMD95RT3SJ0TN",
+        "sp_2CS9JPWCRVZJQ6YS41M2BAS4JV"
+      ],
+      "effects": [
+        {
+          "id": "effect_6S0G730G2F4PFXSH6THSN9E82C",
+          "target": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_5CMHBETFRJB24HYCEPVD4PA3SJ"
+          }
+        },
+        {
+          "id": "effect_5WDZ335PP7YAFSYDQCKREEMJ7P",
+          "target": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "key": "condition",
+          "operation": "set",
+          "value": "soaked, exhausted, and still moving"
+        },
+        {
+          "id": "effect_0BE87EB12Q9WDMJM9GDZ73AC63",
+          "target": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_5CMHBETFRJB24HYCEPVD4PA3SJ"
+          }
+        },
+        {
+          "id": "effect_1SGMQ855P1XE8GPPB00P77THET",
+          "target": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+          "key": "condition",
+          "operation": "set",
+          "value": "soaked, exhausted, and still moving"
+        },
+        {
+          "id": "effect_72XH5PP94BP7915XZ2ATE3V48Y",
+          "target": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_5CMHBETFRJB24HYCEPVD4PA3SJ"
+          }
+        },
+        {
+          "id": "effect_3BMT5MWEHJXJMG1J3073RHQ6MX",
+          "target": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+          "key": "condition",
+          "operation": "set",
+          "value": "soaked, exhausted, and still moving"
+        },
+        {
+          "id": "effect_2TMAC2T29MMYEK3DQC39QNHH3R",
+          "target": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_5CMHBETFRJB24HYCEPVD4PA3SJ"
+          }
+        },
+        {
+          "id": "effect_2CSCWJHVAJXFE9ZW989XKSQMT3",
+          "target": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "key": "condition",
+          "operation": "set",
+          "value": "soaked, exhausted, and still moving"
+        },
+        {
+          "id": "effect_220XN37GJB0F41FEQXARRER9SP",
+          "target": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_5CMHBETFRJB24HYCEPVD4PA3SJ"
+          }
+        },
+        {
+          "id": "effect_7K4N21CANJQW0QHEK3ZN6V70HZ",
+          "target": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "key": "condition",
+          "operation": "set",
+          "value": "soaked, exhausted, and still moving"
+        }
+      ],
+      "bodyMarkdown": "# The Frontiersmen Reach the Drowned Waymark\n\nThe company drops from the closing spruce line into a flooded road cutting. Beneath the brown current Sylvi finds worked stone, and Pip recognizes the triangular warden mark without fitting the bone key to anything.\n"
+    },
+    {
+      "type": "event.create",
+      "id": "event_27J1R8D9M32H638DCMQC1G22ZH",
+      "title": "The Drowned Waymark Breaks the Immediate Pursuit",
+      "domain": "plot.frontiersmen",
+      "status": "canonical",
+      "tags": [
+        "pursuit",
+        "escape",
+        "reliquary"
+      ],
+      "time": {
+        "timeline": "main",
+        "tick": 202,
+        "order": 20
+      },
+      "location": "loc_5CMHBETFRJB24HYCEPVD4PA3SJ",
+      "participants": [
+        {
+          "character": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "role": "leader"
+        },
+        {
+          "character": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+          "role": "tracker"
+        },
+        {
+          "character": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+          "role": "warder"
+        },
+        {
+          "character": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "role": "arcanist"
+        },
+        {
+          "character": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "role": "line-tender"
+        }
+      ],
+      "causes": [
+        "event_4ZEFR459JSCEX70AQT50GST2FQ",
+        "event_6N1R17E2SH4YDVEST1TB72E5FQ"
+      ],
+      "relatedStoryPoints": [
+        "sp_7VDVQCDD7VGSGHMD95RT3SJ0TN"
+      ],
+      "effects": [
+        {
+          "id": "effect_0B9DJB3S965T50KVX6614KBY6P",
+          "target": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_5CMHBETFRJB24HYCEPVD4PA3SJ"
+          }
+        },
+        {
+          "id": "effect_6VDA0ZT67DJC4JVEZKPXH7997H",
+          "target": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "key": "condition",
+          "operation": "set",
+          "value": "soaked and exhausted; immediate trail lost"
+        },
+        {
+          "id": "effect_72EHAZNFDCNJK63JDHST5GNDD9",
+          "target": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_5CMHBETFRJB24HYCEPVD4PA3SJ"
+          }
+        },
+        {
+          "id": "effect_7H3K2YRHWXH3B38V8WYX3PN09B",
+          "target": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+          "key": "condition",
+          "operation": "set",
+          "value": "soaked and exhausted; immediate trail lost"
+        },
+        {
+          "id": "effect_4T734X6G4BWTSXEX3W8QMAYJTR",
+          "target": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_5CMHBETFRJB24HYCEPVD4PA3SJ"
+          }
+        },
+        {
+          "id": "effect_5A4H2ASEMP0B0ENTJFCEVC1MR3",
+          "target": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+          "key": "condition",
+          "operation": "set",
+          "value": "soaked and exhausted; immediate trail lost"
+        },
+        {
+          "id": "effect_654JX09GJRDQ1RRW9X9FTJB8EB",
+          "target": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_5CMHBETFRJB24HYCEPVD4PA3SJ"
+          }
+        },
+        {
+          "id": "effect_2AXK0VNH19HZZZHMHRAB7T8AMQ",
+          "target": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "key": "condition",
+          "operation": "set",
+          "value": "soaked and exhausted; immediate trail lost"
+        },
+        {
+          "id": "effect_0T6Z29Z2QGDXD4VYGG90BR5MFS",
+          "target": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_5CMHBETFRJB24HYCEPVD4PA3SJ"
+          }
+        },
+        {
+          "id": "effect_71ZAXPWV4HZH30SNG54VVR0EYG",
+          "target": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "key": "condition",
+          "operation": "set",
+          "value": "soaked and exhausted; immediate trail lost"
+        },
+        {
+          "id": "effect_4BF9RKNN3S87T8M6VC9N3P6ET0",
+          "target": "obj_2T5QAX3BWM0DBNT2KZ1R1TV4T9",
+          "key": "condition",
+          "operation": "set",
+          "value": "closed; charcoal-wrapped; resonance quieted by cold running water"
+        }
+      ],
+      "bodyMarkdown": "# The Drowned Waymark Breaks the Immediate Pursuit\n\nWith the reliquary still closed, Veyra lowers its charcoal-wrapped weight into the racing junction on Pip's cord. The cold channels throw its answering pulse along three flooded cuts. Drums divide north and east; the party retrieves the box and hears the search pass away from the drowned stone.\n"
+    },
+    {
+      "type": "event.create",
+      "id": "event_2WC9YQ02J1YE6G9TGK85RCANF6",
+      "title": "Pip Recovers the Blackroot Warden Counterfoil",
+      "domain": "plot.frontiersmen",
+      "status": "canonical",
+      "tags": [
+        "blackroot",
+        "evidence",
+        "guild"
+      ],
+      "time": {
+        "timeline": "main",
+        "tick": 204,
+        "order": 30
+      },
+      "location": "loc_5CMHBETFRJB24HYCEPVD4PA3SJ",
+      "participants": [
+        {
+          "character": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "role": "reader"
+        },
+        {
+          "character": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "role": "evidence-bearer"
+        },
+        {
+          "character": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+          "role": "witness"
+        },
+        {
+          "character": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+          "role": "watcher"
+        },
+        {
+          "character": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "role": "corroborating-arcanist"
+        }
+      ],
+      "causes": [
+        "event_4ZEFR459JSCEX70AQT50GST2FQ",
+        "event_4JMHEZJWTEPYWC3NM6GZP2WHZH"
+      ],
+      "relatedStoryPoints": [
+        "sp_738TMHY3Y8CZK6V7KK1BWXPRZJ"
+      ],
+      "effects": [
+        {
+          "id": "effect_758X1ZVFCKAQRTX3WD6HDB8MZ8",
+          "target": "obj_1D9H5EGGTDJTD0FW01FS10PZ7W",
+          "key": "location",
+          "operation": "clear"
+        },
+        {
+          "id": "effect_0WHB0SRDEGB1BEGSY120QNX7Q5",
+          "target": "obj_1D9H5EGGTDJTD0FW01FS10PZ7W",
+          "key": "holder",
+          "operation": "set",
+          "value": {
+            "entity": "char_36X0KBYZ7MQGKM070H5NF12BK8"
+          }
+        },
+        {
+          "id": "effect_5EEQ7S5X4W3NY4CJW5WFPKWW6H",
+          "target": "obj_1D9H5EGGTDJTD0FW01FS10PZ7W",
+          "key": "condition",
+          "operation": "set",
+          "value": "water-stained but legible; folded dry"
+        }
+      ],
+      "bodyMarkdown": "# Pip Recovers the Blackroot Warden Counterfoil\n\nPip lifts an ordinary iron survey pin and unfolds the counterfoil behind it. The paper corroborates that Halric's field office imposed special amber precautions after deaths at Blackroot. It does not record the manifestation, the false public category, or a conspiracy agreement.\n"
+    },
+    {
+      "type": "event.create",
+      "id": "event_182RQEGYEPFS58XFAVMV5TMR19",
+      "title": "The Frontiersmen Take the Southward Cut",
+      "domain": "plot.frontiersmen",
+      "status": "canonical",
+      "tags": [
+        "road",
+        "southward",
+        "active"
+      ],
+      "time": {
+        "timeline": "main",
+        "tick": 207,
+        "order": 0
+      },
+      "location": "loc_79B52X17CMZA7D5JJ7VYPT35X9",
+      "participants": [
+        {
+          "character": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "role": "leader"
+        },
+        {
+          "character": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+          "role": "route-finder"
+        },
+        {
+          "character": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+          "role": "warder"
+        },
+        {
+          "character": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "role": "reliquary-bearer"
+        },
+        {
+          "character": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "role": "mapper"
+        }
+      ],
+      "causes": [
+        "event_27J1R8D9M32H638DCMQC1G22ZH",
+        "event_2WC9YQ02J1YE6G9TGK85RCANF6"
+      ],
+      "relatedStoryPoints": [
+        "sp_2CS9JPWCRVZJQ6YS41M2BAS4JV",
+        "sp_738TMHY3Y8CZK6V7KK1BWXPRZJ"
+      ],
+      "effects": [
+        {
+          "id": "effect_1ZFFF9ZSTQBNKVXDE9A4HRRN0B",
+          "target": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_79B52X17CMZA7D5JJ7VYPT35X9"
+          }
+        },
+        {
+          "id": "effect_021CQZ7WGS71FYSGKG4TZ99KVR",
+          "target": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "key": "condition",
+          "operation": "set",
+          "value": "moving south under concealment"
+        },
+        {
+          "id": "effect_03D4Q3K6FB8VZAVKEZ1W4GM18N",
+          "target": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_79B52X17CMZA7D5JJ7VYPT35X9"
+          }
+        },
+        {
+          "id": "effect_0DJQ3MKZBERZ2MV3YV2HXFVHYB",
+          "target": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+          "key": "condition",
+          "operation": "set",
+          "value": "moving south under concealment"
+        },
+        {
+          "id": "effect_6V7J3FDDFHJXPAY4WDPTV4WQKN",
+          "target": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_79B52X17CMZA7D5JJ7VYPT35X9"
+          }
+        },
+        {
+          "id": "effect_0ADF5Z00ACR7SFG88DMSXRA3YJ",
+          "target": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+          "key": "condition",
+          "operation": "set",
+          "value": "moving south under concealment"
+        },
+        {
+          "id": "effect_717GREJQP206YB3Q8M2QGZJ7G5",
+          "target": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_79B52X17CMZA7D5JJ7VYPT35X9"
+          }
+        },
+        {
+          "id": "effect_2P0647CE8PF734MCZ2ZNECEK1J",
+          "target": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "key": "condition",
+          "operation": "set",
+          "value": "moving south under concealment"
+        },
+        {
+          "id": "effect_3C43JW0ZG25CMR4HH4N14AFX7N",
+          "target": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_79B52X17CMZA7D5JJ7VYPT35X9"
+          }
+        },
+        {
+          "id": "effect_544MKTJK7VFT73XQM6JZDPDCJ1",
+          "target": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "key": "condition",
+          "operation": "set",
+          "value": "moving south under concealment"
+        }
+      ],
+      "bodyMarkdown": "# The Frontiersmen Take the Southward Cut\n\nOnce the drums have remained absent, the five leave the drowned marker by the alder-covered warden road. Its old cuts run south, but no surviving line connects them to Harrowcross.\n"
+    },
+    {
+      "type": "conversation.create",
+      "id": "conv_64Z5426VPVZ13ANS5VZHYWGSXX",
+      "value": {
+        "title": "Water Over the Mark",
+        "domain": "conversations.frontiersmen",
+        "status": "closed",
+        "tags": [
+          "pursuit",
+          "drowned-waymark",
+          "blackroot-evidence"
+        ],
+        "aliases": [],
+        "time": {
+          "start": {
+            "timeline": "main",
+            "tick": 196,
+            "order": 10
+          },
+          "end": {
+            "timeline": "main",
+            "tick": 205,
+            "order": 0
+          }
+        },
+        "scene": "scene_0MKBFXXNW2HNDXDT34FTABR4TQ",
+        "location": "loc_5CMHBETFRJB24HYCEPVD4PA3SJ",
+        "participants": [
+          {
+            "character": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+            "role": "escaped-frontiersman",
+            "point_of_view": false,
+            "from": {
+              "timeline": "main",
+              "tick": 196,
+              "order": 10
+            },
+            "to": {
+              "timeline": "main",
+              "tick": 205,
+              "order": 0
+            }
+          },
+          {
+            "character": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+            "role": "escaped-frontiersman",
+            "point_of_view": false,
+            "from": {
+              "timeline": "main",
+              "tick": 196,
+              "order": 10
+            },
+            "to": {
+              "timeline": "main",
+              "tick": 205,
+              "order": 0
+            }
+          },
+          {
+            "character": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+            "role": "escaped-frontiersman",
+            "point_of_view": false,
+            "from": {
+              "timeline": "main",
+              "tick": 196,
+              "order": 10
+            },
+            "to": {
+              "timeline": "main",
+              "tick": 205,
+              "order": 0
+            }
+          },
+          {
+            "character": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+            "role": "escaped-frontiersman",
+            "point_of_view": false,
+            "from": {
+              "timeline": "main",
+              "tick": 196,
+              "order": 10
+            },
+            "to": {
+              "timeline": "main",
+              "tick": 205,
+              "order": 0
+            }
+          },
+          {
+            "character": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+            "role": "escaped-frontiersman",
+            "point_of_view": false,
+            "from": {
+              "timeline": "main",
+              "tick": 196,
+              "order": 10
+            },
+            "to": {
+              "timeline": "main",
+              "tick": 205,
+              "order": 0
+            }
+          }
+        ],
+        "topics": [
+          "pursuit",
+          "drowned-waymark",
+          "blackroot-evidence"
+        ],
+        "turns": [
+          {
+            "id": "turn_0EGH6MCE20T9K1NYXWD63PFC3T",
+            "at": {
+              "timeline": "main",
+              "tick": 196,
+              "order": 10
+            },
+            "speaker": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+            "text": "Down. Water if it holds us, stone if it does not.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "command"
+          },
+          {
+            "id": "turn_5RSZ0MT63P4JPZYGYKZZQY5P3G",
+            "at": {
+              "timeline": "main",
+              "tick": 196,
+              "order": 20
+            },
+            "speaker": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+            "text": "Stone under it. Cut face. This was a road mark before the bog took the road.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "low"
+          },
+          {
+            "id": "turn_03QTX4Y9F6MSGHSV0YKBCVNKDK",
+            "at": {
+              "timeline": "main",
+              "tick": 197,
+              "order": 0
+            },
+            "speaker": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+            "text": "Triangle is the same hand as the notch on Moth's key. The hooked cut is not.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "exact"
+          },
+          {
+            "id": "turn_0NJVQ6T7RPP01R97JJ0BWQSB0C",
+            "at": {
+              "timeline": "main",
+              "tick": 197,
+              "order": 10
+            },
+            "speaker": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+            "text": "Then leave the hook alone.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "flat"
+          },
+          {
+            "id": "turn_6T159188G9CMSXE8GNEY1PKQG1",
+            "at": {
+              "timeline": "main",
+              "tick": 198,
+              "order": 0
+            },
+            "speaker": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+            "text": "The current is making the closed reliquary answer from every flooded channel.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "intent"
+          },
+          {
+            "id": "turn_62B1VS57N0J5TXPA17R32FQ0FH",
+            "at": {
+              "timeline": "main",
+              "tick": 198,
+              "order": 10
+            },
+            "speaker": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+            "text": "Closed remains the important word.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "warning"
+          },
+          {
+            "id": "turn_7ZNMYCV4EZZDC77MACPK2BWZJ1",
+            "at": {
+              "timeline": "main",
+              "tick": 198,
+              "order": 20
+            },
+            "speaker": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+            "text": "Closed remains the condition.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "controlled"
+          },
+          {
+            "id": "turn_6JBWR2JJJJ9JFRAAKM90D0FZ6V",
+            "at": {
+              "timeline": "main",
+              "tick": 201,
+              "order": 0
+            },
+            "speaker": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+            "text": "The drums split at the alder fork. They are following three trails and none is ours.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "listening"
+          },
+          {
+            "id": "turn_5V7CCKYAJFA1JVG7535P9PN9VF",
+            "at": {
+              "timeline": "main",
+              "tick": 202,
+              "order": 10
+            },
+            "speaker": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+            "text": "How long before they mend the mistake?",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "quiet"
+          },
+          {
+            "id": "turn_7WYE3120Y1ET3GKXY4QZ0CQ9A9",
+            "at": {
+              "timeline": "main",
+              "tick": 202,
+              "order": 20
+            },
+            "speaker": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+            "text": "Long enough to stop running. Not long enough to be safe.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "certain"
+          },
+          {
+            "id": "turn_4XHWH1BGHVZ5WYX9B5AYTW39P6",
+            "at": {
+              "timeline": "main",
+              "tick": 203,
+              "order": 0
+            },
+            "speaker": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+            "text": "There is a survey seam behind the triangle. Iron pin. No bone key required.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "working"
+          },
+          {
+            "id": "turn_72119MTW7GX07FBNXZ8086SX5G",
+            "at": {
+              "timeline": "main",
+              "tick": 204,
+              "order": 0
+            },
+            "speaker": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+            "text": "Blackroot recovery, three dead, raw amber under floodwater, raw and refined kept apart. Initialed H. Doss.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "reading"
+          },
+          {
+            "id": "turn_5TGE3FHHXEWFGH4YTH36D6XTFM",
+            "at": {
+              "timeline": "main",
+              "tick": 204,
+              "order": 10
+            },
+            "speaker": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+            "text": "It proves the guild knew what required caution after the deaths. It does not prove every silence Aldren named.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "careful"
+          },
+          {
+            "id": "turn_29RV6K9G8MCDMEM4Y3VWXJG23D",
+            "at": {
+              "timeline": "main",
+              "tick": 204,
+              "order": 20
+            },
+            "speaker": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+            "text": "Then we carry exactly what it proves.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "decisive"
+          },
+          {
+            "id": "turn_2HDWDJ457EEG2ZFBS6G5N6NMYV",
+            "at": {
+              "timeline": "main",
+              "tick": 205,
+              "order": 0
+            },
+            "speaker": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+            "text": "The margin gives an old warden road south. Abandoned, but drawn by someone who had met the ground.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "hopeful"
+          }
+        ],
+        "recollections": [],
+        "bodyMarkdown": "# Water Over the Mark\n\nUnder cold water and receding drums, the company distinguishes a usable road sign from an unknown key, a bounded document from Aldren's larger accusation, and a pause in pursuit from safety.\n\nThe turn list is canonical verbatim provenance. Character recollections are stored separately and may disagree.\n"
+      }
+    },
+    {
+      "type": "conversation.create",
+      "id": "conv_2G2QGAYJ3ZG1XZEW7CQPR206BZ",
+      "value": {
+        "title": "The Southward Cut",
+        "domain": "conversations.frontiersmen",
+        "status": "active",
+        "tags": [
+          "southward",
+          "blackroot-evidence",
+          "harrowcross"
+        ],
+        "aliases": [],
+        "time": {
+          "start": {
+            "timeline": "main",
+            "tick": 207,
+            "order": 10
+          },
+          "end": null
+        },
+        "scene": "scene_5DS6TYH3DXG3HDFEC7WRE836P7",
+        "location": "loc_79B52X17CMZA7D5JJ7VYPT35X9",
+        "participants": [
+          {
+            "character": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+            "role": "southbound-frontiersman",
+            "point_of_view": false,
+            "from": {
+              "timeline": "main",
+              "tick": 207,
+              "order": 10
+            }
+          },
+          {
+            "character": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+            "role": "southbound-frontiersman",
+            "point_of_view": false,
+            "from": {
+              "timeline": "main",
+              "tick": 207,
+              "order": 10
+            }
+          },
+          {
+            "character": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+            "role": "southbound-frontiersman",
+            "point_of_view": false,
+            "from": {
+              "timeline": "main",
+              "tick": 207,
+              "order": 10
+            }
+          },
+          {
+            "character": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+            "role": "southbound-frontiersman",
+            "point_of_view": false,
+            "from": {
+              "timeline": "main",
+              "tick": 207,
+              "order": 10
+            }
+          },
+          {
+            "character": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+            "role": "southbound-frontiersman",
+            "point_of_view": false,
+            "from": {
+              "timeline": "main",
+              "tick": 207,
+              "order": 10
+            }
+          }
+        ],
+        "topics": [
+          "southward",
+          "blackroot-evidence",
+          "harrowcross"
+        ],
+        "turns": [
+          {
+            "id": "turn_57T3RRNE6YR17AQH2QJG0G9TDY",
+            "at": {
+              "timeline": "main",
+              "tick": 207,
+              "order": 10
+            },
+            "speaker": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+            "text": "Report.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "walking"
+          },
+          {
+            "id": "turn_4SQKW7GBZPS6XYY803XY0S1BGG",
+            "at": {
+              "timeline": "main",
+              "tick": 207,
+              "order": 20
+            },
+            "speaker": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+            "text": "No drum for four hundred breaths. The alder closes behind us. No fresh boot sign ahead.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "measured"
+          },
+          {
+            "id": "turn_37SAYCV8A7VCHN1WG5E9JFW7QT",
+            "at": {
+              "timeline": "main",
+              "tick": 208,
+              "order": 0
+            },
+            "speaker": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+            "text": "The reliquary is closed, charcoal-wrapped, and quiet. I am not improving that result.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "dry"
+          },
+          {
+            "id": "turn_5MDJACE7NS16NC7YFSVKT079BN",
+            "at": {
+              "timeline": "main",
+              "tick": 208,
+              "order": 10
+            },
+            "speaker": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+            "text": "The counterfoil names Blackroot, the dead, the handling rule, and Halric's hand. It does not name a compact.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "precise"
+          },
+          {
+            "id": "turn_78KHGVZWAQ6R3ARFRAJFB0Y8BV",
+            "at": {
+              "timeline": "main",
+              "tick": 208,
+              "order": 20
+            },
+            "speaker": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+            "text": "Proof with its edges left on. A rare honest object.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "approving"
+          },
+          {
+            "id": "turn_5GENDSDP0PFE320DQKG85A9HQ1",
+            "at": {
+              "timeline": "main",
+              "tick": 209,
+              "order": 0
+            },
+            "speaker": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+            "text": "Destination.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "direct"
+          },
+          {
+            "id": "turn_0P3JEX4E1355D63KRM0CARKG8P",
+            "at": {
+              "timeline": "main",
+              "tick": 209,
+              "order": 10
+            },
+            "speaker": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+            "text": "South by the warden cuts. Harrowcross is not on the surviving line.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "reluctant"
+          },
+          {
+            "id": "turn_3GH85R2B7WNDR04P5QSFZ8ABZS",
+            "at": {
+              "timeline": "main",
+              "tick": 209,
+              "order": 20
+            },
+            "speaker": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+            "text": "Safer than crossing the host's northward search. Not safe.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "plain"
+          },
+          {
+            "id": "turn_325C2J3TYTNR6KDEBNHG7R73RK",
+            "at": {
+              "timeline": "main",
+              "tick": 210,
+              "order": 0
+            },
+            "speaker": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+            "text": "Southward cut. We do not call it home until it brings us there.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "command"
+          }
+        ],
+        "recollections": [],
+        "bodyMarkdown": "# The Southward Cut\n\nThe company takes inventory while walking: one immediate chase escaped, one narrow piece of evidence preserved, and no honest claim that the abandoned road reaches Harrowcross.\n\nThe turn list is canonical verbatim provenance. Character recollections are stored separately and may disagree.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "scene",
+          "id": "scene_0MKBFXXNW2HNDXDT34FTABR4TQ",
+          "title": "Drowned Waymark",
+          "domain": "scenes.frontiersmen",
+          "status": "closed",
+          "tags": [
+            "waymark",
+            "escape",
+            "evidence"
+          ],
+          "aliases": [],
+          "time": {
+            "start": {
+              "timeline": "main",
+              "tick": 196,
+              "order": 0
+            },
+            "current": {
+              "timeline": "main",
+              "tick": 206,
+              "order": 0
+            },
+            "end": {
+              "timeline": "main",
+              "tick": 206,
+              "order": 0
+            }
+          },
+          "location": "loc_5CMHBETFRJB24HYCEPVD4PA3SJ",
+          "participants": [
+            {
+              "character": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+              "role": "escaped-frontiersman",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 196,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 206,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+              "role": "escaped-frontiersman",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 196,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 206,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+              "role": "escaped-frontiersman",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 196,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 206,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+              "role": "escaped-frontiersman",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 196,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 206,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+              "role": "escaped-frontiersman",
+              "point_of_view": true,
+              "from": {
+                "timeline": "main",
+                "tick": 196,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 206,
+                "order": 0
+              }
+            }
+          ],
+          "objects": [
+            "obj_0X0RH4GV7ZDE3C7JFHJH5JGWPK",
+            "obj_2T5QAX3BWM0DBNT2KZ1R1TV4T9",
+            "obj_1D9H5EGGTDJTD0FW01FS10PZ7W",
+            "obj_6EBRZF2P79J47HXEJWP7CDDFA1",
+            "obj_1V7FPPZKJPVQE2SV3GHWRVBSER",
+            "obj_6B725P2CXQSC90HH4H24K0C5X2",
+            "obj_1PWCXKVPT3RS8MK7TDHQ9QN4FH",
+            "obj_5KH5J0ZACS5W06DMT772D119QS",
+            "obj_1SZQK22K4XSNC0XTZX1Z0T7R5N",
+            "obj_3W8SFAP29CDCV2M3X9XMYTDXY8"
+          ],
+          "environments": [],
+          "story_points": [
+            "sp_7VDVQCDD7VGSGHMD95RT3SJ0TN",
+            "sp_738TMHY3Y8CZK6V7KK1BWXPRZJ",
+            "sp_2CS9JPWCRVZJQ6YS41M2BAS4JV",
+            "sp_0CBN052ZTZNY89D1BNBXSW9VPB"
+          ],
+          "observations": [
+            {
+              "id": "obs_7RFX27CNKQ4YZVS6S79Y180JXS",
+              "at": {
+                "timeline": "main",
+                "tick": 197,
+                "order": 0
+              },
+              "audience": [
+                "char_1W0GNKETQY2HF88YHM7CWVFH7C"
+              ],
+              "salience": 1.0,
+              "text": "The triangular notch on the bone key matches the drowned stone's route mark; the hooked notch matches nothing used here."
+            },
+            {
+              "id": "obs_2EJV0DFPKS5CA1D1VH8WW1ZS1Y",
+              "at": {
+                "timeline": "main",
+                "tick": 198,
+                "order": 0
+              },
+              "audience": [
+                "char_48QC9B4M2RFVXJKSDFMRGJWG8Y"
+              ],
+              "salience": 1.0,
+              "text": "Cold running water divides the closed reliquary's answering pull among three channels without opening its lid."
+            },
+            {
+              "id": "obs_6565YDSE34PAVFDVAZREX52MVE",
+              "at": {
+                "timeline": "main",
+                "tick": 201,
+                "order": 0
+              },
+              "audience": [
+                "char_0NQKTG3NQZFSVFKXS901NJD82E"
+              ],
+              "salience": 1.0,
+              "text": "The pursuit drums divide north and east, then recede beyond reliable hearing."
+            },
+            {
+              "id": "obs_1M4JYE2YPCQ3CQY0HWE5SQA596",
+              "at": {
+                "timeline": "main",
+                "tick": 204,
+                "order": 0
+              },
+              "audience": [
+                "participants"
+              ],
+              "salience": 1.0,
+              "text": "The counterfoil records three Blackroot deaths, Halric's initials, and special separation and damping rules for amber."
+            }
+          ],
+          "author_constraints": [
+            "The immediate Root Host pursuit is broken; the Tree King and his larger host remain unresolved antagonists.",
+            "Rootjaw is not present in this scene or its plan.",
+            "The reliquary remains closed throughout the maneuver.",
+            "The hooked key notch is neither used nor explained; Moth's identity, intent beyond the witnessed escape, and fate remain unknown.",
+            "The counterfoil corroborates post-Blackroot handling knowledge only; it does not prove the entire compact or Aldren's full account.",
+            "Nothing establishes Jorund's fate or reaches Harrowcross."
+          ],
+          "conversations": [
+            "conv_64Z5426VPVZ13ANS5VZHYWGSXX"
+          ]
+        },
+        "bodyMarkdown": "# Drowned Waymark\n\nFloodwater has buried the road but preserved its argument: the carved triangle still directs travelers, while a forgotten paper proves only the narrow institutional fact written on it. The party earns breathing room through restraint rather than conquest.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "scene",
+          "id": "scene_5DS6TYH3DXG3HDFEC7WRE836P7",
+          "title": "Southward Cut",
+          "domain": "scenes.frontiersmen",
+          "status": "active",
+          "tags": [
+            "active",
+            "southward",
+            "warden-road"
+          ],
+          "aliases": [],
+          "time": {
+            "start": {
+              "timeline": "main",
+              "tick": 207,
+              "order": 0
+            },
+            "current": {
+              "timeline": "main",
+              "tick": 210,
+              "order": 0
+            },
+            "end": null
+          },
+          "location": "loc_79B52X17CMZA7D5JJ7VYPT35X9",
+          "participants": [
+            {
+              "character": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+              "role": "southbound-frontiersman",
+              "point_of_view": true,
+              "from": {
+                "timeline": "main",
+                "tick": 207,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+              "role": "southbound-frontiersman",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 207,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+              "role": "southbound-frontiersman",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 207,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+              "role": "southbound-frontiersman",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 207,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+              "role": "southbound-frontiersman",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 207,
+                "order": 0
+              }
+            }
+          ],
+          "objects": [
+            "obj_0X0RH4GV7ZDE3C7JFHJH5JGWPK",
+            "obj_2T5QAX3BWM0DBNT2KZ1R1TV4T9",
+            "obj_1D9H5EGGTDJTD0FW01FS10PZ7W",
+            "obj_6EBRZF2P79J47HXEJWP7CDDFA1",
+            "obj_1V7FPPZKJPVQE2SV3GHWRVBSER",
+            "obj_6B725P2CXQSC90HH4H24K0C5X2",
+            "obj_1PWCXKVPT3RS8MK7TDHQ9QN4FH",
+            "obj_5KH5J0ZACS5W06DMT772D119QS",
+            "obj_1SZQK22K4XSNC0XTZX1Z0T7R5N",
+            "obj_3W8SFAP29CDCV2M3X9XMYTDXY8"
+          ],
+          "environments": [],
+          "story_points": [
+            "sp_738TMHY3Y8CZK6V7KK1BWXPRZJ",
+            "sp_2CS9JPWCRVZJQ6YS41M2BAS4JV",
+            "sp_0CBN052ZTZNY89D1BNBXSW9VPB"
+          ],
+          "observations": [
+            {
+              "id": "obs_71T5KHR7P6SDWXR5MYE22Z6F5V",
+              "at": {
+                "timeline": "main",
+                "tick": 207,
+                "order": 20
+              },
+              "audience": [
+                "char_0NQKTG3NQZFSVFKXS901NJD82E"
+              ],
+              "salience": 1.0,
+              "text": "Wet alder folds across the abandoned road after the party passes, hiding movement without promising protection."
+            },
+            {
+              "id": "obs_09P2AHNEJNW5GDK14A0RQPNT5F",
+              "at": {
+                "timeline": "main",
+                "tick": 209,
+                "order": 10
+              },
+              "audience": [
+                "char_1W0GNKETQY2HF88YHM7CWVFH7C"
+              ],
+              "salience": 1.0,
+              "text": "The surviving warden cuts run south, but neither Jorund's mine map nor the counterfoil connects them to Harrowcross."
+            },
+            {
+              "id": "obs_1P528H55G1FNJDMD2TKB3MXXP0",
+              "at": {
+                "timeline": "main",
+                "tick": 208,
+                "order": 10
+              },
+              "audience": [
+                "char_36X0KBYZ7MQGKM070H5NF12BK8"
+              ],
+              "salience": 1.0,
+              "text": "The counterfoil is legible enough to confront guild authority with one precise contradiction, not a complete case."
+            }
+          ],
+          "author_constraints": [
+            "The scene remains active at main 210:0 on an uncertain southward road.",
+            "Rootjaw is absent from the scene and from the party's private route plan.",
+            "Harrowcross has not been reached and the road is not confirmed to lead there.",
+            "The reliquary remains closed and the hooked notch on Moth's key remains unused.",
+            "Do not identify Moth or establish the fate of Moth or Jorund.",
+            "The Blackroot counterfoil remains a narrow corroborating document, not resolution of the guild conspiracy."
+          ],
+          "conversations": [
+            "conv_2G2QGAYJ3ZG1XZEW7CQPR206BZ"
+          ]
+        },
+        "bodyMarkdown": "# Southward Cut\n\nThe old road is less a rescue than a direction. Five exhausted hunters walk south with a closed danger, an unknown key, and one piece of paper whose restraint makes it harder to dismiss.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "knowledge",
+          "id": "know_1KQJMJHD52B9S47HSY67NBPKK3",
+          "title": "Pip matches the key's triangle to the drowned waymark",
+          "domain": "knowledge.char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "status": "canonical",
+          "tags": [
+            "route",
+            "moth-key"
+          ],
+          "aliases": [],
+          "knower": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "claim": {
+            "key": "moth-key.triangle.matches-warden-waymark",
+            "statement": "The triangular notch on Moth's bone key matches the route mark carved on the Drowned Waymark, but the unfamiliar hooked notch remains unused and unexplained.",
+            "author_truth_status": "true",
+            "subject": "obj_0X0RH4GV7ZDE3C7JFHJH5JGWPK",
+            "predicate": "matches-route-mark-on",
+            "object": {
+              "entity": "loc_5CMHBETFRJB24HYCEPVD4PA3SJ"
+            }
+          },
+          "transitions": [
+            {
+              "id": "kt_6H0CR7W14C8Y3AZ6J08N9ZH8WD",
+              "time": {
+                "timeline": "main",
+                "tick": 197,
+                "order": 5
+              },
+              "state": "accepted",
+              "confidence": 0.98,
+              "acquisition": "observed",
+              "causing_event": "event_4ZEFR459JSCEX70AQT50GST2FQ",
+              "source_entity": "loc_5CMHBETFRJB24HYCEPVD4PA3SJ"
+            }
+          ]
+        },
+        "bodyMarkdown": "# Pip matches the key's triangle to the drowned waymark\n\nThe triangular notch on Moth's bone key matches the route mark carved on the Drowned Waymark, but the unfamiliar hooked notch remains unused and unexplained.\n\nThis is a subjective proposition held by the named knower, not a replacement for canonical event or conversation provenance.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "knowledge",
+          "id": "know_3AFGGHD7ZVSPQNWTD6MWK9RDAS",
+          "title": "Veyra knows cold running water diffuses the reliquary signal",
+          "domain": "knowledge.char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "status": "canonical",
+          "tags": [
+            "reliquary",
+            "pursuit"
+          ],
+          "aliases": [],
+          "knower": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "claim": {
+            "key": "reliquary.resonance.diffused-by-running-water",
+            "statement": "Cold running water and charcoal can divide the closed reliquary's answering resonance across branching channels without opening it.",
+            "author_truth_status": "true",
+            "subject": "obj_2T5QAX3BWM0DBNT2KZ1R1TV4T9",
+            "predicate": "signal-diffused-by",
+            "object": {
+              "text": "cold running water and charcoal"
+            }
+          },
+          "transitions": [
+            {
+              "id": "kt_60K5Z5GQPDBK92D7326C2838HZ",
+              "time": {
+                "timeline": "main",
+                "tick": 202,
+                "order": 25
+              },
+              "state": "accepted",
+              "confidence": 0.94,
+              "acquisition": "tested",
+              "causing_event": "event_27J1R8D9M32H638DCMQC1G22ZH",
+              "source_entity": "obj_2T5QAX3BWM0DBNT2KZ1R1TV4T9"
+            }
+          ]
+        },
+        "bodyMarkdown": "# Veyra knows cold running water diffuses the reliquary signal\n\nCold running water and charcoal can divide the closed reliquary's answering resonance across branching channels without opening it.\n\nThis is a subjective proposition held by the named knower, not a replacement for canonical event or conversation provenance.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "knowledge",
+          "id": "know_0WCXYQAT5KG7WBX9FPA5DJQC85",
+          "title": "Rhea understands the limit of the Blackroot counterfoil",
+          "domain": "knowledge.char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "status": "canonical",
+          "tags": [
+            "blackroot",
+            "evidence"
+          ],
+          "aliases": [],
+          "knower": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "claim": {
+            "key": "blackroot-counterfoil.proves-bounded-guild-knowledge",
+            "statement": "Halric's field office imposed special amber handling rules after three deaths at Blackroot; the counterfoil does not itself prove the manifestation classification or the full concealment Aldren alleged.",
+            "author_truth_status": "true",
+            "subject": "obj_1D9H5EGGTDJTD0FW01FS10PZ7W",
+            "predicate": "corroborates",
+            "object": {
+              "text": "bounded post-Blackroot guild knowledge"
+            }
+          },
+          "transitions": [
+            {
+              "id": "kt_17SJ7TC7Q1755T2TRZ5WAHY2Q3",
+              "time": {
+                "timeline": "main",
+                "tick": 204,
+                "order": 35
+              },
+              "state": "accepted",
+              "confidence": 0.99,
+              "acquisition": "read",
+              "causing_event": "event_2WC9YQ02J1YE6G9TGK85RCANF6",
+              "source_entity": "obj_1D9H5EGGTDJTD0FW01FS10PZ7W"
+            }
+          ]
+        },
+        "bodyMarkdown": "# Rhea understands the limit of the Blackroot counterfoil\n\nHalric's field office imposed special amber handling rules after three deaths at Blackroot; the counterfoil does not itself prove the manifestation classification or the full concealment Aldren alleged.\n\nThis is a subjective proposition held by the named knower, not a replacement for canonical event or conversation provenance.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "relationship",
+          "id": "rel_7B0R95HAFQNJAH07GBBZBYCHTE",
+          "title": "Rhea Marrow's view of Pip Fenlock",
+          "domain": "relationships.frontiersmen",
+          "status": "canonical",
+          "tags": [
+            "char_36X0KBYZ7MQGKM070H5NF12BK8",
+            "char_1W0GNKETQY2HF88YHM7CWVFH7C"
+          ],
+          "aliases": [],
+          "from": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "to": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "relationship_kind": "new-company",
+          "inverse": "rel_3S8SP05JPQS8M8BTWBCBTVX2JN",
+          "transitions": [
+            {
+              "id": "rt_2BKZV669RQ902BEP4XJ6QN4WV2",
+              "time": {
+                "timeline": "main",
+                "tick": 0,
+                "order": 0
+              },
+              "relationship_status": "active",
+              "metrics": {
+                "trust": 0.18,
+                "affinity": 0.12,
+                "fear": 0.0,
+                "obligation": 0.04,
+                "respect": 0.08,
+                "dependence": 0.02
+              },
+              "facets": [
+                "young-looking",
+                "quick-handed"
+              ],
+              "causing_event": null,
+              "note": "Rhea underestimates Pip's strategic value."
+            },
+            {
+              "id": "rt_2ZFC5GRH6BA1M80ES6PEMMK3A7",
+              "time": {
+                "timeline": "main",
+                "tick": 152,
+                "order": 0
+              },
+              "relationship_status": "active",
+              "metrics": {
+                "trust": 0.68,
+                "affinity": 0.28,
+                "fear": 0.02,
+                "obligation": 0.16,
+                "respect": 0.7,
+                "dependence": 0.46
+              },
+              "facets": [
+                "trusted-mapper",
+                "keeps-exits-real"
+              ],
+              "causing_event": "event_22FQP078VAK3ZC1SVK18VZEC9S",
+              "note": "Pip preserves a navigable route and finds the surface shaft while frightened."
+            },
+            {
+              "id": "rt_141Y6TN3M904XQECE1D7MDB1EY",
+              "time": {
+                "timeline": "main",
+                "tick": 205,
+                "order": 10
+              },
+              "relationship_status": "active",
+              "metrics": {
+                "trust": 0.78,
+                "affinity": 0.32,
+                "fear": 0.02,
+                "obligation": 0.2,
+                "respect": 0.82,
+                "dependence": 0.5
+              },
+              "facets": [
+                "trusted-mapper",
+                "evidence-reader",
+                "states-limits"
+              ],
+              "causing_event": "event_2WC9YQ02J1YE6G9TGK85RCANF6",
+              "note": "Pip finds both the southward road and the counterfoil, then distinguishes what each can and cannot promise."
+            }
+          ]
+        },
+        "bodyMarkdown": "# Rhea Marrow's view of Pip Fenlock\n\nA directional relationship in The Frontiersmen. Rhea underestimates Pip's strategic value.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "relationship",
+          "id": "rel_3S8SP05JPQS8M8BTWBCBTVX2JN",
+          "title": "Pip Fenlock's view of Rhea Marrow",
+          "domain": "relationships.frontiersmen",
+          "status": "canonical",
+          "tags": [
+            "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+            "char_36X0KBYZ7MQGKM070H5NF12BK8"
+          ],
+          "aliases": [],
+          "from": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "to": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "relationship_kind": "new-company",
+          "inverse": "rel_7B0R95HAFQNJAH07GBBZBYCHTE",
+          "transitions": [
+            {
+              "id": "rt_5MXVQ0FM1MAGZZS7H4R5WG2VW1",
+              "time": {
+                "timeline": "main",
+                "tick": 0,
+                "order": 0
+              },
+              "relationship_status": "active",
+              "metrics": {
+                "trust": 0.24,
+                "affinity": 0.18,
+                "fear": 0.02,
+                "obligation": 0.02,
+                "respect": 0.18,
+                "dependence": 0.04
+              },
+              "facets": [
+                "shield",
+                "easy-to-tease"
+              ],
+              "causing_event": null,
+              "note": "Pip decides Rhea is safest when annoyed rather than uncertain."
+            },
+            {
+              "id": "rt_4DGRKVF5CA0EK7QPTSAHHZXH8K",
+              "time": {
+                "timeline": "main",
+                "tick": 152,
+                "order": 1
+              },
+              "relationship_status": "active",
+              "metrics": {
+                "trust": 0.64,
+                "affinity": 0.34,
+                "fear": 0.04,
+                "obligation": 0.12,
+                "respect": 0.62,
+                "dependence": 0.32
+              },
+              "facets": [
+                "leader-keeps-promises",
+                "uses-his-map"
+              ],
+              "causing_event": "event_22FQP078VAK3ZC1SVK18VZEC9S",
+              "note": "Rhea treats the map as a shared promise rather than Pip's private trick."
+            },
+            {
+              "id": "rt_27M5TTSC1DZAGBAXXQWVEK479R",
+              "time": {
+                "timeline": "main",
+                "tick": 205,
+                "order": 11
+              },
+              "relationship_status": "active",
+              "metrics": {
+                "trust": 0.74,
+                "affinity": 0.38,
+                "fear": 0.03,
+                "obligation": 0.14,
+                "respect": 0.74,
+                "dependence": 0.34
+              },
+              "facets": [
+                "leader-keeps-promises",
+                "protects-evidence",
+                "refuses-false-certainty"
+              ],
+              "causing_event": "event_2WC9YQ02J1YE6G9TGK85RCANF6",
+              "note": "Rhea carries the counterfoil without inflating it and takes the road without pretending it reaches home."
+            }
+          ]
+        },
+        "bodyMarkdown": "# Pip Fenlock's view of Rhea Marrow\n\nA directional relationship in The Frontiersmen. Pip decides Rhea is safest when annoyed rather than uncertain.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "story-point",
+          "id": "sp_7VDVQCDD7VGSGHMD95RT3SJ0TN",
+          "title": "Flee the Root Host",
+          "domain": "plot.frontiersmen",
+          "status": "canonical",
+          "tags": [
+            "campaign"
+          ],
+          "aliases": [],
+          "lifecycle": {
+            "initial_state": "dormant",
+            "transitions": [
+              {
+                "id": "spt_78MD9XGBATSJDZ573CX7QFFYCK",
+                "time": {
+                  "timeline": "main",
+                  "tick": 189,
+                  "order": 10
+                },
+                "state": "active",
+                "causing_event": "event_34VWF280Y3BEFV6PYEAH17EJGT",
+                "note": "The Root Host raises the camp-wide pursuit alarm."
+              },
+              {
+                "id": "spt_4AXR2WKGV8DNBBQAN4PFJDA9BK",
+                "time": {
+                  "timeline": "main",
+                  "tick": 202,
+                  "order": 20
+                },
+                "state": "resolved",
+                "causing_event": "event_27J1R8D9M32H638DCMQC1G22ZH",
+                "note": "Running water divides the reliquary signal and the immediate hunting lines pass away from the party."
+              }
+            ]
+          },
+          "activation_policy": "suggest",
+          "priority": 100,
+          "repeat_policy": "once",
+          "dependencies": {
+            "all": []
+          },
+          "trigger": {
+            "all": []
+          },
+          "on_activate": {
+            "create_draft_scene": false
+          },
+          "outcome_events": [
+            "event_27J1R8D9M32H638DCMQC1G22ZH"
+          ]
+        },
+        "bodyMarkdown": "# Flee the Root Host\n\nStay ahead of the masked host through the deep northern woods.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "story-point",
+          "id": "sp_738TMHY3Y8CZK6V7KK1BWXPRZJ",
+          "title": "Expose the Blackroot Compact",
+          "domain": "plot.frontiersmen",
+          "status": "canonical",
+          "tags": [
+            "campaign"
+          ],
+          "aliases": [],
+          "lifecycle": {
+            "initial_state": "dormant",
+            "transitions": [
+              {
+                "id": "spt_2JVMJ25W9JM5PFCPZSM56ZQV90",
+                "time": {
+                  "timeline": "main",
+                  "tick": 74,
+                  "order": 0
+                },
+                "state": "active",
+                "causing_event": "event_6PENT82TP12QE9R4XW7CK2RYAQ",
+                "note": "The protection ledger makes guild dependence on amber explicit."
+              },
+              {
+                "id": "spt_5TDD32AW3D5FZ89DNB84F0DR64",
+                "time": {
+                  "timeline": "main",
+                  "tick": 167,
+                  "order": 40
+                },
+                "state": "active",
+                "causing_event": "event_7TH2BAQE1Q7J6MABMC316AD0ZB",
+                "note": "Aldren identifies himself as a former field-master and accuses Halric of the Blackroot concealment."
+              },
+              {
+                "id": "spt_7WS8K28827M2G44XES2GKDKVNA",
+                "time": {
+                  "timeline": "main",
+                  "tick": 204,
+                  "order": 30
+                },
+                "state": "active",
+                "causing_event": "event_2WC9YQ02J1YE6G9TGK85RCANF6",
+                "note": "The counterfoil corroborates special guild precautions after Blackroot but does not yet expose the full compact."
+              }
+            ]
+          },
+          "activation_policy": "suggest",
+          "priority": 91,
+          "repeat_policy": "once",
+          "dependencies": {
+            "all": []
+          },
+          "trigger": {
+            "all": []
+          },
+          "on_activate": {
+            "create_draft_scene": false
+          },
+          "outcome_events": []
+        },
+        "bodyMarkdown": "# Expose the Blackroot Compact\n\nRecover evidence that the guild has long known amber extraction provokes manifestations.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "world",
+          "id": "world_01M0HH0YXDMTCEX34NPQ7S2AXQ",
+          "title": "The Frontiersmen",
+          "domain": "world",
+          "status": "canonical",
+          "tags": [
+            "example",
+            "frontier-fantasy",
+            "monster-hunters",
+            "interactive"
+          ],
+          "aliases": [],
+          "section_audiences": {
+            "Public premise": [
+              "public",
+              "author"
+            ],
+            "Author truth": [
+              "author"
+            ],
+            "Current canonical state": [
+              "author"
+            ]
+          },
+          "default_timeline": "main",
+          "timelines": [
+            {
+              "id": "main",
+              "label": "Main chronology"
+            }
+          ],
+          "state_keys": {
+            "character": {
+              "location": {
+                "type": "entity",
+                "entity_kind": "location",
+                "exclusive": true
+              },
+              "condition": {
+                "type": "string"
+              }
+            },
+            "object": {
+              "holder": {
+                "type": "entity",
+                "entity_kind": "character",
+                "exclusive_group": "placement"
+              },
+              "location": {
+                "type": "entity",
+                "entity_kind": "location",
+                "exclusive_group": "placement"
+              },
+              "container": {
+                "type": "entity",
+                "entity_kind": "object",
+                "exclusive_group": "placement"
+              },
+              "condition": {
+                "type": "string"
+              }
+            }
+          },
+          "relationship_metrics": {
+            "trust": {
+              "minimum": -1.0,
+              "maximum": 1.0,
+              "default": 0.0
+            },
+            "affinity": {
+              "minimum": -1.0,
+              "maximum": 1.0,
+              "default": 0.0
+            },
+            "fear": {
+              "minimum": 0.0,
+              "maximum": 1.0,
+              "default": 0.0
+            },
+            "obligation": {
+              "minimum": 0.0,
+              "maximum": 1.0,
+              "default": 0.0
+            },
+            "respect": {
+              "minimum": -1.0,
+              "maximum": 1.0,
+              "default": 0.0
+            },
+            "dependence": {
+              "minimum": 0.0,
+              "maximum": 1.0,
+              "default": 0.0
+            }
+          },
+          "embedding_policy": {
+            "provider": "lsa",
+            "model": "wedl-lsa-v1",
+            "dimensions": 192,
+            "max_features": 8192
+          },
+          "context_policy": {
+            "default_budget_characters": 8000,
+            "default_max_items": 24,
+            "conversation_turn_window": 6
+          },
+          "compilation_policy": {
+            "default_profile": "hybrid",
+            "retained_revisions": 5,
+            "vector_cache": true,
+            "source_parse_cache": true,
+            "atomic_publish": true,
+            "retrieval": {
+              "fts_candidate_limit": 120,
+              "vector_candidate_limit": 120,
+              "hybrid_fts_weight": 1.0,
+              "hybrid_vector_weight": 1.0,
+              "hybrid_rrf_k": 60.0
+            }
+          }
+        },
+        "bodyMarkdown": "# The Frontiersmen\n\n## Public premise\n\nThe Frontier is a remote boreal peninsula reached through Keldmouth, a port at the mouth of the River Keld. Monster-hunting guilds protect caravans and settlements while gnome dowsers locate near-surface pockets of strange liquid-gold amber. New hires Rhea Marrow, Sylvi Ashdown, Brother Garran Holt, Veyra Kest, and Pip Fenlock arrive expecting paid caravan work and discover a frontier economy whose currency, monsters, and institutions are entangled.\n\n## Current canonical state\n\nAt tick 210 the five hunters are moving south along an abandoned warden road after the Drowned Waymark split the immediate Root Host pursuit. Rhea carries a narrowly corroborating Blackroot counterfoil; Veyra's reliquary remains closed and quiet under charcoal; Pip still holds Moth's bone key with its hooked notch unused. The road is not confirmed to reach Harrowcross, and neither Moth's nor Jorund's fate is known.\n\n## Author truth\n\nAmber is not ordinary mineral. It is hardened memory-sap from the buried Heartwood Below, a vast ancient living network beneath the peninsula. Fresh blood, concentrated fear, and abrupt fracture can make raw amber 'quick,' releasing stored predator and victim impressions as ethereal animal-wretches that move through walls and ground. The Lantern Pike guild documented this at Blackroot and concealed the correlation while accepting amber for protection services. Former field-master Aldren Veyl rejected the concealment, survived catastrophic exposure, and became the Tree King. He correctly learned to call and strengthen manifestations with blooded amber, then mistook access to accumulated memory for divine kingship. Secret marker: FRONTIER-SECRET-AMBER-ROOT-MEMORY-7K4M.\n"
+      }
+    }
+  ]
+}

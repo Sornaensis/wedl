@@ -1,0 +1,902 @@
+{
+  "repository": "/mnt/data/wedl-050-medium",
+  "revision": "47e938e81c5160d0e08720e652aceba52dbab95d",
+  "query": "consistency checksum neighboring records",
+  "profiles": {
+    "state": {
+      "coldWallMs": 431.979,
+      "warmForcedWallMs": 388.421,
+      "exactWallMs": 8.721,
+      "cold": {
+        "status": "compiled",
+        "buildMode": "full",
+        "revision": "47e938e81c5160d0e08720e652aceba52dbab95d",
+        "treeOid": "3d57fa58660b13053b7d5ca725fa2681135a8aef",
+        "database": "/mnt/data/wedl-050-medium/.wedl/world.sqlite",
+        "databaseBytes": 13832192,
+        "recordCount": 4303,
+        "searchProfile": {
+          "name": "state",
+          "ftsEnabled": false,
+          "vectorEnabled": false,
+          "vectorProvider": null,
+          "vectorModel": null,
+          "vectorDimensions": 192,
+          "vectorMaxFeatures": 8192,
+          "ftsCandidateLimit": 120,
+          "vectorCandidateLimit": 120,
+          "hybridFtsWeight": 1.0,
+          "hybridVectorWeight": 1.0,
+          "hybridRrfK": 60.0
+        },
+        "searchDocumentCount": 0,
+        "ftsDocumentCount": 0,
+        "vectorDocumentCount": 0,
+        "uniqueVectorCount": 0,
+        "vectorLinkCount": 0,
+        "vectorModels": [],
+        "vectorCache": {
+          "reused": 0,
+          "generated": 0,
+          "uniqueInputs": 0
+        },
+        "searchProjection": {
+          "timingsMs": {}
+        },
+        "activeSceneId": "scene_3M6NY3XBFXCW2HGC0HD74ZVC0J",
+        "currentTime": {
+          "timeline": "main",
+          "tick": 10000,
+          "order": 100
+        },
+        "changedPaths": [],
+        "sourceLoad": {
+          "mode": "parsed-source-cache",
+          "records": 4303,
+          "parsed": 0,
+          "cacheHits": 4303,
+          "blobReads": 0
+        },
+        "timingsMs": {
+          "resolveRevision": 2.168,
+          "loadSource": 59.029,
+          "validate": 90.544,
+          "schema": 1.776,
+          "entities": 128.869,
+          "narrative": 46.319,
+          "derived": 61.544,
+          "search": 0.005,
+          "indexes": 15.345,
+          "total": 431.907
+        }
+      },
+      "warm": {
+        "status": "compiled",
+        "buildMode": "fast-forward-rebuild",
+        "revision": "47e938e81c5160d0e08720e652aceba52dbab95d",
+        "treeOid": "3d57fa58660b13053b7d5ca725fa2681135a8aef",
+        "database": "/mnt/data/wedl-050-medium/.wedl/world.sqlite",
+        "databaseBytes": 13832192,
+        "recordCount": 4303,
+        "searchProfile": {
+          "name": "state",
+          "ftsEnabled": false,
+          "vectorEnabled": false,
+          "vectorProvider": null,
+          "vectorModel": null,
+          "vectorDimensions": 192,
+          "vectorMaxFeatures": 8192,
+          "ftsCandidateLimit": 120,
+          "vectorCandidateLimit": 120,
+          "hybridFtsWeight": 1.0,
+          "hybridVectorWeight": 1.0,
+          "hybridRrfK": 60.0
+        },
+        "searchDocumentCount": 0,
+        "ftsDocumentCount": 0,
+        "vectorDocumentCount": 0,
+        "uniqueVectorCount": 0,
+        "vectorLinkCount": 0,
+        "vectorModels": [],
+        "vectorCache": {
+          "reused": 0,
+          "generated": 0,
+          "uniqueInputs": 0
+        },
+        "searchProjection": {
+          "timingsMs": {}
+        },
+        "activeSceneId": "scene_3M6NY3XBFXCW2HGC0HD74ZVC0J",
+        "currentTime": {
+          "timeline": "main",
+          "tick": 10000,
+          "order": 100
+        },
+        "changedPaths": [],
+        "sourceLoad": {
+          "mode": "memory-cache",
+          "records": 4303,
+          "parsed": 0,
+          "cacheHits": 4303,
+          "blobReads": 0
+        },
+        "timingsMs": {
+          "resolveRevision": 3.228,
+          "loadSource": 2.034,
+          "validate": 97.179,
+          "schema": 1.922,
+          "entities": 130.305,
+          "narrative": 46.68,
+          "derived": 60.228,
+          "search": 0.005,
+          "indexes": 15.503,
+          "total": 388.326
+        }
+      },
+      "exact": {
+        "status": "cache-hit",
+        "revision": "47e938e81c5160d0e08720e652aceba52dbab95d",
+        "treeOid": "3d57fa58660b13053b7d5ca725fa2681135a8aef",
+        "database": "/mnt/data/wedl-050-medium/.wedl/world.sqlite",
+        "recordCount": 4303,
+        "databaseBytes": 13832192,
+        "searchProfile": {
+          "name": "state",
+          "ftsEnabled": false,
+          "vectorEnabled": false,
+          "vectorProvider": null,
+          "vectorModel": null,
+          "vectorDimensions": 192,
+          "vectorMaxFeatures": 8192,
+          "ftsCandidateLimit": 120,
+          "vectorCandidateLimit": 120,
+          "hybridFtsWeight": 1.0,
+          "hybridVectorWeight": 1.0,
+          "hybridRrfK": 60.0
+        },
+        "vectorModels": [],
+        "sourceLoad": {
+          "mode": "memory-cache",
+          "records": 4303,
+          "parsed": 0,
+          "cacheHits": 4303,
+          "blobReads": 0
+        },
+        "timingsMs": {
+          "resolveRevision": 5.978,
+          "loadSource": 2.527,
+          "total": 8.675
+        }
+      },
+      "databaseBytes": 13832192,
+      "counts": {
+        "searchDocuments": 0,
+        "ftsRows": 0,
+        "uniqueVectors": 0,
+        "vectorLinks": 0
+      },
+      "search": {}
+    },
+    "fts": {
+      "coldWallMs": 680.793,
+      "warmForcedWallMs": 802.231,
+      "exactWallMs": 5.442,
+      "cold": {
+        "status": "compiled",
+        "buildMode": "full",
+        "revision": "47e938e81c5160d0e08720e652aceba52dbab95d",
+        "treeOid": "3d57fa58660b13053b7d5ca725fa2681135a8aef",
+        "database": "/mnt/data/wedl-050-medium/.wedl/world.sqlite",
+        "databaseBytes": 23019520,
+        "recordCount": 4303,
+        "searchProfile": {
+          "name": "fts",
+          "ftsEnabled": true,
+          "vectorEnabled": false,
+          "vectorProvider": null,
+          "vectorModel": null,
+          "vectorDimensions": 192,
+          "vectorMaxFeatures": 8192,
+          "ftsCandidateLimit": 120,
+          "vectorCandidateLimit": 120,
+          "hybridFtsWeight": 1.0,
+          "hybridVectorWeight": 1.0,
+          "hybridRrfK": 60.0
+        },
+        "searchDocumentCount": 10289,
+        "ftsDocumentCount": 10289,
+        "vectorDocumentCount": 0,
+        "uniqueVectorCount": 0,
+        "vectorLinkCount": 0,
+        "vectorModels": [],
+        "vectorCache": {
+          "reused": 0,
+          "generated": 0,
+          "uniqueInputs": 0
+        },
+        "searchProjection": {
+          "timingsMs": {
+            "buildDocuments": 111.017,
+            "prepareRows": 42.792,
+            "insertDocuments": 32.363,
+            "insertFts": 44.807
+          }
+        },
+        "activeSceneId": "scene_3M6NY3XBFXCW2HGC0HD74ZVC0J",
+        "currentTime": {
+          "timeline": "main",
+          "tick": 10000,
+          "order": 100
+        },
+        "changedPaths": [],
+        "sourceLoad": {
+          "mode": "memory-cache",
+          "records": 4303,
+          "parsed": 0,
+          "cacheHits": 4303,
+          "blobReads": 0
+        },
+        "timingsMs": {
+          "resolveRevision": 2.818,
+          "loadSource": 2.438,
+          "validate": 89.333,
+          "schema": 1.86,
+          "entities": 139.025,
+          "narrative": 48.18,
+          "derived": 61.172,
+          "search": 237.364,
+          "indexes": 30.804,
+          "total": 680.73
+        }
+      },
+      "warm": {
+        "status": "compiled",
+        "buildMode": "fast-forward-rebuild",
+        "revision": "47e938e81c5160d0e08720e652aceba52dbab95d",
+        "treeOid": "3d57fa58660b13053b7d5ca725fa2681135a8aef",
+        "database": "/mnt/data/wedl-050-medium/.wedl/world.sqlite",
+        "databaseBytes": 23019520,
+        "recordCount": 4303,
+        "searchProfile": {
+          "name": "fts",
+          "ftsEnabled": true,
+          "vectorEnabled": false,
+          "vectorProvider": null,
+          "vectorModel": null,
+          "vectorDimensions": 192,
+          "vectorMaxFeatures": 8192,
+          "ftsCandidateLimit": 120,
+          "vectorCandidateLimit": 120,
+          "hybridFtsWeight": 1.0,
+          "hybridVectorWeight": 1.0,
+          "hybridRrfK": 60.0
+        },
+        "searchDocumentCount": 10289,
+        "ftsDocumentCount": 10289,
+        "vectorDocumentCount": 0,
+        "uniqueVectorCount": 0,
+        "vectorLinkCount": 0,
+        "vectorModels": [],
+        "vectorCache": {
+          "reused": 0,
+          "generated": 0,
+          "uniqueInputs": 0
+        },
+        "searchProjection": {
+          "timingsMs": {
+            "buildDocuments": 113.733,
+            "prepareRows": 43.926,
+            "insertDocuments": 30.149,
+            "insertFts": 45.814
+          }
+        },
+        "activeSceneId": "scene_3M6NY3XBFXCW2HGC0HD74ZVC0J",
+        "currentTime": {
+          "timeline": "main",
+          "tick": 10000,
+          "order": 100
+        },
+        "changedPaths": [],
+        "sourceLoad": {
+          "mode": "memory-cache",
+          "records": 4303,
+          "parsed": 0,
+          "cacheHits": 4303,
+          "blobReads": 0
+        },
+        "timingsMs": {
+          "resolveRevision": 3.396,
+          "loadSource": 2.181,
+          "validate": 83.818,
+          "schema": 2.121,
+          "entities": 247.478,
+          "narrative": 47.875,
+          "derived": 64.882,
+          "search": 241.329,
+          "indexes": 30.342,
+          "total": 802.157
+        }
+      },
+      "exact": {
+        "status": "cache-hit",
+        "revision": "47e938e81c5160d0e08720e652aceba52dbab95d",
+        "treeOid": "3d57fa58660b13053b7d5ca725fa2681135a8aef",
+        "database": "/mnt/data/wedl-050-medium/.wedl/world.sqlite",
+        "recordCount": 4303,
+        "databaseBytes": 23019520,
+        "searchProfile": {
+          "name": "fts",
+          "ftsEnabled": true,
+          "vectorEnabled": false,
+          "vectorProvider": null,
+          "vectorModel": null,
+          "vectorDimensions": 192,
+          "vectorMaxFeatures": 8192,
+          "ftsCandidateLimit": 120,
+          "vectorCandidateLimit": 120,
+          "hybridFtsWeight": 1.0,
+          "hybridVectorWeight": 1.0,
+          "hybridRrfK": 60.0
+        },
+        "vectorModels": [],
+        "sourceLoad": {
+          "mode": "memory-cache",
+          "records": 4303,
+          "parsed": 0,
+          "cacheHits": 4303,
+          "blobReads": 0
+        },
+        "timingsMs": {
+          "resolveRevision": 3.165,
+          "loadSource": 2.079,
+          "total": 5.406
+        }
+      },
+      "databaseBytes": 23019520,
+      "counts": {
+        "searchDocuments": 10289,
+        "ftsRows": 10289,
+        "uniqueVectors": 0,
+        "vectorLinks": 0
+      },
+      "search": {
+        "fts": {
+          "repeats": 7,
+          "minimumMs": 10.792,
+          "medianMs": 11.272,
+          "p95Ms": 101.609,
+          "maximumMs": 101.609,
+          "results": 20
+        }
+      }
+    },
+    "vector": {
+      "coldWallMs": 2952.342,
+      "warmForcedWallMs": 1038.374,
+      "exactWallMs": 7.824,
+      "cold": {
+        "status": "compiled",
+        "buildMode": "full",
+        "revision": "47e938e81c5160d0e08720e652aceba52dbab95d",
+        "treeOid": "3d57fa58660b13053b7d5ca725fa2681135a8aef",
+        "database": "/mnt/data/wedl-050-medium/.wedl/world.sqlite",
+        "databaseBytes": 42520576,
+        "recordCount": 4303,
+        "searchProfile": {
+          "name": "vector",
+          "ftsEnabled": false,
+          "vectorEnabled": true,
+          "vectorProvider": "lsa",
+          "vectorModel": "wedl-lsa-v1",
+          "vectorDimensions": 192,
+          "vectorMaxFeatures": 8192,
+          "ftsCandidateLimit": 120,
+          "vectorCandidateLimit": 120,
+          "hybridFtsWeight": 1.0,
+          "hybridVectorWeight": 1.0,
+          "hybridRrfK": 60.0
+        },
+        "searchDocumentCount": 10289,
+        "ftsDocumentCount": 0,
+        "vectorDocumentCount": 10289,
+        "uniqueVectorCount": 9369,
+        "vectorLinkCount": 10289,
+        "vectorModels": [
+          {
+            "scope": "author",
+            "modelId": "lsa:author:wedl-lsa-v1:192:9a01f1b3359302d3",
+            "provider": "lsa",
+            "modelName": "wedl-lsa-v1",
+            "dimensions": 192,
+            "normalized": true,
+            "corpusHash": "9a01f1b3359302d34b60acc1dea9f32eb7df3a23b4401f2f2f20e90366871b7f"
+          },
+          {
+            "scope": "character",
+            "modelId": "lsa:character:wedl-lsa-v1:192:80ac779687b14a93",
+            "provider": "lsa",
+            "modelName": "wedl-lsa-v1",
+            "dimensions": 192,
+            "normalized": true,
+            "corpusHash": "80ac779687b14a930d7b6a530d89b593a14ac39cd95aad672bd7f6a886c9198e"
+          }
+        ],
+        "vectorCache": {
+          "reused": 0,
+          "generated": 9369,
+          "uniqueInputs": 9369
+        },
+        "searchProjection": {
+          "timingsMs": {
+            "buildDocuments": 144.541,
+            "hashInputs": 24.721,
+            "buildVectors": 1943.545,
+            "prepareRows": 39.516,
+            "insertDocuments": 30.412,
+            "insertVectors": 154.466
+          }
+        },
+        "activeSceneId": "scene_3M6NY3XBFXCW2HGC0HD74ZVC0J",
+        "currentTime": {
+          "timeline": "main",
+          "tick": 10000,
+          "order": 100
+        },
+        "changedPaths": [],
+        "sourceLoad": {
+          "mode": "memory-cache",
+          "records": 4303,
+          "parsed": 0,
+          "cacheHits": 4303,
+          "blobReads": 0
+        },
+        "timingsMs": {
+          "resolveRevision": 5.073,
+          "loadSource": 2.586,
+          "validate": 125.593,
+          "schema": 2.872,
+          "entities": 190.011,
+          "narrative": 70.675,
+          "derived": 96.59,
+          "search": 2347.844,
+          "indexes": 46.321,
+          "total": 2952.278
+        }
+      },
+      "warm": {
+        "status": "compiled",
+        "buildMode": "fast-forward-rebuild",
+        "revision": "47e938e81c5160d0e08720e652aceba52dbab95d",
+        "treeOid": "3d57fa58660b13053b7d5ca725fa2681135a8aef",
+        "database": "/mnt/data/wedl-050-medium/.wedl/world.sqlite",
+        "databaseBytes": 42520576,
+        "recordCount": 4303,
+        "searchProfile": {
+          "name": "vector",
+          "ftsEnabled": false,
+          "vectorEnabled": true,
+          "vectorProvider": "lsa",
+          "vectorModel": "wedl-lsa-v1",
+          "vectorDimensions": 192,
+          "vectorMaxFeatures": 8192,
+          "ftsCandidateLimit": 120,
+          "vectorCandidateLimit": 120,
+          "hybridFtsWeight": 1.0,
+          "hybridVectorWeight": 1.0,
+          "hybridRrfK": 60.0
+        },
+        "searchDocumentCount": 10289,
+        "ftsDocumentCount": 0,
+        "vectorDocumentCount": 10289,
+        "uniqueVectorCount": 9369,
+        "vectorLinkCount": 10289,
+        "vectorModels": [
+          {
+            "scope": "author",
+            "modelId": "lsa:author:wedl-lsa-v1:192:9a01f1b3359302d3",
+            "provider": "lsa",
+            "modelName": "wedl-lsa-v1",
+            "dimensions": 192,
+            "normalized": true,
+            "corpusHash": "9a01f1b3359302d34b60acc1dea9f32eb7df3a23b4401f2f2f20e90366871b7f"
+          },
+          {
+            "scope": "character",
+            "modelId": "lsa:character:wedl-lsa-v1:192:80ac779687b14a93",
+            "provider": "lsa",
+            "modelName": "wedl-lsa-v1",
+            "dimensions": 192,
+            "normalized": true,
+            "corpusHash": "80ac779687b14a930d7b6a530d89b593a14ac39cd95aad672bd7f6a886c9198e"
+          }
+        ],
+        "vectorCache": {
+          "reused": 9369,
+          "generated": 0,
+          "uniqueInputs": 9369
+        },
+        "searchProjection": {
+          "timingsMs": {
+            "buildDocuments": 245.629,
+            "hashInputs": 21.117,
+            "buildVectors": 59.342,
+            "prepareRows": 42.154,
+            "insertDocuments": 30.117,
+            "insertVectors": 160.691
+          }
+        },
+        "activeSceneId": "scene_3M6NY3XBFXCW2HGC0HD74ZVC0J",
+        "currentTime": {
+          "timeline": "main",
+          "tick": 10000,
+          "order": 100
+        },
+        "changedPaths": [],
+        "sourceLoad": {
+          "mode": "memory-cache",
+          "records": 4303,
+          "parsed": 0,
+          "cacheHits": 4303,
+          "blobReads": 0
+        },
+        "timingsMs": {
+          "resolveRevision": 4.586,
+          "loadSource": 2.19,
+          "validate": 88.926,
+          "schema": 1.824,
+          "entities": 135.534,
+          "narrative": 47.999,
+          "derived": 63.096,
+          "search": 569.733,
+          "indexes": 49.458,
+          "total": 1038.294
+        }
+      },
+      "exact": {
+        "status": "cache-hit",
+        "revision": "47e938e81c5160d0e08720e652aceba52dbab95d",
+        "treeOid": "3d57fa58660b13053b7d5ca725fa2681135a8aef",
+        "database": "/mnt/data/wedl-050-medium/.wedl/world.sqlite",
+        "recordCount": 4303,
+        "databaseBytes": 42520576,
+        "searchProfile": {
+          "name": "vector",
+          "ftsEnabled": false,
+          "vectorEnabled": true,
+          "vectorProvider": "lsa",
+          "vectorModel": "wedl-lsa-v1",
+          "vectorDimensions": 192,
+          "vectorMaxFeatures": 8192,
+          "ftsCandidateLimit": 120,
+          "vectorCandidateLimit": 120,
+          "hybridFtsWeight": 1.0,
+          "hybridVectorWeight": 1.0,
+          "hybridRrfK": 60.0
+        },
+        "vectorModels": [
+          {
+            "corpusHash": "9a01f1b3359302d34b60acc1dea9f32eb7df3a23b4401f2f2f20e90366871b7f",
+            "dimensions": 192,
+            "modelId": "lsa:author:wedl-lsa-v1:192:9a01f1b3359302d3",
+            "modelName": "wedl-lsa-v1",
+            "normalized": true,
+            "provider": "lsa",
+            "scope": "author"
+          },
+          {
+            "corpusHash": "80ac779687b14a930d7b6a530d89b593a14ac39cd95aad672bd7f6a886c9198e",
+            "dimensions": 192,
+            "modelId": "lsa:character:wedl-lsa-v1:192:80ac779687b14a93",
+            "modelName": "wedl-lsa-v1",
+            "normalized": true,
+            "provider": "lsa",
+            "scope": "character"
+          }
+        ],
+        "sourceLoad": {
+          "mode": "memory-cache",
+          "records": 4303,
+          "parsed": 0,
+          "cacheHits": 4303,
+          "blobReads": 0
+        },
+        "timingsMs": {
+          "resolveRevision": 3.97,
+          "loadSource": 3.665,
+          "total": 7.781
+        }
+      },
+      "databaseBytes": 42520576,
+      "counts": {
+        "searchDocuments": 10289,
+        "ftsRows": 0,
+        "uniqueVectors": 9369,
+        "vectorLinks": 10289
+      },
+      "search": {
+        "vector": {
+          "repeats": 7,
+          "minimumMs": 24.628,
+          "medianMs": 38.384,
+          "p95Ms": 151.609,
+          "maximumMs": 151.609,
+          "results": 20
+        }
+      }
+    },
+    "hybrid": {
+      "coldWallMs": 3902.505,
+      "warmForcedWallMs": 949.358,
+      "exactWallMs": 8.378,
+      "cold": {
+        "status": "compiled",
+        "buildMode": "full",
+        "revision": "47e938e81c5160d0e08720e652aceba52dbab95d",
+        "treeOid": "3d57fa58660b13053b7d5ca725fa2681135a8aef",
+        "database": "/mnt/data/wedl-050-medium/.wedl/world.sqlite",
+        "databaseBytes": 45166592,
+        "recordCount": 4303,
+        "searchProfile": {
+          "name": "hybrid",
+          "ftsEnabled": true,
+          "vectorEnabled": true,
+          "vectorProvider": "lsa",
+          "vectorModel": "wedl-lsa-v1",
+          "vectorDimensions": 192,
+          "vectorMaxFeatures": 8192,
+          "ftsCandidateLimit": 120,
+          "vectorCandidateLimit": 120,
+          "hybridFtsWeight": 1.0,
+          "hybridVectorWeight": 1.0,
+          "hybridRrfK": 60.0
+        },
+        "searchDocumentCount": 10289,
+        "ftsDocumentCount": 10289,
+        "vectorDocumentCount": 10289,
+        "uniqueVectorCount": 9369,
+        "vectorLinkCount": 10289,
+        "vectorModels": [
+          {
+            "scope": "author",
+            "modelId": "lsa:author:wedl-lsa-v1:192:9de0329c7f6cc6aa",
+            "provider": "lsa",
+            "modelName": "wedl-lsa-v1",
+            "dimensions": 192,
+            "normalized": true,
+            "corpusHash": "9de0329c7f6cc6aaf1a8c38302c1bc45b11be26527e121e25414ce38bbe16434"
+          },
+          {
+            "scope": "character",
+            "modelId": "lsa:character:wedl-lsa-v1:192:02a535e3ee4cdfb7",
+            "provider": "lsa",
+            "modelName": "wedl-lsa-v1",
+            "dimensions": 192,
+            "normalized": true,
+            "corpusHash": "02a535e3ee4cdfb748db588556af36e8184441069eb7d46414a4de1f9fdbca67"
+          }
+        ],
+        "vectorCache": {
+          "reused": 0,
+          "generated": 9369,
+          "uniqueInputs": 9369
+        },
+        "searchProjection": {
+          "timingsMs": {
+            "buildDocuments": 278.687,
+            "hashInputs": 24.517,
+            "buildVectors": 2807.318,
+            "prepareRows": 40.882,
+            "insertDocuments": 30.205,
+            "insertFts": 42.916,
+            "insertVectors": 152.726
+          }
+        },
+        "activeSceneId": "scene_3M6NY3XBFXCW2HGC0HD74ZVC0J",
+        "currentTime": {
+          "timeline": "main",
+          "tick": 10000,
+          "order": 100
+        },
+        "changedPaths": [],
+        "sourceLoad": {
+          "mode": "memory-cache",
+          "records": 4303,
+          "parsed": 0,
+          "cacheHits": 4303,
+          "blobReads": 0
+        },
+        "timingsMs": {
+          "resolveRevision": 5.497,
+          "loadSource": 8.067,
+          "validate": 102.976,
+          "schema": 1.897,
+          "entities": 142.521,
+          "narrative": 48.771,
+          "derived": 63.902,
+          "search": 3388.354,
+          "indexes": 51.697,
+          "total": 3902.442
+        }
+      },
+      "warm": {
+        "status": "compiled",
+        "buildMode": "fast-forward-rebuild",
+        "revision": "47e938e81c5160d0e08720e652aceba52dbab95d",
+        "treeOid": "3d57fa58660b13053b7d5ca725fa2681135a8aef",
+        "database": "/mnt/data/wedl-050-medium/.wedl/world.sqlite",
+        "databaseBytes": 45166592,
+        "recordCount": 4303,
+        "searchProfile": {
+          "name": "hybrid",
+          "ftsEnabled": true,
+          "vectorEnabled": true,
+          "vectorProvider": "lsa",
+          "vectorModel": "wedl-lsa-v1",
+          "vectorDimensions": 192,
+          "vectorMaxFeatures": 8192,
+          "ftsCandidateLimit": 120,
+          "vectorCandidateLimit": 120,
+          "hybridFtsWeight": 1.0,
+          "hybridVectorWeight": 1.0,
+          "hybridRrfK": 60.0
+        },
+        "searchDocumentCount": 10289,
+        "ftsDocumentCount": 10289,
+        "vectorDocumentCount": 10289,
+        "uniqueVectorCount": 9369,
+        "vectorLinkCount": 10289,
+        "vectorModels": [
+          {
+            "scope": "author",
+            "modelId": "lsa:author:wedl-lsa-v1:192:9de0329c7f6cc6aa",
+            "provider": "lsa",
+            "modelName": "wedl-lsa-v1",
+            "dimensions": 192,
+            "normalized": true,
+            "corpusHash": "9de0329c7f6cc6aaf1a8c38302c1bc45b11be26527e121e25414ce38bbe16434"
+          },
+          {
+            "scope": "character",
+            "modelId": "lsa:character:wedl-lsa-v1:192:02a535e3ee4cdfb7",
+            "provider": "lsa",
+            "modelName": "wedl-lsa-v1",
+            "dimensions": 192,
+            "normalized": true,
+            "corpusHash": "02a535e3ee4cdfb748db588556af36e8184441069eb7d46414a4de1f9fdbca67"
+          }
+        ],
+        "vectorCache": {
+          "reused": 9369,
+          "generated": 0,
+          "uniqueInputs": 9369
+        },
+        "searchProjection": {
+          "timingsMs": {
+            "buildDocuments": 108.764,
+            "hashInputs": 22.989,
+            "buildVectors": 61.269,
+            "prepareRows": 42.487,
+            "insertDocuments": 30.192,
+            "insertFts": 44.081,
+            "insertVectors": 156.525
+          }
+        },
+        "activeSceneId": "scene_3M6NY3XBFXCW2HGC0HD74ZVC0J",
+        "currentTime": {
+          "timeline": "main",
+          "tick": 10000,
+          "order": 100
+        },
+        "changedPaths": [],
+        "sourceLoad": {
+          "mode": "memory-cache",
+          "records": 4303,
+          "parsed": 0,
+          "cacheHits": 4303,
+          "blobReads": 0
+        },
+        "timingsMs": {
+          "resolveRevision": 3.993,
+          "loadSource": 2.204,
+          "validate": 80.929,
+          "schema": 1.795,
+          "entities": 127.726,
+          "narrative": 46.339,
+          "derived": 60.07,
+          "search": 478.23,
+          "indexes": 49.932,
+          "total": 949.273
+        }
+      },
+      "exact": {
+        "status": "cache-hit",
+        "revision": "47e938e81c5160d0e08720e652aceba52dbab95d",
+        "treeOid": "3d57fa58660b13053b7d5ca725fa2681135a8aef",
+        "database": "/mnt/data/wedl-050-medium/.wedl/world.sqlite",
+        "recordCount": 4303,
+        "databaseBytes": 45166592,
+        "searchProfile": {
+          "name": "hybrid",
+          "ftsEnabled": true,
+          "vectorEnabled": true,
+          "vectorProvider": "lsa",
+          "vectorModel": "wedl-lsa-v1",
+          "vectorDimensions": 192,
+          "vectorMaxFeatures": 8192,
+          "ftsCandidateLimit": 120,
+          "vectorCandidateLimit": 120,
+          "hybridFtsWeight": 1.0,
+          "hybridVectorWeight": 1.0,
+          "hybridRrfK": 60.0
+        },
+        "vectorModels": [
+          {
+            "corpusHash": "9de0329c7f6cc6aaf1a8c38302c1bc45b11be26527e121e25414ce38bbe16434",
+            "dimensions": 192,
+            "modelId": "lsa:author:wedl-lsa-v1:192:9de0329c7f6cc6aa",
+            "modelName": "wedl-lsa-v1",
+            "normalized": true,
+            "provider": "lsa",
+            "scope": "author"
+          },
+          {
+            "corpusHash": "02a535e3ee4cdfb748db588556af36e8184441069eb7d46414a4de1f9fdbca67",
+            "dimensions": 192,
+            "modelId": "lsa:character:wedl-lsa-v1:192:02a535e3ee4cdfb7",
+            "modelName": "wedl-lsa-v1",
+            "normalized": true,
+            "provider": "lsa",
+            "scope": "character"
+          }
+        ],
+        "sourceLoad": {
+          "mode": "memory-cache",
+          "records": 4303,
+          "parsed": 0,
+          "cacheHits": 4303,
+          "blobReads": 0
+        },
+        "timingsMs": {
+          "resolveRevision": 5.42,
+          "loadSource": 2.768,
+          "total": 8.34
+        }
+      },
+      "databaseBytes": 45166592,
+      "counts": {
+        "searchDocuments": 10289,
+        "ftsRows": 10289,
+        "uniqueVectors": 9369,
+        "vectorLinks": 10289
+      },
+      "search": {
+        "fts": {
+          "repeats": 7,
+          "minimumMs": 7.922,
+          "medianMs": 8.743,
+          "p95Ms": 97.341,
+          "maximumMs": 97.341,
+          "results": 20
+        },
+        "vector": {
+          "repeats": 7,
+          "minimumMs": 28.172,
+          "medianMs": 30.161,
+          "p95Ms": 181.829,
+          "maximumMs": 181.829,
+          "results": 20
+        },
+        "hybrid": {
+          "repeats": 7,
+          "minimumMs": 28.885,
+          "medianMs": 38.41,
+          "p95Ms": 53.567,
+          "maximumMs": 53.567,
+          "results": 20,
+          "bothLanes": 20,
+          "vectorOnly": 0
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,468 @@
+{
+  "protocol": "wedl-conversation/v1",
+  "revision": "4267d78b9002889ae084bd8ef3884b2df964f7d1",
+  "perspective": "author",
+  "conversationId": "conv_7TC8QMY25DHKXCDDD6BRBZCAS0",
+  "title": "The Sunken Hall Debate",
+  "conversationTime": {
+    "start": {
+      "order": 0,
+      "tick": 123,
+      "timeline": "main"
+    },
+    "end": {
+      "order": 0,
+      "tick": 127,
+      "timeline": "main"
+    }
+  },
+  "effectiveTime": {
+    "timeline": "main",
+    "tick": 127,
+    "order": 0
+  },
+  "verbatimTurns": [
+    {
+      "id": "turn_4R15ZMR696PSJQPGMPHK8NBXXR",
+      "at": {
+        "timeline": "main",
+        "tick": 123,
+        "order": 0
+      },
+      "speakerId": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+      "speaker": "Pip Fenlock",
+      "text": "These stairs were built from below upward. The tool marks face the wrong way for a mine entrance.",
+      "delivery": "technical",
+      "audience": [
+        "participants"
+      ],
+      "citation": {
+        "entityId": "conv_7TC8QMY25DHKXCDDD6BRBZCAS0",
+        "kind": "conversation",
+        "sourcePath": "story/conversations/the-sunken-hall-debate--conv_7TC8QMY25DHKXCDDD6BRBZCAS0.md",
+        "blobOid": "ede57d41823a0292f572cbebfad41bc79450332c",
+        "revision": "4267d78b9002889ae084bd8ef3884b2df964f7d1",
+        "section": "turn:turn_4R15ZMR696PSJQPGMPHK8NBXXR"
+      }
+    },
+    {
+      "id": "turn_1XNC4XG6YJGKYSGP7A4M9ZF6CZ",
+      "at": {
+        "timeline": "main",
+        "tick": 123,
+        "order": 10
+      },
+      "speakerId": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+      "speaker": "Sylvi Ashdown",
+      "text": "No animal bone in the hall. Only teeth placed around the stone box.",
+      "delivery": "quiet",
+      "audience": [
+        "participants"
+      ],
+      "citation": {
+        "entityId": "conv_7TC8QMY25DHKXCDDD6BRBZCAS0",
+        "kind": "conversation",
+        "sourcePath": "story/conversations/the-sunken-hall-debate--conv_7TC8QMY25DHKXCDDD6BRBZCAS0.md",
+        "blobOid": "ede57d41823a0292f572cbebfad41bc79450332c",
+        "revision": "4267d78b9002889ae084bd8ef3884b2df964f7d1",
+        "section": "turn:turn_1XNC4XG6YJGKYSGP7A4M9ZF6CZ"
+      }
+    },
+    {
+      "id": "turn_3WFT6EC9CP23J28YQ2ER7D9JKH",
+      "at": {
+        "timeline": "main",
+        "tick": 123,
+        "order": 20
+      },
+      "speakerId": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+      "speaker": "Veyra Kest",
+      "text": "The tablet calls amber 'golden sap after the root has remembered the wound.'",
+      "delivery": "translating",
+      "audience": [
+        "participants"
+      ],
+      "citation": {
+        "entityId": "conv_7TC8QMY25DHKXCDDD6BRBZCAS0",
+        "kind": "conversation",
+        "sourcePath": "story/conversations/the-sunken-hall-debate--conv_7TC8QMY25DHKXCDDD6BRBZCAS0.md",
+        "blobOid": "ede57d41823a0292f572cbebfad41bc79450332c",
+        "revision": "4267d78b9002889ae084bd8ef3884b2df964f7d1",
+        "section": "turn:turn_3WFT6EC9CP23J28YQ2ER7D9JKH"
+      }
+    },
+    {
+      "id": "turn_7SBTN2NE59TW2CZ32M6TK8Y6YW",
+      "at": {
+        "timeline": "main",
+        "tick": 123,
+        "order": 30
+      },
+      "speakerId": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+      "speaker": "Brother Garran Holt",
+      "text": "Remembered by whom?",
+      "delivery": "strained",
+      "audience": [
+        "participants"
+      ],
+      "citation": {
+        "entityId": "conv_7TC8QMY25DHKXCDDD6BRBZCAS0",
+        "kind": "conversation",
+        "sourcePath": "story/conversations/the-sunken-hall-debate--conv_7TC8QMY25DHKXCDDD6BRBZCAS0.md",
+        "blobOid": "ede57d41823a0292f572cbebfad41bc79450332c",
+        "revision": "4267d78b9002889ae084bd8ef3884b2df964f7d1",
+        "section": "turn:turn_7SBTN2NE59TW2CZ32M6TK8Y6YW"
+      }
+    },
+    {
+      "id": "turn_7PDC8CH2CH4N7ZDEJ372KDZGTP",
+      "at": {
+        "timeline": "main",
+        "tick": 123,
+        "order": 40
+      },
+      "speakerId": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+      "speaker": "Veyra Kest",
+      "text": "Not whom. The grammar makes the root the subject.",
+      "delivery": "awed",
+      "audience": [
+        "participants"
+      ],
+      "citation": {
+        "entityId": "conv_7TC8QMY25DHKXCDDD6BRBZCAS0",
+        "kind": "conversation",
+        "sourcePath": "story/conversations/the-sunken-hall-debate--conv_7TC8QMY25DHKXCDDD6BRBZCAS0.md",
+        "blobOid": "ede57d41823a0292f572cbebfad41bc79450332c",
+        "revision": "4267d78b9002889ae084bd8ef3884b2df964f7d1",
+        "section": "turn:turn_7PDC8CH2CH4N7ZDEJ372KDZGTP"
+      }
+    },
+    {
+      "id": "turn_76ZKH3YX56RD5HZ2QJNTXW6385",
+      "at": {
+        "timeline": "main",
+        "tick": 124,
+        "order": 0
+      },
+      "speakerId": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+      "speaker": "Rhea Marrow",
+      "text": "Read the warning before the poetry.",
+      "delivery": "firm",
+      "audience": [
+        "participants"
+      ],
+      "citation": {
+        "entityId": "conv_7TC8QMY25DHKXCDDD6BRBZCAS0",
+        "kind": "conversation",
+        "sourcePath": "story/conversations/the-sunken-hall-debate--conv_7TC8QMY25DHKXCDDD6BRBZCAS0.md",
+        "blobOid": "ede57d41823a0292f572cbebfad41bc79450332c",
+        "revision": "4267d78b9002889ae084bd8ef3884b2df964f7d1",
+        "section": "turn:turn_76ZKH3YX56RD5HZ2QJNTXW6385"
+      }
+    },
+    {
+      "id": "turn_1XMDZZTGQBFD4C74B9CTCRE1DP",
+      "at": {
+        "timeline": "main",
+        "tick": 124,
+        "order": 10
+      },
+      "speakerId": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+      "speaker": "Veyra Kest",
+      "text": "'Do not give the sap fresh terror, for it returns the hunter and the hunted without knowing the difference.'",
+      "delivery": "careful",
+      "audience": [
+        "participants"
+      ],
+      "citation": {
+        "entityId": "conv_7TC8QMY25DHKXCDDD6BRBZCAS0",
+        "kind": "conversation",
+        "sourcePath": "story/conversations/the-sunken-hall-debate--conv_7TC8QMY25DHKXCDDD6BRBZCAS0.md",
+        "blobOid": "ede57d41823a0292f572cbebfad41bc79450332c",
+        "revision": "4267d78b9002889ae084bd8ef3884b2df964f7d1",
+        "section": "turn:turn_1XMDZZTGQBFD4C74B9CTCRE1DP"
+      }
+    },
+    {
+      "id": "turn_5MSPG81VV87R4JGYN9DX46H00R",
+      "at": {
+        "timeline": "main",
+        "tick": 124,
+        "order": 20
+      },
+      "speakerId": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+      "speaker": "Brother Garran Holt",
+      "text": "Then the wretches are not dead souls.",
+      "delivery": "quiet",
+      "audience": [
+        "participants"
+      ],
+      "citation": {
+        "entityId": "conv_7TC8QMY25DHKXCDDD6BRBZCAS0",
+        "kind": "conversation",
+        "sourcePath": "story/conversations/the-sunken-hall-debate--conv_7TC8QMY25DHKXCDDD6BRBZCAS0.md",
+        "blobOid": "ede57d41823a0292f572cbebfad41bc79450332c",
+        "revision": "4267d78b9002889ae084bd8ef3884b2df964f7d1",
+        "section": "turn:turn_5MSPG81VV87R4JGYN9DX46H00R"
+      }
+    },
+    {
+      "id": "turn_5VAD312SCWBG7BQBANRJHBPYXW",
+      "at": {
+        "timeline": "main",
+        "tick": 124,
+        "order": 30
+      },
+      "speakerId": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+      "speaker": "Veyra Kest",
+      "text": "They may be memories with enough structure to move.",
+      "delivery": "precise",
+      "audience": [
+        "participants"
+      ],
+      "citation": {
+        "entityId": "conv_7TC8QMY25DHKXCDDD6BRBZCAS0",
+        "kind": "conversation",
+        "sourcePath": "story/conversations/the-sunken-hall-debate--conv_7TC8QMY25DHKXCDDD6BRBZCAS0.md",
+        "blobOid": "ede57d41823a0292f572cbebfad41bc79450332c",
+        "revision": "4267d78b9002889ae084bd8ef3884b2df964f7d1",
+        "section": "turn:turn_5VAD312SCWBG7BQBANRJHBPYXW"
+      }
+    },
+    {
+      "id": "turn_3SF3FF8M47TD5C78WKA0Q38JQK",
+      "at": {
+        "timeline": "main",
+        "tick": 125,
+        "order": 0
+      },
+      "speakerId": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+      "speaker": "Pip Fenlock",
+      "text": "The stone box has a pressure latch and absolutely no written suggestion that opening it is wise.",
+      "delivery": "dry",
+      "audience": [
+        "participants"
+      ],
+      "citation": {
+        "entityId": "conv_7TC8QMY25DHKXCDDD6BRBZCAS0",
+        "kind": "conversation",
+        "sourcePath": "story/conversations/the-sunken-hall-debate--conv_7TC8QMY25DHKXCDDD6BRBZCAS0.md",
+        "blobOid": "ede57d41823a0292f572cbebfad41bc79450332c",
+        "revision": "4267d78b9002889ae084bd8ef3884b2df964f7d1",
+        "section": "turn:turn_3SF3FF8M47TD5C78WKA0Q38JQK"
+      }
+    },
+    {
+      "id": "turn_6E56E6DNH9M67CYB8SB34G9DEQ",
+      "at": {
+        "timeline": "main",
+        "tick": 125,
+        "order": 10
+      },
+      "speakerId": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+      "speaker": "Rhea Marrow",
+      "text": "We leave it closed.",
+      "delivery": "immediate",
+      "audience": [
+        "participants"
+      ],
+      "citation": {
+        "entityId": "conv_7TC8QMY25DHKXCDDD6BRBZCAS0",
+        "kind": "conversation",
+        "sourcePath": "story/conversations/the-sunken-hall-debate--conv_7TC8QMY25DHKXCDDD6BRBZCAS0.md",
+        "blobOid": "ede57d41823a0292f572cbebfad41bc79450332c",
+        "revision": "4267d78b9002889ae084bd8ef3884b2df964f7d1",
+        "section": "turn:turn_6E56E6DNH9M67CYB8SB34G9DEQ"
+      }
+    },
+    {
+      "id": "turn_0JD67PC13SHP10Y6V7JHA0KH8Q",
+      "at": {
+        "timeline": "main",
+        "tick": 125,
+        "order": 20
+      },
+      "speakerId": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+      "speaker": "Veyra Kest",
+      "text": "The tablet also says the lattice can quiet an awakened route.",
+      "delivery": "reluctant",
+      "audience": [
+        "participants"
+      ],
+      "citation": {
+        "entityId": "conv_7TC8QMY25DHKXCDDD6BRBZCAS0",
+        "kind": "conversation",
+        "sourcePath": "story/conversations/the-sunken-hall-debate--conv_7TC8QMY25DHKXCDDD6BRBZCAS0.md",
+        "blobOid": "ede57d41823a0292f572cbebfad41bc79450332c",
+        "revision": "4267d78b9002889ae084bd8ef3884b2df964f7d1",
+        "section": "turn:turn_0JD67PC13SHP10Y6V7JHA0KH8Q"
+      }
+    },
+    {
+      "id": "turn_681G63F4H1684XE1D81J9KRKP5",
+      "at": {
+        "timeline": "main",
+        "tick": 125,
+        "order": 30
+      },
+      "speakerId": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+      "speaker": "Sylvi Ashdown",
+      "text": "Or wake every shape stored around it.",
+      "delivery": "flat",
+      "audience": [
+        "participants"
+      ],
+      "citation": {
+        "entityId": "conv_7TC8QMY25DHKXCDDD6BRBZCAS0",
+        "kind": "conversation",
+        "sourcePath": "story/conversations/the-sunken-hall-debate--conv_7TC8QMY25DHKXCDDD6BRBZCAS0.md",
+        "blobOid": "ede57d41823a0292f572cbebfad41bc79450332c",
+        "revision": "4267d78b9002889ae084bd8ef3884b2df964f7d1",
+        "section": "turn:turn_681G63F4H1684XE1D81J9KRKP5"
+      }
+    },
+    {
+      "id": "turn_7NSHABZ4VCYXEGWB4ABXWG8DV7",
+      "at": {
+        "timeline": "main",
+        "tick": 126,
+        "order": 0
+      },
+      "speakerId": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+      "speaker": "Rhea Marrow",
+      "text": "We copy the tablet and leave the box.",
+      "delivery": "decisive",
+      "audience": [
+        "participants"
+      ],
+      "citation": {
+        "entityId": "conv_7TC8QMY25DHKXCDDD6BRBZCAS0",
+        "kind": "conversation",
+        "sourcePath": "story/conversations/the-sunken-hall-debate--conv_7TC8QMY25DHKXCDDD6BRBZCAS0.md",
+        "blobOid": "ede57d41823a0292f572cbebfad41bc79450332c",
+        "revision": "4267d78b9002889ae084bd8ef3884b2df964f7d1",
+        "section": "turn:turn_7NSHABZ4VCYXEGWB4ABXWG8DV7"
+      }
+    },
+    {
+      "id": "turn_6YZ12M02XXSEBZXRZ4TP0FN5S8",
+      "at": {
+        "timeline": "main",
+        "tick": 127,
+        "order": 0
+      },
+      "speakerId": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+      "speaker": "Pip Fenlock",
+      "text": "The floor behind us has started breathing.",
+      "delivery": "very quiet",
+      "audience": [
+        "participants"
+      ],
+      "citation": {
+        "entityId": "conv_7TC8QMY25DHKXCDDD6BRBZCAS0",
+        "kind": "conversation",
+        "sourcePath": "story/conversations/the-sunken-hall-debate--conv_7TC8QMY25DHKXCDDD6BRBZCAS0.md",
+        "blobOid": "ede57d41823a0292f572cbebfad41bc79450332c",
+        "revision": "4267d78b9002889ae084bd8ef3884b2df964f7d1",
+        "section": "turn:turn_6YZ12M02XXSEBZXRZ4TP0FN5S8"
+      }
+    }
+  ],
+  "recollections": [
+    {
+      "at": {
+        "order": 0,
+        "tick": 136,
+        "timeline": "main"
+      },
+      "character": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+      "confidence": 0.9,
+      "emotional_impression": "clarity sharpened into accusation",
+      "exact_turns": [
+        "turn_1XMDZZTGQBFD4C74B9CTCRE1DP",
+        "turn_7NSHABZ4VCYXEGWB4ABXWG8DV7"
+      ],
+      "id": "recol_1QJVRB38YBZ1B08N2YBBE12YXD",
+      "interpretation": "The practical question is no longer whether amber causes wretches but who knew the handling rules and kept mining.",
+      "remembered_quotes": [],
+      "state": "remembered",
+      "summary": "The tablet says amber is root memory and fresh terror returns hunter and hunted without distinction. The party opened the reliquary only after retreat closed."
+    },
+    {
+      "at": {
+        "order": 1,
+        "tick": 136,
+        "timeline": "main"
+      },
+      "character": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+      "confidence": 0.88,
+      "emotional_impression": "awe without comfort",
+      "exact_turns": [
+        "turn_1XNC4XG6YJGKYSGP7A4M9ZF6CZ",
+        "turn_681G63F4H1684XE1D81J9KRKP5"
+      ],
+      "id": "recol_2BFQRGW25A56K4YKTY064T76BX",
+      "interpretation": "The Frontier's animal silence may be avoidance of a memory ecology older than settlement.",
+      "remembered_quotes": [],
+      "state": "remembered",
+      "summary": "The hall treats animal, human, hunter, and prey as impressions in one root system; the reliquary is ringed by deliberately catalogued teeth."
+    },
+    {
+      "at": {
+        "order": 2,
+        "tick": 136,
+        "timeline": "main"
+      },
+      "character": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+      "confidence": 0.84,
+      "emotional_impression": "faith broken open",
+      "exact_turns": [
+        "turn_1XMDZZTGQBFD4C74B9CTCRE1DP",
+        "turn_5MSPG81VV87R4JGYN9DX46H00R"
+      ],
+      "id": "recol_32BJZCGRC8PV5X0Z6775CYRB3F",
+      "interpretation": "Mercy must address repeated pain without pretending a person remains inside every shape.",
+      "remembered_quotes": [],
+      "state": "remembered",
+      "summary": "The inscription says returned forms cannot distinguish hunter from hunted, contradicting his belief that wretches are conscious dead souls."
+    },
+    {
+      "at": {
+        "order": 3,
+        "tick": 136,
+        "timeline": "main"
+      },
+      "character": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+      "confidence": 0.94,
+      "emotional_impression": "wonder approaching temptation",
+      "exact_turns": [
+        "turn_3WFT6EC9CP23J28YQ2ER7D9JKH",
+        "turn_7PDC8CH2CH4N7ZDEJ372KDZGTP"
+      ],
+      "id": "recol_0A7XD4FHFP43X0XVN75VBTBKXH",
+      "interpretation": "The Heartwood may be an enormous distributed memory rather than a conventional magical creature.",
+      "remembered_quotes": [],
+      "state": "remembered",
+      "summary": "Ancient grammar names the root as the remembering subject and amber as golden sap retaining wounded forms."
+    },
+    {
+      "at": {
+        "order": 4,
+        "tick": 136,
+        "timeline": "main"
+      },
+      "character": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+      "confidence": 0.9,
+      "emotional_impression": "technical fascination under terror",
+      "exact_turns": [
+        "turn_3SF3FF8M47TD5C78WKA0Q38JQK",
+        "turn_6YZ12M02XXSEBZXRZ4TP0FN5S8"
+      ],
+      "id": "recol_3HRQ6305D6F011F5Y220A6P44X",
+      "interpretation": "Ancient safety devices require inputs that can become new hazards.",
+      "remembered_quotes": [],
+      "state": "remembered",
+      "summary": "The party chose not to open the reliquary until the return floor began moving; its lattice is designed to quiet routes but also records nearby shadows."
+    }
+  ]
+}

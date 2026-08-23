@@ -1,0 +1,1558 @@
+{
+  "profiles": {
+    "state": {
+      "coldMs": 234.254,
+      "warmForcedMs": 85.3,
+      "exactReuseMs": 3.111,
+      "databaseBytes": 2449408,
+      "recordCount": 294,
+      "searchProfile": {
+        "name": "state",
+        "ftsEnabled": false,
+        "vectorEnabled": false,
+        "vectorProvider": null,
+        "vectorModel": null,
+        "vectorDimensions": 192,
+        "vectorMaxFeatures": 8192,
+        "ftsCandidateLimit": 120,
+        "vectorCandidateLimit": 120,
+        "hybridFtsWeight": 1.0,
+        "hybridVectorWeight": 1.0,
+        "hybridRrfK": 60.0
+      },
+      "vectorModels": [],
+      "searchProjection": {
+        "timingsMs": {}
+      },
+      "coldTimingsMs": {
+        "resolveRevision": 2.185,
+        "loadSource": 177.651,
+        "validate": 12.607,
+        "schema": 2.063,
+        "entities": 14.08,
+        "narrative": 9.862,
+        "derived": 9.328,
+        "search": 0.004,
+        "indexes": 2.303,
+        "total": 234.196
+      },
+      "warmTimingsMs": {
+        "resolveRevision": 3.052,
+        "loadSource": 1.995,
+        "validate": 13.756,
+        "schema": 5.832,
+        "entities": 14.678,
+        "narrative": 8.303,
+        "derived": 9.076,
+        "search": 0.003,
+        "indexes": 2.67,
+        "total": 85.205
+      },
+      "warmEmbeddingCache": null,
+      "exactStatus": "cache-hit"
+    },
+    "fts": {
+      "coldMs": 294.585,
+      "warmForcedMs": 218.949,
+      "exactReuseMs": 9.586,
+      "databaseBytes": 5263360,
+      "recordCount": 294,
+      "searchProfile": {
+        "name": "fts",
+        "ftsEnabled": true,
+        "vectorEnabled": false,
+        "vectorProvider": null,
+        "vectorModel": null,
+        "vectorDimensions": 192,
+        "vectorMaxFeatures": 8192,
+        "ftsCandidateLimit": 120,
+        "vectorCandidateLimit": 120,
+        "hybridFtsWeight": 1.0,
+        "hybridVectorWeight": 1.0,
+        "hybridRrfK": 60.0
+      },
+      "vectorModels": [],
+      "searchProjection": {
+        "timingsMs": {
+          "buildDocuments": 23.862,
+          "prepareRows": 13.095,
+          "insertDocuments": 7.41,
+          "insertFts": 12.532
+        }
+      },
+      "coldTimingsMs": {
+        "resolveRevision": 1.875,
+        "loadSource": 139.649,
+        "validate": 13.389,
+        "schema": 2.097,
+        "entities": 17.737,
+        "narrative": 19.938,
+        "derived": 9.688,
+        "search": 58.042,
+        "indexes": 7.168,
+        "total": 294.508
+      },
+      "warmTimingsMs": {
+        "resolveRevision": 6.359,
+        "loadSource": 2.041,
+        "validate": 11.952,
+        "schema": 1.696,
+        "entities": 13.769,
+        "narrative": 7.919,
+        "derived": 8.686,
+        "search": 125.663,
+        "indexes": 18.266,
+        "total": 218.675
+      },
+      "warmEmbeddingCache": null,
+      "exactStatus": "cache-hit"
+    },
+    "vector": {
+      "coldMs": 1667.787,
+      "warmForcedMs": 277.404,
+      "exactReuseMs": 15.833,
+      "databaseBytes": 9953280,
+      "recordCount": 294,
+      "searchProfile": {
+        "name": "vector",
+        "ftsEnabled": false,
+        "vectorEnabled": true,
+        "vectorProvider": "lsa",
+        "vectorModel": "wedl-lsa-v1",
+        "vectorDimensions": 192,
+        "vectorMaxFeatures": 8192,
+        "ftsCandidateLimit": 120,
+        "vectorCandidateLimit": 120,
+        "hybridFtsWeight": 1.0,
+        "hybridVectorWeight": 1.0,
+        "hybridRrfK": 60.0
+      },
+      "vectorModels": [
+        {
+          "scope": "author",
+          "modelId": "lsa:author:wedl-lsa-v1:192:d3f8f72a9a6f89a5",
+          "provider": "lsa",
+          "modelName": "wedl-lsa-v1",
+          "dimensions": 192,
+          "normalized": true,
+          "corpusHash": "d3f8f72a9a6f89a5a646e8290faf8b33ee21ac49e22b730995b6d19b72593598"
+        },
+        {
+          "scope": "character",
+          "modelId": "lsa:character:wedl-lsa-v1:124:a1e1a96482d4daea",
+          "provider": "lsa",
+          "modelName": "wedl-lsa-v1",
+          "dimensions": 124,
+          "normalized": true,
+          "corpusHash": "a1e1a96482d4daea0cd799d0ed086b1e7e514d509265626a7e4f34ab908ebf41"
+        }
+      ],
+      "searchProjection": {
+        "timingsMs": {
+          "buildDocuments": 29.1,
+          "hashInputs": 5.625,
+          "buildVectors": 1264.782,
+          "prepareRows": 9.177,
+          "insertDocuments": 6.712,
+          "insertVectors": 19.119
+        }
+      },
+      "coldTimingsMs": {
+        "resolveRevision": 2.223,
+        "loadSource": 206.549,
+        "validate": 13.735,
+        "schema": 2.402,
+        "entities": 50.776,
+        "narrative": 13.492,
+        "derived": 11.424,
+        "search": 1337.629,
+        "indexes": 16.825,
+        "total": 1667.702
+      },
+      "warmTimingsMs": {
+        "resolveRevision": 6.676,
+        "loadSource": 2.223,
+        "validate": 16.909,
+        "schema": 1.846,
+        "entities": 30.739,
+        "narrative": 9.363,
+        "derived": 10.401,
+        "search": 115.743,
+        "indexes": 63.017,
+        "total": 276.923
+      },
+      "warmEmbeddingCache": null,
+      "exactStatus": "cache-hit"
+    },
+    "hybrid": {
+      "coldMs": 1910.211,
+      "warmForcedMs": 504.115,
+      "exactReuseMs": 85.558,
+      "databaseBytes": 10829824,
+      "recordCount": 294,
+      "searchProfile": {
+        "name": "hybrid",
+        "ftsEnabled": true,
+        "vectorEnabled": true,
+        "vectorProvider": "lsa",
+        "vectorModel": "wedl-lsa-v1",
+        "vectorDimensions": 192,
+        "vectorMaxFeatures": 8192,
+        "ftsCandidateLimit": 120,
+        "vectorCandidateLimit": 120,
+        "hybridFtsWeight": 1.0,
+        "hybridVectorWeight": 1.0,
+        "hybridRrfK": 60.0
+      },
+      "vectorModels": [
+        {
+          "scope": "author",
+          "modelId": "lsa:author:wedl-lsa-v1:192:3ba32aa0ba28d742",
+          "provider": "lsa",
+          "modelName": "wedl-lsa-v1",
+          "dimensions": 192,
+          "normalized": true,
+          "corpusHash": "3ba32aa0ba28d742f609e35be898157e3e725446e7e60f564a3ac3ee441c50eb"
+        },
+        {
+          "scope": "character",
+          "modelId": "lsa:character:wedl-lsa-v1:124:8e194a9a4e6b9d0b",
+          "provider": "lsa",
+          "modelName": "wedl-lsa-v1",
+          "dimensions": 124,
+          "normalized": true,
+          "corpusHash": "8e194a9a4e6b9d0b0dbaa09d7a96e392dacb490727eeb6c53698b5754d33fec8"
+        }
+      ],
+      "searchProjection": {
+        "timingsMs": {
+          "buildDocuments": 23.817,
+          "hashInputs": 4.338,
+          "buildVectors": 1194.372,
+          "prepareRows": 13.147,
+          "insertDocuments": 6.751,
+          "insertFts": 14.039,
+          "insertVectors": 50.905
+        }
+      },
+      "coldTimingsMs": {
+        "resolveRevision": 2.599,
+        "loadSource": 392.509,
+        "validate": 15.899,
+        "schema": 2.903,
+        "entities": 18.488,
+        "narrative": 9.763,
+        "derived": 9.306,
+        "search": 1322.448,
+        "indexes": 14.879,
+        "total": 1908.405
+      },
+      "warmTimingsMs": {
+        "resolveRevision": 19.231,
+        "loadSource": 17.138,
+        "validate": 15.057,
+        "schema": 1.909,
+        "entities": 14.98,
+        "narrative": 34.74,
+        "derived": 23.906,
+        "search": 183.561,
+        "indexes": 88.403,
+        "total": 475.022
+      },
+      "warmEmbeddingCache": null,
+      "exactStatus": "cache-hit"
+    }
+  },
+  "queries": {
+    "exactAmber": {
+      "fts": {
+        "medianMs": 7.19,
+        "meanMs": 18.991,
+        "p95Ms": 75.491,
+        "minimumMs": 5.978,
+        "maximumMs": 75.491,
+        "repeats": 20,
+        "resultCount": 20,
+        "topResults": [
+          {
+            "title": "Halric knows blood can quicken raw amber",
+            "documentKind": "entity-author",
+            "lanes": [
+              "fts"
+            ],
+            "ftsRank": 1,
+            "vectorRank": null,
+            "vectorScore": null,
+            "score": 0.01639344262295082
+          },
+          {
+            "title": "Amber Quickening",
+            "documentKind": "entity-author",
+            "lanes": [
+              "fts"
+            ],
+            "ftsRank": 2,
+            "vectorRank": null,
+            "vectorScore": null,
+            "score": 0.016129032258064516
+          },
+          {
+            "title": "The Harrowcross Amber Chest Quickens Again",
+            "documentKind": "entity-author",
+            "lanes": [
+              "fts"
+            ],
+            "ftsRank": 3,
+            "vectorRank": null,
+            "vectorScore": null,
+            "score": 0.015873015873015872
+          },
+          {
+            "title": "Tillo Dowses the Quickenings Toward Saint Orra",
+            "documentKind": "entity-author",
+            "lanes": [
+              "fts"
+            ],
+            "ftsRank": 4,
+            "vectorRank": null,
+            "vectorScore": null,
+            "score": 0.015625
+          },
+          {
+            "title": "The Frontiersmen Follow the Quickenings to Saint Orra",
+            "documentKind": "entity-author",
+            "lanes": [
+              "fts"
+            ],
+            "ftsRank": 5,
+            "vectorRank": null,
+            "vectorScore": null,
+            "score": 0.015384615384615385
+          },
+          {
+            "title": "Tillo's Dowsing Fork",
+            "documentKind": "entity-author",
+            "lanes": [
+              "fts"
+            ],
+            "ftsRank": 6,
+            "vectorRank": null,
+            "vectorScore": null,
+            "score": 0.015151515151515152
+          },
+          {
+            "title": "Blood Ring",
+            "documentKind": "entity-author",
+            "lanes": [
+              "fts"
+            ],
+            "ftsRank": 7,
+            "vectorRank": null,
+            "vectorScore": null,
+            "score": 0.014925373134328358
+          },
+          {
+            "title": "Bran Tew",
+            "documentKind": "entity-author",
+            "lanes": [
+              "fts"
+            ],
+            "ftsRank": 8,
+            "vectorRank": null,
+            "vectorScore": null,
+            "score": 0.014705882352941176
+          }
+        ]
+      },
+      "vector": {
+        "medianMs": 6.159,
+        "meanMs": 11.419,
+        "p95Ms": 79.78,
+        "minimumMs": 4.906,
+        "maximumMs": 79.78,
+        "repeats": 20,
+        "resultCount": 20,
+        "topResults": [
+          {
+            "title": "The Harrowcross Amber Chest Quickens Again",
+            "documentKind": "entity-author",
+            "lanes": [
+              "vector"
+            ],
+            "ftsRank": null,
+            "vectorRank": 1,
+            "vectorScore": 0.7107661962509155,
+            "score": 0.7107661962509155
+          },
+          {
+            "title": "Rhea links blood, amber, and the wretch",
+            "documentKind": "entity-author",
+            "lanes": [
+              "vector"
+            ],
+            "ftsRank": null,
+            "vectorRank": 2,
+            "vectorScore": 0.37283092737197876,
+            "score": 0.37283092737197876
+          },
+          {
+            "title": "Blood Ring",
+            "documentKind": "entity-author",
+            "lanes": [
+              "vector"
+            ],
+            "ftsRank": null,
+            "vectorRank": 3,
+            "vectorScore": 0.36995208263397217,
+            "score": 0.36995208263397217
+          },
+          {
+            "title": "Amber Quickening",
+            "documentKind": "entity-author",
+            "lanes": [
+              "vector"
+            ],
+            "ftsRank": null,
+            "vectorRank": 4,
+            "vectorScore": 0.3354736864566803,
+            "score": 0.3354736864566803
+          },
+          {
+            "title": "Blood Ring Frenzy",
+            "documentKind": "entity-author",
+            "lanes": [
+              "vector"
+            ],
+            "ftsRank": null,
+            "vectorRank": 5,
+            "vectorScore": 0.2918655574321747,
+            "score": 0.2918655574321747
+          },
+          {
+            "title": "Halric knows blood can quicken raw amber",
+            "documentKind": "entity-author",
+            "lanes": [
+              "vector"
+            ],
+            "ftsRank": null,
+            "vectorRank": 6,
+            "vectorScore": 0.2906795144081116,
+            "score": 0.2906795144081116
+          },
+          {
+            "title": "Blood Ring Chains",
+            "documentKind": "entity-author",
+            "lanes": [
+              "vector"
+            ],
+            "ftsRank": null,
+            "vectorRank": 7,
+            "vectorScore": 0.26130425930023193,
+            "score": 0.26130425930023193
+          },
+          {
+            "title": "Blood Ring Pens",
+            "documentKind": "entity-author",
+            "lanes": [
+              "vector"
+            ],
+            "ftsRank": null,
+            "vectorRank": 8,
+            "vectorScore": 0.2548113465309143,
+            "score": 0.2548113465309143
+          }
+        ]
+      },
+      "hybrid": {
+        "medianMs": 9.507,
+        "meanMs": 11.552,
+        "p95Ms": 37.899,
+        "minimumMs": 8.01,
+        "maximumMs": 37.899,
+        "repeats": 20,
+        "resultCount": 20,
+        "topResults": [
+          {
+            "title": "The Harrowcross Amber Chest Quickens Again",
+            "documentKind": "entity-author",
+            "lanes": [
+              "fts",
+              "vector"
+            ],
+            "ftsRank": 3,
+            "vectorRank": 1,
+            "vectorScore": 0.7107661962509155,
+            "score": 0.032266458495966696
+          },
+          {
+            "title": "Amber Quickening",
+            "documentKind": "entity-author",
+            "lanes": [
+              "fts",
+              "vector"
+            ],
+            "ftsRank": 2,
+            "vectorRank": 4,
+            "vectorScore": 0.3354736864566803,
+            "score": 0.031754032258064516
+          },
+          {
+            "title": "Halric knows blood can quicken raw amber",
+            "documentKind": "entity-author",
+            "lanes": [
+              "fts",
+              "vector"
+            ],
+            "ftsRank": 1,
+            "vectorRank": 6,
+            "vectorScore": 0.2906795144081116,
+            "score": 0.031544957774465976
+          },
+          {
+            "title": "Blood Ring",
+            "documentKind": "entity-author",
+            "lanes": [
+              "fts",
+              "vector"
+            ],
+            "ftsRank": 7,
+            "vectorRank": 3,
+            "vectorScore": 0.36995208263397217,
+            "score": 0.030798389007344232
+          },
+          {
+            "title": "Blood Ring Frenzy",
+            "documentKind": "entity-author",
+            "lanes": [
+              "fts",
+              "vector"
+            ],
+            "ftsRank": 9,
+            "vectorRank": 5,
+            "vectorScore": 0.2918655574321747,
+            "score": 0.029877369007803793
+          },
+          {
+            "title": "Rhea links blood, amber, and the wretch",
+            "documentKind": "entity-author",
+            "lanes": [
+              "fts",
+              "vector"
+            ],
+            "ftsRank": 14,
+            "vectorRank": 2,
+            "vectorScore": 0.37283092737197876,
+            "score": 0.02964254577157803
+          },
+          {
+            "title": "Blood Ring Chains",
+            "documentKind": "entity-author",
+            "lanes": [
+              "fts",
+              "vector"
+            ],
+            "ftsRank": 10,
+            "vectorRank": 7,
+            "vectorScore": 0.26130425930023193,
+            "score": 0.029211087420042643
+          },
+          {
+            "title": "Blood Ring Pens",
+            "documentKind": "entity-author",
+            "lanes": [
+              "fts",
+              "vector"
+            ],
+            "ftsRank": 11,
+            "vectorRank": 8,
+            "vectorScore": 0.2548113465309143,
+            "score": 0.028790389395194696
+          }
+        ]
+      }
+    },
+    "semanticWretch": {
+      "fts": {
+        "medianMs": 4.732,
+        "meanMs": 4.901,
+        "p95Ms": 7.275,
+        "minimumMs": 4.099,
+        "maximumMs": 7.275,
+        "repeats": 20,
+        "resultCount": 20,
+        "topResults": [
+          {
+            "title": "Sunken Hall Memory Tablet",
+            "documentKind": "entity-author",
+            "lanes": [
+              "fts"
+            ],
+            "ftsRank": 1,
+            "vectorRank": null,
+            "vectorScore": null,
+            "score": 0.01639344262295082
+          },
+          {
+            "title": "Blackwater Crossing",
+            "documentKind": "entity-author",
+            "lanes": [
+              "fts"
+            ],
+            "ftsRank": 2,
+            "vectorRank": null,
+            "vectorScore": null,
+            "score": 0.016129032258064516
+          },
+          {
+            "title": "Veyra Reads the Memory-Sap Tablet",
+            "documentKind": "entity-author",
+            "lanes": [
+              "fts"
+            ],
+            "ftsRank": 3,
+            "vectorRank": null,
+            "vectorScore": null,
+            "score": 0.015873015873015872
+          },
+          {
+            "title": "The Blackroot Amber Manifestation",
+            "documentKind": "entity-author",
+            "lanes": [
+              "fts"
+            ],
+            "ftsRank": 4,
+            "vectorRank": null,
+            "vectorScore": null,
+            "score": 0.015625
+          },
+          {
+            "title": "A Wretch Comes Through the Barracks Wall",
+            "documentKind": "entity-author",
+            "lanes": [
+              "fts"
+            ],
+            "ftsRank": 5,
+            "vectorRank": null,
+            "vectorScore": null,
+            "score": 0.015384615384615385
+          },
+          {
+            "title": "Amber Reliquary",
+            "documentKind": "entity-author",
+            "lanes": [
+              "fts"
+            ],
+            "ftsRank": 6,
+            "vectorRank": null,
+            "vectorScore": null,
+            "score": 0.015151515151515152
+          },
+          {
+            "title": "A Second Wretch Hunts the East Orchard",
+            "documentKind": "entity-author",
+            "lanes": [
+              "fts"
+            ],
+            "ftsRank": 7,
+            "vectorRank": null,
+            "vectorScore": null,
+            "score": 0.014925373134328358
+          },
+          {
+            "title": "A Fox-Shaped Glimmer Crosses the Road",
+            "documentKind": "entity-author",
+            "lanes": [
+              "fts"
+            ],
+            "ftsRank": 8,
+            "vectorRank": null,
+            "vectorScore": null,
+            "score": 0.014705882352941176
+          }
+        ]
+      },
+      "vector": {
+        "medianMs": 5.775,
+        "meanMs": 7.301,
+        "p95Ms": 19.967,
+        "minimumMs": 4.806,
+        "maximumMs": 19.967,
+        "repeats": 20,
+        "resultCount": 20,
+        "topResults": [
+          {
+            "title": "Sunken Hall Memory Tablet",
+            "documentKind": "entity-author",
+            "lanes": [
+              "vector"
+            ],
+            "ftsRank": null,
+            "vectorRank": 1,
+            "vectorScore": 0.4747597277164459,
+            "score": 0.4747597277164459
+          },
+          {
+            "title": "A Wretch Comes Through the Barracks Wall",
+            "documentKind": "entity-author",
+            "lanes": [
+              "vector"
+            ],
+            "ftsRank": null,
+            "vectorRank": 2,
+            "vectorScore": 0.4395265579223633,
+            "score": 0.4395265579223633
+          },
+          {
+            "title": "The Sunken Hall Debate",
+            "documentKind": "entity-author",
+            "lanes": [
+              "vector"
+            ],
+            "ftsRank": null,
+            "vectorRank": 3,
+            "vectorScore": 0.34724879264831543,
+            "score": 0.34724879264831543
+          },
+          {
+            "title": "Amber Reliquary",
+            "documentKind": "entity-author",
+            "lanes": [
+              "vector"
+            ],
+            "ftsRank": null,
+            "vectorRank": 4,
+            "vectorScore": 0.24790745973587036,
+            "score": 0.24790745973587036
+          },
+          {
+            "title": "Blackwater Crossing",
+            "documentKind": "entity-author",
+            "lanes": [
+              "vector"
+            ],
+            "ftsRank": null,
+            "vectorRank": 5,
+            "vectorScore": 0.24424049258232117,
+            "score": 0.24424049258232117
+          },
+          {
+            "title": "The Tree King",
+            "documentKind": "entity-author",
+            "lanes": [
+              "vector"
+            ],
+            "ftsRank": null,
+            "vectorRank": 6,
+            "vectorScore": 0.2379327118396759,
+            "score": 0.2379327118396759
+          },
+          {
+            "title": "Nolly Dey",
+            "documentKind": "entity-author",
+            "lanes": [
+              "vector"
+            ],
+            "ftsRank": null,
+            "vectorRank": 7,
+            "vectorScore": 0.23369377851486206,
+            "score": 0.23369377851486206
+          },
+          {
+            "title": "Senna Reed",
+            "documentKind": "entity-author",
+            "lanes": [
+              "vector"
+            ],
+            "ftsRank": null,
+            "vectorRank": 8,
+            "vectorScore": 0.23228779435157776,
+            "score": 0.23228779435157776
+          }
+        ]
+      },
+      "hybrid": {
+        "medianMs": 6.908,
+        "meanMs": 12.276,
+        "p95Ms": 106.285,
+        "minimumMs": 6.375,
+        "maximumMs": 106.285,
+        "repeats": 20,
+        "resultCount": 20,
+        "topResults": [
+          {
+            "title": "Sunken Hall Memory Tablet",
+            "documentKind": "entity-author",
+            "lanes": [
+              "fts",
+              "vector"
+            ],
+            "ftsRank": 1,
+            "vectorRank": 1,
+            "vectorScore": 0.4747597277164459,
+            "score": 0.03278688524590164
+          },
+          {
+            "title": "A Wretch Comes Through the Barracks Wall",
+            "documentKind": "entity-author",
+            "lanes": [
+              "fts",
+              "vector"
+            ],
+            "ftsRank": 5,
+            "vectorRank": 2,
+            "vectorScore": 0.4395265579223633,
+            "score": 0.0315136476426799
+          },
+          {
+            "title": "Blackwater Crossing",
+            "documentKind": "entity-author",
+            "lanes": [
+              "fts",
+              "vector"
+            ],
+            "ftsRank": 2,
+            "vectorRank": 5,
+            "vectorScore": 0.24424049258232117,
+            "score": 0.0315136476426799
+          },
+          {
+            "title": "Amber Reliquary",
+            "documentKind": "entity-author",
+            "lanes": [
+              "fts",
+              "vector"
+            ],
+            "ftsRank": 6,
+            "vectorRank": 4,
+            "vectorScore": 0.24790745973587036,
+            "score": 0.030776515151515152
+          },
+          {
+            "title": "The Sunken Hall Debate",
+            "documentKind": "entity-author",
+            "lanes": [
+              "fts",
+              "vector"
+            ],
+            "ftsRank": 20,
+            "vectorRank": 3,
+            "vectorScore": 0.34724879264831543,
+            "score": 0.028373015873015873
+          },
+          {
+            "title": "The Frontiersmen",
+            "documentKind": "entity-author",
+            "lanes": [
+              "fts",
+              "vector"
+            ],
+            "ftsRank": 12,
+            "vectorRank": 11,
+            "vectorScore": 0.2033674120903015,
+            "score": 0.02797339593114241
+          },
+          {
+            "title": "Nolly Dey",
+            "documentKind": "entity-author",
+            "lanes": [
+              "fts",
+              "vector"
+            ],
+            "ftsRank": 23,
+            "vectorRank": 7,
+            "vectorScore": 0.23369377851486206,
+            "score": 0.026973565905412694
+          },
+          {
+            "title": "Senna Reed",
+            "documentKind": "entity-author",
+            "lanes": [
+              "fts",
+              "vector"
+            ],
+            "ftsRank": 22,
+            "vectorRank": 8,
+            "vectorScore": 0.23228779435157776,
+            "score": 0.02690100430416069
+          }
+        ]
+      }
+    },
+    "treeKing": {
+      "fts": {
+        "medianMs": 5.228,
+        "meanMs": 5.429,
+        "p95Ms": 6.593,
+        "minimumMs": 4.937,
+        "maximumMs": 6.593,
+        "repeats": 20,
+        "resultCount": 20,
+        "topResults": [
+          {
+            "title": "Sylvi Ashdown records bloodsport strengthens",
+            "documentKind": "entity-author",
+            "lanes": [
+              "fts"
+            ],
+            "ftsRank": 1,
+            "vectorRank": null,
+            "vectorScore": null,
+            "score": 0.01639344262295082
+          },
+          {
+            "title": "Rhea Marrow records bloodsport strengthens",
+            "documentKind": "entity-author",
+            "lanes": [
+              "fts"
+            ],
+            "ftsRank": 2,
+            "vectorRank": null,
+            "vectorScore": null,
+            "score": 0.016129032258064516
+          },
+          {
+            "title": "Pip Fenlock records bloodsport strengthens",
+            "documentKind": "entity-author",
+            "lanes": [
+              "fts"
+            ],
+            "ftsRank": 3,
+            "vectorRank": null,
+            "vectorScore": null,
+            "score": 0.015873015873015872
+          },
+          {
+            "title": "Veyra Kest records bloodsport strengthens",
+            "documentKind": "entity-author",
+            "lanes": [
+              "fts"
+            ],
+            "ftsRank": 4,
+            "vectorRank": null,
+            "vectorScore": null,
+            "score": 0.015625
+          },
+          {
+            "title": "Brother Garran Holt records bloodsport strengthens",
+            "documentKind": "entity-author",
+            "lanes": [
+              "fts"
+            ],
+            "ftsRank": 5,
+            "vectorRank": null,
+            "vectorScore": null,
+            "score": 0.015384615384615385
+          },
+          {
+            "title": "The Frontiersmen Follow the Quickenings to Saint Orra",
+            "documentKind": "entity-author",
+            "lanes": [
+              "fts"
+            ],
+            "ftsRank": 6,
+            "vectorRank": null,
+            "vectorScore": null,
+            "score": 0.015151515151515152
+          },
+          {
+            "title": "Escape Before the Blood Sport",
+            "documentKind": "entity-author",
+            "lanes": [
+              "fts"
+            ],
+            "ftsRank": 7,
+            "vectorRank": null,
+            "vectorScore": null,
+            "score": 0.014925373134328358
+          },
+          {
+            "title": "The Frontiersmen",
+            "documentKind": "entity-author",
+            "lanes": [
+              "fts"
+            ],
+            "ftsRank": 8,
+            "vectorRank": null,
+            "vectorScore": null,
+            "score": 0.014705882352941176
+          }
+        ]
+      },
+      "vector": {
+        "medianMs": 5.08,
+        "meanMs": 5.888,
+        "p95Ms": 14.334,
+        "minimumMs": 4.675,
+        "maximumMs": 14.334,
+        "repeats": 20,
+        "resultCount": 20,
+        "topResults": [
+          {
+            "title": "Escape Before the Blood Sport",
+            "documentKind": "entity-author",
+            "lanes": [
+              "vector"
+            ],
+            "ftsRank": null,
+            "vectorRank": 1,
+            "vectorScore": 0.5555037260055542,
+            "score": 0.5555037260055542
+          },
+          {
+            "title": "Veyra Reads the Memory-Sap Tablet",
+            "documentKind": "entity-author",
+            "lanes": [
+              "vector"
+            ],
+            "ftsRank": null,
+            "vectorRank": 2,
+            "vectorScore": 0.41161978244781494,
+            "score": 0.41161978244781494
+          },
+          {
+            "title": "The Tree King's Offer",
+            "documentKind": "entity-author",
+            "lanes": [
+              "vector"
+            ],
+            "ftsRank": null,
+            "vectorRank": 3,
+            "vectorScore": 0.39633744955062866,
+            "score": 0.39633744955062866
+          },
+          {
+            "title": "Rhea Marrow forms an underground amber theory",
+            "documentKind": "entity-author",
+            "lanes": [
+              "vector"
+            ],
+            "ftsRank": null,
+            "vectorRank": 4,
+            "vectorScore": 0.29690369963645935,
+            "score": 0.29690369963645935
+          },
+          {
+            "title": "The Tree King Decrees Blood Sport",
+            "documentKind": "entity-author",
+            "lanes": [
+              "vector"
+            ],
+            "ftsRank": null,
+            "vectorRank": 5,
+            "vectorScore": 0.2680991590023041,
+            "score": 0.2680991590023041
+          },
+          {
+            "title": "The Frontiersmen",
+            "documentKind": "entity-author",
+            "lanes": [
+              "vector"
+            ],
+            "ftsRank": null,
+            "vectorRank": 6,
+            "vectorScore": 0.22575318813323975,
+            "score": 0.22575318813323975
+          },
+          {
+            "title": "The Tree King Claims Communion with the Frontier",
+            "documentKind": "entity-author",
+            "lanes": [
+              "vector"
+            ],
+            "ftsRank": null,
+            "vectorRank": 7,
+            "vectorScore": 0.21958258748054504,
+            "score": 0.21958258748054504
+          },
+          {
+            "title": "Root Camp Drum Smoke",
+            "documentKind": "entity-author",
+            "lanes": [
+              "vector"
+            ],
+            "ftsRank": null,
+            "vectorRank": 8,
+            "vectorScore": 0.20934228599071503,
+            "score": 0.20934228599071503
+          }
+        ]
+      },
+      "hybrid": {
+        "medianMs": 7.869,
+        "meanMs": 8.428,
+        "p95Ms": 14.887,
+        "minimumMs": 7.288,
+        "maximumMs": 14.887,
+        "repeats": 20,
+        "resultCount": 20,
+        "topResults": [
+          {
+            "title": "Escape Before the Blood Sport",
+            "documentKind": "entity-author",
+            "lanes": [
+              "fts",
+              "vector"
+            ],
+            "ftsRank": 7,
+            "vectorRank": 1,
+            "vectorScore": 0.5555037260055542,
+            "score": 0.03131881575727918
+          },
+          {
+            "title": "Veyra Reads the Memory-Sap Tablet",
+            "documentKind": "entity-author",
+            "lanes": [
+              "fts",
+              "vector"
+            ],
+            "ftsRank": 11,
+            "vectorRank": 2,
+            "vectorScore": 0.41161978244781494,
+            "score": 0.03021353930031804
+          },
+          {
+            "title": "The Frontiersmen",
+            "documentKind": "entity-author",
+            "lanes": [
+              "fts",
+              "vector"
+            ],
+            "ftsRank": 8,
+            "vectorRank": 6,
+            "vectorScore": 0.22575318813323975,
+            "score": 0.029857397504456328
+          },
+          {
+            "title": "Rhea Marrow forms an underground amber theory",
+            "documentKind": "entity-author",
+            "lanes": [
+              "fts",
+              "vector"
+            ],
+            "ftsRank": 13,
+            "vectorRank": 4,
+            "vectorScore": 0.29690369963645935,
+            "score": 0.0293236301369863
+          },
+          {
+            "title": "Rhea Marrow records bloodsport strengthens",
+            "documentKind": "entity-author",
+            "lanes": [
+              "fts",
+              "vector"
+            ],
+            "ftsRank": 2,
+            "vectorRank": 16,
+            "vectorScore": 0.17534005641937256,
+            "score": 0.02928692699490662
+          },
+          {
+            "title": "The Tree King's Offer",
+            "documentKind": "entity-author",
+            "lanes": [
+              "fts",
+              "vector"
+            ],
+            "ftsRank": 17,
+            "vectorRank": 3,
+            "vectorScore": 0.39633744955062866,
+            "score": 0.02886002886002886
+          },
+          {
+            "title": "The Tree King Decrees Blood Sport",
+            "documentKind": "entity-author",
+            "lanes": [
+              "fts",
+              "vector"
+            ],
+            "ftsRank": 21,
+            "vectorRank": 5,
+            "vectorScore": 0.2680991590023041,
+            "score": 0.027730294396961064
+          },
+          {
+            "title": "Brother Garran Holt records bloodsport strengthens",
+            "documentKind": "entity-author",
+            "lanes": [
+              "fts",
+              "vector"
+            ],
+            "ftsRank": 5,
+            "vectorRank": 24,
+            "vectorScore": 0.15750643610954285,
+            "score": 0.02728937728937729
+          }
+        ]
+      }
+    },
+    "escape": {
+      "fts": {
+        "medianMs": 4.12,
+        "meanMs": 4.14,
+        "p95Ms": 4.43,
+        "minimumMs": 3.958,
+        "maximumMs": 4.43,
+        "repeats": 20,
+        "resultCount": 20,
+        "topResults": [
+          {
+            "title": "Northwood Pursuit Trail",
+            "documentKind": "entity-author",
+            "lanes": [
+              "fts"
+            ],
+            "ftsRank": 1,
+            "vectorRank": null,
+            "vectorScore": null,
+            "score": 0.01639344262295082
+          },
+          {
+            "title": "Northwood Pursuit Rain",
+            "documentKind": "entity-author",
+            "lanes": [
+              "fts"
+            ],
+            "ftsRank": 2,
+            "vectorRank": null,
+            "vectorScore": null,
+            "score": 0.016129032258064516
+          },
+          {
+            "title": "Moth's Bone Key",
+            "documentKind": "entity-author",
+            "lanes": [
+              "fts"
+            ],
+            "ftsRank": 3,
+            "vectorRank": null,
+            "vectorScore": null,
+            "score": 0.015873015873015872
+          },
+          {
+            "title": "The Root Host Pursues the Frontiersmen",
+            "documentKind": "entity-author",
+            "lanes": [
+              "fts"
+            ],
+            "ftsRank": 4,
+            "vectorRank": null,
+            "vectorScore": null,
+            "score": 0.015625
+          },
+          {
+            "title": "Running Under the Drums",
+            "documentKind": "entity-author",
+            "lanes": [
+              "fts"
+            ],
+            "ftsRank": 5,
+            "vectorRank": null,
+            "vectorScore": null,
+            "score": 0.015384615384615385
+          },
+          {
+            "title": "The Frontiersmen",
+            "documentKind": "entity-author",
+            "lanes": [
+              "fts"
+            ],
+            "ftsRank": 6,
+            "vectorRank": null,
+            "vectorScore": null,
+            "score": 0.015151515151515152
+          },
+          {
+            "title": "Pip notices a road-marker notch on Moth's key",
+            "documentKind": "entity-author",
+            "lanes": [
+              "fts"
+            ],
+            "ftsRank": 7,
+            "vectorRank": null,
+            "vectorScore": null,
+            "score": 0.014925373134328358
+          },
+          {
+            "title": "The Root Host Raises the Pursuit Alarm",
+            "documentKind": "entity-author",
+            "lanes": [
+              "fts"
+            ],
+            "ftsRank": 8,
+            "vectorRank": null,
+            "vectorScore": null,
+            "score": 0.014705882352941176
+          }
+        ]
+      },
+      "vector": {
+        "medianMs": 4.951,
+        "meanMs": 5.38,
+        "p95Ms": 12.407,
+        "minimumMs": 4.645,
+        "maximumMs": 12.407,
+        "repeats": 20,
+        "resultCount": 20,
+        "topResults": [
+          {
+            "title": "Moth's Bone Key",
+            "documentKind": "entity-author",
+            "lanes": [
+              "vector"
+            ],
+            "ftsRank": null,
+            "vectorRank": 1,
+            "vectorScore": 0.5744668245315552,
+            "score": 0.5744668245315552
+          },
+          {
+            "title": "Northwood Pursuit Rain",
+            "documentKind": "entity-author",
+            "lanes": [
+              "vector"
+            ],
+            "ftsRank": null,
+            "vectorRank": 2,
+            "vectorScore": 0.533655047416687,
+            "score": 0.533655047416687
+          },
+          {
+            "title": "Northwood Pursuit Trail",
+            "documentKind": "entity-author",
+            "lanes": [
+              "vector"
+            ],
+            "ftsRank": null,
+            "vectorRank": 3,
+            "vectorScore": 0.5051201581954956,
+            "score": 0.5051201581954956
+          },
+          {
+            "title": "Pip notices a road-marker notch on Moth's key",
+            "documentKind": "entity-author",
+            "lanes": [
+              "vector"
+            ],
+            "ftsRank": null,
+            "vectorRank": 4,
+            "vectorScore": 0.40568864345550537,
+            "score": 0.40568864345550537
+          },
+          {
+            "title": "The Frontiersmen",
+            "documentKind": "entity-author",
+            "lanes": [
+              "vector"
+            ],
+            "ftsRank": null,
+            "vectorRank": 5,
+            "vectorScore": 0.26816755533218384,
+            "score": 0.26816755533218384
+          },
+          {
+            "title": "The Root Host Confiscates the Party's Gear",
+            "documentKind": "entity-author",
+            "lanes": [
+              "vector"
+            ],
+            "ftsRank": null,
+            "vectorRank": 6,
+            "vectorScore": 0.25878262519836426,
+            "score": 0.25878262519836426
+          },
+          {
+            "title": "Rhea Marrow records moth opened pen",
+            "documentKind": "entity-author",
+            "lanes": [
+              "vector"
+            ],
+            "ftsRank": null,
+            "vectorRank": 7,
+            "vectorScore": 0.24416477978229523,
+            "score": 0.24416477978229523
+          },
+          {
+            "title": "Veyra Kest records moth opened pen",
+            "documentKind": "entity-author",
+            "lanes": [
+              "vector"
+            ],
+            "ftsRank": null,
+            "vectorRank": 8,
+            "vectorScore": 0.23809713125228882,
+            "score": 0.23809713125228882
+          }
+        ]
+      },
+      "hybrid": {
+        "medianMs": 6.773,
+        "meanMs": 7.49,
+        "p95Ms": 19.288,
+        "minimumMs": 6.325,
+        "maximumMs": 19.288,
+        "repeats": 20,
+        "resultCount": 20,
+        "topResults": [
+          {
+            "title": "Northwood Pursuit Trail",
+            "documentKind": "entity-author",
+            "lanes": [
+              "fts",
+              "vector"
+            ],
+            "ftsRank": 1,
+            "vectorRank": 3,
+            "vectorScore": 0.5051201581954956,
+            "score": 0.032266458495966696
+          },
+          {
+            "title": "Moth's Bone Key",
+            "documentKind": "entity-author",
+            "lanes": [
+              "fts",
+              "vector"
+            ],
+            "ftsRank": 3,
+            "vectorRank": 1,
+            "vectorScore": 0.5744668245315552,
+            "score": 0.032266458495966696
+          },
+          {
+            "title": "Northwood Pursuit Rain",
+            "documentKind": "entity-author",
+            "lanes": [
+              "fts",
+              "vector"
+            ],
+            "ftsRank": 2,
+            "vectorRank": 2,
+            "vectorScore": 0.533655047416687,
+            "score": 0.03225806451612903
+          },
+          {
+            "title": "Pip notices a road-marker notch on Moth's key",
+            "documentKind": "entity-author",
+            "lanes": [
+              "fts",
+              "vector"
+            ],
+            "ftsRank": 7,
+            "vectorRank": 4,
+            "vectorScore": 0.40568864345550537,
+            "score": 0.03055037313432836
+          },
+          {
+            "title": "The Frontiersmen",
+            "documentKind": "entity-author",
+            "lanes": [
+              "fts",
+              "vector"
+            ],
+            "ftsRank": 6,
+            "vectorRank": 5,
+            "vectorScore": 0.26816755533218384,
+            "score": 0.030536130536130537
+          },
+          {
+            "title": "The Root Host Confiscates the Party's Gear",
+            "documentKind": "entity-author",
+            "lanes": [
+              "fts",
+              "vector"
+            ],
+            "ftsRank": 10,
+            "vectorRank": 6,
+            "vectorScore": 0.25878262519836426,
+            "score": 0.029437229437229435
+          },
+          {
+            "title": "The Root Host Pursues the Frontiersmen",
+            "documentKind": "entity-author",
+            "lanes": [
+              "fts",
+              "vector"
+            ],
+            "ftsRank": 4,
+            "vectorRank": 16,
+            "vectorScore": 0.17063122987747192,
+            "score": 0.028782894736842105
+          },
+          {
+            "title": "Rhea Marrow records moth opened pen",
+            "documentKind": "entity-author",
+            "lanes": [
+              "fts",
+              "vector"
+            ],
+            "ftsRank": 15,
+            "vectorRank": 7,
+            "vectorScore": 0.24416477978229523,
+            "score": 0.028258706467661692
+          }
+        ]
+      }
+    }
+  },
+  "context": {
+    "rheaHybrid5000": {
+      "medianMs": 27.098,
+      "meanMs": 28.112,
+      "p95Ms": 40.251,
+      "minimumMs": 26.458,
+      "maximumMs": 40.251,
+      "repeats": 20,
+      "serializedCharacters": 4937,
+      "selection": {
+        "included": 12,
+        "omitted": 44,
+        "budgetCharacters": 5000,
+        "serializedCharacters": 4937
+      }
+    }
+  },
+  "conversation": {
+    "rootjawPursuit": {
+      "medianMs": 2.279,
+      "meanMs": 2.333,
+      "p95Ms": 2.873,
+      "minimumMs": 2.142,
+      "maximumMs": 2.873,
+      "repeats": 20,
+      "heardTurns": 4
+    }
+  },
+  "storyPoints": {
+    "activePursuit": {
+      "medianMs": 2.241,
+      "meanMs": 2.258,
+      "p95Ms": 2.463,
+      "minimumMs": 2.141,
+      "maximumMs": 2.463,
+      "repeats": 20,
+      "states": {
+        "Escape Before the Blood Sport": "resolved",
+        "Escape the Cave-In": "resolved",
+        "Flee the Root Host": "active",
+        "Join the Lantern Pike": "resolved",
+        "Escape the Wretch Gallery": "resolved",
+        "What Is Amber?": "resolved",
+        "Survive the First Wretch": "resolved",
+        "Understand the Tree King": "resolved",
+        "Replace the Dead Watch": "active",
+        "Connect Amber to the Wretches": "resolved",
+        "Reach the Surface": "resolved",
+        "Expose the Blackroot Compact": "active",
+        "Cross the Lower Caverns": "resolved",
+        "Decode the Sunken Hall": "resolved",
+        "Reconstruct the Last Watch": "resolved",
+        "Trace the Attacks to Saint Orra's Mine": "resolved",
+        "Return to Harrowcross": "active",
+        "Enter Saint Orra's Mine": "resolved",
+        "Protect the Eastroad Caravan": "resolved",
+        "Reach Harrowcross": "resolved",
+        "Learn What Counts as Pay": "resolved",
+        "Identify the Silent Acolyte": "active"
+      }
+    }
+  }
+}

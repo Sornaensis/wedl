@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=70", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "wedl"
+version = "0.6.0"
+description = "Git- and SQLite-backed character, conversation, and interactive-story manager"
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "MIT" }
+authors = [{ name = "wedl contributors" }]
+dependencies = [
+  "PyYAML>=6.0",
+  "fastapi>=0.115",
+  "uvicorn>=0.32",
+  "mistune>=3.0",
+  "numpy>=1.26",
+  "scipy>=1.12",
+  "scikit-learn>=1.4",
+]
+
+[project.optional-dependencies]
+dev = ["pytest>=8.0", "httpx>=0.27", "coverage>=7.0", "jsonschema>=4.0"]
+sentence-transformers = ["sentence-transformers>=3.0"]
+
+[project.scripts]
+wedl = "wedl.cli:main"
+wedld = "wedl.cli:server_main"
+
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+wedl = [
+  "static/*",
+  "data/ash_archive/story/**/*.md",
+  "data/frontiersmen/story/**/*.md",
+]

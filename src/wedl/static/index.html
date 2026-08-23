@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Lore compendium</title>
+    <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/assets/style.css">
+  </head>
+  <body>
+    <header class="site-header">
+      <div>
+        <p class="eyebrow">Lore compendium</p>
+        <h1 id="world-name">Your world</h1>
+      </div>
+      <div class="header-controls">
+        <label for="author-horizon">Author horizon</label>
+        <select id="author-horizon" name="horizon" disabled>
+          <option value="">Full story</option>
+        </select>
+        <p id="app-status" class="app-status" role="status" aria-live="polite">Opening your compendium…</p>
+      </div>
+    </header>
+
+    <main class="compendium-shell">
+      <nav class="compendium-nav" aria-label="Compendium sections">
+        <p class="eyebrow">Explore</p>
+        <button class="nav-item" type="button" data-kind="" aria-current="page">All lore</button>
+        <button class="nav-item" type="button" data-view="timeline">Timeline</button>
+        <button class="nav-item" type="button" data-view="whereabouts">Whereabouts</button>
+        <button class="nav-item" type="button" data-view="possibilities">Possibilities</button>
+        <p class="nav-group">Story</p>
+        <button class="nav-item" type="button" data-kind="scene">Scenes</button>
+        <button class="nav-item" type="button" data-kind="event">Events</button>
+        <button class="nav-item" type="button" data-kind="story-point">Plot threads</button>
+        <button class="nav-item" type="button" data-kind="conversation">Conversations</button>
+        <p class="nav-group">World</p>
+        <button class="nav-item" type="button" data-kind="character">People</button>
+        <button class="nav-item" type="button" data-kind="location">Places</button>
+        <button class="nav-item" type="button" data-kind="object">Items</button>
+        <button class="nav-item" type="button" data-kind="relationship">Relationships</button>
+      </nav>
+
+      <section class="compendium-index" aria-labelledby="entries-heading">
+        <button id="back-to-navigation" class="mobile-navigation-button" type="button">Browse sections</button>
+        <div class="section-heading">
+          <p class="eyebrow">Discover</p>
+          <h2 id="entries-heading">All lore</h2>
+        </div>
+        <form id="entities-form" class="index-search">
+          <label class="sr-only" for="entity-text">Find lore</label>
+          <input id="entity-text" name="text" type="search" autocomplete="off" placeholder="Find a person, place, event, or thread">
+          <label class="sr-only" for="search-kind">Lore kind</label>
+          <select id="search-kind" name="kind">
+            <option value="">All kinds</option>
+            <option value="character">People</option>
+            <option value="location">Places</option>
+            <option value="scene">Scenes</option>
+            <option value="event">Events</option>
+            <option value="story-point">Plot threads</option>
+            <option value="conversation">Conversations</option>
+            <option value="object">Items</option>
+            <option value="relationship">Relationships</option>
+          </select>
+          <button type="submit">Search</button>
+        </form>
+        <p id="entities-status" class="section-status" role="status" aria-live="polite"></p>
+        <div id="search-recovery" hidden>
+          <button id="retry-search" type="button">Retry search</button>
+        </div>
+        <div id="entities" class="entity-list" aria-live="polite" aria-busy="true"></div>
+      </section>
+
+      <article class="lore-article" aria-labelledby="article-heading">
+        <div class="article-toolbar">
+          <button id="back-to-timeline" type="button" hidden>Back to timeline</button>
+          <p id="article-status" class="section-status" role="status" aria-live="polite"></p>
+        </div>
+        <div id="entity-detail-content" tabindex="-1">
+          <section class="welcome" aria-labelledby="article-heading">
+            <p class="eyebrow">Start here</p>
+            <h2 id="article-heading">A world made legible</h2>
+            <p>Choose an entry to read its lore, or open the timeline to follow the story beat by beat.</p>
+          </section>
+        </div>
+      </article>
+    </main>
+    <script type="module" src="/assets/app.js"></script>
+  </body>
+</html>

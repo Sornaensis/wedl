@@ -1,0 +1,701 @@
+{
+  "protocol": "wedl-search/v4",
+  "revision": "74768378e7a222292257be1e6780e698a44b7ced",
+  "perspective": "character",
+  "characterId": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+  "sceneId": "scene_0XW14MHXGV4DY4GGDCV4FDQPBX",
+  "effectiveTime": {
+    "timeline": "main",
+    "tick": 85,
+    "order": 0
+  },
+  "mode": "fts",
+  "searchState": {
+    "profile": {
+      "name": "hybrid",
+      "ftsEnabled": true,
+      "vectorEnabled": true,
+      "vectorProvider": "lsa",
+      "vectorModel": "wedl-lsa-v1",
+      "vectorDimensions": 192,
+      "vectorMaxFeatures": 8192,
+      "ftsCandidateLimit": 120,
+      "vectorCandidateLimit": 120,
+      "hybridFtsWeight": 1.0,
+      "hybridVectorWeight": 1.0,
+      "hybridRrfK": 60.0
+    },
+    "fts": {
+      "available": true,
+      "documentCount": 1403,
+      "provider": "sqlite-fts5"
+    },
+    "vector": {
+      "available": true,
+      "models": [
+        {
+          "scope": "author",
+          "modelId": "lsa:author:wedl-lsa-v1:192:4db8b9c3196c637b",
+          "provider": "lsa",
+          "modelName": "wedl-lsa-v1",
+          "dimensions": 192,
+          "normalized": true
+        },
+        {
+          "scope": "character",
+          "modelId": "lsa:character:wedl-lsa-v1:124:a222f7ee078597c4",
+          "provider": "lsa",
+          "modelName": "wedl-lsa-v1",
+          "dimensions": 124,
+          "normalized": true
+        }
+      ],
+      "uniqueVectors": 646,
+      "documentLinks": 1403
+    }
+  },
+  "results": [
+    {
+      "documentId": "doc:conv_60R00C9GFDD8MPY5PBEX304S99:conversation-recollection:3:096defc3e9b4",
+      "entityId": "conv_60R00C9GFDD8MPY5PBEX304S99",
+      "documentKind": "conversation-recollection",
+      "heading": "subjective-recollection",
+      "audienceKind": "conversation",
+      "metadata": {
+        "aliases": [],
+        "confidence": 0.93,
+        "domain": "conversations.frontiersmen",
+        "fidelity": "subjective",
+        "kind": "conversation",
+        "recollectionId": "recol_30X11P3CSN57XS0C4Z8GGZ7C3J",
+        "state": "remembered",
+        "tags": [
+          "amber",
+          "dowsing",
+          "mine"
+        ],
+        "title": "Tillo and the Fork"
+      },
+      "ftsRank": 1,
+      "ftsBm25": -10.548195011822523,
+      "ftsScore": 10.548195011822523,
+      "snippet": "Gnome dowsing senses <mark>amber</mark> through pressure on tuned materials, and <mark>quick</mark> <mark>amber</mark> creates <mark>old</mark> <mark>shapes</mark> without living bodies.\nInterpretation: <mark>Amber</mark> stores or transmits structured … ",
+      "score": 0.01639344262295082,
+      "lanes": [
+        "fts"
+      ],
+      "citation": {
+        "entityId": "conv_60R00C9GFDD8MPY5PBEX304S99",
+        "sourcePath": "story/conversations/tillo-and-the-fork--conv_60R00C9GFDD8MPY5PBEX304S99.md",
+        "section": "subjective-recollection"
+      }
+    },
+    {
+      "documentId": "doc:conv_60R00C9GFDD8MPY5PBEX304S99:conversation-turn:5:54d7056c611c",
+      "entityId": "conv_60R00C9GFDD8MPY5PBEX304S99",
+      "documentKind": "conversation-turn",
+      "heading": "verbatim-turn",
+      "audienceKind": "conversation",
+      "metadata": {
+        "aliases": [],
+        "domain": "conversations.frontiersmen",
+        "fidelity": "verbatim",
+        "kind": "conversation",
+        "speaker": "Brother Garran Holt",
+        "tags": [
+          "amber",
+          "dowsing",
+          "mine"
+        ],
+        "title": "Tillo and the Fork",
+        "turnId": "turn_1TDASCH30DRZBJ9TWMF26N8JB1"
+      },
+      "ftsRank": 2,
+      "ftsBm25": -10.505242680270895,
+      "ftsScore": 10.505242680270895,
+      "snippet": "Brother Garran Holt: “<mark>Old</mark> <mark>shapes</mark> of the dead?”",
+      "score": 0.016129032258064516,
+      "lanes": [
+        "fts"
+      ],
+      "citation": {
+        "entityId": "conv_60R00C9GFDD8MPY5PBEX304S99",
+        "sourcePath": "story/conversations/tillo-and-the-fork--conv_60R00C9GFDD8MPY5PBEX304S99.md",
+        "section": "verbatim-turn"
+      }
+    },
+    {
+      "documentId": "doc:know_4PMAFBAQY1T21BM5B636P01H2H:knowledge:0:75801f8d0215",
+      "entityId": "know_4PMAFBAQY1T21BM5B636P01H2H",
+      "documentKind": "knowledge",
+      "heading": null,
+      "audienceKind": "knowledge",
+      "metadata": {
+        "aliases": [],
+        "claimKey": "harrowcross.chest.quick-amber",
+        "domain": "knowledge.char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+        "kind": "knowledge",
+        "tags": [
+          "amber",
+          "wretch"
+        ],
+        "title": "Veyra Kest knows the chest contained quick amber"
+      },
+      "ftsRank": 6,
+      "ftsBm25": -7.149483332812377,
+      "ftsScore": 7.149483332812377,
+      "snippet": "The Harrowcross payment chest contained raw <mark>amber</mark> that had become warm, backward-pulling, and capable of supporting wretch manifestations.",
+      "score": 0.015151515151515152,
+      "lanes": [
+        "fts"
+      ],
+      "citation": {
+        "entityId": "know_4PMAFBAQY1T21BM5B636P01H2H",
+        "sourcePath": "story/knowledge/char-48qc9b4m2rfvxjksdfmrgjwg8y/veyra-kest-knows-the-chest-contained-quick-amber--know_4PMAFBAQY1T21BM5B636P01H2H.md",
+        "section": "knowledge"
+      }
+    },
+    {
+      "documentId": "doc:char_0R5AN25NJFB2GFQPC96JK85SH4:entity-public:2:45dd150fbc43",
+      "entityId": "char_0R5AN25NJFB2GFQPC96JK85SH4",
+      "documentKind": "entity-public",
+      "heading": "Appearance",
+      "audienceKind": "public",
+      "metadata": {
+        "aliases": [
+          "Jorund"
+        ],
+        "domain": "cast.frontiersmen",
+        "kind": "character",
+        "tags": [
+          "mine-foreman",
+          "mine",
+          "foreman"
+        ],
+        "title": "Jorund Bale"
+      },
+      "ftsRank": 8,
+      "ftsBm25": -6.474188972028827,
+      "ftsScore": 6.474188972028827,
+      "snippet": "## Appearance\n\nHeavy-set, black-bearded, with yellow lamp glass sewn into his cap and <mark>old</mark> <mark>amber</mark> burns along his right forearm.",
+      "score": 0.014705882352941176,
+      "lanes": [
+        "fts"
+      ],
+      "citation": {
+        "entityId": "char_0R5AN25NJFB2GFQPC96JK85SH4",
+        "sourcePath": "story/characters/jorund-bale--char_0R5AN25NJFB2GFQPC96JK85SH4.md",
+        "section": "Appearance"
+      }
+    },
+    {
+      "documentId": "doc:know_4WABGVP968ESVHRRKEZ2GDRW57:knowledge:0:48de4e8f4490",
+      "entityId": "know_4WABGVP968ESVHRRKEZ2GDRW57",
+      "documentKind": "knowledge",
+      "heading": null,
+      "audienceKind": "knowledge",
+      "metadata": {
+        "aliases": [],
+        "claimKey": "amber.pulses-shape-wretch",
+        "domain": "knowledge.char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+        "kind": "knowledge",
+        "tags": [
+          "wretch",
+          "amber"
+        ],
+        "title": "Veyra observes amber pulses shaping the wretch"
+      },
+      "ftsRank": 9,
+      "ftsBm25": -6.235980026480199,
+      "ftsScore": 6.235980026480199,
+      "snippet": "Pulses from the raw <mark>amber</mark> chest corresponded to the wretch's changing borrowed anatomy.",
+      "score": 0.014492753623188406,
+      "lanes": [
+        "fts"
+      ],
+      "citation": {
+        "entityId": "know_4WABGVP968ESVHRRKEZ2GDRW57",
+        "sourcePath": "story/knowledge/char-48qc9b4m2rfvxjksdfmrgjwg8y/veyra-observes-amber-pulses-shaping-the-wretch--know_4WABGVP968ESVHRRKEZ2GDRW57.md",
+        "section": "knowledge"
+      }
+    },
+    {
+      "documentId": "doc:obj_6EBRZF2P79J47HXEJWP7CDDFA1:entity-public:0:65db375adaff",
+      "entityId": "obj_6EBRZF2P79J47HXEJWP7CDDFA1",
+      "documentKind": "entity-public",
+      "heading": "Jorund's Lower Drift Map",
+      "audienceKind": "public",
+      "metadata": {
+        "aliases": [],
+        "domain": "props.frontiersmen",
+        "kind": "object",
+        "tags": [
+          "map",
+          "mine"
+        ],
+        "title": "Jorund's Lower Drift Map"
+      },
+      "ftsRank": 10,
+      "ftsBm25": -6.11455777072652,
+      "ftsScore": 6.11455777072652,
+      "snippet": "# Jorund's Lower Drift Map\n\nA charcoal plan of the worked <mark>mine</mark> ending at a blank marked <mark>OLD</mark> WATER.",
+      "score": 0.014285714285714285,
+      "lanes": [
+        "fts"
+      ],
+      "citation": {
+        "entityId": "obj_6EBRZF2P79J47HXEJWP7CDDFA1",
+        "sourcePath": "story/objects/jorund-s-lower-drift-map--obj_6EBRZF2P79J47HXEJWP7CDDFA1.md",
+        "section": "Jorund's Lower Drift Map"
+      }
+    },
+    {
+      "documentId": "doc:conv_3TH0GGWH9AFGWGND2BFPA6MTKG:conversation-turn:7:ffbcd5d1818d",
+      "entityId": "conv_3TH0GGWH9AFGWGND2BFPA6MTKG",
+      "documentKind": "conversation-turn",
+      "heading": "verbatim-turn",
+      "audienceKind": "conversation",
+      "metadata": {
+        "aliases": [],
+        "domain": "conversations.frontiersmen",
+        "fidelity": "verbatim",
+        "kind": "conversation",
+        "speaker": "Pip Fenlock",
+        "tags": [
+          "massacre",
+          "amber",
+          "wretch"
+        ],
+        "title": "Kellan's Broken Watch",
+        "turnId": "turn_6WTSWXKBBVXCB9QT5175ZJWFYZ"
+      },
+      "ftsRank": 11,
+      "ftsBm25": -4.622856530608068,
+      "ftsScore": 4.622856530608068,
+      "snippet": "Pip Fenlock: “And the <mark>wall</mark> remained a <mark>wall</mark>.”",
+      "score": 0.014084507042253521,
+      "lanes": [
+        "fts"
+      ],
+      "citation": {
+        "entityId": "conv_3TH0GGWH9AFGWGND2BFPA6MTKG",
+        "sourcePath": "story/conversations/kellan-s-broken-watch--conv_3TH0GGWH9AFGWGND2BFPA6MTKG.md",
+        "section": "verbatim-turn"
+      }
+    },
+    {
+      "documentId": "doc:env_540JHNME3MCKMYDV50RBDQ414F:entity-public:0:5976c0304dbf",
+      "entityId": "env_540JHNME3MCKMYDV50RBDQ414F",
+      "documentKind": "entity-public",
+      "heading": "Mine Lamp Haze",
+      "audienceKind": "public",
+      "metadata": {
+        "aliases": [],
+        "domain": "environment.frontier",
+        "kind": "environment",
+        "tags": [
+          "frontier"
+        ],
+        "title": "Mine Lamp Haze"
+      },
+      "ftsRank": 12,
+      "ftsBm25": -4.02886690881869,
+      "ftsScore": 4.02886690881869,
+      "snippet": "# <mark>Mine</mark> Lamp Haze\n\nThe <mark>mine</mark> makes <mark>amber</mark>'s active properties harder to dismiss.",
+      "score": 0.013888888888888888,
+      "lanes": [
+        "fts"
+      ],
+      "citation": {
+        "entityId": "env_540JHNME3MCKMYDV50RBDQ414F",
+        "sourcePath": "story/environments/mine-lamp-haze--env_540JHNME3MCKMYDV50RBDQ414F.md",
+        "section": "Mine Lamp Haze"
+      }
+    },
+    {
+      "documentId": "doc:obj_3A7X1D9JBR82WX8DBB287ZABR1:entity-public:0:5d7ee70eb59e",
+      "entityId": "obj_3A7X1D9JBR82WX8DBB287ZABR1",
+      "documentKind": "entity-public",
+      "heading": "Saint Orra Mine Lamp",
+      "audienceKind": "public",
+      "metadata": {
+        "aliases": [],
+        "domain": "props.frontiersmen",
+        "kind": "object",
+        "tags": [
+          "mine",
+          "lamp"
+        ],
+        "title": "Saint Orra Mine Lamp"
+      },
+      "ftsRank": 13,
+      "ftsBm25": -3.9964458671606264,
+      "ftsScore": 3.9964458671606264,
+      "snippet": "# Saint Orra <mark>Mine</mark> Lamp\n\nA yellow-glass oil lamp designed to show color changes near <mark>amber</mark> seams.",
+      "score": 0.0136986301369863,
+      "lanes": [
+        "fts"
+      ],
+      "citation": {
+        "entityId": "obj_3A7X1D9JBR82WX8DBB287ZABR1",
+        "sourcePath": "story/objects/saint-orra-mine-lamp--obj_3A7X1D9JBR82WX8DBB287ZABR1.md",
+        "section": "Saint Orra Mine Lamp"
+      }
+    },
+    {
+      "documentId": "doc:loc_3KMRW36Y06YVVEX31FZACMYEA6:entity-public:0:f9f3cc50b812",
+      "entityId": "loc_3KMRW36Y06YVVEX31FZACMYEA6",
+      "documentKind": "entity-public",
+      "heading": "Saint Orra Mine Yard",
+      "audienceKind": "public",
+      "metadata": {
+        "aliases": [],
+        "domain": "setting.frontier",
+        "kind": "location",
+        "tags": [
+          "mine",
+          "yard"
+        ],
+        "title": "Saint Orra Mine Yard"
+      },
+      "ftsRank": 14,
+      "ftsBm25": -3.990004930732146,
+      "ftsScore": 3.990004930732146,
+      "snippet": "# Saint Orra <mark>Mine</mark> Yard\n\nA churned yard of ore sledges, timber braces, wash troughs, and locked <mark>amber</mark> scales.",
+      "score": 0.013513513513513514,
+      "lanes": [
+        "fts"
+      ],
+      "citation": {
+        "entityId": "loc_3KMRW36Y06YVVEX31FZACMYEA6",
+        "sourcePath": "story/locations/saint-orra-mine-yard--loc_3KMRW36Y06YVVEX31FZACMYEA6.md",
+        "section": "Saint Orra Mine Yard"
+      }
+    },
+    {
+      "documentId": "doc:scene_0XW14MHXGV4DY4GGDCV4FDQPBX:scene-observation:1:7a58f49ff945",
+      "entityId": "scene_0XW14MHXGV4DY4GGDCV4FDQPBX",
+      "documentKind": "scene-observation",
+      "heading": "observation",
+      "audienceKind": "scene",
+      "metadata": {
+        "aliases": [],
+        "domain": "scenes.frontiersmen",
+        "kind": "scene",
+        "observationId": "obs_73805B2WZH6N84H1KFA35J8BDM",
+        "tags": [
+          "mine",
+          "active"
+        ],
+        "title": "Saint Orra Mine"
+      },
+      "ftsRank": 15,
+      "ftsBm25": -3.911107859939375,
+      "ftsScore": 3.911107859939375,
+      "snippet": "The omitted drifts on Jorund's tally correspond to the two places where the ground presses against her teeth.",
+      "score": 0.013333333333333334,
+      "lanes": [
+        "fts"
+      ],
+      "citation": {
+        "entityId": "scene_0XW14MHXGV4DY4GGDCV4FDQPBX",
+        "sourcePath": "story/scenes/saint-orra-mine--scene_0XW14MHXGV4DY4GGDCV4FDQPBX.md",
+        "section": "observation"
+      }
+    },
+    {
+      "documentId": "doc:conv_3TH0GGWH9AFGWGND2BFPA6MTKG:conversation-turn:3:627b72b85265",
+      "entityId": "conv_3TH0GGWH9AFGWGND2BFPA6MTKG",
+      "documentKind": "conversation-turn",
+      "heading": "verbatim-turn",
+      "audienceKind": "conversation",
+      "metadata": {
+        "aliases": [],
+        "domain": "conversations.frontiersmen",
+        "fidelity": "verbatim",
+        "kind": "conversation",
+        "speaker": "Brother Garran Holt",
+        "tags": [
+          "massacre",
+          "amber",
+          "wretch"
+        ],
+        "title": "Kellan's Broken Watch",
+        "turnId": "turn_6D6XTKDR9SX9PPM2V87VHFPWT6"
+      },
+      "ftsRank": 16,
+      "ftsBm25": -3.657588197336918,
+      "ftsScore": 3.657588197336918,
+      "snippet": "Brother Garran Holt: “What did the first <mark>shape</mark> resemble?”",
+      "score": 0.013157894736842105,
+      "lanes": [
+        "fts"
+      ],
+      "citation": {
+        "entityId": "conv_3TH0GGWH9AFGWGND2BFPA6MTKG",
+        "sourcePath": "story/conversations/kellan-s-broken-watch--conv_3TH0GGWH9AFGWGND2BFPA6MTKG.md",
+        "section": "verbatim-turn"
+      }
+    },
+    {
+      "documentId": "doc:char_6B6FGKREZM4RAECD6ZSFQXX74B:entity-public:1:7eec4c370d75",
+      "entityId": "char_6B6FGKREZM4RAECD6ZSFQXX74B",
+      "documentKind": "entity-public",
+      "heading": "Summary",
+      "audienceKind": "public",
+      "metadata": {
+        "aliases": [
+          "Tillo"
+        ],
+        "domain": "cast.frontiersmen",
+        "kind": "character",
+        "tags": [
+          "gnome-dowser",
+          "gnome",
+          "dowser",
+          "secret-keeper"
+        ],
+        "title": "Tillo Wick"
+      },
+      "ftsRank": 17,
+      "ftsBm25": -3.499025950125797,
+      "ftsScore": 3.499025950125797,
+      "snippet": "## Summary\n\nA gnomish <mark>amber</mark> dowser whose fork twitches toward near-surface pockets and away from places where the <mark>amber</mark> has become '<mark>quick</mark>.'",
+      "score": 0.012987012987012988,
+      "lanes": [
+        "fts"
+      ],
+      "citation": {
+        "entityId": "char_6B6FGKREZM4RAECD6ZSFQXX74B",
+        "sourcePath": "story/characters/tillo-wick--char_6B6FGKREZM4RAECD6ZSFQXX74B.md",
+        "section": "Summary"
+      }
+    },
+    {
+      "documentId": "doc:char_671MWM7KTP4DCVVP8EP6SFRJVP:entity-public:3:d3c54272bbb5",
+      "entityId": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+      "documentKind": "entity-public",
+      "heading": "Voice",
+      "audienceKind": "public",
+      "metadata": {
+        "aliases": [
+          "Garran"
+        ],
+        "domain": "cast.frontiersmen",
+        "kind": "character",
+        "tags": [
+          "road-priest",
+          "cleric",
+          "healer"
+        ],
+        "title": "Brother Garran Holt"
+      },
+      "ftsRank": 18,
+      "ftsBm25": -3.4244750767856025,
+      "ftsScore": 3.4244750767856025,
+      "snippet": "## Voice\n\nWarm, patient, and stubbornly literal about mercy. He uses <mark>old</mark> road blessings when frightened.",
+      "score": 0.01282051282051282,
+      "lanes": [
+        "fts"
+      ],
+      "citation": {
+        "entityId": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+        "sourcePath": "story/characters/brother-garran-holt--char_671MWM7KTP4DCVVP8EP6SFRJVP.md",
+        "section": "Voice"
+      }
+    },
+    {
+      "documentId": "doc:char_1W0GNKETQY2HF88YHM7CWVFH7C:entity-public:2:716dfa0a4ec0",
+      "entityId": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+      "documentKind": "entity-public",
+      "heading": "Appearance",
+      "audienceKind": "public",
+      "metadata": {
+        "aliases": [
+          "Pip"
+        ],
+        "domain": "cast.frontiersmen",
+        "kind": "character",
+        "tags": [
+          "halfling-scout",
+          "rogue",
+          "cartographer",
+          "viewpoint"
+        ],
+        "title": "Pip Fenlock"
+      },
+      "ftsRank": 19,
+      "ftsBm25": -3.411952914074834,
+      "ftsScore": 3.411952914074834,
+      "snippet": "## Appearance\n\nSmall even for a halfling, <mark>quick</mark>-handed, with a red knit cap, a case of folding picks, and three maps that contradict one … ",
+      "score": 0.012658227848101266,
+      "lanes": [
+        "fts"
+      ],
+      "citation": {
+        "entityId": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+        "sourcePath": "story/characters/pip-fenlock--char_1W0GNKETQY2HF88YHM7CWVFH7C.md",
+        "section": "Appearance"
+      }
+    },
+    {
+      "documentId": "doc:char_0R5AN25NJFB2GFQPC96JK85SH4:entity-public:3:166838664dca",
+      "entityId": "char_0R5AN25NJFB2GFQPC96JK85SH4",
+      "documentKind": "entity-public",
+      "heading": "Voice",
+      "audienceKind": "public",
+      "metadata": {
+        "aliases": [
+          "Jorund"
+        ],
+        "domain": "cast.frontiersmen",
+        "kind": "character",
+        "tags": [
+          "mine-foreman",
+          "mine",
+          "foreman"
+        ],
+        "title": "Jorund Bale"
+      },
+      "ftsRank": 21,
+      "ftsBm25": -3.3331375807091113,
+      "ftsScore": 3.3331375807091113,
+      "snippet": "## Voice\n\nGruff, technical, and defensive about production. He distrusts guild hunters who arrive after miners have already died.",
+      "score": 0.012345679012345678,
+      "lanes": [
+        "fts"
+      ],
+      "citation": {
+        "entityId": "char_0R5AN25NJFB2GFQPC96JK85SH4",
+        "sourcePath": "story/characters/jorund-bale--char_0R5AN25NJFB2GFQPC96JK85SH4.md",
+        "section": "Voice"
+      }
+    },
+    {
+      "documentId": "doc:know_587B15ZZB77TDA8BEEPKY6RS0J:knowledge:0:08d6a33bbce6",
+      "entityId": "know_587B15ZZB77TDA8BEEPKY6RS0J",
+      "documentKind": "knowledge",
+      "heading": null,
+      "audienceKind": "knowledge",
+      "metadata": {
+        "aliases": [],
+        "claimKey": "amber.warmed.during-apparition",
+        "domain": "knowledge.char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+        "kind": "knowledge",
+        "tags": [
+          "amber",
+          "wretch"
+        ],
+        "title": "Veyra links the warm wage pouch to the road apparition"
+      },
+      "ftsRank": 22,
+      "ftsBm25": -3.298856204082108,
+      "ftsScore": 3.298856204082108,
+      "snippet": "The party's <mark>amber</mark> wages became warm during the fox-<mark>shaped</mark> apparition.",
+      "score": 0.012195121951219513,
+      "lanes": [
+        "fts"
+      ],
+      "citation": {
+        "entityId": "know_587B15ZZB77TDA8BEEPKY6RS0J",
+        "sourcePath": "story/knowledge/char-48qc9b4m2rfvxjksdfmrgjwg8y/veyra-links-the-warm-wage-pouch-to-the-road-apparition--know_587B15ZZB77TDA8BEEPKY6RS0J.md",
+        "section": "knowledge"
+      }
+    },
+    {
+      "documentId": "doc:conv_1WF5SDFJPJJCMM57MCZ7KTGMWA:conversation-turn:11:bdac2831b132",
+      "entityId": "conv_1WF5SDFJPJJCMM57MCZ7KTGMWA",
+      "documentKind": "conversation-turn",
+      "heading": "verbatim-turn",
+      "audienceKind": "conversation",
+      "metadata": {
+        "aliases": [],
+        "domain": "conversations.frontiersmen",
+        "fidelity": "verbatim",
+        "kind": "conversation",
+        "speaker": "Sergeant Edrik Morn",
+        "tags": [
+          "massacre",
+          "assignment",
+          "harrowcross"
+        ],
+        "title": "The Sergeant's Account",
+        "turnId": "turn_29RCXZZ9XRVGH3CX2GCFTJY1JA"
+      },
+      "ftsRank": 24,
+      "ftsBm25": -3.2487659155425397,
+      "ftsScore": 3.2487659155425397,
+      "snippet": "Sergeant Edrik Morn: “None. Frost on the inner <mark>walls</mark>. Splinters pointing into the room.”",
+      "score": 0.011904761904761904,
+      "lanes": [
+        "fts"
+      ],
+      "citation": {
+        "entityId": "conv_1WF5SDFJPJJCMM57MCZ7KTGMWA",
+        "sourcePath": "story/conversations/the-sergeant-s-account--conv_1WF5SDFJPJJCMM57MCZ7KTGMWA.md",
+        "section": "verbatim-turn"
+      }
+    },
+    {
+      "documentId": "doc:obj_0YS6DTVKR6FS6H82021A18GP2R:entity-public:0:b1e0b75ffbc2",
+      "entityId": "obj_0YS6DTVKR6FS6H82021A18GP2R",
+      "documentKind": "entity-public",
+      "heading": "Wretch Frost Residue",
+      "audienceKind": "public",
+      "metadata": {
+        "aliases": [],
+        "domain": "props.frontiersmen",
+        "kind": "object",
+        "tags": [
+          "wretch",
+          "evidence"
+        ],
+        "title": "Wretch Frost Residue"
+      },
+      "ftsRank": 26,
+      "ftsBm25": -3.240291992867351,
+      "ftsScore": 3.240291992867351,
+      "snippet": "# Wretch Frost Residue\n\nA rime that smells of wet fur and <mark>old</mark> iron, left where a wretch passed through timber.",
+      "score": 0.011627906976744186,
+      "lanes": [
+        "fts"
+      ],
+      "citation": {
+        "entityId": "obj_0YS6DTVKR6FS6H82021A18GP2R",
+        "sourcePath": "story/objects/wretch-frost-residue--obj_0YS6DTVKR6FS6H82021A18GP2R.md",
+        "section": "Wretch Frost Residue"
+      }
+    },
+    {
+      "documentId": "doc:obj_5PQSHGM3GXJD26BX95794WQMTF:entity-public:0:6670b63a0051",
+      "entityId": "obj_5PQSHGM3GXJD26BX95794WQMTF",
+      "documentKind": "entity-public",
+      "heading": "Raw Amber Nodule",
+      "audienceKind": "public",
+      "metadata": {
+        "aliases": [],
+        "domain": "props.frontiersmen",
+        "kind": "object",
+        "tags": [
+          "amber",
+          "raw",
+          "magic"
+        ],
+        "title": "Raw Amber Nodule"
+      },
+      "ftsRank": 29,
+      "ftsBm25": -3.165786645070141,
+      "ftsScore": 3.165786645070141,
+      "snippet": "# Raw <mark>Amber</mark> Nodule\n\nAn irregular translucent nodule warm at its center and threaded with <mark>shapes</mark> like roots or veins.",
+      "score": 0.011235955056179775,
+      "lanes": [
+        "fts"
+      ],
+      "citation": {
+        "entityId": "obj_5PQSHGM3GXJD26BX95794WQMTF",
+        "sourcePath": "story/objects/raw-amber-nodule--obj_5PQSHGM3GXJD26BX95794WQMTF.md",
+        "section": "Raw Amber Nodule"
+      }
+    }
+  ]
+}

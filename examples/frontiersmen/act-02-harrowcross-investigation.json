@@ -1,0 +1,5673 @@
+{
+  "protocol": "wedl-changeset/v1",
+  "expectedHead": "a3e6e3676d4eaf14810724b7906544fe23f0c905",
+  "idempotencyKey": "frontiersmen-act-2-harrowcross-investigation-v1",
+  "summary": "Abandon the party at Harrowcross, repeat the amber trigger, survive the first wretch, and follow the evidence to Saint Orra Mine",
+  "actor": {
+    "kind": "author",
+    "id": "local:frontiersmen-builder"
+  },
+  "operations": [
+    {
+      "type": "conversation.turn.append",
+      "conversationId": "conv_1WF5SDFJPJJCMM57MCZ7KTGMWA",
+      "turn": {
+        "id": "turn_6GVYB1CAH1BPT2NDXZSHNZ2BE7",
+        "at": {
+          "timeline": "main",
+          "tick": 53,
+          "order": 20
+        },
+        "speaker": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+        "text": "Show me the survivor's wounds before the room.",
+        "audience": [
+          "participants"
+        ],
+        "delivery": "gentle"
+      }
+    },
+    {
+      "type": "conversation.turn.append",
+      "conversationId": "conv_1WF5SDFJPJJCMM57MCZ7KTGMWA",
+      "turn": {
+        "id": "turn_2RWZDKAN5XRMN5BW0EP0MJHGH0",
+        "at": {
+          "timeline": "main",
+          "tick": 53,
+          "order": 30
+        },
+        "speaker": "char_7DS75TG6WFK6ZD1T9GCBJRMK1T",
+        "text": "The cold is inside them. I keep dreaming my hands belong to the thing that bit Bran.",
+        "audience": [
+          "participants"
+        ],
+        "delivery": "fragmented"
+      }
+    },
+    {
+      "type": "conversation.turn.append",
+      "conversationId": "conv_1WF5SDFJPJJCMM57MCZ7KTGMWA",
+      "turn": {
+        "id": "turn_1YZT7HV9SAED6JH87875D0BWE8",
+        "at": {
+          "timeline": "main",
+          "tick": 53,
+          "order": 40
+        },
+        "speaker": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+        "text": "What was stored beneath the bunks?",
+        "audience": [
+          "participants"
+        ],
+        "delivery": "precise"
+      }
+    },
+    {
+      "type": "conversation.turn.append",
+      "conversationId": "conv_1WF5SDFJPJJCMM57MCZ7KTGMWA",
+      "turn": {
+        "id": "turn_1R55QG1RD90NZNZTMSRW81HNR0",
+        "at": {
+          "timeline": "main",
+          "tick": 53,
+          "order": 50
+        },
+        "speaker": "char_1F7JEGBD02MVY0J8M9X0967T5T",
+        "text": "Quarterly guild payment. Amber from Saint Orra, raw and struck.",
+        "audience": [
+          "participants"
+        ],
+        "delivery": "reluctant"
+      }
+    },
+    {
+      "type": "conversation.turn.append",
+      "conversationId": "conv_1WF5SDFJPJJCMM57MCZ7KTGMWA",
+      "turn": {
+        "id": "turn_7062XX6MCCSS3X27VJ8V21HHRR",
+        "at": {
+          "timeline": "main",
+          "tick": 54,
+          "order": 0
+        },
+        "speaker": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+        "text": "Any animal tracks around the barracks?",
+        "audience": [
+          "participants"
+        ],
+        "delivery": "quiet"
+      }
+    },
+    {
+      "type": "conversation.turn.append",
+      "conversationId": "conv_1WF5SDFJPJJCMM57MCZ7KTGMWA",
+      "turn": {
+        "id": "turn_29RCXZZ9XRVGH3CX2GCFTJY1JA",
+        "at": {
+          "timeline": "main",
+          "tick": 54,
+          "order": 10
+        },
+        "speaker": "char_1F7JEGBD02MVY0J8M9X0967T5T",
+        "text": "None. Frost on the inner walls. Splinters pointing into the room.",
+        "audience": [
+          "participants"
+        ],
+        "delivery": "controlled"
+      }
+    },
+    {
+      "type": "conversation.turn.append",
+      "conversationId": "conv_1WF5SDFJPJJCMM57MCZ7KTGMWA",
+      "turn": {
+        "id": "turn_27H7968155B0WSJ6R49EXXGB1S",
+        "at": {
+          "timeline": "main",
+          "tick": 54,
+          "order": 20
+        },
+        "speaker": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+        "text": "So the door stayed barred, the walls were not broken, and the spears snapped inward.",
+        "audience": [
+          "participants"
+        ],
+        "delivery": "technical"
+      }
+    },
+    {
+      "type": "conversation.turn.append",
+      "conversationId": "conv_1WF5SDFJPJJCMM57MCZ7KTGMWA",
+      "turn": {
+        "id": "turn_5TPZRR0XYX6XY6RYM9CQW2N3TQ",
+        "at": {
+          "timeline": "main",
+          "tick": 54,
+          "order": 30
+        },
+        "speaker": "char_2YA8FQRX5Q0PRKSETNQZ4EEDKZ",
+        "text": "That is why the town paid for monster hunters before the caravan ever saw our gate.",
+        "audience": [
+          "participants"
+        ],
+        "delivery": "plain"
+      }
+    },
+    {
+      "type": "conversation.turn.append",
+      "conversationId": "conv_1WF5SDFJPJJCMM57MCZ7KTGMWA",
+      "turn": {
+        "id": "turn_3CEC2AV4ZZVG9WFZ0C05DYVTGX",
+        "at": {
+          "timeline": "main",
+          "tick": 55,
+          "order": 0
+        },
+        "speaker": "char_4YCQAG8HHJ83ZY2P3RN6KY0AXD",
+        "text": "And that is why the emergency clause now applies.",
+        "audience": [
+          "participants"
+        ],
+        "delivery": "final"
+      }
+    },
+    {
+      "type": "entity.update",
+      "entityId": "conv_1WF5SDFJPJJCMM57MCZ7KTGMWA",
+      "frontmatterPatch": {
+        "status": "closed",
+        "time": {
+          "start": {
+            "timeline": "main",
+            "tick": 52,
+            "order": 10
+          },
+          "end": {
+            "timeline": "main",
+            "tick": 55,
+            "order": 0
+          }
+        }
+      }
+    },
+    {
+      "type": "conversation.recollection.record",
+      "conversationId": "conv_1WF5SDFJPJJCMM57MCZ7KTGMWA",
+      "temporaryId": "$tmp.recollection.sergeant-act2-0",
+      "recollection": {
+        "character": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+        "at": {
+          "timeline": "main",
+          "tick": 55,
+          "order": 10
+        },
+        "state": "remembered",
+        "summary": "The guards died inside a barred room containing the town's amber payment; Maela intends to invoke emergency reassignment.",
+        "interpretation": "The assignment was decided before the caravan reached the gate.",
+        "emotional_impression": "anger becoming duty",
+        "confidence": 0.9,
+        "exact_turns": [
+          "turn_5TPZRR0XYX6XY6RYM9CQW2N3TQ",
+          "turn_3CEC2AV4ZZVG9WFZ0C05DYVTGX"
+        ],
+        "remembered_quotes": []
+      }
+    },
+    {
+      "type": "conversation.recollection.record",
+      "conversationId": "conv_1WF5SDFJPJJCMM57MCZ7KTGMWA",
+      "temporaryId": "$tmp.recollection.sergeant-act2-1",
+      "recollection": {
+        "character": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+        "at": {
+          "timeline": "main",
+          "tick": 55,
+          "order": 11
+        },
+        "state": "remembered",
+        "summary": "The barracks has no animal approach tracks, frost on its inner walls, and debris driven inward.",
+        "interpretation": "Whatever killed the watch did not enter like a living predator.",
+        "emotional_impression": "cold certainty",
+        "confidence": 0.96,
+        "exact_turns": [
+          "turn_7062XX6MCCSS3X27VJ8V21HHRR",
+          "turn_29RCXZZ9XRVGH3CX2GCFTJY1JA"
+        ],
+        "remembered_quotes": []
+      }
+    },
+    {
+      "type": "conversation.recollection.record",
+      "conversationId": "conv_1WF5SDFJPJJCMM57MCZ7KTGMWA",
+      "temporaryId": "$tmp.recollection.sergeant-act2-2",
+      "recollection": {
+        "character": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+        "at": {
+          "timeline": "main",
+          "tick": 55,
+          "order": 12
+        },
+        "state": "remembered",
+        "summary": "Kellan experiences cold inside wounds made by something that borrowed familiar anatomy.",
+        "interpretation": "The killer may be a suffering impression rather than an ordinary beast or ghost.",
+        "emotional_impression": "compassion under dread",
+        "confidence": 0.82,
+        "exact_turns": [
+          "turn_6GVYB1CAH1BPT2NDXZSHNZ2BE7",
+          "turn_2RWZDKAN5XRMN5BW0EP0MJHGH0"
+        ],
+        "remembered_quotes": []
+      }
+    },
+    {
+      "type": "conversation.recollection.record",
+      "conversationId": "conv_1WF5SDFJPJJCMM57MCZ7KTGMWA",
+      "temporaryId": "$tmp.recollection.sergeant-act2-3",
+      "recollection": {
+        "character": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+        "at": {
+          "timeline": "main",
+          "tick": 55,
+          "order": 13
+        },
+        "state": "remembered",
+        "summary": "The slaughter room contained mixed raw and refined amber stored beneath the bunks.",
+        "interpretation": "The chest is a material variable the locals are reluctant to discuss.",
+        "emotional_impression": "focused suspicion",
+        "confidence": 0.93,
+        "exact_turns": [
+          "turn_1YZT7HV9SAED6JH87875D0BWE8",
+          "turn_1R55QG1RD90NZNZTMSRW81HNR0"
+        ],
+        "remembered_quotes": []
+      }
+    },
+    {
+      "type": "conversation.recollection.record",
+      "conversationId": "conv_1WF5SDFJPJJCMM57MCZ7KTGMWA",
+      "temporaryId": "$tmp.recollection.sergeant-act2-4",
+      "recollection": {
+        "character": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+        "at": {
+          "timeline": "main",
+          "tick": 55,
+          "order": 14
+        },
+        "state": "remembered",
+        "summary": "The physical evidence points inward: no opened door, no breached wall, and weapons broken toward the center.",
+        "interpretation": "Locks and walls did not fail; the threat disregarded them.",
+        "emotional_impression": "professional unease",
+        "confidence": 0.91,
+        "exact_turns": [
+          "turn_27H7968155B0WSJ6R49EXXGB1S"
+        ],
+        "remembered_quotes": []
+      }
+    },
+    {
+      "type": "conversation.recollection.record",
+      "conversationId": "conv_1WF5SDFJPJJCMM57MCZ7KTGMWA",
+      "temporaryId": "$tmp.recollection.sergeant-act2-5",
+      "recollection": {
+        "character": "char_1F7JEGBD02MVY0J8M9X0967T5T",
+        "at": {
+          "timeline": "main",
+          "tick": 55,
+          "order": 15
+        },
+        "state": "remembered",
+        "summary": "The new hunters immediately separated wounds, tracks, stored amber, and structural evidence instead of asking for a monster name.",
+        "interpretation": "They may survive long enough to discover what his old report missed.",
+        "emotional_impression": "relief mixed with shame",
+        "confidence": 0.76,
+        "exact_turns": [
+          "turn_6GVYB1CAH1BPT2NDXZSHNZ2BE7",
+          "turn_27H7968155B0WSJ6R49EXXGB1S"
+        ],
+        "remembered_quotes": []
+      }
+    },
+    {
+      "type": "conversation.recollection.record",
+      "conversationId": "conv_1WF5SDFJPJJCMM57MCZ7KTGMWA",
+      "temporaryId": "$tmp.recollection.sergeant-act2-6",
+      "recollection": {
+        "character": "char_7DS75TG6WFK6ZD1T9GCBJRMK1T",
+        "at": {
+          "timeline": "main",
+          "tick": 55,
+          "order": 16
+        },
+        "state": "remembered",
+        "summary": "The strangers believe the barred room matters and did not call his account cowardice.",
+        "interpretation": "Garran may understand that the cold remains in him.",
+        "emotional_impression": "fragile relief",
+        "confidence": 0.7,
+        "exact_turns": [
+          "turn_6GVYB1CAH1BPT2NDXZSHNZ2BE7"
+        ],
+        "remembered_quotes": []
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "scene",
+          "id": "scene_7ACNVBH43CXNMQ75YZPKA07PDD",
+          "title": "Harrowcross at Dusk",
+          "domain": "scenes.frontiersmen",
+          "status": "closed",
+          "tags": [
+            "harrowcross",
+            "closed"
+          ],
+          "aliases": [],
+          "time": {
+            "start": {
+              "timeline": "main",
+              "tick": 50,
+              "order": 0
+            },
+            "current": {
+              "timeline": "main",
+              "tick": 55,
+              "order": 0
+            },
+            "end": {
+              "timeline": "main",
+              "tick": 55,
+              "order": 0
+            }
+          },
+          "location": "loc_7H2RQXKPKWBEV956E1TAN8PT00",
+          "participants": [
+            {
+              "character": "char_4YCQAG8HHJ83ZY2P3RN6KY0AXD",
+              "role": "caravan-master",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 50,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 55,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_1F7JEGBD02MVY0J8M9X0967T5T",
+              "role": "sergeant",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 50,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 55,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_2YA8FQRX5Q0PRKSETNQZ4EEDKZ",
+              "role": "reeve",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 50,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 55,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_7DS75TG6WFK6ZD1T9GCBJRMK1T",
+              "role": "survivor",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 53,
+                "order": 10
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 55,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+              "role": "guild-hunter",
+              "point_of_view": true,
+              "from": {
+                "timeline": "main",
+                "tick": 50,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 55,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+              "role": "guild-hunter",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 50,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 55,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+              "role": "guild-hunter",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 50,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 55,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+              "role": "guild-hunter",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 50,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 55,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+              "role": "guild-hunter",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 50,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 55,
+                "order": 0
+              }
+            }
+          ],
+          "objects": [
+            "obj_3TABQCSE4JTC9FF30CSJESMVGE",
+            "obj_485CVZ39Y0QFJWRDZ53C18BQ9T",
+            "obj_6B725P2CXQSC90HH4H24K0C5X2",
+            "obj_1PWCXKVPT3RS8MK7TDHQ9QN4FH",
+            "obj_5KH5J0ZACS5W06DMT772D119QS",
+            "obj_1SZQK22K4XSNC0XTZX1Z0T7R5N",
+            "obj_3W8SFAP29CDCV2M3X9XMYTDXY8"
+          ],
+          "environments": [
+            "env_11XK9YJAHEW8V3X74W6EKT070X"
+          ],
+          "story_points": [
+            "sp_5V3H9T65CY3CQ7WERAGK8PEYYM",
+            "sp_0KBNVM3A3AVCG4Z88ETRQM1K78",
+            "sp_2KFWNBNCG0RPGS4R85M5DQVV9B"
+          ],
+          "observations": [
+            {
+              "id": "obs_7N42R01J4A5BSHCTPT4FZYAE06",
+              "at": {
+                "timeline": "main",
+                "tick": 50,
+                "order": 0
+              },
+              "audience": [
+                "participants"
+              ],
+              "salience": 1.0,
+              "text": "Black mourning cord is tied around the east gate posts and every watch bell has been wrapped in cloth."
+            },
+            {
+              "id": "obs_6M2D09ZP6DRA39YC4P0K83C5TB",
+              "at": {
+                "timeline": "main",
+                "tick": 50,
+                "order": 10
+              },
+              "audience": [
+                "char_36X0KBYZ7MQGKM070H5NF12BK8"
+              ],
+              "salience": 1.0,
+              "text": "No armed guard meets the caravan, although the gate stands open."
+            },
+            {
+              "id": "obs_5FB6Q1364GT7M5CB6NPBCGSTDT",
+              "at": {
+                "timeline": "main",
+                "tick": 53,
+                "order": 10
+              },
+              "audience": [
+                "participants"
+              ],
+              "salience": 1.0,
+              "text": "Kellan's bandaged hands tremble hardest when Maela's wagon amber passes near him."
+            },
+            {
+              "id": "obs_3FWRXPMNGH5ETY50WDJ305TF68",
+              "at": {
+                "timeline": "main",
+                "tick": 54,
+                "order": 0
+              },
+              "audience": [
+                "char_1W0GNKETQY2HF88YHM7CWVFH7C"
+              ],
+              "salience": 1.0,
+              "text": "Maela counts wagons twice while Edrik speaks and never looks toward the barracks."
+            },
+            {
+              "id": "obs_6FGEHY7FMX3XHHYWXK2YQJM5Q0",
+              "at": {
+                "timeline": "main",
+                "tick": 54,
+                "order": 25
+              },
+              "audience": [
+                "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+                "char_0NQKTG3NQZFSVFKXS901NJD82E"
+              ],
+              "salience": 1.0,
+              "text": "The barracks shutter splinters lie inside the room despite no opening large enough for an animal."
+            }
+          ],
+          "author_constraints": [
+            "The party knows the amber chest was present but not yet that blood quickened it."
+          ],
+          "conversations": [
+            "conv_1WF5SDFJPJJCMM57MCZ7KTGMWA"
+          ]
+        },
+        "bodyMarkdown": "# Harrowcross at Dusk\n\nThe first report gives the party a crime scene without a physical entrance and a contract clause Maela is ready to use.\n"
+      }
+    },
+    {
+      "type": "conversation.create",
+      "id": "conv_5Q4V1ATZE1B2XWQRTJ4XG9NEC1",
+      "value": {
+        "title": "Maela's Departure",
+        "domain": "conversations.frontiersmen",
+        "status": "closed",
+        "tags": [
+          "contract",
+          "abandonment",
+          "amber-payment"
+        ],
+        "aliases": [],
+        "time": {
+          "start": {
+            "timeline": "main",
+            "tick": 56,
+            "order": 0
+          },
+          "end": {
+            "timeline": "main",
+            "tick": 58,
+            "order": 10
+          }
+        },
+        "scene": "scene_09NC0BZZ69KAFRR1AWWY8JYGC6",
+        "location": "loc_7H2RQXKPKWBEV956E1TAN8PT00",
+        "participants": [
+          {
+            "character": "char_4YCQAG8HHJ83ZY2P3RN6KY0AXD",
+            "role": "caravan-master",
+            "point_of_view": false,
+            "from": {
+              "timeline": "main",
+              "tick": 56,
+              "order": 0
+            },
+            "to": {
+              "timeline": "main",
+              "tick": 58,
+              "order": 10
+            }
+          },
+          {
+            "character": "char_2YA8FQRX5Q0PRKSETNQZ4EEDKZ",
+            "role": "reeve",
+            "point_of_view": false,
+            "from": {
+              "timeline": "main",
+              "tick": 56,
+              "order": 0
+            },
+            "to": {
+              "timeline": "main",
+              "tick": 58,
+              "order": 10
+            }
+          },
+          {
+            "character": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+            "role": "reassigned-hunter",
+            "point_of_view": false,
+            "from": {
+              "timeline": "main",
+              "tick": 56,
+              "order": 0
+            },
+            "to": {
+              "timeline": "main",
+              "tick": 58,
+              "order": 10
+            }
+          },
+          {
+            "character": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+            "role": "reassigned-hunter",
+            "point_of_view": false,
+            "from": {
+              "timeline": "main",
+              "tick": 56,
+              "order": 0
+            },
+            "to": {
+              "timeline": "main",
+              "tick": 58,
+              "order": 10
+            }
+          },
+          {
+            "character": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+            "role": "reassigned-hunter",
+            "point_of_view": false,
+            "from": {
+              "timeline": "main",
+              "tick": 56,
+              "order": 0
+            },
+            "to": {
+              "timeline": "main",
+              "tick": 58,
+              "order": 10
+            }
+          },
+          {
+            "character": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+            "role": "reassigned-hunter",
+            "point_of_view": false,
+            "from": {
+              "timeline": "main",
+              "tick": 56,
+              "order": 0
+            },
+            "to": {
+              "timeline": "main",
+              "tick": 58,
+              "order": 10
+            }
+          },
+          {
+            "character": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+            "role": "reassigned-hunter",
+            "point_of_view": false,
+            "from": {
+              "timeline": "main",
+              "tick": 56,
+              "order": 0
+            },
+            "to": {
+              "timeline": "main",
+              "tick": 58,
+              "order": 10
+            }
+          }
+        ],
+        "topics": [
+          "contract",
+          "abandonment",
+          "amber-payment"
+        ],
+        "turns": [
+          {
+            "id": "turn_3RH8QEE38EBWVS5Q0PGJCXYFN3",
+            "at": {
+              "timeline": "main",
+              "tick": 56,
+              "order": 0
+            },
+            "speaker": "char_4YCQAG8HHJ83ZY2P3RN6KY0AXD",
+            "text": "Lantern Pike badges remain in Harrowcross. The caravan leaves at the next bell.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "announcing"
+          },
+          {
+            "id": "turn_477HQC87XEFGSQ3CBBXQX9V921",
+            "at": {
+              "timeline": "main",
+              "tick": 56,
+              "order": 10
+            },
+            "speaker": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+            "text": "We were hired for twelve wagons.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "controlled"
+          },
+          {
+            "id": "turn_6210GGNBBHMRC75MPPXM6DQQ07",
+            "at": {
+              "timeline": "main",
+              "tick": 56,
+              "order": 20
+            },
+            "speaker": "char_4YCQAG8HHJ83ZY2P3RN6KY0AXD",
+            "text": "You were hired under a guild bond. The bond transfers you to a paid settlement emergency.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "contractual"
+          },
+          {
+            "id": "turn_43RGQW2JXA95H16R2YBT1JBNVF",
+            "at": {
+              "timeline": "main",
+              "tick": 56,
+              "order": 30
+            },
+            "speaker": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+            "text": "Paid in what? The reeve did not put silver on your table.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "too-casual"
+          },
+          {
+            "id": "turn_6Z94M3QXYW01XA88ETPX06GAE7",
+            "at": {
+              "timeline": "main",
+              "tick": 56,
+              "order": 40
+            },
+            "speaker": "char_2YA8FQRX5Q0PRKSETNQZ4EEDKZ",
+            "text": "Amber. Three measures from Saint Orra each quarter, plus stamped discs for expenses.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "plain"
+          },
+          {
+            "id": "turn_6TGVZ4X14G7SG5G4RJZHM02BXN",
+            "at": {
+              "timeline": "main",
+              "tick": 56,
+              "order": 50
+            },
+            "speaker": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+            "text": "Raw amber is a protection fee?",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "sharp"
+          },
+          {
+            "id": "turn_5XDFJY4JW7DE741W0TCPQHSWES",
+            "at": {
+              "timeline": "main",
+              "tick": 57,
+              "order": 0
+            },
+            "speaker": "char_2YA8FQRX5Q0PRKSETNQZ4EEDKZ",
+            "text": "Amber buys most things here. Protection is only the thing we need most often.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "tired"
+          },
+          {
+            "id": "turn_5RDC5NN8HD0K5N14DXJ2DVPW6W",
+            "at": {
+              "timeline": "main",
+              "tick": 57,
+              "order": 10
+            },
+            "speaker": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+            "text": "And if we refuse?",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "quiet"
+          },
+          {
+            "id": "turn_6HYYYW9T9JEKHFTP0ZE9T6CSCH",
+            "at": {
+              "timeline": "main",
+              "tick": 57,
+              "order": 20
+            },
+            "speaker": "char_4YCQAG8HHJ83ZY2P3RN6KY0AXD",
+            "text": "Your badges, first wages, and return passage are forfeit. More urgently, the east road loses a village tonight.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "hard"
+          },
+          {
+            "id": "turn_59Z066TNT9G2VA0PS76EC8J3CM",
+            "at": {
+              "timeline": "main",
+              "tick": 57,
+              "order": 30
+            },
+            "speaker": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+            "text": "You knew before we arrived that you would leave us.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "certain"
+          },
+          {
+            "id": "turn_4AJS9MT1YSSPCGV3WXWDWSWFBM",
+            "at": {
+              "timeline": "main",
+              "tick": 57,
+              "order": 40
+            },
+            "speaker": "char_4YCQAG8HHJ83ZY2P3RN6KY0AXD",
+            "text": "I knew the town had sent a red request. I did not know what had answered it.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "honest at last"
+          },
+          {
+            "id": "turn_584DFJNAJT503JRK844G4DJV5Z",
+            "at": {
+              "timeline": "main",
+              "tick": 58,
+              "order": 0
+            },
+            "speaker": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+            "text": "Go, then. Leave the spare lamp oil and every map east of here.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "command"
+          },
+          {
+            "id": "turn_7QGTNZYZXRNHYYVAVKB9XQEKBS",
+            "at": {
+              "timeline": "main",
+              "tick": 58,
+              "order": 10
+            },
+            "speaker": "char_4YCQAG8HHJ83ZY2P3RN6KY0AXD",
+            "text": "Done. Try to be alive when I come back west.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "almost apologetic"
+          }
+        ],
+        "recollections": [],
+        "bodyMarkdown": "# Maela's Departure\n\nThe caravan invokes the emergency clause, reveals that Harrowcross pays Lantern Pike in amber, and leaves the new company behind.\n\nThe turn list is canonical verbatim provenance. Character recollections are stored separately and may disagree.\n"
+      }
+    },
+    {
+      "type": "event.create",
+      "id": "event_1175MZGP24P7AXEZE537FBRTTV",
+      "title": "The Party Is Reassigned to Harrowcross",
+      "domain": "plot.frontiersmen",
+      "status": "canonical",
+      "tags": [
+        "assignment",
+        "harrowcross"
+      ],
+      "time": {
+        "timeline": "main",
+        "tick": 57,
+        "order": 25
+      },
+      "location": "loc_7H2RQXKPKWBEV956E1TAN8PT00",
+      "participants": [
+        {
+          "character": "char_4YCQAG8HHJ83ZY2P3RN6KY0AXD",
+          "role": "assigning-caravan-master"
+        },
+        {
+          "character": "char_2YA8FQRX5Q0PRKSETNQZ4EEDKZ",
+          "role": "contracting-reeve"
+        },
+        {
+          "character": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "role": "reassigned-hunter"
+        },
+        {
+          "character": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+          "role": "reassigned-hunter"
+        },
+        {
+          "character": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+          "role": "reassigned-hunter"
+        },
+        {
+          "character": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "role": "reassigned-hunter"
+        },
+        {
+          "character": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "role": "reassigned-hunter"
+        }
+      ],
+      "causes": [
+        "event_5AT02B80HAMCF29H10GY014XJ7"
+      ],
+      "relatedStoryPoints": [
+        "sp_0KBNVM3A3AVCG4Z88ETRQM1K78",
+        "sp_4681Q884EX642WEVBEHV4CS24D",
+        "sp_76YKCXX41HQC1N17A7S3ZKDRW4"
+      ],
+      "effects": [
+        {
+          "id": "effect_2ESBM566F4Q2ZR5M8N3K9S7FK0",
+          "target": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_7H2RQXKPKWBEV956E1TAN8PT00"
+          }
+        },
+        {
+          "id": "effect_01N4M3GRQSH3CDJMYXS76W74W9",
+          "target": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "key": "condition",
+          "operation": "set",
+          "value": "stationed-at-harrowcross"
+        },
+        {
+          "id": "effect_54QPBRMRYPJNJWBPN6D0A3E999",
+          "target": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_7H2RQXKPKWBEV956E1TAN8PT00"
+          }
+        },
+        {
+          "id": "effect_4V83FSM7QAERZ0T256QN3Q4QG3",
+          "target": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+          "key": "condition",
+          "operation": "set",
+          "value": "stationed-at-harrowcross"
+        },
+        {
+          "id": "effect_01KXNE524MSQGD237ZFGZ4DYDA",
+          "target": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_7H2RQXKPKWBEV956E1TAN8PT00"
+          }
+        },
+        {
+          "id": "effect_78D7KS31TNEVH9SXXE837M5669",
+          "target": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+          "key": "condition",
+          "operation": "set",
+          "value": "stationed-at-harrowcross"
+        },
+        {
+          "id": "effect_4MBTF9RV8R6007M6GJK3HRY83V",
+          "target": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_7H2RQXKPKWBEV956E1TAN8PT00"
+          }
+        },
+        {
+          "id": "effect_54960FX1PE7DAS7T0VQWYY6TNZ",
+          "target": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "key": "condition",
+          "operation": "set",
+          "value": "stationed-at-harrowcross"
+        },
+        {
+          "id": "effect_55CK11XQDT8Q9P796MND1YF96J",
+          "target": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_7H2RQXKPKWBEV956E1TAN8PT00"
+          }
+        },
+        {
+          "id": "effect_5DNEHFZENQH8Q9W7JRB1KWMEEG",
+          "target": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "key": "condition",
+          "operation": "set",
+          "value": "stationed-at-harrowcross"
+        }
+      ],
+      "bodyMarkdown": "# The Party Is Reassigned to Harrowcross\n\nMaela invokes the emergency clause and Hessa accepts the five badges as Harrowcross's replacement watch and investigation detail.\n"
+    },
+    {
+      "type": "event.create",
+      "id": "event_3YX4QHRA73T44MPK13ENYWAD2Z",
+      "title": "The Eastroad Caravan Leaves the Frontiersmen",
+      "domain": "plot.frontiersmen",
+      "status": "canonical",
+      "tags": [
+        "abandonment",
+        "caravan"
+      ],
+      "time": {
+        "timeline": "main",
+        "tick": 58,
+        "order": 20
+      },
+      "location": "loc_7H2RQXKPKWBEV956E1TAN8PT00",
+      "participants": [
+        {
+          "character": "char_4YCQAG8HHJ83ZY2P3RN6KY0AXD",
+          "role": "departing-caravan-master"
+        },
+        {
+          "character": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "role": "abandoned-hunter"
+        },
+        {
+          "character": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+          "role": "abandoned-hunter"
+        },
+        {
+          "character": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+          "role": "abandoned-hunter"
+        },
+        {
+          "character": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "role": "abandoned-hunter"
+        },
+        {
+          "character": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "role": "abandoned-hunter"
+        }
+      ],
+      "causes": [
+        "event_1175MZGP24P7AXEZE537FBRTTV"
+      ],
+      "relatedStoryPoints": [
+        "sp_4681Q884EX642WEVBEHV4CS24D",
+        "sp_0KBNVM3A3AVCG4Z88ETRQM1K78"
+      ],
+      "effects": [
+        {
+          "id": "effect_77WBH9A51STNY913BA0HA95BNP",
+          "target": "char_4YCQAG8HHJ83ZY2P3RN6KY0AXD",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_59C031P0HWGJ0MR13ZBP3PKGTB"
+          }
+        },
+        {
+          "id": "effect_67SGJBBP75AQPTS5ZBC687JAEG",
+          "target": "obj_3TABQCSE4JTC9FF30CSJESMVGE",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_59C031P0HWGJ0MR13ZBP3PKGTB"
+          }
+        }
+      ],
+      "bodyMarkdown": "# The Eastroad Caravan Leaves the Frontiersmen\n\nThe wagons roll east without ceremony. Maela leaves lamp oil and her annotated road map, but takes the reserve guards and every experienced teamster.\n"
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "scene",
+          "id": "scene_09NC0BZZ69KAFRR1AWWY8JYGC6",
+          "title": "Left at Harrowcross",
+          "domain": "scenes.frontiersmen",
+          "status": "closed",
+          "tags": [
+            "abandonment"
+          ],
+          "aliases": [],
+          "time": {
+            "start": {
+              "timeline": "main",
+              "tick": 56,
+              "order": 0
+            },
+            "current": {
+              "timeline": "main",
+              "tick": 59,
+              "order": 0
+            },
+            "end": {
+              "timeline": "main",
+              "tick": 59,
+              "order": 0
+            }
+          },
+          "location": "loc_7H2RQXKPKWBEV956E1TAN8PT00",
+          "participants": [
+            {
+              "character": "char_4YCQAG8HHJ83ZY2P3RN6KY0AXD",
+              "role": "caravan-master",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 56,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 58,
+                "order": 20
+              }
+            },
+            {
+              "character": "char_2YA8FQRX5Q0PRKSETNQZ4EEDKZ",
+              "role": "reeve",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 56,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 59,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+              "role": "reassigned-hunter",
+              "point_of_view": true,
+              "from": {
+                "timeline": "main",
+                "tick": 56,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 59,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+              "role": "reassigned-hunter",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 56,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 59,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+              "role": "reassigned-hunter",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 56,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 59,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+              "role": "reassigned-hunter",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 56,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 59,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+              "role": "reassigned-hunter",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 56,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 59,
+                "order": 0
+              }
+            }
+          ],
+          "objects": [
+            "obj_0AZS799AW0R3C2CQPTDVY91WGA",
+            "obj_485CVZ39Y0QFJWRDZ53C18BQ9T",
+            "obj_6B725P2CXQSC90HH4H24K0C5X2",
+            "obj_1PWCXKVPT3RS8MK7TDHQ9QN4FH",
+            "obj_5KH5J0ZACS5W06DMT772D119QS",
+            "obj_1SZQK22K4XSNC0XTZX1Z0T7R5N",
+            "obj_3W8SFAP29CDCV2M3X9XMYTDXY8"
+          ],
+          "environments": [
+            "env_11XK9YJAHEW8V3X74W6EKT070X"
+          ],
+          "story_points": [
+            "sp_4681Q884EX642WEVBEHV4CS24D",
+            "sp_0KBNVM3A3AVCG4Z88ETRQM1K78",
+            "sp_76YKCXX41HQC1N17A7S3ZKDRW4"
+          ],
+          "observations": [
+            {
+              "id": "obs_71V23YFX8SECM8C3WXH8X0DB5A",
+              "at": {
+                "timeline": "main",
+                "tick": 58,
+                "order": 20
+              },
+              "audience": [
+                "participants"
+              ],
+              "salience": 1.0,
+              "text": "The wagon bells diminish eastward while the town's wrapped watch bells remain silent."
+            },
+            {
+              "id": "obs_3TSJ4E0WB239Y5EG668VRFGCSZ",
+              "at": {
+                "timeline": "main",
+                "tick": 58,
+                "order": 25
+              },
+              "audience": [
+                "char_36X0KBYZ7MQGKM070H5NF12BK8"
+              ],
+              "salience": 1.0,
+              "text": "Maela's road map has Saint Orra Mine circled twice in different inks."
+            },
+            {
+              "id": "obs_4G4QEASMX71KC96W7WBGV9MD72",
+              "at": {
+                "timeline": "main",
+                "tick": 56,
+                "order": 45
+              },
+              "audience": [
+                "char_1W0GNKETQY2HF88YHM7CWVFH7C"
+              ],
+              "salience": 1.0,
+              "text": "Hessa's amber tally uses weight marks where mainland contracts would use coin columns."
+            }
+          ],
+          "author_constraints": [
+            "The party now knows amber pays for guild service, but no one has explained extraction or magical risk."
+          ],
+          "conversations": [
+            "conv_5Q4V1ATZE1B2XWQRTJ4XG9NEC1"
+          ]
+        },
+        "bodyMarkdown": "# Left at Harrowcross\n\nThe contractual transition is made personal: the old caravan leaves, the new company inherits a frightened town, and amber becomes a debt rather than a curiosity.\n"
+      }
+    },
+    {
+      "type": "conversation.recollection.record",
+      "conversationId": "conv_5Q4V1ATZE1B2XWQRTJ4XG9NEC1",
+      "temporaryId": "$tmp.recollection.departure-0",
+      "recollection": {
+        "character": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+        "at": {
+          "timeline": "main",
+          "tick": 59,
+          "order": 0
+        },
+        "state": "remembered",
+        "summary": "Maela transferred the party under a valid emergency clause and admitted Harrowcross pays in raw amber.",
+        "interpretation": "The contract is coercive, but leaving the town undefended would be worse than accepting it.",
+        "emotional_impression": "fury disciplined into command",
+        "confidence": 0.95,
+        "exact_turns": [
+          "turn_6210GGNBBHMRC75MPPXM6DQQ07",
+          "turn_6HYYYW9T9JEKHFTP0ZE9T6CSCH"
+        ],
+        "remembered_quotes": []
+      }
+    },
+    {
+      "type": "conversation.recollection.record",
+      "conversationId": "conv_5Q4V1ATZE1B2XWQRTJ4XG9NEC1",
+      "temporaryId": "$tmp.recollection.departure-1",
+      "recollection": {
+        "character": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+        "at": {
+          "timeline": "main",
+          "tick": 59,
+          "order": 1
+        },
+        "state": "remembered",
+        "summary": "Maela knew a red request waited at Harrowcross and brought inexperienced hires anyway.",
+        "interpretation": "The guild uses the road to move replaceable bodies toward danger it has already measured.",
+        "emotional_impression": "betrayal",
+        "confidence": 0.88,
+        "exact_turns": [
+          "turn_59Z066TNT9G2VA0PS76EC8J3CM",
+          "turn_4AJS9MT1YSSPCGV3WXWDWSWFBM"
+        ],
+        "remembered_quotes": []
+      }
+    },
+    {
+      "type": "conversation.recollection.record",
+      "conversationId": "conv_5Q4V1ATZE1B2XWQRTJ4XG9NEC1",
+      "temporaryId": "$tmp.recollection.departure-2",
+      "recollection": {
+        "character": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+        "at": {
+          "timeline": "main",
+          "tick": 59,
+          "order": 2
+        },
+        "state": "remembered",
+        "summary": "Harrowcross pays the guild in amber because protection is its most urgent recurring need.",
+        "interpretation": "The settlement's danger and its economy may be the same wound.",
+        "emotional_impression": "moral unease",
+        "confidence": 0.8,
+        "exact_turns": [
+          "turn_6Z94M3QXYW01XA88ETPX06GAE7",
+          "turn_5XDFJY4JW7DE741W0TCPQHSWES"
+        ],
+        "remembered_quotes": []
+      }
+    },
+    {
+      "type": "conversation.recollection.record",
+      "conversationId": "conv_5Q4V1ATZE1B2XWQRTJ4XG9NEC1",
+      "temporaryId": "$tmp.recollection.departure-3",
+      "recollection": {
+        "character": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+        "at": {
+          "timeline": "main",
+          "tick": 59,
+          "order": 3
+        },
+        "state": "remembered",
+        "summary": "Raw amber is transferred directly from Saint Orra Mine to the guild as payment.",
+        "interpretation": "The guild has institutional access to the material it refuses to explain.",
+        "emotional_impression": "vindicated suspicion",
+        "confidence": 0.94,
+        "exact_turns": [
+          "turn_6Z94M3QXYW01XA88ETPX06GAE7",
+          "turn_6TGVZ4X14G7SG5G4RJZHM02BXN"
+        ],
+        "remembered_quotes": []
+      }
+    },
+    {
+      "type": "conversation.recollection.record",
+      "conversationId": "conv_5Q4V1ATZE1B2XWQRTJ4XG9NEC1",
+      "temporaryId": "$tmp.recollection.departure-4",
+      "recollection": {
+        "character": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+        "at": {
+          "timeline": "main",
+          "tick": 59,
+          "order": 4
+        },
+        "state": "remembered",
+        "summary": "Hessa's ledger measures protection fees by amber weight and Maela was prepared to invoke reassignment.",
+        "interpretation": "The Frontier's contracts convert local danger into guild-controlled material flow.",
+        "emotional_impression": "admiration for the trap",
+        "confidence": 0.9,
+        "exact_turns": [
+          "turn_43RGQW2JXA95H16R2YBT1JBNVF",
+          "turn_6HYYYW9T9JEKHFTP0ZE9T6CSCH"
+        ],
+        "remembered_quotes": []
+      }
+    },
+    {
+      "type": "conversation.create",
+      "id": "conv_3TH0GGWH9AFGWGND2BFPA6MTKG",
+      "value": {
+        "title": "Kellan's Broken Watch",
+        "domain": "conversations.frontiersmen",
+        "status": "closed",
+        "tags": [
+          "massacre",
+          "amber",
+          "wretch"
+        ],
+        "aliases": [],
+        "time": {
+          "start": {
+            "timeline": "main",
+            "tick": 61,
+            "order": 0
+          },
+          "end": {
+            "timeline": "main",
+            "tick": 62,
+            "order": 40
+          }
+        },
+        "scene": "scene_45H9JFPG5V3ND3Y1JJA3Q6AMA5",
+        "location": "loc_15QGMX3VX9R9B4VW4CS4QNZWT8",
+        "participants": [
+          {
+            "character": "char_7DS75TG6WFK6ZD1T9GCBJRMK1T",
+            "role": "surviving-watchman",
+            "point_of_view": false,
+            "from": {
+              "timeline": "main",
+              "tick": 61,
+              "order": 0
+            },
+            "to": {
+              "timeline": "main",
+              "tick": 62,
+              "order": 40
+            }
+          },
+          {
+            "character": "char_1F7JEGBD02MVY0J8M9X0967T5T",
+            "role": "sergeant",
+            "point_of_view": false,
+            "from": {
+              "timeline": "main",
+              "tick": 61,
+              "order": 0
+            },
+            "to": {
+              "timeline": "main",
+              "tick": 62,
+              "order": 40
+            }
+          },
+          {
+            "character": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+            "role": "investigator",
+            "point_of_view": false,
+            "from": {
+              "timeline": "main",
+              "tick": 61,
+              "order": 0
+            },
+            "to": {
+              "timeline": "main",
+              "tick": 62,
+              "order": 40
+            }
+          },
+          {
+            "character": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+            "role": "investigator",
+            "point_of_view": false,
+            "from": {
+              "timeline": "main",
+              "tick": 61,
+              "order": 0
+            },
+            "to": {
+              "timeline": "main",
+              "tick": 62,
+              "order": 40
+            }
+          },
+          {
+            "character": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+            "role": "investigator",
+            "point_of_view": false,
+            "from": {
+              "timeline": "main",
+              "tick": 61,
+              "order": 0
+            },
+            "to": {
+              "timeline": "main",
+              "tick": 62,
+              "order": 40
+            }
+          },
+          {
+            "character": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+            "role": "investigator",
+            "point_of_view": false,
+            "from": {
+              "timeline": "main",
+              "tick": 61,
+              "order": 0
+            },
+            "to": {
+              "timeline": "main",
+              "tick": 62,
+              "order": 40
+            }
+          },
+          {
+            "character": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+            "role": "investigator",
+            "point_of_view": false,
+            "from": {
+              "timeline": "main",
+              "tick": 61,
+              "order": 0
+            },
+            "to": {
+              "timeline": "main",
+              "tick": 62,
+              "order": 40
+            }
+          }
+        ],
+        "topics": [
+          "massacre",
+          "amber",
+          "wretch"
+        ],
+        "turns": [
+          {
+            "id": "turn_4J8152GM5AM8RCYZC1SS11P6C0",
+            "at": {
+              "timeline": "main",
+              "tick": 61,
+              "order": 0
+            },
+            "speaker": "char_7DS75TG6WFK6ZD1T9GCBJRMK1T",
+            "text": "Asha heard the chest humming before Bran cut his hand.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "halting"
+          },
+          {
+            "id": "turn_270K467C1VPSC9R6VCJSJR5K8N",
+            "at": {
+              "timeline": "main",
+              "tick": 61,
+              "order": 10
+            },
+            "speaker": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+            "text": "The chest was already warm?",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "precise"
+          },
+          {
+            "id": "turn_53S7V6FG1F49F76RWX99GQ96C8",
+            "at": {
+              "timeline": "main",
+              "tick": 61,
+              "order": 20
+            },
+            "speaker": "char_7DS75TG6WFK6ZD1T9GCBJRMK1T",
+            "text": "Warm enough that the snow beneath it melted. Then Bran's blood ran uphill toward the crack.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "shaking"
+          },
+          {
+            "id": "turn_6D6XTKDR9SX9PPM2V87VHFPWT6",
+            "at": {
+              "timeline": "main",
+              "tick": 61,
+              "order": 30
+            },
+            "speaker": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+            "text": "What did the first shape resemble?",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "gentle"
+          },
+          {
+            "id": "turn_7TC2GZG5RKV4X3TSXBYRKCXW6S",
+            "at": {
+              "timeline": "main",
+              "tick": 61,
+              "order": 40
+            },
+            "speaker": "char_7DS75TG6WFK6ZD1T9GCBJRMK1T",
+            "text": "A deer until it turned its head. Then it had Bran's teeth and Asha's voice.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "distant"
+          },
+          {
+            "id": "turn_02PCQA1SWTCFPN2ZAMJSTK1CWE",
+            "at": {
+              "timeline": "main",
+              "tick": 61,
+              "order": 50
+            },
+            "speaker": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+            "text": "Did it leave a print? Hair? Blood?",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "quiet"
+          },
+          {
+            "id": "turn_59HBYH9NW6EGN8E331SMWA0TRC",
+            "at": {
+              "timeline": "main",
+              "tick": 62,
+              "order": 0
+            },
+            "speaker": "char_7DS75TG6WFK6ZD1T9GCBJRMK1T",
+            "text": "Only cold. It went through the wall when Asha struck it.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "certain"
+          },
+          {
+            "id": "turn_6WTSWXKBBVXCB9QT5175ZJWFYZ",
+            "at": {
+              "timeline": "main",
+              "tick": 62,
+              "order": 10
+            },
+            "speaker": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+            "text": "And the wall remained a wall.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "confirming"
+          },
+          {
+            "id": "turn_3ZYM6C8NFC4CN84718XSG5P1S4",
+            "at": {
+              "timeline": "main",
+              "tick": 62,
+              "order": 20
+            },
+            "speaker": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+            "text": "We move the chest into the open yard and keep every blade covered.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "command"
+          },
+          {
+            "id": "turn_51SC2A706VRAHPZMC0MMFF2D27",
+            "at": {
+              "timeline": "main",
+              "tick": 62,
+              "order": 30
+            },
+            "speaker": "char_1F7JEGBD02MVY0J8M9X0967T5T",
+            "text": "The guild collector forbade moving it before tally.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "ashamed"
+          },
+          {
+            "id": "turn_2BD94KXBNT26JEV92S2DJRB325",
+            "at": {
+              "timeline": "main",
+              "tick": 62,
+              "order": 40
+            },
+            "speaker": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+            "text": "The collector is not here.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "final"
+          }
+        ],
+        "recollections": [],
+        "bodyMarkdown": "# Kellan's Broken Watch\n\nKellan supplies the causal sequence the dead guards could not: warm amber, blood moving toward it, and a wretch borrowing familiar anatomy and voices.\n\nThe turn list is canonical verbatim provenance. Character recollections are stored separately and may disagree.\n"
+      }
+    },
+    {
+      "type": "conversation.recollection.record",
+      "conversationId": "conv_4HXZ3Y7CCMECQNP1T5P0AK82YH",
+      "temporaryId": "$tmp.recollection.kellan-last-watch",
+      "recollection": {
+        "character": "char_7DS75TG6WFK6ZD1T9GCBJRMK1T",
+        "at": {
+          "timeline": "main",
+          "tick": 62,
+          "order": 45
+        },
+        "state": "remembered",
+        "summary": "Asha ordered a spear line after Bran's blood moved toward the humming amber chest. The first wretch wore a deer's body, Bran's teeth, and Asha's voice.",
+        "interpretation": "Kellan believes the chest called the thing and that his own survival was accidental rather than brave.",
+        "emotional_impression": "survivor's terror",
+        "confidence": 0.86,
+        "exact_turns": [
+          "turn_5JZ4K1PDCQVQGC4G34HYV8AXWG",
+          "turn_7NJG56HSKQGS18FSDCMS21B4E2",
+          "turn_1S245WH2QFHHY7E12ECGN3891G"
+        ],
+        "remembered_quotes": []
+      }
+    },
+    {
+      "type": "event.create",
+      "id": "event_54PDHHTT83P1MYCD9T1X0S33Z1",
+      "title": "The Harrowcross Amber Chest Quickens Again",
+      "domain": "plot.frontiersmen",
+      "status": "canonical",
+      "tags": [
+        "amber",
+        "quickening"
+      ],
+      "time": {
+        "timeline": "main",
+        "tick": 63,
+        "order": 10
+      },
+      "location": "loc_15QGMX3VX9R9B4VW4CS4QNZWT8",
+      "participants": [
+        {
+          "character": "char_7DS75TG6WFK6ZD1T9GCBJRMK1T",
+          "role": "bleeding-survivor"
+        },
+        {
+          "character": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "role": "observer"
+        },
+        {
+          "character": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "role": "investigator"
+        },
+        {
+          "character": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+          "role": "investigator"
+        },
+        {
+          "character": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+          "role": "investigator"
+        },
+        {
+          "character": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "role": "investigator"
+        },
+        {
+          "character": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "role": "investigator"
+        }
+      ],
+      "causes": [
+        "event_2DZVKF0PP4ZNMHYMPSSHMWN1EX",
+        "event_1175MZGP24P7AXEZE537FBRTTV"
+      ],
+      "relatedStoryPoints": [
+        "sp_4FPF4MV3YMFPH5W3Z5T7W3FSAY",
+        "sp_0RTEKC1CPW46B4RZNJX178NKMT"
+      ],
+      "effects": [
+        {
+          "id": "effect_45M1XE78600XSZNBZZW9C6JAT1",
+          "target": "obj_2E54ZD1PAD31YVVX181TS4D29X",
+          "key": "condition",
+          "operation": "set",
+          "value": "bright, humming, and blood-responsive"
+        },
+        {
+          "id": "effect_4T07YDVF91XE1BKF5S5TTPYSR4",
+          "target": "char_7DS75TG6WFK6ZD1T9GCBJRMK1T",
+          "key": "condition",
+          "operation": "set",
+          "value": "wound reopened"
+        },
+        {
+          "id": "effect_0YSANATFXFW1S0RYJ9RX0WR2P3",
+          "target": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_15QGMX3VX9R9B4VW4CS4QNZWT8"
+          }
+        },
+        {
+          "id": "effect_29VKYSJG95N2RNYCVSY2D92FMP",
+          "target": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "key": "condition",
+          "operation": "set",
+          "value": "under-attack"
+        },
+        {
+          "id": "effect_3ZE2Q219EQXDS2GW7YFFW4WFV8",
+          "target": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_15QGMX3VX9R9B4VW4CS4QNZWT8"
+          }
+        },
+        {
+          "id": "effect_42Y158RFE68HA1HPT9VK12R1YG",
+          "target": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+          "key": "condition",
+          "operation": "set",
+          "value": "under-attack"
+        },
+        {
+          "id": "effect_4GKXA761TZZYHZMH8K6EPJ2WW4",
+          "target": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_15QGMX3VX9R9B4VW4CS4QNZWT8"
+          }
+        },
+        {
+          "id": "effect_15SEP7RP01DAN4G5H1CEYJFYT0",
+          "target": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+          "key": "condition",
+          "operation": "set",
+          "value": "under-attack"
+        },
+        {
+          "id": "effect_6EFJD2D2D9YZ4P972XD5NYNZ62",
+          "target": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_15QGMX3VX9R9B4VW4CS4QNZWT8"
+          }
+        },
+        {
+          "id": "effect_1EE7H39MCYM45NAQ8J204HKNMR",
+          "target": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "key": "condition",
+          "operation": "set",
+          "value": "under-attack"
+        },
+        {
+          "id": "effect_5S6XHMGH3T6X88V1GHKSEGWBP6",
+          "target": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_15QGMX3VX9R9B4VW4CS4QNZWT8"
+          }
+        },
+        {
+          "id": "effect_6AHFB2QZJ9X2CVCGSBNM2W984W",
+          "target": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "key": "condition",
+          "operation": "set",
+          "value": "under-attack"
+        },
+        {
+          "id": "effect_1NEPPC5AGANWY9NMJB6CPJNVG7",
+          "target": "char_1F7JEGBD02MVY0J8M9X0967T5T",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_15QGMX3VX9R9B4VW4CS4QNZWT8"
+          }
+        }
+      ],
+      "bodyMarkdown": "# The Harrowcross Amber Chest Quickens Again\n\nWhile the company prepares to move the chest, Kellan's bandage opens. A thread of blood creeps against the floor's slope and disappears into the cracked seam. The amber brightens from within and repeats the watch bell's muffled note.\n"
+    },
+    {
+      "type": "event.create",
+      "id": "event_7SAZQYAV7G22NMSESPM4196DSQ",
+      "title": "A Wretch Comes Through the Barracks Wall",
+      "domain": "plot.frontiersmen",
+      "status": "canonical",
+      "tags": [
+        "wretch",
+        "combat"
+      ],
+      "time": {
+        "timeline": "main",
+        "tick": 63,
+        "order": 20
+      },
+      "location": "loc_15QGMX3VX9R9B4VW4CS4QNZWT8",
+      "participants": [
+        {
+          "character": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "role": "shield"
+        },
+        {
+          "character": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+          "role": "archer"
+        },
+        {
+          "character": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+          "role": "warder"
+        },
+        {
+          "character": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "role": "arcanist"
+        },
+        {
+          "character": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "role": "flanker"
+        },
+        {
+          "character": "char_7DS75TG6WFK6ZD1T9GCBJRMK1T",
+          "role": "witness"
+        }
+      ],
+      "causes": [
+        "event_54PDHHTT83P1MYCD9T1X0S33Z1"
+      ],
+      "relatedStoryPoints": [
+        "sp_4FPF4MV3YMFPH5W3Z5T7W3FSAY",
+        "sp_0RTEKC1CPW46B4RZNJX178NKMT"
+      ],
+      "effects": [
+        {
+          "id": "effect_2PMWPRPVP49PWZHK7D7RDHEZ4W",
+          "target": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+          "key": "condition",
+          "operation": "set",
+          "value": "frost-bitten left arm"
+        },
+        {
+          "id": "effect_0WKKR7F57D9K3HRJEQ5XE72WQ3",
+          "target": "obj_1V7FPPZKJPVQE2SV3GHWRVBSER",
+          "key": "location",
+          "operation": "clear"
+        },
+        {
+          "id": "effect_02YNJ1FPV8JBKG2KTPK1WH43E4",
+          "target": "obj_1V7FPPZKJPVQE2SV3GHWRVBSER",
+          "key": "holder",
+          "operation": "set",
+          "value": {
+            "entity": "char_36X0KBYZ7MQGKM070H5NF12BK8"
+          }
+        },
+        {
+          "id": "effect_5HKD476C2C77V26BDR1E4XH19K",
+          "target": "obj_0YS6DTVKR6FS6H82021A18GP2R",
+          "key": "location",
+          "operation": "clear"
+        },
+        {
+          "id": "effect_07Z0AJ94KECCSYEYDRASEVV8AC",
+          "target": "obj_0YS6DTVKR6FS6H82021A18GP2R",
+          "key": "holder",
+          "operation": "set",
+          "value": {
+            "entity": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y"
+          }
+        }
+      ],
+      "bodyMarkdown": "# A Wretch Comes Through the Barracks Wall\n\nAn antlered, dog-limbed shape steps through the north wall without disturbing plaster. Its mouth alternates between Asha's command voice and Bran's laugh. Iron passes through it until Garran's threshold blessing and Veyra's heat force it partly solid.\n"
+    },
+    {
+      "type": "event.create",
+      "id": "event_65NWKCGHET513YTAQPKXVS8KQ5",
+      "title": "The Frontiersmen Drive Off Their First Wretch",
+      "domain": "plot.frontiersmen",
+      "status": "canonical",
+      "tags": [
+        "wretch",
+        "victory"
+      ],
+      "time": {
+        "timeline": "main",
+        "tick": 64,
+        "order": 10
+      },
+      "location": "loc_15QGMX3VX9R9B4VW4CS4QNZWT8",
+      "participants": [
+        {
+          "character": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "role": "shield"
+        },
+        {
+          "character": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+          "role": "archer"
+        },
+        {
+          "character": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+          "role": "warder"
+        },
+        {
+          "character": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "role": "arcanist"
+        },
+        {
+          "character": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "role": "flanker"
+        }
+      ],
+      "causes": [
+        "event_7SAZQYAV7G22NMSESPM4196DSQ"
+      ],
+      "relatedStoryPoints": [
+        "sp_4FPF4MV3YMFPH5W3Z5T7W3FSAY",
+        "sp_0RTEKC1CPW46B4RZNJX178NKMT"
+      ],
+      "effects": [
+        {
+          "id": "effect_59Y5KCR0HDJWWZ86VK45EG6B36",
+          "target": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "key": "condition",
+          "operation": "set",
+          "value": "bruised but steady"
+        },
+        {
+          "id": "effect_7E81QFRTAVZ2Q6QG17RMRTN7JT",
+          "target": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+          "key": "condition",
+          "operation": "set",
+          "value": "ready"
+        },
+        {
+          "id": "effect_2PMKR4VZPAQMEQTQ6ZFMY59TNW",
+          "target": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "key": "condition",
+          "operation": "set",
+          "value": "excited and shaken"
+        },
+        {
+          "id": "effect_6EZSXD8Y568Q89XDQM5TCXDFTN",
+          "target": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "key": "condition",
+          "operation": "set",
+          "value": "ready"
+        },
+        {
+          "id": "effect_5B51P60A3MGMR6RN4FBA2KT8GT",
+          "target": "obj_2E54ZD1PAD31YVVX181TS4D29X",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_6FE07N56ZKMWSH4J287QJB3TRM"
+          }
+        },
+        {
+          "id": "effect_0J5K0HVXWAA9D2Z44XBS41Y3K4",
+          "target": "obj_2E54ZD1PAD31YVVX181TS4D29X",
+          "key": "condition",
+          "operation": "set",
+          "value": "charcoal-damped but warm"
+        }
+      ],
+      "bodyMarkdown": "# The Frontiersmen Drive Off Their First Wretch\n\nRhea pins the half-solid creature against the amber chest with Asha's broken spear while Sylvi severs the antler-shadow from its body. Pip rolls the chest into the yard and Veyra smothers the crack under wet charcoal. The wretch collapses into frost and runs as a pale outline through the ground toward the east orchard.\n"
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "scene",
+          "id": "scene_45H9JFPG5V3ND3Y1JJA3Q6AMA5",
+          "title": "First Wretch Night",
+          "domain": "scenes.frontiersmen",
+          "status": "closed",
+          "tags": [
+            "wretch",
+            "combat"
+          ],
+          "aliases": [],
+          "time": {
+            "start": {
+              "timeline": "main",
+              "tick": 61,
+              "order": 0
+            },
+            "current": {
+              "timeline": "main",
+              "tick": 68,
+              "order": 0
+            },
+            "end": {
+              "timeline": "main",
+              "tick": 68,
+              "order": 0
+            }
+          },
+          "location": "loc_15QGMX3VX9R9B4VW4CS4QNZWT8",
+          "participants": [
+            {
+              "character": "char_1F7JEGBD02MVY0J8M9X0967T5T",
+              "role": "sergeant",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 61,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 64,
+                "order": 20
+              }
+            },
+            {
+              "character": "char_7DS75TG6WFK6ZD1T9GCBJRMK1T",
+              "role": "survivor",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 61,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 64,
+                "order": 20
+              }
+            },
+            {
+              "character": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+              "role": "guild-hunter",
+              "point_of_view": true,
+              "from": {
+                "timeline": "main",
+                "tick": 61,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 68,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+              "role": "guild-hunter",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 61,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 68,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+              "role": "guild-hunter",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 61,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 68,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+              "role": "guild-hunter",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 61,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 68,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+              "role": "guild-hunter",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 61,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 68,
+                "order": 0
+              }
+            }
+          ],
+          "objects": [
+            "obj_2E54ZD1PAD31YVVX181TS4D29X",
+            "obj_1V7FPPZKJPVQE2SV3GHWRVBSER",
+            "obj_0YS6DTVKR6FS6H82021A18GP2R",
+            "obj_6B725P2CXQSC90HH4H24K0C5X2",
+            "obj_1PWCXKVPT3RS8MK7TDHQ9QN4FH",
+            "obj_5KH5J0ZACS5W06DMT772D119QS",
+            "obj_1SZQK22K4XSNC0XTZX1Z0T7R5N",
+            "obj_3W8SFAP29CDCV2M3X9XMYTDXY8"
+          ],
+          "environments": [
+            "env_11XK9YJAHEW8V3X74W6EKT070X",
+            "env_2GWWXG5KEJ9NJ54607PPYPYQKD"
+          ],
+          "story_points": [
+            "sp_2KFWNBNCG0RPGS4R85M5DQVV9B",
+            "sp_4FPF4MV3YMFPH5W3Z5T7W3FSAY",
+            "sp_0RTEKC1CPW46B4RZNJX178NKMT"
+          ],
+          "observations": [
+            {
+              "id": "obs_0Y4A8371CYC0T1ZFKKK2E4P6PV",
+              "at": {
+                "timeline": "main",
+                "tick": 63,
+                "order": 10
+              },
+              "audience": [
+                "participants"
+              ],
+              "salience": 1.5,
+              "text": "Kellan's blood crawls uphill in a narrow thread toward the cracked amber chest."
+            },
+            {
+              "id": "obs_19KZSJ5FX83PDTNKEN8R8250KT",
+              "at": {
+                "timeline": "main",
+                "tick": 63,
+                "order": 20
+              },
+              "audience": [
+                "participants"
+              ],
+              "salience": 1.5,
+              "text": "An antlered body emerges through intact plaster as though the wall were fog."
+            },
+            {
+              "id": "obs_2MRW0EPNPKMG90YMX9AKJ698M7",
+              "at": {
+                "timeline": "main",
+                "tick": 63,
+                "order": 30
+              },
+              "audience": [
+                "char_36X0KBYZ7MQGKM070H5NF12BK8"
+              ],
+              "salience": 1.35,
+              "text": "The creature says 'hold the line' in the dead corporal's exact command cadence."
+            },
+            {
+              "id": "obs_7WRPAYHES916KS2BJ2FENCC6RT",
+              "at": {
+                "timeline": "main",
+                "tick": 63,
+                "order": 35
+              },
+              "audience": [
+                "char_0NQKTG3NQZFSVFKXS901NJD82E"
+              ],
+              "salience": 1.3,
+              "text": "The floor dust bends away from the creature but never carries its weight."
+            },
+            {
+              "id": "obs_2Q2HG0H0MRGXW81VE70MP6MGS6",
+              "at": {
+                "timeline": "main",
+                "tick": 63,
+                "order": 40
+              },
+              "audience": [
+                "char_671MWM7KTP4DCVVP8EP6SFRJVP"
+              ],
+              "salience": 1.3,
+              "text": "The wretch recoils from the threshold prayer as if remembering an older wound."
+            },
+            {
+              "id": "obs_5H3P0DP4Z2V1BP12HPAQ1S7M36",
+              "at": {
+                "timeline": "main",
+                "tick": 63,
+                "order": 45
+              },
+              "audience": [
+                "char_48QC9B4M2RFVXJKSDFMRGJWG8Y"
+              ],
+              "salience": 1.45,
+              "text": "Every change in the creature's shape follows a pulse from the chest's raw amber."
+            },
+            {
+              "id": "obs_43MW7FQ34P05GEEP1VYF5J1NQJ",
+              "at": {
+                "timeline": "main",
+                "tick": 64,
+                "order": 10
+              },
+              "audience": [
+                "char_1W0GNKETQY2HF88YHM7CWVFH7C"
+              ],
+              "salience": 1.35,
+              "text": "When the chest leaves the room, the wretch's pale outline flees east through the packed ground."
+            }
+          ],
+          "author_constraints": [
+            "The party has witnessed correlation, not yet learned the deeper nature of amber.",
+            "The dead guards' voices are exact stored impressions, not conscious ghosts."
+          ],
+          "conversations": [
+            "conv_3TH0GGWH9AFGWGND2BFPA6MTKG"
+          ]
+        },
+        "bodyMarkdown": "# First Wretch Night\n\nThe story's first direct monster encounter proves that walls and conventional defenses do not define the threat. The party survives by treating the amber chest as part of the battlefield.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "knowledge",
+          "id": "know_6D9K81CYBJ037X0MEFNXEJ5F5H",
+          "title": "Rhea links blood, amber, and the wretch",
+          "domain": "knowledge.char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "status": "canonical",
+          "tags": [
+            "wretch",
+            "amber"
+          ],
+          "aliases": [],
+          "knower": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "claim": {
+            "key": "amber.blood.precedes-wretch",
+            "statement": "Kellan's blood moved toward the cracked amber immediately before the wretch emerged.",
+            "author_truth_status": "true",
+            "subject": "obj_2E54ZD1PAD31YVVX181TS4D29X",
+            "predicate": "quickened-after",
+            "object": {
+              "text": "Kellan's blood"
+            }
+          },
+          "transitions": [
+            {
+              "id": "kt_2Z37Q3Q39F5N5ZAGSDFWX4TMHC",
+              "time": {
+                "timeline": "main",
+                "tick": 64,
+                "order": 20
+              },
+              "state": "accepted",
+              "confidence": 0.96,
+              "acquisition": "observed",
+              "causing_event": "event_65NWKCGHET513YTAQPKXVS8KQ5",
+              "source_entity": "obj_2E54ZD1PAD31YVVX181TS4D29X"
+            }
+          ]
+        },
+        "bodyMarkdown": "# Rhea links blood, amber, and the wretch\n\nKellan's blood moved toward the cracked amber immediately before the wretch emerged.\n\nThis is a subjective proposition held by the named knower, not a replacement for canonical event or conversation provenance.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "knowledge",
+          "id": "know_40V17KF4ZGVFEQ67GDSNEJ49KW",
+          "title": "Sylvi knows the wretch carried no weight",
+          "domain": "knowledge.char_0NQKTG3NQZFSVFKXS901NJD82E",
+          "status": "canonical",
+          "tags": [
+            "wretch",
+            "amber"
+          ],
+          "aliases": [],
+          "knower": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+          "claim": {
+            "key": "wretch.leaves-no-weight-track",
+            "statement": "The wretch disturbed dust and air but never bore weight on the barracks floor.",
+            "author_truth_status": "true",
+            "subject": "event_7SAZQYAV7G22NMSESPM4196DSQ",
+            "predicate": "left",
+            "object": {
+              "text": "no weight-bearing track"
+            }
+          },
+          "transitions": [
+            {
+              "id": "kt_6EDQA34J6YNK9MT91RZ0GMJ3PM",
+              "time": {
+                "timeline": "main",
+                "tick": 64,
+                "order": 21
+              },
+              "state": "accepted",
+              "confidence": 0.98,
+              "acquisition": "observed",
+              "causing_event": "event_65NWKCGHET513YTAQPKXVS8KQ5",
+              "source_entity": "obj_0YS6DTVKR6FS6H82021A18GP2R"
+            }
+          ]
+        },
+        "bodyMarkdown": "# Sylvi knows the wretch carried no weight\n\nThe wretch disturbed dust and air but never bore weight on the barracks floor.\n\nThis is a subjective proposition held by the named knower, not a replacement for canonical event or conversation provenance.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "knowledge",
+          "id": "know_5W16QD0Q908PQNHR5N0DKV7F2H",
+          "title": "Garran suspects the wretch remembers pain",
+          "domain": "knowledge.char_671MWM7KTP4DCVVP8EP6SFRJVP",
+          "status": "canonical",
+          "tags": [
+            "wretch",
+            "amber"
+          ],
+          "aliases": [],
+          "knower": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+          "claim": {
+            "key": "wretch.responds-as-memory",
+            "statement": "The wretch reacted to a threshold blessing as if remembering an older injury rather than suffering a new one.",
+            "author_truth_status": "unknown",
+            "subject": "event_7SAZQYAV7G22NMSESPM4196DSQ",
+            "predicate": "behaves-like",
+            "object": {
+              "text": "a remembered wound"
+            }
+          },
+          "transitions": [
+            {
+              "id": "kt_6JKF7HCG9DTKF5D34Q8DJ0SJ0V",
+              "time": {
+                "timeline": "main",
+                "tick": 64,
+                "order": 22
+              },
+              "state": "suspected",
+              "confidence": 0.7,
+              "acquisition": "inferred",
+              "causing_event": "event_65NWKCGHET513YTAQPKXVS8KQ5",
+              "source_entity": "obj_1V7FPPZKJPVQE2SV3GHWRVBSER"
+            }
+          ]
+        },
+        "bodyMarkdown": "# Garran suspects the wretch remembers pain\n\nThe wretch reacted to a threshold blessing as if remembering an older injury rather than suffering a new one.\n\nThis is a subjective proposition held by the named knower, not a replacement for canonical event or conversation provenance.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "knowledge",
+          "id": "know_4WABGVP968ESVHRRKEZ2GDRW57",
+          "title": "Veyra observes amber pulses shaping the wretch",
+          "domain": "knowledge.char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "status": "canonical",
+          "tags": [
+            "wretch",
+            "amber"
+          ],
+          "aliases": [],
+          "knower": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "claim": {
+            "key": "amber.pulses-shape-wretch",
+            "statement": "Pulses from the raw amber chest corresponded to the wretch's changing borrowed anatomy.",
+            "author_truth_status": "true",
+            "subject": "obj_2E54ZD1PAD31YVVX181TS4D29X",
+            "predicate": "shaped",
+            "object": {
+              "entity": "event_7SAZQYAV7G22NMSESPM4196DSQ"
+            }
+          },
+          "transitions": [
+            {
+              "id": "kt_3ZV732D07FF0NR0MM31MNE7BS7",
+              "time": {
+                "timeline": "main",
+                "tick": 64,
+                "order": 23
+              },
+              "state": "accepted",
+              "confidence": 0.94,
+              "acquisition": "observed",
+              "causing_event": "event_65NWKCGHET513YTAQPKXVS8KQ5",
+              "source_entity": "obj_0YS6DTVKR6FS6H82021A18GP2R"
+            }
+          ]
+        },
+        "bodyMarkdown": "# Veyra observes amber pulses shaping the wretch\n\nPulses from the raw amber chest corresponded to the wretch's changing borrowed anatomy.\n\nThis is a subjective proposition held by the named knower, not a replacement for canonical event or conversation provenance.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "knowledge",
+          "id": "know_2TF2N52NNXG5A9HZTCNQH3HJFX",
+          "title": "Pip knows removing the chest weakened the wretch",
+          "domain": "knowledge.char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "status": "canonical",
+          "tags": [
+            "wretch",
+            "amber"
+          ],
+          "aliases": [],
+          "knower": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "claim": {
+            "key": "moving-amber-weakened-wretch",
+            "statement": "Moving the quickened amber chest out of the barracks weakened the wretch and drove its outline east through the ground.",
+            "author_truth_status": "true",
+            "subject": "obj_2E54ZD1PAD31YVVX181TS4D29X",
+            "predicate": "proximity-strengthened",
+            "object": {
+              "entity": "event_7SAZQYAV7G22NMSESPM4196DSQ"
+            }
+          },
+          "transitions": [
+            {
+              "id": "kt_2QQ07XEX8MRFFZBBF4AD2HPE3B",
+              "time": {
+                "timeline": "main",
+                "tick": 64,
+                "order": 24
+              },
+              "state": "accepted",
+              "confidence": 0.92,
+              "acquisition": "observed",
+              "causing_event": "event_65NWKCGHET513YTAQPKXVS8KQ5",
+              "source_entity": "obj_2E54ZD1PAD31YVVX181TS4D29X"
+            }
+          ]
+        },
+        "bodyMarkdown": "# Pip knows removing the chest weakened the wretch\n\nMoving the quickened amber chest out of the barracks weakened the wretch and drove its outline east through the ground.\n\nThis is a subjective proposition held by the named knower, not a replacement for canonical event or conversation provenance.\n"
+      }
+    },
+    {
+      "type": "event.create",
+      "id": "event_2NN6CJ3NE0BEJ3F7ZKPVB4KR8P",
+      "title": "A Second Wretch Hunts the East Orchard",
+      "domain": "plot.frontiersmen",
+      "status": "canonical",
+      "tags": [
+        "wretch",
+        "orchard"
+      ],
+      "time": {
+        "timeline": "main",
+        "tick": 70,
+        "order": 10
+      },
+      "location": "loc_1E6T19TA3BQRSK066JWFS61GY2",
+      "participants": [
+        {
+          "character": "char_58FSACWWKS7MRG045VXBTSYT3A",
+          "role": "orchard-keeper"
+        },
+        {
+          "character": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+          "role": "tracker"
+        },
+        {
+          "character": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "role": "shield"
+        },
+        {
+          "character": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+          "role": "warder"
+        },
+        {
+          "character": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "role": "arcanist"
+        },
+        {
+          "character": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "role": "scout"
+        }
+      ],
+      "causes": [
+        "event_65NWKCGHET513YTAQPKXVS8KQ5"
+      ],
+      "relatedStoryPoints": [
+        "sp_0RTEKC1CPW46B4RZNJX178NKMT",
+        "sp_5Q8BN1G91QHYSCRSDSF9QWDK09"
+      ],
+      "effects": [
+        {
+          "id": "effect_059VWE2BM1ZM2XNMBK6MPGDW4H",
+          "target": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_1E6T19TA3BQRSK066JWFS61GY2"
+          }
+        },
+        {
+          "id": "effect_28C4JRPKXCQF4VKN0FWNYJW9NH",
+          "target": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "key": "condition",
+          "operation": "set",
+          "value": "tracking-wretch"
+        },
+        {
+          "id": "effect_2BGJ52ABY096D7T1KC79ZHBWGJ",
+          "target": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_1E6T19TA3BQRSK066JWFS61GY2"
+          }
+        },
+        {
+          "id": "effect_22BVHZWTVXP69ZE3MT8B7TTMFA",
+          "target": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+          "key": "condition",
+          "operation": "set",
+          "value": "tracking-wretch"
+        },
+        {
+          "id": "effect_790WDBEZHYXDHS7EYKX1TNFEYF",
+          "target": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_1E6T19TA3BQRSK066JWFS61GY2"
+          }
+        },
+        {
+          "id": "effect_3TPXNTA3EPERFGX4J1WETC5F11",
+          "target": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+          "key": "condition",
+          "operation": "set",
+          "value": "tracking-wretch"
+        },
+        {
+          "id": "effect_50RMC9319GZVYPG4RQNTA313BJ",
+          "target": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_1E6T19TA3BQRSK066JWFS61GY2"
+          }
+        },
+        {
+          "id": "effect_397VYFV59RMRXKQCGYTP9T63S6",
+          "target": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "key": "condition",
+          "operation": "set",
+          "value": "tracking-wretch"
+        },
+        {
+          "id": "effect_6GKW9P42VB2TES3DX2B3GAQY1Z",
+          "target": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_1E6T19TA3BQRSK066JWFS61GY2"
+          }
+        },
+        {
+          "id": "effect_3F2CJMFHZ1J9H6SGMB98RBDQW0",
+          "target": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "key": "condition",
+          "operation": "set",
+          "value": "tracking-wretch"
+        },
+        {
+          "id": "effect_2ZA8TCJBVE1THJ7J8A6D7JMQ87",
+          "target": "char_58FSACWWKS7MRG045VXBTSYT3A",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_1E6T19TA3BQRSK066JWFS61GY2"
+          }
+        }
+      ],
+      "bodyMarkdown": "# A Second Wretch Hunts the East Orchard\n\nAt dawn the party follows frost-rime through the ground to Senna Reed's orchard. A boar-shaped wretch rises beneath a grafted apple tree and repeats the squeal of a pig slaughtered there years earlier. Charcoal-damped amber on Rhea's cloak remains quiet until the creature strikes the tree's fresh sap wound.\n"
+    },
+    {
+      "type": "event.create",
+      "id": "event_3X3WCH3S4HA27KAGTQTDP6FPCM",
+      "title": "Tillo Dowses the Quickenings Toward Saint Orra",
+      "domain": "plot.frontiersmen",
+      "status": "canonical",
+      "tags": [
+        "dowsing",
+        "amber"
+      ],
+      "time": {
+        "timeline": "main",
+        "tick": 72,
+        "order": 45
+      },
+      "location": "loc_1E6T19TA3BQRSK066JWFS61GY2",
+      "participants": [
+        {
+          "character": "char_6B6FGKREZM4RAECD6ZSFQXX74B",
+          "role": "dowser"
+        },
+        {
+          "character": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "role": "witness"
+        },
+        {
+          "character": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+          "role": "witness"
+        },
+        {
+          "character": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+          "role": "witness"
+        },
+        {
+          "character": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "role": "witness"
+        },
+        {
+          "character": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "role": "witness"
+        }
+      ],
+      "causes": [
+        "event_2NN6CJ3NE0BEJ3F7ZKPVB4KR8P",
+        "event_54PDHHTT83P1MYCD9T1X0S33Z1"
+      ],
+      "relatedStoryPoints": [
+        "sp_0RTEKC1CPW46B4RZNJX178NKMT",
+        "sp_5Q8BN1G91QHYSCRSDSF9QWDK09",
+        "sp_55RMAMRVV8DYG02ZR84VWME0CR"
+      ],
+      "effects": [
+        {
+          "id": "effect_4BV1ZA157EFVSW0KW1CHNQTGQH",
+          "target": "char_6B6FGKREZM4RAECD6ZSFQXX74B",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_1E6T19TA3BQRSK066JWFS61GY2"
+          }
+        }
+      ],
+      "bodyMarkdown": "# Tillo Dowses the Quickenings Toward Saint Orra\n\nTillo's copper-bound fork twists away from the damped chest, then pulls east toward the mine road. He identifies the chest as quickened and admits that gnome dowsers locate amber pockets by the pressure they exert on tuned wood and metal.\n"
+    },
+    {
+      "type": "event.create",
+      "id": "event_6PENT82TP12QE9R4XW7CK2RYAQ",
+      "title": "Harrowcross Opens Its Amber Protection Ledger",
+      "domain": "plot.frontiersmen",
+      "status": "canonical",
+      "tags": [
+        "ledger",
+        "amber-payment"
+      ],
+      "time": {
+        "timeline": "main",
+        "tick": 74,
+        "order": 0
+      },
+      "location": "loc_7H2RQXKPKWBEV956E1TAN8PT00",
+      "participants": [
+        {
+          "character": "char_2YA8FQRX5Q0PRKSETNQZ4EEDKZ",
+          "role": "reeve"
+        },
+        {
+          "character": "char_1F7JEGBD02MVY0J8M9X0967T5T",
+          "role": "sergeant"
+        },
+        {
+          "character": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "role": "guild-hunter"
+        },
+        {
+          "character": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+          "role": "guild-hunter"
+        },
+        {
+          "character": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+          "role": "guild-hunter"
+        },
+        {
+          "character": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "role": "guild-hunter"
+        },
+        {
+          "character": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "role": "guild-hunter"
+        }
+      ],
+      "causes": [
+        "event_1175MZGP24P7AXEZE537FBRTTV",
+        "event_3X3WCH3S4HA27KAGTQTDP6FPCM"
+      ],
+      "relatedStoryPoints": [
+        "sp_76YKCXX41HQC1N17A7S3ZKDRW4",
+        "sp_738TMHY3Y8CZK6V7KK1BWXPRZJ",
+        "sp_55RMAMRVV8DYG02ZR84VWME0CR"
+      ],
+      "effects": [
+        {
+          "id": "effect_7CA7T43RREX9FSY3Y615GAK2VE",
+          "target": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_7H2RQXKPKWBEV956E1TAN8PT00"
+          }
+        },
+        {
+          "id": "effect_09DYD2E563FYXSKJE2166H0RX4",
+          "target": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "key": "condition",
+          "operation": "set",
+          "value": "investigating-amber-system"
+        },
+        {
+          "id": "effect_6RN3R61TT94Y8T093K0RXNHFV0",
+          "target": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_7H2RQXKPKWBEV956E1TAN8PT00"
+          }
+        },
+        {
+          "id": "effect_5H06V3P2NXKGXZE0WBAW3SE5VY",
+          "target": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+          "key": "condition",
+          "operation": "set",
+          "value": "investigating-amber-system"
+        },
+        {
+          "id": "effect_4M0Q74K0KS8CV5M8MDD04WENBA",
+          "target": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_7H2RQXKPKWBEV956E1TAN8PT00"
+          }
+        },
+        {
+          "id": "effect_1NZEDXXC3GJKH548BKNRKT966F",
+          "target": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+          "key": "condition",
+          "operation": "set",
+          "value": "investigating-amber-system"
+        },
+        {
+          "id": "effect_3MSH674J9RZ4SCS3J9HV012WGT",
+          "target": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_7H2RQXKPKWBEV956E1TAN8PT00"
+          }
+        },
+        {
+          "id": "effect_32HJ19EQ1JXHKJ9B7EJSX1GFP5",
+          "target": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "key": "condition",
+          "operation": "set",
+          "value": "investigating-amber-system"
+        },
+        {
+          "id": "effect_473YYPFE2SXP36RBEXMWMEEB17",
+          "target": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_7H2RQXKPKWBEV956E1TAN8PT00"
+          }
+        },
+        {
+          "id": "effect_0MRW0KVQ64T5WPQ41DZXY9R06Y",
+          "target": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "key": "condition",
+          "operation": "set",
+          "value": "investigating-amber-system"
+        }
+      ],
+      "bodyMarkdown": "# Harrowcross Opens Its Amber Protection Ledger\n\nHessa produces the town ledger: Saint Orra owes Harrowcross a production share, and Harrowcross transfers the first three measures each quarter to Lantern Pike in exchange for a permanent watch and emergency hunting. The most recent chest mixed raw nodules with struck discs against Tillo's handling rules.\n"
+    },
+    {
+      "type": "conversation.create",
+      "id": "conv_60R00C9GFDD8MPY5PBEX304S99",
+      "value": {
+        "title": "Tillo and the Fork",
+        "domain": "conversations.frontiersmen",
+        "status": "closed",
+        "tags": [
+          "amber",
+          "dowsing",
+          "mine"
+        ],
+        "aliases": [],
+        "time": {
+          "start": {
+            "timeline": "main",
+            "tick": 71,
+            "order": 0
+          },
+          "end": {
+            "timeline": "main",
+            "tick": 72,
+            "order": 40
+          }
+        },
+        "scene": "scene_2Z3R3P2M2P1CKEMDD5C6G7JKQF",
+        "location": "loc_1E6T19TA3BQRSK066JWFS61GY2",
+        "participants": [
+          {
+            "character": "char_6B6FGKREZM4RAECD6ZSFQXX74B",
+            "role": "dowser",
+            "point_of_view": false,
+            "from": {
+              "timeline": "main",
+              "tick": 71,
+              "order": 0
+            },
+            "to": {
+              "timeline": "main",
+              "tick": 72,
+              "order": 40
+            }
+          },
+          {
+            "character": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+            "role": "guild-hunter",
+            "point_of_view": false,
+            "from": {
+              "timeline": "main",
+              "tick": 71,
+              "order": 0
+            },
+            "to": {
+              "timeline": "main",
+              "tick": 72,
+              "order": 40
+            }
+          },
+          {
+            "character": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+            "role": "guild-hunter",
+            "point_of_view": false,
+            "from": {
+              "timeline": "main",
+              "tick": 71,
+              "order": 0
+            },
+            "to": {
+              "timeline": "main",
+              "tick": 72,
+              "order": 40
+            }
+          },
+          {
+            "character": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+            "role": "guild-hunter",
+            "point_of_view": false,
+            "from": {
+              "timeline": "main",
+              "tick": 71,
+              "order": 0
+            },
+            "to": {
+              "timeline": "main",
+              "tick": 72,
+              "order": 40
+            }
+          },
+          {
+            "character": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+            "role": "guild-hunter",
+            "point_of_view": false,
+            "from": {
+              "timeline": "main",
+              "tick": 71,
+              "order": 0
+            },
+            "to": {
+              "timeline": "main",
+              "tick": 72,
+              "order": 40
+            }
+          },
+          {
+            "character": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+            "role": "guild-hunter",
+            "point_of_view": false,
+            "from": {
+              "timeline": "main",
+              "tick": 71,
+              "order": 0
+            },
+            "to": {
+              "timeline": "main",
+              "tick": 72,
+              "order": 40
+            }
+          }
+        ],
+        "topics": [
+          "amber",
+          "dowsing",
+          "mine"
+        ],
+        "turns": [
+          {
+            "id": "turn_4BZ9WE37GVCMT32D7TQ7GBE1W4",
+            "at": {
+              "timeline": "main",
+              "tick": 71,
+              "order": 0
+            },
+            "speaker": "char_6B6FGKREZM4RAECD6ZSFQXX74B",
+            "text": "Do not bring that chest another step toward my fork.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "alarmed"
+          },
+          {
+            "id": "turn_0AMHJD78HXFXXYKX0D5G4XDHPA",
+            "at": {
+              "timeline": "main",
+              "tick": 71,
+              "order": 10
+            },
+            "speaker": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+            "text": "You can feel it before you see it.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "interested"
+          },
+          {
+            "id": "turn_6VW4610A506TQGV66EFVNB57K5",
+            "at": {
+              "timeline": "main",
+              "tick": 71,
+              "order": 20
+            },
+            "speaker": "char_6B6FGKREZM4RAECD6ZSFQXX74B",
+            "text": "I can dowse for shallow amber. This is not shallow. This is quick.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "correcting"
+          },
+          {
+            "id": "turn_4KDBJC5KKSRTNM7SYKY9RJG9YX",
+            "at": {
+              "timeline": "main",
+              "tick": 71,
+              "order": 30
+            },
+            "speaker": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+            "text": "Define quick.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "command"
+          },
+          {
+            "id": "turn_4G5BG7R76RKCJ9AGVRFMTFGYM6",
+            "at": {
+              "timeline": "main",
+              "tick": 71,
+              "order": 40
+            },
+            "speaker": "char_6B6FGKREZM4RAECD6ZSFQXX74B",
+            "text": "Warm without fire. Pulls the fork backward. Makes old shapes where no animal stands.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "careful"
+          },
+          {
+            "id": "turn_1TDASCH30DRZBJ9TWMF26N8JB1",
+            "at": {
+              "timeline": "main",
+              "tick": 71,
+              "order": 50
+            },
+            "speaker": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+            "text": "Old shapes of the dead?",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "testing"
+          },
+          {
+            "id": "turn_5K9QNSXE84MZT6NY3RFN2X5K4Y",
+            "at": {
+              "timeline": "main",
+              "tick": 72,
+              "order": 0
+            },
+            "speaker": "char_6B6FGKREZM4RAECD6ZSFQXX74B",
+            "text": "Old shapes. Do not put a soul in the answer because you want one there.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "blunt"
+          },
+          {
+            "id": "turn_5FSXBYNHK8VB6ZW9P254P88PHE",
+            "at": {
+              "timeline": "main",
+              "tick": 72,
+              "order": 10
+            },
+            "speaker": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+            "text": "The outline fled toward the orchard and the mine road.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "quiet"
+          },
+          {
+            "id": "turn_68V31QXQGW91E77Z9PPTRHE2TE",
+            "at": {
+              "timeline": "main",
+              "tick": 72,
+              "order": 20
+            },
+            "speaker": "char_6B6FGKREZM4RAECD6ZSFQXX74B",
+            "text": "Then Saint Orra has opened something it should have left sleeping.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "grim"
+          },
+          {
+            "id": "turn_3507Q7TCB126C2Z6DTBGY1CEKC",
+            "at": {
+              "timeline": "main",
+              "tick": 72,
+              "order": 30
+            },
+            "speaker": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+            "text": "And Harrowcross pays the guild with what the mine wakes.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "flat"
+          },
+          {
+            "id": "turn_3MPSM217K427PYN5EN17S27Z8F",
+            "at": {
+              "timeline": "main",
+              "tick": 72,
+              "order": 40
+            },
+            "speaker": "char_6B6FGKREZM4RAECD6ZSFQXX74B",
+            "text": "Yes. That is the Frontier's cleverest circle.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "bitter"
+          }
+        ],
+        "recollections": [],
+        "bodyMarkdown": "# Tillo and the Fork\n\nTillo gives the party its first operational vocabulary for raw, refined, and quick amber while still withholding the Blackroot Compact.\n\nThe turn list is canonical verbatim provenance. Character recollections are stored separately and may disagree.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "scene",
+          "id": "scene_2Z3R3P2M2P1CKEMDD5C6G7JKQF",
+          "title": "Tracks in the Orchard",
+          "domain": "scenes.frontiersmen",
+          "status": "closed",
+          "tags": [
+            "orchard",
+            "dowsing"
+          ],
+          "aliases": [],
+          "time": {
+            "start": {
+              "timeline": "main",
+              "tick": 69,
+              "order": 0
+            },
+            "current": {
+              "timeline": "main",
+              "tick": 76,
+              "order": 0
+            },
+            "end": {
+              "timeline": "main",
+              "tick": 76,
+              "order": 0
+            }
+          },
+          "location": "loc_1E6T19TA3BQRSK066JWFS61GY2",
+          "participants": [
+            {
+              "character": "char_58FSACWWKS7MRG045VXBTSYT3A",
+              "role": "orchard-keeper",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 69,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 71,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_6B6FGKREZM4RAECD6ZSFQXX74B",
+              "role": "dowser",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 71,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 73,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+              "role": "guild-hunter",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 69,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 76,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+              "role": "guild-hunter",
+              "point_of_view": true,
+              "from": {
+                "timeline": "main",
+                "tick": 69,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 76,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+              "role": "guild-hunter",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 69,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 76,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+              "role": "guild-hunter",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 69,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 76,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+              "role": "guild-hunter",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 69,
+                "order": 0
+              },
+              "to": {
+                "timeline": "main",
+                "tick": 76,
+                "order": 0
+              }
+            }
+          ],
+          "objects": [
+            "obj_6B7S0AKDAJYX96PJK5SRAB9QCN",
+            "obj_0YS6DTVKR6FS6H82021A18GP2R",
+            "obj_2E54ZD1PAD31YVVX181TS4D29X"
+          ],
+          "environments": [
+            "env_7AKZX9C6CJSCG42KWR7CYADAJC"
+          ],
+          "story_points": [
+            "sp_0RTEKC1CPW46B4RZNJX178NKMT",
+            "sp_5Q8BN1G91QHYSCRSDSF9QWDK09",
+            "sp_55RMAMRVV8DYG02ZR84VWME0CR"
+          ],
+          "observations": [
+            {
+              "id": "obs_6ES9AQWKZNG00C831Q7N0H9CG5",
+              "at": {
+                "timeline": "main",
+                "tick": 69,
+                "order": 10
+              },
+              "audience": [
+                "participants"
+              ],
+              "salience": 1.0,
+              "text": "A line of white rime travels through buried roots without any print between trees."
+            },
+            {
+              "id": "obs_6PXSFZRA6JJ1T7QWAN04KKZP8M",
+              "at": {
+                "timeline": "main",
+                "tick": 69,
+                "order": 20
+              },
+              "audience": [
+                "char_0NQKTG3NQZFSVFKXS901NJD82E"
+              ],
+              "salience": 1.0,
+              "text": "Birds feed in the western rows but refuse every branch above the rime line."
+            },
+            {
+              "id": "obs_1F6NFNJBGSBWE6Y00C75STGH2Q",
+              "at": {
+                "timeline": "main",
+                "tick": 70,
+                "order": 15
+              },
+              "audience": [
+                "char_48QC9B4M2RFVXJKSDFMRGJWG8Y"
+              ],
+              "salience": 1.0,
+              "text": "The wretch strengthens when fresh tree sap touches amber-colored soil, even without blood."
+            },
+            {
+              "id": "obs_6C98QMGW5YQ4NS506KN2RDY1DB",
+              "at": {
+                "timeline": "main",
+                "tick": 72,
+                "order": 45
+              },
+              "audience": [
+                "participants"
+              ],
+              "salience": 1.0,
+              "text": "Tillo's fork pulls toward Saint Orra hard enough to bend its copper binding."
+            }
+          ],
+          "author_constraints": [
+            "Tillo knows much more than he says and is ashamed of the guild compact.",
+            "The party now has a defensible mine lead but not the full metaphysical explanation."
+          ],
+          "conversations": [
+            "conv_60R00C9GFDD8MPY5PBEX304S99"
+          ]
+        },
+        "bodyMarkdown": "# Tracks in the Orchard\n\nThe investigation leaves the human crime scene and becomes ecological: the same cold route passes through orchard roots toward the amber mine.\n"
+      }
+    },
+    {
+      "type": "conversation.recollection.record",
+      "conversationId": "conv_60R00C9GFDD8MPY5PBEX304S99",
+      "temporaryId": "$tmp.recollection.tillo-0",
+      "recollection": {
+        "character": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+        "at": {
+          "timeline": "main",
+          "tick": 73,
+          "order": 0
+        },
+        "state": "remembered",
+        "summary": "Tillo calls bloodless warmth, backward dowsing, and bodiless old shapes signs of quick amber; the fork points to Saint Orra.",
+        "interpretation": "The mine is the next actionable source even if Tillo is concealing institutional history.",
+        "emotional_impression": "impatient focus",
+        "confidence": 0.9,
+        "exact_turns": [
+          "turn_6VW4610A506TQGV66EFVNB57K5",
+          "turn_68V31QXQGW91E77Z9PPTRHE2TE"
+        ],
+        "remembered_quotes": []
+      }
+    },
+    {
+      "type": "conversation.recollection.record",
+      "conversationId": "conv_60R00C9GFDD8MPY5PBEX304S99",
+      "temporaryId": "$tmp.recollection.tillo-1",
+      "recollection": {
+        "character": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+        "at": {
+          "timeline": "main",
+          "tick": 73,
+          "order": 1
+        },
+        "state": "remembered",
+        "summary": "The wretch trail moves through roots and animal absence rather than across the ground; Tillo's fork confirms the mineward direction.",
+        "interpretation": "Amber-bearing ground changes the behavior of the forest before a manifestation appears.",
+        "emotional_impression": "ecological alarm",
+        "confidence": 0.94,
+        "exact_turns": [
+          "turn_5FSXBYNHK8VB6ZW9P254P88PHE",
+          "turn_68V31QXQGW91E77Z9PPTRHE2TE"
+        ],
+        "remembered_quotes": []
+      }
+    },
+    {
+      "type": "conversation.recollection.record",
+      "conversationId": "conv_60R00C9GFDD8MPY5PBEX304S99",
+      "temporaryId": "$tmp.recollection.tillo-2",
+      "recollection": {
+        "character": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+        "at": {
+          "timeline": "main",
+          "tick": 73,
+          "order": 2
+        },
+        "state": "remembered",
+        "summary": "Tillo refuses to call the old shapes souls and distinguishes a remembered form from a conscious dead person.",
+        "interpretation": "The wretches may be repeated suffering without a surviving self to release.",
+        "emotional_impression": "theological disorientation",
+        "confidence": 0.72,
+        "exact_turns": [
+          "turn_1TDASCH30DRZBJ9TWMF26N8JB1",
+          "turn_5K9QNSXE84MZT6NY3RFN2X5K4Y"
+        ],
+        "remembered_quotes": []
+      }
+    },
+    {
+      "type": "conversation.recollection.record",
+      "conversationId": "conv_60R00C9GFDD8MPY5PBEX304S99",
+      "temporaryId": "$tmp.recollection.tillo-3",
+      "recollection": {
+        "character": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+        "at": {
+          "timeline": "main",
+          "tick": 73,
+          "order": 3
+        },
+        "state": "remembered",
+        "summary": "Gnome dowsing senses amber through pressure on tuned materials, and quick amber creates old shapes without living bodies.",
+        "interpretation": "Amber stores or transmits structured impressions rather than ordinary spell energy.",
+        "emotional_impression": "dangerous fascination",
+        "confidence": 0.93,
+        "exact_turns": [
+          "turn_0AMHJD78HXFXXYKX0D5G4XDHPA",
+          "turn_4G5BG7R76RKCJ9AGVRFMTFGYM6"
+        ],
+        "remembered_quotes": []
+      }
+    },
+    {
+      "type": "conversation.recollection.record",
+      "conversationId": "conv_60R00C9GFDD8MPY5PBEX304S99",
+      "temporaryId": "$tmp.recollection.tillo-4",
+      "recollection": {
+        "character": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+        "at": {
+          "timeline": "main",
+          "tick": 73,
+          "order": 4
+        },
+        "state": "remembered",
+        "summary": "Harrowcross pays Lantern Pike with amber mined at Saint Orra, and the same material is implicated in the attacks.",
+        "interpretation": "The guild's revenue and monster work may be one closed commercial loop.",
+        "emotional_impression": "grim amusement",
+        "confidence": 0.9,
+        "exact_turns": [
+          "turn_3507Q7TCB126C2Z6DTBGY1CEKC",
+          "turn_3MPSM217K427PYN5EN17S27Z8F"
+        ],
+        "remembered_quotes": []
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "knowledge",
+          "id": "know_4ET1S0B31N9QW2FZKDBPWC92WN",
+          "title": "Rhea Marrow knows gnomes dowse for amber pockets",
+          "domain": "knowledge.char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "status": "canonical",
+          "tags": [
+            "amber",
+            "dowsing"
+          ],
+          "aliases": [],
+          "knower": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "claim": {
+            "key": "amber.pockets.dowsed-by-gnomes",
+            "statement": "Gnome dowsers locate shallow amber pockets using tuned forks that pull toward the material.",
+            "author_truth_status": "true",
+            "subject": "char_6B6FGKREZM4RAECD6ZSFQXX74B",
+            "predicate": "dowses-for",
+            "object": {
+              "entity": "obj_5PQSHGM3GXJD26BX95794WQMTF"
+            }
+          },
+          "transitions": [
+            {
+              "id": "kt_5R3GX63RZMAKNYSV16WR1634F0",
+              "time": {
+                "timeline": "main",
+                "tick": 73,
+                "order": 0
+              },
+              "state": "accepted",
+              "confidence": 0.96,
+              "acquisition": "told",
+              "causing_event": "event_3X3WCH3S4HA27KAGTQTDP6FPCM",
+              "source_entity": "obj_6B7S0AKDAJYX96PJK5SRAB9QCN"
+            }
+          ]
+        },
+        "bodyMarkdown": "# Rhea Marrow knows gnomes dowse for amber pockets\n\nGnome dowsers locate shallow amber pockets using tuned forks that pull toward the material.\n\nThis is a subjective proposition held by the named knower, not a replacement for canonical event or conversation provenance.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "knowledge",
+          "id": "know_35596XF2Q2GE6BK3ND2XJT0MG2",
+          "title": "Rhea Marrow knows Harrowcross pays Lantern Pike in amber",
+          "domain": "knowledge.char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "status": "canonical",
+          "tags": [
+            "amber",
+            "guild"
+          ],
+          "aliases": [],
+          "knower": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "claim": {
+            "key": "guild.services.paid-in-amber",
+            "statement": "Harrowcross transfers a quarterly share of Saint Orra's amber production to Lantern Pike in exchange for guards and monster-hunting service.",
+            "author_truth_status": "true",
+            "subject": "loc_7H2RQXKPKWBEV956E1TAN8PT00",
+            "predicate": "pays",
+            "object": {
+              "entity": "char_37D4GED06VHV5Q82C2GHTKFYCX"
+            }
+          },
+          "transitions": [
+            {
+              "id": "kt_5WA3D4XDM3H1MQ6CHY6CD1PCB8",
+              "time": {
+                "timeline": "main",
+                "tick": 74,
+                "order": 10
+              },
+              "state": "accepted",
+              "confidence": 0.99,
+              "acquisition": "read",
+              "causing_event": "event_6PENT82TP12QE9R4XW7CK2RYAQ",
+              "source_entity": "obj_7SMGWV30ZZWF0T3HCY5MVFHRCP"
+            }
+          ]
+        },
+        "bodyMarkdown": "# Rhea Marrow knows Harrowcross pays Lantern Pike in amber\n\nHarrowcross transfers a quarterly share of Saint Orra's amber production to Lantern Pike in exchange for guards and monster-hunting service.\n\nThis is a subjective proposition held by the named knower, not a replacement for canonical event or conversation provenance.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "knowledge",
+          "id": "know_1AN1K4VA295BSMH22WWNFQ1Y2D",
+          "title": "Rhea Marrow knows the chest contained quick amber",
+          "domain": "knowledge.char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "status": "canonical",
+          "tags": [
+            "amber",
+            "wretch"
+          ],
+          "aliases": [],
+          "knower": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "claim": {
+            "key": "harrowcross.chest.quick-amber",
+            "statement": "The Harrowcross payment chest contained raw amber that had become warm, backward-pulling, and capable of supporting wretch manifestations.",
+            "author_truth_status": "true",
+            "subject": "obj_2E54ZD1PAD31YVVX181TS4D29X",
+            "predicate": "contained",
+            "object": {
+              "text": "quick amber"
+            }
+          },
+          "transitions": [
+            {
+              "id": "kt_2NE8KCBZQRTWR8FR5HPK7J8PDG",
+              "time": {
+                "timeline": "main",
+                "tick": 74,
+                "order": 20
+              },
+              "state": "accepted",
+              "confidence": 0.9,
+              "acquisition": "inferred",
+              "causing_event": "event_6PENT82TP12QE9R4XW7CK2RYAQ",
+              "source_entity": "obj_2E54ZD1PAD31YVVX181TS4D29X"
+            }
+          ]
+        },
+        "bodyMarkdown": "# Rhea Marrow knows the chest contained quick amber\n\nThe Harrowcross payment chest contained raw amber that had become warm, backward-pulling, and capable of supporting wretch manifestations.\n\nThis is a subjective proposition held by the named knower, not a replacement for canonical event or conversation provenance.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "knowledge",
+          "id": "know_74WMGTW7ZNHXA8R9S96ZZ7Y59D",
+          "title": "Sylvi Ashdown knows gnomes dowse for amber pockets",
+          "domain": "knowledge.char_0NQKTG3NQZFSVFKXS901NJD82E",
+          "status": "canonical",
+          "tags": [
+            "amber",
+            "dowsing"
+          ],
+          "aliases": [],
+          "knower": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+          "claim": {
+            "key": "amber.pockets.dowsed-by-gnomes",
+            "statement": "Gnome dowsers locate shallow amber pockets using tuned forks that pull toward the material.",
+            "author_truth_status": "true",
+            "subject": "char_6B6FGKREZM4RAECD6ZSFQXX74B",
+            "predicate": "dowses-for",
+            "object": {
+              "entity": "obj_5PQSHGM3GXJD26BX95794WQMTF"
+            }
+          },
+          "transitions": [
+            {
+              "id": "kt_5EMAHPG00NZKVWBCHZEZWHEVES",
+              "time": {
+                "timeline": "main",
+                "tick": 73,
+                "order": 1
+              },
+              "state": "accepted",
+              "confidence": 0.96,
+              "acquisition": "told",
+              "causing_event": "event_3X3WCH3S4HA27KAGTQTDP6FPCM",
+              "source_entity": "obj_6B7S0AKDAJYX96PJK5SRAB9QCN"
+            }
+          ]
+        },
+        "bodyMarkdown": "# Sylvi Ashdown knows gnomes dowse for amber pockets\n\nGnome dowsers locate shallow amber pockets using tuned forks that pull toward the material.\n\nThis is a subjective proposition held by the named knower, not a replacement for canonical event or conversation provenance.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "knowledge",
+          "id": "know_74DE58E70KJ2A20XEWQBX1211C",
+          "title": "Sylvi Ashdown knows Harrowcross pays Lantern Pike in amber",
+          "domain": "knowledge.char_0NQKTG3NQZFSVFKXS901NJD82E",
+          "status": "canonical",
+          "tags": [
+            "amber",
+            "guild"
+          ],
+          "aliases": [],
+          "knower": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+          "claim": {
+            "key": "guild.services.paid-in-amber",
+            "statement": "Harrowcross transfers a quarterly share of Saint Orra's amber production to Lantern Pike in exchange for guards and monster-hunting service.",
+            "author_truth_status": "true",
+            "subject": "loc_7H2RQXKPKWBEV956E1TAN8PT00",
+            "predicate": "pays",
+            "object": {
+              "entity": "char_37D4GED06VHV5Q82C2GHTKFYCX"
+            }
+          },
+          "transitions": [
+            {
+              "id": "kt_6H0VNR6J1GS6FA37JF6J8R3CCF",
+              "time": {
+                "timeline": "main",
+                "tick": 74,
+                "order": 11
+              },
+              "state": "accepted",
+              "confidence": 0.99,
+              "acquisition": "read",
+              "causing_event": "event_6PENT82TP12QE9R4XW7CK2RYAQ",
+              "source_entity": "obj_7SMGWV30ZZWF0T3HCY5MVFHRCP"
+            }
+          ]
+        },
+        "bodyMarkdown": "# Sylvi Ashdown knows Harrowcross pays Lantern Pike in amber\n\nHarrowcross transfers a quarterly share of Saint Orra's amber production to Lantern Pike in exchange for guards and monster-hunting service.\n\nThis is a subjective proposition held by the named knower, not a replacement for canonical event or conversation provenance.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "knowledge",
+          "id": "know_10DKZ5386Q5YJC6HY291JMK8YR",
+          "title": "Sylvi Ashdown knows the chest contained quick amber",
+          "domain": "knowledge.char_0NQKTG3NQZFSVFKXS901NJD82E",
+          "status": "canonical",
+          "tags": [
+            "amber",
+            "wretch"
+          ],
+          "aliases": [],
+          "knower": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+          "claim": {
+            "key": "harrowcross.chest.quick-amber",
+            "statement": "The Harrowcross payment chest contained raw amber that had become warm, backward-pulling, and capable of supporting wretch manifestations.",
+            "author_truth_status": "true",
+            "subject": "obj_2E54ZD1PAD31YVVX181TS4D29X",
+            "predicate": "contained",
+            "object": {
+              "text": "quick amber"
+            }
+          },
+          "transitions": [
+            {
+              "id": "kt_54XZ7DZ8MZXG9YYD72HDRD44YA",
+              "time": {
+                "timeline": "main",
+                "tick": 74,
+                "order": 21
+              },
+              "state": "accepted",
+              "confidence": 0.9,
+              "acquisition": "inferred",
+              "causing_event": "event_6PENT82TP12QE9R4XW7CK2RYAQ",
+              "source_entity": "obj_2E54ZD1PAD31YVVX181TS4D29X"
+            }
+          ]
+        },
+        "bodyMarkdown": "# Sylvi Ashdown knows the chest contained quick amber\n\nThe Harrowcross payment chest contained raw amber that had become warm, backward-pulling, and capable of supporting wretch manifestations.\n\nThis is a subjective proposition held by the named knower, not a replacement for canonical event or conversation provenance.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "knowledge",
+          "id": "know_6DAW14R2DF7E4E5BMYV5BJJQ56",
+          "title": "Brother Garran Holt knows gnomes dowse for amber pockets",
+          "domain": "knowledge.char_671MWM7KTP4DCVVP8EP6SFRJVP",
+          "status": "canonical",
+          "tags": [
+            "amber",
+            "dowsing"
+          ],
+          "aliases": [],
+          "knower": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+          "claim": {
+            "key": "amber.pockets.dowsed-by-gnomes",
+            "statement": "Gnome dowsers locate shallow amber pockets using tuned forks that pull toward the material.",
+            "author_truth_status": "true",
+            "subject": "char_6B6FGKREZM4RAECD6ZSFQXX74B",
+            "predicate": "dowses-for",
+            "object": {
+              "entity": "obj_5PQSHGM3GXJD26BX95794WQMTF"
+            }
+          },
+          "transitions": [
+            {
+              "id": "kt_6NXAQT4VYWKVMNNA5PMAAP8BKN",
+              "time": {
+                "timeline": "main",
+                "tick": 73,
+                "order": 2
+              },
+              "state": "accepted",
+              "confidence": 0.96,
+              "acquisition": "told",
+              "causing_event": "event_3X3WCH3S4HA27KAGTQTDP6FPCM",
+              "source_entity": "obj_6B7S0AKDAJYX96PJK5SRAB9QCN"
+            }
+          ]
+        },
+        "bodyMarkdown": "# Brother Garran Holt knows gnomes dowse for amber pockets\n\nGnome dowsers locate shallow amber pockets using tuned forks that pull toward the material.\n\nThis is a subjective proposition held by the named knower, not a replacement for canonical event or conversation provenance.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "knowledge",
+          "id": "know_6D14Y5927244WWTK3NA7BQFSMM",
+          "title": "Brother Garran Holt knows Harrowcross pays Lantern Pike in amber",
+          "domain": "knowledge.char_671MWM7KTP4DCVVP8EP6SFRJVP",
+          "status": "canonical",
+          "tags": [
+            "amber",
+            "guild"
+          ],
+          "aliases": [],
+          "knower": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+          "claim": {
+            "key": "guild.services.paid-in-amber",
+            "statement": "Harrowcross transfers a quarterly share of Saint Orra's amber production to Lantern Pike in exchange for guards and monster-hunting service.",
+            "author_truth_status": "true",
+            "subject": "loc_7H2RQXKPKWBEV956E1TAN8PT00",
+            "predicate": "pays",
+            "object": {
+              "entity": "char_37D4GED06VHV5Q82C2GHTKFYCX"
+            }
+          },
+          "transitions": [
+            {
+              "id": "kt_271JXK0QGETKJ7MM2SM1GZXW0Z",
+              "time": {
+                "timeline": "main",
+                "tick": 74,
+                "order": 12
+              },
+              "state": "accepted",
+              "confidence": 0.99,
+              "acquisition": "read",
+              "causing_event": "event_6PENT82TP12QE9R4XW7CK2RYAQ",
+              "source_entity": "obj_7SMGWV30ZZWF0T3HCY5MVFHRCP"
+            }
+          ]
+        },
+        "bodyMarkdown": "# Brother Garran Holt knows Harrowcross pays Lantern Pike in amber\n\nHarrowcross transfers a quarterly share of Saint Orra's amber production to Lantern Pike in exchange for guards and monster-hunting service.\n\nThis is a subjective proposition held by the named knower, not a replacement for canonical event or conversation provenance.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "knowledge",
+          "id": "know_29NW6JE8RQ4M7ZER6TNE8P2PM4",
+          "title": "Brother Garran Holt knows the chest contained quick amber",
+          "domain": "knowledge.char_671MWM7KTP4DCVVP8EP6SFRJVP",
+          "status": "canonical",
+          "tags": [
+            "amber",
+            "wretch"
+          ],
+          "aliases": [],
+          "knower": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+          "claim": {
+            "key": "harrowcross.chest.quick-amber",
+            "statement": "The Harrowcross payment chest contained raw amber that had become warm, backward-pulling, and capable of supporting wretch manifestations.",
+            "author_truth_status": "true",
+            "subject": "obj_2E54ZD1PAD31YVVX181TS4D29X",
+            "predicate": "contained",
+            "object": {
+              "text": "quick amber"
+            }
+          },
+          "transitions": [
+            {
+              "id": "kt_5R8DCEWAQJ4PFG53DNJVFVFS4V",
+              "time": {
+                "timeline": "main",
+                "tick": 74,
+                "order": 22
+              },
+              "state": "accepted",
+              "confidence": 0.9,
+              "acquisition": "inferred",
+              "causing_event": "event_6PENT82TP12QE9R4XW7CK2RYAQ",
+              "source_entity": "obj_2E54ZD1PAD31YVVX181TS4D29X"
+            }
+          ]
+        },
+        "bodyMarkdown": "# Brother Garran Holt knows the chest contained quick amber\n\nThe Harrowcross payment chest contained raw amber that had become warm, backward-pulling, and capable of supporting wretch manifestations.\n\nThis is a subjective proposition held by the named knower, not a replacement for canonical event or conversation provenance.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "knowledge",
+          "id": "know_5GYJNX0X06PH15DQ2BBM9AWTTX",
+          "title": "Veyra Kest knows gnomes dowse for amber pockets",
+          "domain": "knowledge.char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "status": "canonical",
+          "tags": [
+            "amber",
+            "dowsing"
+          ],
+          "aliases": [],
+          "knower": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "claim": {
+            "key": "amber.pockets.dowsed-by-gnomes",
+            "statement": "Gnome dowsers locate shallow amber pockets using tuned forks that pull toward the material.",
+            "author_truth_status": "true",
+            "subject": "char_6B6FGKREZM4RAECD6ZSFQXX74B",
+            "predicate": "dowses-for",
+            "object": {
+              "entity": "obj_5PQSHGM3GXJD26BX95794WQMTF"
+            }
+          },
+          "transitions": [
+            {
+              "id": "kt_406FN1K1RJASSEENBMKJK1319R",
+              "time": {
+                "timeline": "main",
+                "tick": 73,
+                "order": 3
+              },
+              "state": "accepted",
+              "confidence": 0.96,
+              "acquisition": "told",
+              "causing_event": "event_3X3WCH3S4HA27KAGTQTDP6FPCM",
+              "source_entity": "obj_6B7S0AKDAJYX96PJK5SRAB9QCN"
+            }
+          ]
+        },
+        "bodyMarkdown": "# Veyra Kest knows gnomes dowse for amber pockets\n\nGnome dowsers locate shallow amber pockets using tuned forks that pull toward the material.\n\nThis is a subjective proposition held by the named knower, not a replacement for canonical event or conversation provenance.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "knowledge",
+          "id": "know_20J14E7QSBEPJXPNGVNBEKV1SM",
+          "title": "Veyra Kest knows Harrowcross pays Lantern Pike in amber",
+          "domain": "knowledge.char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "status": "canonical",
+          "tags": [
+            "amber",
+            "guild"
+          ],
+          "aliases": [],
+          "knower": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "claim": {
+            "key": "guild.services.paid-in-amber",
+            "statement": "Harrowcross transfers a quarterly share of Saint Orra's amber production to Lantern Pike in exchange for guards and monster-hunting service.",
+            "author_truth_status": "true",
+            "subject": "loc_7H2RQXKPKWBEV956E1TAN8PT00",
+            "predicate": "pays",
+            "object": {
+              "entity": "char_37D4GED06VHV5Q82C2GHTKFYCX"
+            }
+          },
+          "transitions": [
+            {
+              "id": "kt_2GRA1DB2WY1NWN28QJHKSRP76G",
+              "time": {
+                "timeline": "main",
+                "tick": 74,
+                "order": 13
+              },
+              "state": "accepted",
+              "confidence": 0.99,
+              "acquisition": "read",
+              "causing_event": "event_6PENT82TP12QE9R4XW7CK2RYAQ",
+              "source_entity": "obj_7SMGWV30ZZWF0T3HCY5MVFHRCP"
+            }
+          ]
+        },
+        "bodyMarkdown": "# Veyra Kest knows Harrowcross pays Lantern Pike in amber\n\nHarrowcross transfers a quarterly share of Saint Orra's amber production to Lantern Pike in exchange for guards and monster-hunting service.\n\nThis is a subjective proposition held by the named knower, not a replacement for canonical event or conversation provenance.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "knowledge",
+          "id": "know_4PMAFBAQY1T21BM5B636P01H2H",
+          "title": "Veyra Kest knows the chest contained quick amber",
+          "domain": "knowledge.char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "status": "canonical",
+          "tags": [
+            "amber",
+            "wretch"
+          ],
+          "aliases": [],
+          "knower": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "claim": {
+            "key": "harrowcross.chest.quick-amber",
+            "statement": "The Harrowcross payment chest contained raw amber that had become warm, backward-pulling, and capable of supporting wretch manifestations.",
+            "author_truth_status": "true",
+            "subject": "obj_2E54ZD1PAD31YVVX181TS4D29X",
+            "predicate": "contained",
+            "object": {
+              "text": "quick amber"
+            }
+          },
+          "transitions": [
+            {
+              "id": "kt_39HHPRZE4RFZ8CV0KZBQBF0APK",
+              "time": {
+                "timeline": "main",
+                "tick": 74,
+                "order": 23
+              },
+              "state": "accepted",
+              "confidence": 0.9,
+              "acquisition": "inferred",
+              "causing_event": "event_6PENT82TP12QE9R4XW7CK2RYAQ",
+              "source_entity": "obj_2E54ZD1PAD31YVVX181TS4D29X"
+            }
+          ]
+        },
+        "bodyMarkdown": "# Veyra Kest knows the chest contained quick amber\n\nThe Harrowcross payment chest contained raw amber that had become warm, backward-pulling, and capable of supporting wretch manifestations.\n\nThis is a subjective proposition held by the named knower, not a replacement for canonical event or conversation provenance.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "knowledge",
+          "id": "know_0VRK80TRZPAB26DPXSQYKKECF0",
+          "title": "Pip Fenlock knows gnomes dowse for amber pockets",
+          "domain": "knowledge.char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "status": "canonical",
+          "tags": [
+            "amber",
+            "dowsing"
+          ],
+          "aliases": [],
+          "knower": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "claim": {
+            "key": "amber.pockets.dowsed-by-gnomes",
+            "statement": "Gnome dowsers locate shallow amber pockets using tuned forks that pull toward the material.",
+            "author_truth_status": "true",
+            "subject": "char_6B6FGKREZM4RAECD6ZSFQXX74B",
+            "predicate": "dowses-for",
+            "object": {
+              "entity": "obj_5PQSHGM3GXJD26BX95794WQMTF"
+            }
+          },
+          "transitions": [
+            {
+              "id": "kt_1C6RQH0QNY3WTMHJWXMF4TEZEA",
+              "time": {
+                "timeline": "main",
+                "tick": 73,
+                "order": 4
+              },
+              "state": "accepted",
+              "confidence": 0.96,
+              "acquisition": "told",
+              "causing_event": "event_3X3WCH3S4HA27KAGTQTDP6FPCM",
+              "source_entity": "obj_6B7S0AKDAJYX96PJK5SRAB9QCN"
+            }
+          ]
+        },
+        "bodyMarkdown": "# Pip Fenlock knows gnomes dowse for amber pockets\n\nGnome dowsers locate shallow amber pockets using tuned forks that pull toward the material.\n\nThis is a subjective proposition held by the named knower, not a replacement for canonical event or conversation provenance.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "knowledge",
+          "id": "know_25NEDZNCMXBAC6YZ8CMT3X3RGS",
+          "title": "Pip Fenlock knows Harrowcross pays Lantern Pike in amber",
+          "domain": "knowledge.char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "status": "canonical",
+          "tags": [
+            "amber",
+            "guild"
+          ],
+          "aliases": [],
+          "knower": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "claim": {
+            "key": "guild.services.paid-in-amber",
+            "statement": "Harrowcross transfers a quarterly share of Saint Orra's amber production to Lantern Pike in exchange for guards and monster-hunting service.",
+            "author_truth_status": "true",
+            "subject": "loc_7H2RQXKPKWBEV956E1TAN8PT00",
+            "predicate": "pays",
+            "object": {
+              "entity": "char_37D4GED06VHV5Q82C2GHTKFYCX"
+            }
+          },
+          "transitions": [
+            {
+              "id": "kt_1BKD87H7Q1K8YA0VNARN3ZPV75",
+              "time": {
+                "timeline": "main",
+                "tick": 74,
+                "order": 14
+              },
+              "state": "accepted",
+              "confidence": 0.99,
+              "acquisition": "read",
+              "causing_event": "event_6PENT82TP12QE9R4XW7CK2RYAQ",
+              "source_entity": "obj_7SMGWV30ZZWF0T3HCY5MVFHRCP"
+            }
+          ]
+        },
+        "bodyMarkdown": "# Pip Fenlock knows Harrowcross pays Lantern Pike in amber\n\nHarrowcross transfers a quarterly share of Saint Orra's amber production to Lantern Pike in exchange for guards and monster-hunting service.\n\nThis is a subjective proposition held by the named knower, not a replacement for canonical event or conversation provenance.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "knowledge",
+          "id": "know_0EG3X405FSKDEWE0W9M0FJTSM7",
+          "title": "Pip Fenlock knows the chest contained quick amber",
+          "domain": "knowledge.char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "status": "canonical",
+          "tags": [
+            "amber",
+            "wretch"
+          ],
+          "aliases": [],
+          "knower": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "claim": {
+            "key": "harrowcross.chest.quick-amber",
+            "statement": "The Harrowcross payment chest contained raw amber that had become warm, backward-pulling, and capable of supporting wretch manifestations.",
+            "author_truth_status": "true",
+            "subject": "obj_2E54ZD1PAD31YVVX181TS4D29X",
+            "predicate": "contained",
+            "object": {
+              "text": "quick amber"
+            }
+          },
+          "transitions": [
+            {
+              "id": "kt_2JQC1YV80KZW9D2WZ3HNWB3HQX",
+              "time": {
+                "timeline": "main",
+                "tick": 74,
+                "order": 24
+              },
+              "state": "accepted",
+              "confidence": 0.9,
+              "acquisition": "inferred",
+              "causing_event": "event_6PENT82TP12QE9R4XW7CK2RYAQ",
+              "source_entity": "obj_2E54ZD1PAD31YVVX181TS4D29X"
+            }
+          ]
+        },
+        "bodyMarkdown": "# Pip Fenlock knows the chest contained quick amber\n\nThe Harrowcross payment chest contained raw amber that had become warm, backward-pulling, and capable of supporting wretch manifestations.\n\nThis is a subjective proposition held by the named knower, not a replacement for canonical event or conversation provenance.\n"
+      }
+    },
+    {
+      "type": "event.create",
+      "id": "event_71BDWMBEY0J1HM0BNVH3EMNPPX",
+      "title": "The Frontiersmen Follow the Quickenings to Saint Orra",
+      "domain": "plot.frontiersmen",
+      "status": "canonical",
+      "tags": [
+        "mine",
+        "investigation"
+      ],
+      "time": {
+        "timeline": "main",
+        "tick": 80,
+        "order": 20
+      },
+      "location": "loc_3KMRW36Y06YVVEX31FZACMYEA6",
+      "participants": [
+        {
+          "character": "char_6B6FGKREZM4RAECD6ZSFQXX74B",
+          "role": "dowser"
+        },
+        {
+          "character": "char_0R5AN25NJFB2GFQPC96JK85SH4",
+          "role": "foreman"
+        },
+        {
+          "character": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "role": "guild-hunter"
+        },
+        {
+          "character": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+          "role": "guild-hunter"
+        },
+        {
+          "character": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+          "role": "guild-hunter"
+        },
+        {
+          "character": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "role": "guild-hunter"
+        },
+        {
+          "character": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "role": "guild-hunter"
+        }
+      ],
+      "causes": [
+        "event_3X3WCH3S4HA27KAGTQTDP6FPCM",
+        "event_6PENT82TP12QE9R4XW7CK2RYAQ"
+      ],
+      "relatedStoryPoints": [
+        "sp_5Q8BN1G91QHYSCRSDSF9QWDK09",
+        "sp_5JW98KWBPBPHFYSA7MMC796ZAJ",
+        "sp_55RMAMRVV8DYG02ZR84VWME0CR"
+      ],
+      "effects": [
+        {
+          "id": "effect_1Z09BHSYBYD7Y8JNRFA2DZK34R",
+          "target": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_3KMRW36Y06YVVEX31FZACMYEA6"
+          }
+        },
+        {
+          "id": "effect_16E5TDR43GM19JCG1HN0JQ94D5",
+          "target": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "key": "condition",
+          "operation": "set",
+          "value": "at-saint-orra"
+        },
+        {
+          "id": "effect_1G7DB111AHZ3WX0FX83646990C",
+          "target": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_3KMRW36Y06YVVEX31FZACMYEA6"
+          }
+        },
+        {
+          "id": "effect_0ZJ7Y50TAN5A4JZ2H4935Z8WMV",
+          "target": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+          "key": "condition",
+          "operation": "set",
+          "value": "at-saint-orra"
+        },
+        {
+          "id": "effect_45MC4FQ11C2W46K8T0M7QMZ9TB",
+          "target": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_3KMRW36Y06YVVEX31FZACMYEA6"
+          }
+        },
+        {
+          "id": "effect_55NYK555TMB5GP33TEXT04RJPF",
+          "target": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+          "key": "condition",
+          "operation": "set",
+          "value": "at-saint-orra"
+        },
+        {
+          "id": "effect_6JGYHQQA08X1XEBJ2KA7X82QA7",
+          "target": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_3KMRW36Y06YVVEX31FZACMYEA6"
+          }
+        },
+        {
+          "id": "effect_2N78RMT6QM4JV5EJ4QWTD0PPRV",
+          "target": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "key": "condition",
+          "operation": "set",
+          "value": "at-saint-orra"
+        },
+        {
+          "id": "effect_2WBTMZXGS47DX5GWCNXXS524N5",
+          "target": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_3KMRW36Y06YVVEX31FZACMYEA6"
+          }
+        },
+        {
+          "id": "effect_56SZHRYZSKHTJY9XSKWG63R4K1",
+          "target": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "key": "condition",
+          "operation": "set",
+          "value": "at-saint-orra"
+        },
+        {
+          "id": "effect_16BSYHD6JXXZ8B57CGPWVTW018",
+          "target": "char_6B6FGKREZM4RAECD6ZSFQXX74B",
+          "key": "location",
+          "operation": "set",
+          "value": {
+            "entity": "loc_3KMRW36Y06YVVEX31FZACMYEA6"
+          }
+        }
+      ],
+      "bodyMarkdown": "# The Frontiersmen Follow the Quickenings to Saint Orra\n\nTillo guides the company along the mine road until his fork pulls downward toward the sealed upper drift. Foreman Jorund Bale meets them with a lit yellow-glass lamp and refuses entry before they ask.\n"
+    },
+    {
+      "type": "conversation.create",
+      "id": "conv_33YJSY1GRTYH06S8JD2Q6TKWJ1",
+      "value": {
+        "title": "Jorund's Terms",
+        "domain": "conversations.frontiersmen",
+        "status": "active",
+        "tags": [
+          "mine",
+          "sealed-drift",
+          "guild"
+        ],
+        "aliases": [],
+        "time": {
+          "start": {
+            "timeline": "main",
+            "tick": 81,
+            "order": 0
+          },
+          "end": null
+        },
+        "scene": "scene_0XW14MHXGV4DY4GGDCV4FDQPBX",
+        "location": "loc_3KMRW36Y06YVVEX31FZACMYEA6",
+        "participants": [
+          {
+            "character": "char_0R5AN25NJFB2GFQPC96JK85SH4",
+            "role": "foreman",
+            "point_of_view": false,
+            "from": {
+              "timeline": "main",
+              "tick": 81,
+              "order": 0
+            }
+          },
+          {
+            "character": "char_6B6FGKREZM4RAECD6ZSFQXX74B",
+            "role": "dowser",
+            "point_of_view": false,
+            "from": {
+              "timeline": "main",
+              "tick": 81,
+              "order": 0
+            }
+          },
+          {
+            "character": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+            "role": "guild-hunter",
+            "point_of_view": false,
+            "from": {
+              "timeline": "main",
+              "tick": 81,
+              "order": 0
+            }
+          },
+          {
+            "character": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+            "role": "guild-hunter",
+            "point_of_view": false,
+            "from": {
+              "timeline": "main",
+              "tick": 81,
+              "order": 0
+            }
+          },
+          {
+            "character": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+            "role": "guild-hunter",
+            "point_of_view": false,
+            "from": {
+              "timeline": "main",
+              "tick": 81,
+              "order": 0
+            }
+          },
+          {
+            "character": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+            "role": "guild-hunter",
+            "point_of_view": false,
+            "from": {
+              "timeline": "main",
+              "tick": 81,
+              "order": 0
+            }
+          },
+          {
+            "character": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+            "role": "guild-hunter",
+            "point_of_view": false,
+            "from": {
+              "timeline": "main",
+              "tick": 81,
+              "order": 0
+            }
+          }
+        ],
+        "topics": [
+          "mine",
+          "sealed-drift",
+          "guild"
+        ],
+        "turns": [
+          {
+            "id": "turn_0GHNN8GZER2QDVMGV999J9K94Q",
+            "at": {
+              "timeline": "main",
+              "tick": 81,
+              "order": 0
+            },
+            "speaker": "char_0R5AN25NJFB2GFQPC96JK85SH4",
+            "text": "The upper drift is closed. Take your guild badges back to town.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "hostile"
+          },
+          {
+            "id": "turn_5T32ZZQWJMTTMD1JGGVA14MSZG",
+            "at": {
+              "timeline": "main",
+              "tick": 81,
+              "order": 10
+            },
+            "speaker": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+            "text": "Harrowcross lost three guards and two wretches led us to your road.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "direct"
+          },
+          {
+            "id": "turn_2TRDRTT36YV1YE9J142T5B5EYF",
+            "at": {
+              "timeline": "main",
+              "tick": 81,
+              "order": 20
+            },
+            "speaker": "char_0R5AN25NJFB2GFQPC96JK85SH4",
+            "text": "Then kill them outside. My miners are not bait for a lodge report.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "angry"
+          },
+          {
+            "id": "turn_4A74FJFA5KMJXPJYVGCSNFS17E",
+            "at": {
+              "timeline": "main",
+              "tick": 81,
+              "order": 30
+            },
+            "speaker": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+            "text": "Your tally omits two drifts and the amber under this yard is warm.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "observant"
+          },
+          {
+            "id": "turn_5JSSV5FS6EJQF3J1F61CJAT3J3",
+            "at": {
+              "timeline": "main",
+              "tick": 81,
+              "order": 40
+            },
+            "speaker": "char_0R5AN25NJFB2GFQPC96JK85SH4",
+            "text": "You have been here one minute.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "alarmed"
+          },
+          {
+            "id": "turn_2WSXXTVEN8HN6NP15N9RN6F136",
+            "at": {
+              "timeline": "main",
+              "tick": 81,
+              "order": 50
+            },
+            "speaker": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+            "text": "Long minute.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "mild"
+          },
+          {
+            "id": "turn_02P6EDG4WYPMTWREDA4YH7S2AN",
+            "at": {
+              "timeline": "main",
+              "tick": 82,
+              "order": 0
+            },
+            "speaker": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+            "text": "Nothing nests within half a mile of the spoil heaps.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "quiet"
+          },
+          {
+            "id": "turn_5B1CJ4XH5M99GD0PSD6747VYY4",
+            "at": {
+              "timeline": "main",
+              "tick": 82,
+              "order": 10
+            },
+            "speaker": "char_0R5AN25NJFB2GFQPC96JK85SH4",
+            "text": "Animals are smarter than contracts.",
+            "audience": [
+              "participants"
+            ],
+            "delivery": "bitter"
+          }
+        ],
+        "recollections": [],
+        "bodyMarkdown": "# Jorund's Terms\n\nJorund tries to bar the party from the drift while accidentally confirming that the mine has concealed workings and an animal-absence problem.\n\nThe turn list is canonical verbatim provenance. Character recollections are stored separately and may disagree.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "scene",
+          "id": "scene_0XW14MHXGV4DY4GGDCV4FDQPBX",
+          "title": "Saint Orra Mine",
+          "domain": "scenes.frontiersmen",
+          "status": "active",
+          "tags": [
+            "mine",
+            "active"
+          ],
+          "aliases": [],
+          "time": {
+            "start": {
+              "timeline": "main",
+              "tick": 80,
+              "order": 0
+            },
+            "current": {
+              "timeline": "main",
+              "tick": 85,
+              "order": 0
+            },
+            "end": null
+          },
+          "location": "loc_3KMRW36Y06YVVEX31FZACMYEA6",
+          "participants": [
+            {
+              "character": "char_0R5AN25NJFB2GFQPC96JK85SH4",
+              "role": "foreman",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 80,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_6B6FGKREZM4RAECD6ZSFQXX74B",
+              "role": "dowser",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 80,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+              "role": "guild-hunter",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 80,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+              "role": "guild-hunter",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 80,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+              "role": "guild-hunter",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 80,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+              "role": "guild-hunter",
+              "point_of_view": true,
+              "from": {
+                "timeline": "main",
+                "tick": 80,
+                "order": 0
+              }
+            },
+            {
+              "character": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+              "role": "guild-hunter",
+              "point_of_view": false,
+              "from": {
+                "timeline": "main",
+                "tick": 80,
+                "order": 0
+              }
+            }
+          ],
+          "objects": [
+            "obj_6B7S0AKDAJYX96PJK5SRAB9QCN",
+            "obj_3A7X1D9JBR82WX8DBB287ZABR1",
+            "obj_2ZQC95HXYHSZX9HMPFE2T5JMV1",
+            "obj_6EBRZF2P79J47HXEJWP7CDDFA1",
+            "obj_6B725P2CXQSC90HH4H24K0C5X2",
+            "obj_1PWCXKVPT3RS8MK7TDHQ9QN4FH",
+            "obj_5KH5J0ZACS5W06DMT772D119QS",
+            "obj_1SZQK22K4XSNC0XTZX1Z0T7R5N",
+            "obj_3W8SFAP29CDCV2M3X9XMYTDXY8"
+          ],
+          "environments": [
+            "env_540JHNME3MCKMYDV50RBDQ414F"
+          ],
+          "story_points": [
+            "sp_5Q8BN1G91QHYSCRSDSF9QWDK09",
+            "sp_5JW98KWBPBPHFYSA7MMC796ZAJ",
+            "sp_55RMAMRVV8DYG02ZR84VWME0CR"
+          ],
+          "observations": [
+            {
+              "id": "obs_5NPRCSX1EWKY93D1K191D4PR66",
+              "at": {
+                "timeline": "main",
+                "tick": 80,
+                "order": 20
+              },
+              "audience": [
+                "char_0NQKTG3NQZFSVFKXS901NJD82E"
+              ],
+              "salience": 1.0,
+              "text": "No bird, hare, or insect crosses the boundary between spruce litter and amber spoil."
+            },
+            {
+              "id": "obs_73805B2WZH6N84H1KFA35J8BDM",
+              "at": {
+                "timeline": "main",
+                "tick": 81,
+                "order": 25
+              },
+              "audience": [
+                "char_48QC9B4M2RFVXJKSDFMRGJWG8Y"
+              ],
+              "salience": 1.0,
+              "text": "The omitted drifts on Jorund's tally correspond to the two places where the ground presses against her teeth."
+            },
+            {
+              "id": "obs_7HTK1WX3DRZZBG5RVJ7XQE1Q6V",
+              "at": {
+                "timeline": "main",
+                "tick": 81,
+                "order": 35
+              },
+              "audience": [
+                "char_1W0GNKETQY2HF88YHM7CWVFH7C"
+              ],
+              "salience": 1.0,
+              "text": "Fresh knife cuts have removed two drift totals from the official tally board."
+            },
+            {
+              "id": "obs_7FRSNT5B1S6TEDW4TRQB98QAT4",
+              "at": {
+                "timeline": "main",
+                "tick": 82,
+                "order": 5
+              },
+              "audience": [
+                "char_671MWM7KTP4DCVVP8EP6SFRJVP"
+              ],
+              "salience": 1.0,
+              "text": "The Saint Orra lamp changes from yellow to green whenever Jorund points it toward the sealed drift."
+            },
+            {
+              "id": "obs_0NTZCPZV67PCBVK0VMMB1F5T8X",
+              "at": {
+                "timeline": "main",
+                "tick": 84,
+                "order": 0
+              },
+              "audience": [
+                "char_36X0KBYZ7MQGKM070H5NF12BK8"
+              ],
+              "salience": 1.0,
+              "text": "Jorund keeps his lower-drift map inside his coat and one hand on the drift bell rope."
+            }
+          ],
+          "author_constraints": [
+            "Jorund knows the sealed drift breached a living vein but has not confessed it.",
+            "The party is at the threshold of the mine; the cave-in has not yet occurred."
+          ],
+          "conversations": [
+            "conv_33YJSY1GRTYH06S8JD2Q6TKWJ1"
+          ]
+        },
+        "bodyMarkdown": "# Saint Orra Mine\n\nThe first investigation act ends at an unwilling mine: every independent clue points below, and the man responsible for the workers is more afraid of guild scrutiny than of the visible threat.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "relationship",
+          "id": "rel_4TGHK0QC1S39QGCQNTFH03G5PF",
+          "title": "Rhea Marrow's view of Brother Garran Holt",
+          "domain": "relationships.frontiersmen",
+          "status": "canonical",
+          "tags": [
+            "char_36X0KBYZ7MQGKM070H5NF12BK8",
+            "char_671MWM7KTP4DCVVP8EP6SFRJVP"
+          ],
+          "aliases": [],
+          "from": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "to": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+          "relationship_kind": "new-company",
+          "inverse": "rel_71XZKES28Y64DB7ABA0VH65CFY",
+          "transitions": [
+            {
+              "id": "rt_14VRGAQ2PQB8TSFTA0BM5NR9FA",
+              "time": {
+                "timeline": "main",
+                "tick": 0,
+                "order": 0
+              },
+              "relationship_status": "active",
+              "metrics": {
+                "trust": 0.34,
+                "affinity": 0.18,
+                "fear": 0.0,
+                "obligation": 0.08,
+                "respect": 0.3,
+                "dependence": 0.12
+              },
+              "facets": [
+                "healer",
+                "steady"
+              ],
+              "causing_event": null,
+              "note": "Rhea trusts Garran's calm before she knows his doctrine."
+            },
+            {
+              "id": "rt_483X52HP0TZ57XTVQB49D551NF",
+              "time": {
+                "timeline": "main",
+                "tick": 68,
+                "order": 0
+              },
+              "relationship_status": "active",
+              "metrics": {
+                "trust": 0.5,
+                "affinity": 0.1,
+                "fear": 0.02,
+                "obligation": 0.12,
+                "respect": 0.58,
+                "dependence": 0.26
+              },
+              "facets": [
+                "trusted-warder",
+                "wounded-protector"
+              ],
+              "causing_event": "event_65NWKCGHET513YTAQPKXVS8KQ5",
+              "note": "Garran's threshold blessing makes the wretch vulnerable despite his injury."
+            }
+          ]
+        },
+        "bodyMarkdown": "# Rhea Marrow's view of Brother Garran Holt\n\nA directional relationship in The Frontiersmen. Rhea trusts Garran's calm before she knows his doctrine.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "relationship",
+          "id": "rel_71XZKES28Y64DB7ABA0VH65CFY",
+          "title": "Brother Garran Holt's view of Rhea Marrow",
+          "domain": "relationships.frontiersmen",
+          "status": "canonical",
+          "tags": [
+            "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+            "char_36X0KBYZ7MQGKM070H5NF12BK8"
+          ],
+          "aliases": [],
+          "from": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+          "to": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "relationship_kind": "new-company",
+          "inverse": "rel_4TGHK0QC1S39QGCQNTFH03G5PF",
+          "transitions": [
+            {
+              "id": "rt_21HKMJP83920009PR7ZHJBKTXR",
+              "time": {
+                "timeline": "main",
+                "tick": 0,
+                "order": 0
+              },
+              "relationship_status": "active",
+              "metrics": {
+                "trust": 0.32,
+                "affinity": 0.16,
+                "fear": 0.0,
+                "obligation": 0.04,
+                "respect": 0.34,
+                "dependence": 0.08
+              },
+              "facets": [
+                "burdened-leader"
+              ],
+              "causing_event": null,
+              "note": "Garran sees someone already preparing to carry too much."
+            },
+            {
+              "id": "rt_645HK55TKB6219FDBGB6FJPWXH",
+              "time": {
+                "timeline": "main",
+                "tick": 68,
+                "order": 1
+              },
+              "relationship_status": "active",
+              "metrics": {
+                "trust": 0.54,
+                "affinity": 0.14,
+                "fear": 0.0,
+                "obligation": 0.08,
+                "respect": 0.56,
+                "dependence": 0.18
+              },
+              "facets": [
+                "shield-at-threshold",
+                "leader"
+              ],
+              "causing_event": "event_65NWKCGHET513YTAQPKXVS8KQ5",
+              "note": "Rhea holds the creature in place long enough for a mercy-shaped prayer to matter."
+            }
+          ]
+        },
+        "bodyMarkdown": "# Brother Garran Holt's view of Rhea Marrow\n\nA directional relationship in The Frontiersmen. Garran sees someone already preparing to carry too much.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "relationship",
+          "id": "rel_7B0R95HAFQNJAH07GBBZBYCHTE",
+          "title": "Rhea Marrow's view of Pip Fenlock",
+          "domain": "relationships.frontiersmen",
+          "status": "canonical",
+          "tags": [
+            "char_36X0KBYZ7MQGKM070H5NF12BK8",
+            "char_1W0GNKETQY2HF88YHM7CWVFH7C"
+          ],
+          "aliases": [],
+          "from": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+          "to": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+          "relationship_kind": "new-company",
+          "inverse": "rel_3S8SP05JPQS8M8BTWBCBTVX2JN",
+          "transitions": [
+            {
+              "id": "rt_2BKZV669RQ902BEP4XJ6QN4WV2",
+              "time": {
+                "timeline": "main",
+                "tick": 0,
+                "order": 0
+              },
+              "relationship_status": "active",
+              "metrics": {
+                "trust": 0.18,
+                "affinity": 0.12,
+                "fear": 0.0,
+                "obligation": 0.04,
+                "respect": 0.08,
+                "dependence": 0.02
+              },
+              "facets": [
+                "young-looking",
+                "quick-handed"
+              ],
+              "causing_event": null,
+              "note": "Rhea underestimates Pip's strategic value."
+            },
+            {
+              "id": "rt_38XYDKRKF0ZHV3QNCXTM4CDK3C",
+              "time": {
+                "timeline": "main",
+                "tick": 68,
+                "order": 2
+              },
+              "relationship_status": "active",
+              "metrics": {
+                "trust": 0.46,
+                "affinity": 0.18,
+                "fear": 0.02,
+                "obligation": 0.08,
+                "respect": 0.46,
+                "dependence": 0.2
+              },
+              "facets": [
+                "decisive-scout",
+                "moves-the-danger"
+              ],
+              "causing_event": "event_65NWKCGHET513YTAQPKXVS8KQ5",
+              "note": "Pip recognizes that the chest is the battlefield and removes it under attack."
+            }
+          ]
+        },
+        "bodyMarkdown": "# Rhea Marrow's view of Pip Fenlock\n\nA directional relationship in The Frontiersmen. Rhea underestimates Pip's strategic value.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "relationship",
+          "id": "rel_6R247N2NA89XEZ8PEFG0YV0RCQ",
+          "title": "Veyra Kest's view of Brother Garran Holt",
+          "domain": "relationships.frontiersmen",
+          "status": "canonical",
+          "tags": [
+            "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+            "char_671MWM7KTP4DCVVP8EP6SFRJVP"
+          ],
+          "aliases": [],
+          "from": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "to": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+          "relationship_kind": "new-company",
+          "inverse": "rel_7VXKXMGN96PQHNGAA781PYT38Q",
+          "transitions": [
+            {
+              "id": "rt_4B7ZHM6JDXGEB5SV5444WH7PSG",
+              "time": {
+                "timeline": "main",
+                "tick": 0,
+                "order": 0
+              },
+              "relationship_status": "active",
+              "metrics": {
+                "trust": 0.14,
+                "affinity": 0.1,
+                "fear": 0.0,
+                "obligation": 0.0,
+                "respect": 0.2,
+                "dependence": 0.04
+              },
+              "facets": [
+                "kind-skeptic"
+              ],
+              "causing_event": null,
+              "note": "Veyra finds Garran's metaphors irritatingly useful."
+            },
+            {
+              "id": "rt_1JCN2SR5J4KAZSARAHXZZHXCZ0",
+              "time": {
+                "timeline": "main",
+                "tick": 68,
+                "order": 3
+              },
+              "relationship_status": "active",
+              "metrics": {
+                "trust": 0.34,
+                "affinity": 0.1,
+                "fear": 0.04,
+                "obligation": 0.08,
+                "respect": 0.5,
+                "dependence": 0.16
+              },
+              "facets": [
+                "complementary-methods",
+                "prayer-made-material"
+              ],
+              "causing_event": "event_65NWKCGHET513YTAQPKXVS8KQ5",
+              "note": "Garran's blessing produces a repeatable physical change in the manifestation."
+            }
+          ]
+        },
+        "bodyMarkdown": "# Veyra Kest's view of Brother Garran Holt\n\nA directional relationship in The Frontiersmen. Veyra finds Garran's metaphors irritatingly useful.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "relationship",
+          "id": "rel_3ZCKXF7WAW4QWHXA4SEAPD90C7",
+          "title": "Sylvi Ashdown's view of Veyra Kest",
+          "domain": "relationships.frontiersmen",
+          "status": "canonical",
+          "tags": [
+            "char_0NQKTG3NQZFSVFKXS901NJD82E",
+            "char_48QC9B4M2RFVXJKSDFMRGJWG8Y"
+          ],
+          "aliases": [],
+          "from": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+          "to": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+          "relationship_kind": "new-company",
+          "inverse": "rel_3YDP1YYT54BZ39D2RYCFD7EWJ7",
+          "transitions": [
+            {
+              "id": "rt_0H6Z6QSX19F3HRQTJ6RKHMGB05",
+              "time": {
+                "timeline": "main",
+                "tick": 0,
+                "order": 0
+              },
+              "relationship_status": "active",
+              "metrics": {
+                "trust": -0.04,
+                "affinity": 0.02,
+                "fear": 0.06,
+                "obligation": 0.0,
+                "respect": 0.18,
+                "dependence": 0.03
+              },
+              "facets": [
+                "arcane-scent",
+                "competitive-observer"
+              ],
+              "causing_event": null,
+              "note": "Sylvi dislikes Veyra touching unknown things before reading the ground around them."
+            },
+            {
+              "id": "rt_7VFDPT4BC6VF56CR9PCZ2MYEWT",
+              "time": {
+                "timeline": "main",
+                "tick": 68,
+                "order": 4
+              },
+              "relationship_status": "active",
+              "metrics": {
+                "trust": 0.3,
+                "affinity": 0.1,
+                "fear": 0.04,
+                "obligation": 0.04,
+                "respect": 0.52,
+                "dependence": 0.14
+              },
+              "facets": [
+                "cross-checks-magic",
+                "shared-theory"
+              ],
+              "causing_event": "event_65NWKCGHET513YTAQPKXVS8KQ5",
+              "note": "Veyra's pulse observations agree with Sylvi's trackless movement evidence."
+            }
+          ]
+        },
+        "bodyMarkdown": "# Sylvi Ashdown's view of Veyra Kest\n\nA directional relationship in The Frontiersmen. Sylvi dislikes Veyra touching unknown things before reading the ground around them.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "story-point",
+          "id": "sp_4681Q884EX642WEVBEHV4CS24D",
+          "title": "Protect the Eastroad Caravan",
+          "domain": "plot.frontiersmen",
+          "status": "canonical",
+          "tags": [
+            "campaign"
+          ],
+          "aliases": [],
+          "lifecycle": {
+            "initial_state": "dormant",
+            "transitions": [
+              {
+                "id": "spt_5SS4ARS01K44SAZK9GTR3SY3RW",
+                "time": {
+                  "timeline": "main",
+                  "tick": 25,
+                  "order": 20
+                },
+                "state": "active",
+                "causing_event": "event_622182QP1ANWZNM341YAFYG08F",
+                "note": "The company begins eastroad duty."
+              },
+              {
+                "id": "spt_1BKRY89TZMC5ZP12YDVWWZ2ZN4",
+                "time": {
+                  "timeline": "main",
+                  "tick": 57,
+                  "order": 25
+                },
+                "state": "resolved",
+                "causing_event": "event_1175MZGP24P7AXEZE537FBRTTV",
+                "note": "Emergency reassignment ends the caravan contract early."
+              }
+            ]
+          },
+          "activation_policy": "suggest",
+          "priority": 80,
+          "repeat_policy": "once",
+          "dependencies": {
+            "all": []
+          },
+          "trigger": {
+            "all": []
+          },
+          "on_activate": {
+            "create_draft_scene": false
+          },
+          "outcome_events": [
+            "event_1175MZGP24P7AXEZE537FBRTTV"
+          ]
+        },
+        "bodyMarkdown": "# Protect the Eastroad Caravan\n\nGuard Maela Brigg's caravan from Keldmouth toward the eastern settlements.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "story-point",
+          "id": "sp_0KBNVM3A3AVCG4Z88ETRQM1K78",
+          "title": "Replace the Dead Watch",
+          "domain": "plot.frontiersmen",
+          "status": "canonical",
+          "tags": [
+            "campaign"
+          ],
+          "aliases": [],
+          "lifecycle": {
+            "initial_state": "dormant",
+            "transitions": [
+              {
+                "id": "spt_47ZRA0SNCE30TXP8YPDPRWFTM3",
+                "time": {
+                  "timeline": "main",
+                  "tick": 57,
+                  "order": 25
+                },
+                "state": "active",
+                "causing_event": "event_1175MZGP24P7AXEZE537FBRTTV",
+                "note": "The party becomes Harrowcross's temporary watch and investigation detail."
+              }
+            ]
+          },
+          "activation_policy": "suggest",
+          "priority": 94,
+          "repeat_policy": "once",
+          "dependencies": {
+            "all": []
+          },
+          "trigger": {
+            "all": []
+          },
+          "on_activate": {
+            "create_draft_scene": false
+          },
+          "outcome_events": []
+        },
+        "bodyMarkdown": "# Replace the Dead Watch\n\nTake over Harrowcross protection after the overnight destruction of its watch detail.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "story-point",
+          "id": "sp_2KFWNBNCG0RPGS4R85M5DQVV9B",
+          "title": "Reconstruct the Last Watch",
+          "domain": "plot.frontiersmen",
+          "status": "canonical",
+          "tags": [
+            "campaign"
+          ],
+          "aliases": [],
+          "lifecycle": {
+            "initial_state": "dormant",
+            "transitions": [
+              {
+                "id": "spt_1QND3MFRJ6JTN3314EFBDBEA43",
+                "time": {
+                  "timeline": "main",
+                  "tick": 53,
+                  "order": 10
+                },
+                "state": "active",
+                "causing_event": "event_5AT02B80HAMCF29H10GY014XJ7",
+                "note": "Kellan begins giving the surviving account."
+              },
+              {
+                "id": "spt_11AH1G3Y1TTMHY4ZV24QX0HHDR",
+                "time": {
+                  "timeline": "main",
+                  "tick": 62,
+                  "order": 45
+                },
+                "state": "resolved",
+                "causing_event": "event_65NWKCGHET513YTAQPKXVS8KQ5",
+                "note": "Kellan's testimony and the repeated trigger reconstruct the attack sequence."
+              }
+            ]
+          },
+          "activation_policy": "suggest",
+          "priority": 88,
+          "repeat_policy": "once",
+          "dependencies": {
+            "all": []
+          },
+          "trigger": {
+            "all": []
+          },
+          "on_activate": {
+            "create_draft_scene": false
+          },
+          "outcome_events": [
+            "event_2DZVKF0PP4ZNMHYMPSSHMWN1EX",
+            "event_54PDHHTT83P1MYCD9T1X0S33Z1"
+          ]
+        },
+        "bodyMarkdown": "# Reconstruct the Last Watch\n\nDetermine how the watch died inside a barred barracks and what Kellan actually heard.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "story-point",
+          "id": "sp_4FPF4MV3YMFPH5W3Z5T7W3FSAY",
+          "title": "Survive the First Wretch",
+          "domain": "plot.frontiersmen",
+          "status": "canonical",
+          "tags": [
+            "campaign"
+          ],
+          "aliases": [],
+          "lifecycle": {
+            "initial_state": "dormant",
+            "transitions": [
+              {
+                "id": "spt_5MNJ1WKQWATPSYYFHECSCQBHN1",
+                "time": {
+                  "timeline": "main",
+                  "tick": 63,
+                  "order": 20
+                },
+                "state": "active",
+                "causing_event": "event_7SAZQYAV7G22NMSESPM4196DSQ",
+                "note": "A manifestation attacks the investigators."
+              },
+              {
+                "id": "spt_5DXYTS736DBEQX48NFP5MGR2EM",
+                "time": {
+                  "timeline": "main",
+                  "tick": 64,
+                  "order": 10
+                },
+                "state": "resolved",
+                "causing_event": "event_65NWKCGHET513YTAQPKXVS8KQ5",
+                "note": "The party weakens and disperses the manifestation."
+              }
+            ]
+          },
+          "activation_policy": "suggest",
+          "priority": 96,
+          "repeat_policy": "once",
+          "dependencies": {
+            "all": []
+          },
+          "trigger": {
+            "all": []
+          },
+          "on_activate": {
+            "create_draft_scene": false
+          },
+          "outcome_events": [
+            "event_65NWKCGHET513YTAQPKXVS8KQ5"
+          ]
+        },
+        "bodyMarkdown": "# Survive the First Wretch\n\nProtect Harrowcross when an ethereal animal-wretch manifests through the barracks walls.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "story-point",
+          "id": "sp_0RTEKC1CPW46B4RZNJX178NKMT",
+          "title": "Connect Amber to the Wretches",
+          "domain": "plot.frontiersmen",
+          "status": "canonical",
+          "tags": [
+            "campaign"
+          ],
+          "aliases": [],
+          "lifecycle": {
+            "initial_state": "dormant",
+            "transitions": [
+              {
+                "id": "spt_7KCBHZTJVF3NG5Y6TPPN04PXES",
+                "time": {
+                  "timeline": "main",
+                  "tick": 63,
+                  "order": 10
+                },
+                "state": "active",
+                "causing_event": "event_54PDHHTT83P1MYCD9T1X0S33Z1",
+                "note": "Blood and the chest precede a second manifestation."
+              },
+              {
+                "id": "spt_672X2N7M255XFCD3WA4QS12TFV",
+                "time": {
+                  "timeline": "main",
+                  "tick": 74,
+                  "order": 0
+                },
+                "state": "resolved",
+                "causing_event": "event_6PENT82TP12QE9R4XW7CK2RYAQ",
+                "note": "Witnessed quickening, dowsing, and ledger provenance establish an operational amber link."
+              }
+            ]
+          },
+          "activation_policy": "suggest",
+          "priority": 92,
+          "repeat_policy": "once",
+          "dependencies": {
+            "all": []
+          },
+          "trigger": {
+            "all": []
+          },
+          "on_activate": {
+            "create_draft_scene": false
+          },
+          "outcome_events": [
+            "event_54PDHHTT83P1MYCD9T1X0S33Z1",
+            "event_3X3WCH3S4HA27KAGTQTDP6FPCM",
+            "event_6PENT82TP12QE9R4XW7CK2RYAQ"
+          ]
+        },
+        "bodyMarkdown": "# Connect Amber to the Wretches\n\nEstablish whether amber storage, blood, fear, or mining activity precedes the manifestations.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "story-point",
+          "id": "sp_5Q8BN1G91QHYSCRSDSF9QWDK09",
+          "title": "Trace the Attacks to Saint Orra's Mine",
+          "domain": "plot.frontiersmen",
+          "status": "canonical",
+          "tags": [
+            "campaign"
+          ],
+          "aliases": [],
+          "lifecycle": {
+            "initial_state": "dormant",
+            "transitions": [
+              {
+                "id": "spt_01ZCHVC44DHAVRWZZV2G3HKS7K",
+                "time": {
+                  "timeline": "main",
+                  "tick": 72,
+                  "order": 45
+                },
+                "state": "active",
+                "causing_event": "event_3X3WCH3S4HA27KAGTQTDP6FPCM",
+                "note": "The dowsing fork and wretch route point to Saint Orra."
+              },
+              {
+                "id": "spt_1Y93E1WR7N63D941YN73J9KPNB",
+                "time": {
+                  "timeline": "main",
+                  "tick": 80,
+                  "order": 20
+                },
+                "state": "resolved",
+                "causing_event": "event_71BDWMBEY0J1HM0BNVH3EMNPPX",
+                "note": "The party reaches the sealed drift that draws the fork."
+              }
+            ]
+          },
+          "activation_policy": "suggest",
+          "priority": 86,
+          "repeat_policy": "once",
+          "dependencies": {
+            "all": []
+          },
+          "trigger": {
+            "all": []
+          },
+          "on_activate": {
+            "create_draft_scene": false
+          },
+          "outcome_events": [
+            "event_71BDWMBEY0J1HM0BNVH3EMNPPX"
+          ]
+        },
+        "bodyMarkdown": "# Trace the Attacks to Saint Orra's Mine\n\nFollow the orchard frost, mine road, and dowsing evidence toward the amber workings.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "story-point",
+          "id": "sp_5JW98KWBPBPHFYSA7MMC796ZAJ",
+          "title": "Enter Saint Orra's Mine",
+          "domain": "plot.frontiersmen",
+          "status": "canonical",
+          "tags": [
+            "campaign"
+          ],
+          "aliases": [],
+          "lifecycle": {
+            "initial_state": "dormant",
+            "transitions": []
+          },
+          "activation_policy": "manual",
+          "priority": 82,
+          "repeat_policy": "once",
+          "dependencies": {
+            "all": [
+              {
+                "story_point": "sp_5Q8BN1G91QHYSCRSDSF9QWDK09",
+                "state_in": [
+                  "resolved"
+                ]
+              }
+            ]
+          },
+          "trigger": {
+            "scene": {
+              "location": "loc_3KMRW36Y06YVVEX31FZACMYEA6",
+              "participant": "char_36X0KBYZ7MQGKM070H5NF12BK8"
+            }
+          },
+          "on_activate": {
+            "create_draft_scene": false
+          },
+          "outcome_events": []
+        },
+        "bodyMarkdown": "# Enter Saint Orra's Mine\n\nInvestigate the sealed drifts and missing lower crew despite Jorund's resistance.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "story-point",
+          "id": "sp_55RMAMRVV8DYG02ZR84VWME0CR",
+          "title": "What Is Amber?",
+          "domain": "plot.frontiersmen",
+          "status": "canonical",
+          "tags": [
+            "campaign"
+          ],
+          "aliases": [],
+          "lifecycle": {
+            "initial_state": "dormant",
+            "transitions": [
+              {
+                "id": "spt_4MCYZSVKNHWRMEHE0BKHH6TJGP",
+                "time": {
+                  "timeline": "main",
+                  "tick": 72,
+                  "order": 40
+                },
+                "state": "active",
+                "causing_event": "event_3X3WCH3S4HA27KAGTQTDP6FPCM",
+                "note": "Tillo supplies a partial operational vocabulary for quick amber."
+              }
+            ]
+          },
+          "activation_policy": "suggest",
+          "priority": 97,
+          "repeat_policy": "once",
+          "dependencies": {
+            "all": []
+          },
+          "trigger": {
+            "all": []
+          },
+          "on_activate": {
+            "create_draft_scene": false
+          },
+          "outcome_events": []
+        },
+        "bodyMarkdown": "# What Is Amber?\n\nSeparate frontier superstition, guild euphemism, ancient record, and the Tree King's claims into a defensible theory.\n"
+      }
+    },
+    {
+      "type": "entity.upsert",
+      "value": {
+        "frontmatter": {
+          "schema": "wedl/v0.3",
+          "kind": "story-point",
+          "id": "sp_738TMHY3Y8CZK6V7KK1BWXPRZJ",
+          "title": "Expose the Blackroot Compact",
+          "domain": "plot.frontiersmen",
+          "status": "canonical",
+          "tags": [
+            "campaign"
+          ],
+          "aliases": [],
+          "lifecycle": {
+            "initial_state": "dormant",
+            "transitions": [
+              {
+                "id": "spt_2JVMJ25W9JM5PFCPZSM56ZQV90",
+                "time": {
+                  "timeline": "main",
+                  "tick": 74,
+                  "order": 0
+                },
+                "state": "active",
+                "causing_event": "event_6PENT82TP12QE9R4XW7CK2RYAQ",
+                "note": "The protection ledger makes guild dependence on amber explicit."
+              }
+            ]
+          },
+          "activation_policy": "suggest",
+          "priority": 91,
+          "repeat_policy": "once",
+          "dependencies": {
+            "all": []
+          },
+          "trigger": {
+            "all": []
+          },
+          "on_activate": {
+            "create_draft_scene": false
+          },
+          "outcome_events": []
+        },
+        "bodyMarkdown": "# Expose the Blackroot Compact\n\nRecover evidence that the guild has long known amber extraction provokes manifestations.\n"
+      }
+    }
+  ]
+}

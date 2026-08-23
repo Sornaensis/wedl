@@ -1,0 +1,859 @@
+{
+  "protocol": "wedl-search/v4",
+  "revision": "4267d78b9002889ae084bd8ef3884b2df964f7d1",
+  "perspective": "character",
+  "characterId": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+  "sceneId": "scene_6N54SP1BTJ9GR036V9M9JCFDR4",
+  "effectiveTime": {
+    "timeline": "main",
+    "tick": 160,
+    "order": 0
+  },
+  "mode": "fts",
+  "searchState": {
+    "profile": {
+      "name": "hybrid",
+      "ftsEnabled": true,
+      "vectorEnabled": true,
+      "vectorProvider": "lsa",
+      "vectorModel": "wedl-lsa-v1",
+      "vectorDimensions": 192,
+      "vectorMaxFeatures": 8192,
+      "ftsCandidateLimit": 120,
+      "vectorCandidateLimit": 120,
+      "hybridFtsWeight": 1.0,
+      "hybridVectorWeight": 1.0,
+      "hybridRrfK": 60.0
+    },
+    "fts": {
+      "available": true,
+      "documentCount": 1811,
+      "provider": "sqlite-fts5"
+    },
+    "vector": {
+      "available": true,
+      "models": [
+        {
+          "scope": "author",
+          "modelId": "lsa:author:wedl-lsa-v1:192:c9019a5f8d245951",
+          "provider": "lsa",
+          "modelName": "wedl-lsa-v1",
+          "dimensions": 192,
+          "normalized": true
+        },
+        {
+          "scope": "character",
+          "modelId": "lsa:character:wedl-lsa-v1:124:a222f7ee078597c4",
+          "provider": "lsa",
+          "modelName": "wedl-lsa-v1",
+          "dimensions": 124,
+          "normalized": true
+        }
+      ],
+      "uniqueVectors": 786,
+      "documentLinks": 1811
+    }
+  },
+  "results": [
+    {
+      "documentId": "doc:conv_7MV33E43SR2ZKC30REKAAC77DP:conversation-recollection:3:7017d9985822",
+      "entityId": "conv_7MV33E43SR2ZKC30REKAAC77DP",
+      "documentKind": "conversation-recollection",
+      "heading": "subjective-recollection",
+      "audienceKind": "conversation",
+      "metadata": {
+        "aliases": [],
+        "confidence": 0.9,
+        "domain": "conversations.frontiersmen",
+        "fidelity": "subjective",
+        "kind": "conversation",
+        "recollectionId": "recol_2WHHTZGFZWPJQPRTJKZAC2DSZ5",
+        "state": "remembered",
+        "tags": [
+          "fear",
+          "amber",
+          "guild"
+        ],
+        "title": "Second Night Below"
+      },
+      "ftsRank": 1,
+      "ftsBm25": -7.509198630368917,
+      "ftsScore": 7.509198630368917,
+      "snippet": "The <mark>roots</mark> brighten for emotionally real <mark>memories</mark> and respond weakly to fabricated statements.\nInterpretation: <mark>Amber</mark> may be a medium for structured lived impressions rather … ",
+      "score": 0.01639344262295082,
+      "lanes": [
+        "fts"
+      ],
+      "citation": {
+        "entityId": "conv_7MV33E43SR2ZKC30REKAAC77DP",
+        "sourcePath": "story/conversations/second-night-below--conv_7MV33E43SR2ZKC30REKAAC77DP.md",
+        "section": "subjective-recollection"
+      }
+    },
+    {
+      "documentId": "doc:conv_7MV33E43SR2ZKC30REKAAC77DP:conversation-turn:6:a77b82d1f4c1",
+      "entityId": "conv_7MV33E43SR2ZKC30REKAAC77DP",
+      "documentKind": "conversation-turn",
+      "heading": "verbatim-turn",
+      "audienceKind": "conversation",
+      "metadata": {
+        "aliases": [],
+        "domain": "conversations.frontiersmen",
+        "fidelity": "verbatim",
+        "kind": "conversation",
+        "speaker": "Pip Fenlock",
+        "tags": [
+          "fear",
+          "amber",
+          "guild"
+        ],
+        "title": "Second Night Below",
+        "turnId": "turn_2S99S0SRD446Z1QH89A6Q86044"
+      },
+      "ftsRank": 2,
+      "ftsBm25": -7.210510924553158,
+      "ftsScore": 7.210510924553158,
+      "snippet": "Pip Fenlock: “I remember owing three men money. The <mark>roots</mark> remain unimpressed.”",
+      "score": 0.016129032258064516,
+      "lanes": [
+        "fts"
+      ],
+      "citation": {
+        "entityId": "conv_7MV33E43SR2ZKC30REKAAC77DP",
+        "sourcePath": "story/conversations/second-night-below--conv_7MV33E43SR2ZKC30REKAAC77DP.md",
+        "section": "verbatim-turn"
+      }
+    },
+    {
+      "documentId": "doc:conv_7TC8QMY25DHKXCDDD6BRBZCAS0:conversation-turn:4:0a88043a615c",
+      "entityId": "conv_7TC8QMY25DHKXCDDD6BRBZCAS0",
+      "documentKind": "conversation-turn",
+      "heading": "verbatim-turn",
+      "audienceKind": "conversation",
+      "metadata": {
+        "aliases": [],
+        "domain": "conversations.frontiersmen",
+        "fidelity": "verbatim",
+        "kind": "conversation",
+        "speaker": "Veyra Kest",
+        "tags": [
+          "amber",
+          "memory",
+          "reliquary"
+        ],
+        "title": "The Sunken Hall Debate",
+        "turnId": "turn_7PDC8CH2CH4N7ZDEJ372KDZGTP"
+      },
+      "ftsRank": 3,
+      "ftsBm25": -7.130844255729574,
+      "ftsScore": 7.130844255729574,
+      "snippet": "Veyra Kest: “Not whom. The grammar makes the <mark>root</mark> the subject.”",
+      "score": 0.015873015873015872,
+      "lanes": [
+        "fts"
+      ],
+      "citation": {
+        "entityId": "conv_7TC8QMY25DHKXCDDD6BRBZCAS0",
+        "sourcePath": "story/conversations/the-sunken-hall-debate--conv_7TC8QMY25DHKXCDDD6BRBZCAS0.md",
+        "section": "verbatim-turn"
+      }
+    },
+    {
+      "documentId": "doc:conv_7TC8QMY25DHKXCDDD6BRBZCAS0:conversation-turn:6:c6aea8c02437",
+      "entityId": "conv_7TC8QMY25DHKXCDDD6BRBZCAS0",
+      "documentKind": "conversation-turn",
+      "heading": "verbatim-turn",
+      "audienceKind": "conversation",
+      "metadata": {
+        "aliases": [],
+        "domain": "conversations.frontiersmen",
+        "fidelity": "verbatim",
+        "kind": "conversation",
+        "speaker": "Veyra Kest",
+        "tags": [
+          "amber",
+          "memory",
+          "reliquary"
+        ],
+        "title": "The Sunken Hall Debate",
+        "turnId": "turn_1XMDZZTGQBFD4C74B9CTCRE1DP"
+      },
+      "ftsRank": 5,
+      "ftsBm25": -7.073040200470932,
+      "ftsScore": 7.073040200470932,
+      "snippet": "Veyra Kest: “'Do not give the sap fresh terror, for it returns the <mark>hunter</mark> and the hunted without knowing the difference.'”",
+      "score": 0.015384615384615385,
+      "lanes": [
+        "fts"
+      ],
+      "citation": {
+        "entityId": "conv_7TC8QMY25DHKXCDDD6BRBZCAS0",
+        "sourcePath": "story/conversations/the-sunken-hall-debate--conv_7TC8QMY25DHKXCDDD6BRBZCAS0.md",
+        "section": "verbatim-turn"
+      }
+    },
+    {
+      "documentId": "doc:obj_481HCSTXARNTFBN36HP31HTYV2:entity-public:0:b6359b8501e2",
+      "entityId": "obj_481HCSTXARNTFBN36HP31HTYV2",
+      "documentKind": "entity-public",
+      "heading": "Sunken Hall Memory Tablet",
+      "audienceKind": "public",
+      "metadata": {
+        "aliases": [],
+        "domain": "props.frontiersmen",
+        "kind": "object",
+        "tags": [
+          "ruins",
+          "amber",
+          "lore"
+        ],
+        "title": "Sunken Hall Memory Tablet"
+      },
+      "ftsRank": 8,
+      "ftsBm25": -5.716032645512161,
+      "ftsScore": 5.716032645512161,
+      "snippet": "# Sunken Hall <mark>Memory</mark> Tablet\n\nA stone tablet describing golden sap that keeps the shapes of hunted things after flesh is gone.",
+      "score": 0.014705882352941176,
+      "lanes": [
+        "fts"
+      ],
+      "citation": {
+        "entityId": "obj_481HCSTXARNTFBN36HP31HTYV2",
+        "sourcePath": "story/objects/sunken-hall-memory-tablet--obj_481HCSTXARNTFBN36HP31HTYV2.md",
+        "section": "Sunken Hall Memory Tablet"
+      }
+    },
+    {
+      "documentId": "doc:env_77WH7B5PBB2XZYBNDWNVCY2XGP:entity-public:0:44d85577dff9",
+      "entityId": "env_77WH7B5PBB2XZYBNDWNVCY2XGP",
+      "documentKind": "entity-public",
+      "heading": "Hilltop Dawn",
+      "audienceKind": "public",
+      "metadata": {
+        "aliases": [],
+        "domain": "environment.frontier",
+        "kind": "environment",
+        "tags": [
+          "frontier"
+        ],
+        "title": "Hilltop Dawn"
+      },
+      "ftsRank": 12,
+      "ftsBm25": -4.6344637236015025,
+      "ftsScore": 4.6344637236015025,
+      "snippet": "# Hilltop Dawn\n\nRelief at reaching the surface becomes the temptation to approach the only visible <mark>camp</mark>.",
+      "score": 0.013888888888888888,
+      "lanes": [
+        "fts"
+      ],
+      "citation": {
+        "entityId": "env_77WH7B5PBB2XZYBNDWNVCY2XGP",
+        "sourcePath": "story/environments/hilltop-dawn--env_77WH7B5PBB2XZYBNDWNVCY2XGP.md",
+        "section": "Hilltop Dawn"
+      }
+    },
+    {
+      "documentId": "doc:scene_6N54SP1BTJ9GR036V9M9JCFDR4:scene-observation:3:3f2bb21028c1",
+      "entityId": "scene_6N54SP1BTJ9GR036V9M9JCFDR4",
+      "documentKind": "scene-observation",
+      "heading": "observation",
+      "audienceKind": "scene",
+      "metadata": {
+        "aliases": [],
+        "domain": "scenes.frontiersmen",
+        "kind": "scene",
+        "observationId": "obs_3YH7SSSSQFPXEGK320EMEWAFXV",
+        "tags": [
+          "surface",
+          "active"
+        ],
+        "title": "Hilltop Dawn"
+      },
+      "ftsRank": 16,
+      "ftsBm25": -4.435613092161388,
+      "ftsScore": 4.435613092161388,
+      "snippet": "A narrow column of smoke rises two valleys north from a <mark>camp</mark> where animal-faced figures move in silence.",
+      "score": 0.013157894736842105,
+      "lanes": [
+        "fts"
+      ],
+      "citation": {
+        "entityId": "scene_6N54SP1BTJ9GR036V9M9JCFDR4",
+        "sourcePath": "story/scenes/hilltop-dawn--scene_6N54SP1BTJ9GR036V9M9JCFDR4.md",
+        "section": "observation"
+      }
+    },
+    {
+      "documentId": "doc:know_1XD4XTYKCD1NX0VWVN8HN05JRP:knowledge:0:f988fa0d36f7",
+      "entityId": "know_1XD4XTYKCD1NX0VWVN8HN05JRP",
+      "documentKind": "knowledge",
+      "heading": null,
+      "audienceKind": "knowledge",
+      "metadata": {
+        "aliases": [],
+        "claimKey": "guild.contract.emergency-reassignment",
+        "domain": "knowledge.char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+        "kind": "knowledge",
+        "tags": [
+          "guild",
+          "contract"
+        ],
+        "title": "Veyra Kest knows the guild emergency clause"
+      },
+      "ftsRank": 36,
+      "ftsBm25": -3.4746724896352568,
+      "ftsScore": 3.4746724896352568,
+      "snippet": "The Lantern Pike may reassign its <mark>hunters</mark> to settlement emergencies without renegotiating the road contract.",
+      "score": 0.010416666666666666,
+      "lanes": [
+        "fts"
+      ],
+      "citation": {
+        "entityId": "know_1XD4XTYKCD1NX0VWVN8HN05JRP",
+        "sourcePath": "story/knowledge/char-48qc9b4m2rfvxjksdfmrgjwg8y/veyra-kest-knows-the-guild-emergency-clause--know_1XD4XTYKCD1NX0VWVN8HN05JRP.md",
+        "section": "knowledge"
+      }
+    },
+    {
+      "documentId": "doc:conv_1WF5SDFJPJJCMM57MCZ7KTGMWA:conversation-turn:2:5779208867c7",
+      "entityId": "conv_1WF5SDFJPJJCMM57MCZ7KTGMWA",
+      "documentKind": "conversation-turn",
+      "heading": "verbatim-turn",
+      "audienceKind": "conversation",
+      "metadata": {
+        "aliases": [],
+        "domain": "conversations.frontiersmen",
+        "fidelity": "verbatim",
+        "kind": "conversation",
+        "speaker": "Sergeant Edrik Morn",
+        "tags": [
+          "massacre",
+          "assignment",
+          "harrowcross"
+        ],
+        "title": "The Sergeant's Account",
+        "turnId": "turn_6FRKX5EPD0YGJ0KP3AVPYNAJ5E"
+      },
+      "ftsRank": 37,
+      "ftsBm25": -3.3793699335482037,
+      "ftsScore": 3.3793699335482037,
+      "snippet": "Sergeant Edrik Morn: “If I knew, I would have named it before I asked a caravan for <mark>hunters</mark>.”",
+      "score": 0.010309278350515464,
+      "lanes": [
+        "fts"
+      ],
+      "citation": {
+        "entityId": "conv_1WF5SDFJPJJCMM57MCZ7KTGMWA",
+        "sourcePath": "story/conversations/the-sergeant-s-account--conv_1WF5SDFJPJJCMM57MCZ7KTGMWA.md",
+        "section": "verbatim-turn"
+      }
+    },
+    {
+      "documentId": "doc:conv_1WF5SDFJPJJCMM57MCZ7KTGMWA:conversation-turn:13:f1b4559f1eca",
+      "entityId": "conv_1WF5SDFJPJJCMM57MCZ7KTGMWA",
+      "documentKind": "conversation-turn",
+      "heading": "verbatim-turn",
+      "audienceKind": "conversation",
+      "metadata": {
+        "aliases": [],
+        "domain": "conversations.frontiersmen",
+        "fidelity": "verbatim",
+        "kind": "conversation",
+        "speaker": "Reeve Hessa Noll",
+        "tags": [
+          "massacre",
+          "assignment",
+          "harrowcross"
+        ],
+        "title": "The Sergeant's Account",
+        "turnId": "turn_5TPZRR0XYX6XY6RYM9CQW2N3TQ"
+      },
+      "ftsRank": 38,
+      "ftsBm25": -3.3336525870075264,
+      "ftsScore": 3.3336525870075264,
+      "snippet": "Reeve Hessa Noll: “That is why the town paid for monster <mark>hunters</mark> before the caravan ever saw our gate.”",
+      "score": 0.01020408163265306,
+      "lanes": [
+        "fts"
+      ],
+      "citation": {
+        "entityId": "conv_1WF5SDFJPJJCMM57MCZ7KTGMWA",
+        "sourcePath": "story/conversations/the-sergeant-s-account--conv_1WF5SDFJPJJCMM57MCZ7KTGMWA.md",
+        "section": "verbatim-turn"
+      }
+    },
+    {
+      "documentId": "doc:know_1DGNWGY4XX96ZZ124XVGGT221G:knowledge:0:a8bf19fce597",
+      "entityId": "know_1DGNWGY4XX96ZZ124XVGGT221G",
+      "documentKind": "knowledge",
+      "heading": null,
+      "audienceKind": "knowledge",
+      "metadata": {
+        "aliases": [],
+        "claimKey": "amber.stores-lived-impressions",
+        "domain": "knowledge.char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+        "kind": "knowledge",
+        "tags": [
+          "amber",
+          "ruins"
+        ],
+        "title": "Veyra Kest forms an underground amber theory"
+      },
+      "ftsRank": 39,
+      "ftsBm25": -2.6394839110798047,
+      "ftsScore": 2.6394839110798047,
+      "snippet": "<mark>Amber</mark> stores structured lived impressions inside a larger <mark>root</mark> network and can project them as moving forms.",
+      "score": 0.010101010101010102,
+      "lanes": [
+        "fts"
+      ],
+      "citation": {
+        "entityId": "know_1DGNWGY4XX96ZZ124XVGGT221G",
+        "sourcePath": "story/knowledge/char-48qc9b4m2rfvxjksdfmrgjwg8y/veyra-kest-forms-an-underground-amber-theory--know_1DGNWGY4XX96ZZ124XVGGT221G.md",
+        "section": "knowledge"
+      }
+    },
+    {
+      "documentId": "doc:obj_5PQSHGM3GXJD26BX95794WQMTF:entity-public:0:6670b63a0051",
+      "entityId": "obj_5PQSHGM3GXJD26BX95794WQMTF",
+      "documentKind": "entity-public",
+      "heading": "Raw Amber Nodule",
+      "audienceKind": "public",
+      "metadata": {
+        "aliases": [],
+        "domain": "props.frontiersmen",
+        "kind": "object",
+        "tags": [
+          "amber",
+          "raw",
+          "magic"
+        ],
+        "title": "Raw Amber Nodule"
+      },
+      "ftsRank": 40,
+      "ftsBm25": -2.6037760755931734,
+      "ftsScore": 2.6037760755931734,
+      "snippet": "# Raw <mark>Amber</mark> Nodule\n\nAn irregular translucent nodule warm at its center and threaded with shapes like <mark>roots</mark> or veins.",
+      "score": 0.01,
+      "lanes": [
+        "fts"
+      ],
+      "citation": {
+        "entityId": "obj_5PQSHGM3GXJD26BX95794WQMTF",
+        "sourcePath": "story/objects/raw-amber-nodule--obj_5PQSHGM3GXJD26BX95794WQMTF.md",
+        "section": "Raw Amber Nodule"
+      }
+    },
+    {
+      "documentId": "doc:conv_33YJSY1GRTYH06S8JD2Q6TKWJ1:conversation-recollection:3:12ca79b6c27d",
+      "entityId": "conv_33YJSY1GRTYH06S8JD2Q6TKWJ1",
+      "documentKind": "conversation-recollection",
+      "heading": "subjective-recollection",
+      "audienceKind": "conversation",
+      "metadata": {
+        "aliases": [],
+        "confidence": 0.88,
+        "domain": "conversations.frontiersmen",
+        "fidelity": "subjective",
+        "kind": "conversation",
+        "recollectionId": "recol_28G01KDRT7T29GVN51FJN9AAT9",
+        "state": "remembered",
+        "tags": [
+          "mine",
+          "sealed-drift",
+          "guild"
+        ],
+        "title": "Jorund's Terms"
+      },
+      "ftsRank": 41,
+      "ftsBm25": -1.6591732012572435,
+      "ftsScore": 1.6591732012572435,
+      "snippet": " … The mine has intersected a larger active structure rather than an isolated <mark>amber</mark> pocket.\nEmotional impression: awe restrained by <mark>fear</mark>\nJorund Bale: “We followed … ",
+      "score": 0.009900990099009901,
+      "lanes": [
+        "fts"
+      ],
+      "citation": {
+        "entityId": "conv_33YJSY1GRTYH06S8JD2Q6TKWJ1",
+        "sourcePath": "story/conversations/jorund-s-terms--conv_33YJSY1GRTYH06S8JD2Q6TKWJ1.md",
+        "section": "subjective-recollection"
+      }
+    },
+    {
+      "documentId": "doc:conv_4R3Y82F5GYV74A24GJJ6WAYAT5:conversation-turn:7:03b7c91a76f4",
+      "entityId": "conv_4R3Y82F5GYV74A24GJJ6WAYAT5",
+      "documentKind": "conversation-turn",
+      "heading": "verbatim-turn",
+      "audienceKind": "conversation",
+      "metadata": {
+        "aliases": [],
+        "domain": "conversations.frontiersmen",
+        "fidelity": "verbatim",
+        "kind": "conversation",
+        "speaker": "Sylvi Ashdown",
+        "tags": [
+          "amber",
+          "wages",
+          "frontier-custom"
+        ],
+        "title": "Amber Wages",
+        "turnId": "turn_6CH5GYXH5NBV6EGMTCMYDMJ1YJ"
+      },
+      "ftsRank": 42,
+      "ftsBm25": -2.0853990718378834e-06,
+      "ftsScore": 2.0853990718378834e-06,
+      "snippet": "Sylvi Ashdown: “<mark>Amber</mark> sweats?”",
+      "score": 0.00980392156862745,
+      "lanes": [
+        "fts"
+      ],
+      "citation": {
+        "entityId": "conv_4R3Y82F5GYV74A24GJJ6WAYAT5",
+        "sourcePath": "story/conversations/amber-wages--conv_4R3Y82F5GYV74A24GJJ6WAYAT5.md",
+        "section": "verbatim-turn"
+      }
+    },
+    {
+      "documentId": "doc:conv_4R3Y82F5GYV74A24GJJ6WAYAT5:conversation-turn:2:6c56bdd128d6",
+      "entityId": "conv_4R3Y82F5GYV74A24GJJ6WAYAT5",
+      "documentKind": "conversation-turn",
+      "heading": "verbatim-turn",
+      "audienceKind": "conversation",
+      "metadata": {
+        "aliases": [],
+        "domain": "conversations.frontiersmen",
+        "fidelity": "verbatim",
+        "kind": "conversation",
+        "speaker": "Nara Beech",
+        "tags": [
+          "amber",
+          "wages",
+          "frontier-custom"
+        ],
+        "title": "Amber Wages",
+        "turnId": "turn_0N9RMNCEPMWFRKGR08BQZW37BQ"
+      },
+      "ftsRank": 43,
+      "ftsBm25": -2.0812308627971275e-06,
+      "ftsScore": 2.0812308627971275e-06,
+      "snippet": "Nara Beech: “Yes.”",
+      "score": 0.009708737864077669,
+      "lanes": [
+        "fts"
+      ],
+      "citation": {
+        "entityId": "conv_4R3Y82F5GYV74A24GJJ6WAYAT5",
+        "sourcePath": "story/conversations/amber-wages--conv_4R3Y82F5GYV74A24GJJ6WAYAT5.md",
+        "section": "verbatim-turn"
+      }
+    },
+    {
+      "documentId": "doc:obj_0EM18BF4VSWVHG4CJ121K7P4XF:entity-public:0:c47b3f701224",
+      "entityId": "obj_0EM18BF4VSWVHG4CJ121K7P4XF",
+      "documentKind": "entity-public",
+      "heading": "Refined Amber Discs",
+      "audienceKind": "public",
+      "metadata": {
+        "aliases": [],
+        "domain": "props.frontiersmen",
+        "kind": "object",
+        "tags": [
+          "amber",
+          "currency"
+        ],
+        "title": "Refined Amber Discs"
+      },
+      "ftsRank": 45,
+      "ftsBm25": -2.0766033115038673e-06,
+      "ftsScore": 2.0766033115038673e-06,
+      "snippet": "# Refined <mark>Amber</mark> Discs\n\nThin standardized discs of <mark>amber</mark> hardened with charcoal and tin dust for trade.",
+      "score": 0.009523809523809525,
+      "lanes": [
+        "fts"
+      ],
+      "citation": {
+        "entityId": "obj_0EM18BF4VSWVHG4CJ121K7P4XF",
+        "sourcePath": "story/objects/refined-amber-discs--obj_0EM18BF4VSWVHG4CJ121K7P4XF.md",
+        "section": "Refined Amber Discs"
+      }
+    },
+    {
+      "documentId": "doc:obj_2T5QAX3BWM0DBNT2KZ1R1TV4T9:entity-public:0:78cc545fecd2",
+      "entityId": "obj_2T5QAX3BWM0DBNT2KZ1R1TV4T9",
+      "documentKind": "entity-public",
+      "heading": "Amber Reliquary",
+      "audienceKind": "public",
+      "metadata": {
+        "aliases": [],
+        "domain": "props.frontiersmen",
+        "kind": "object",
+        "tags": [
+          "ruins",
+          "amber",
+          "danger"
+        ],
+        "title": "Amber Reliquary"
+      },
+      "ftsRank": 46,
+      "ftsBm25": -2.0766033115038673e-06,
+      "ftsScore": 2.0766033115038673e-06,
+      "snippet": "# <mark>Amber</mark> Reliquary\n\nA stone box containing an ancient <mark>amber</mark> lattice and blackened animal teeth arranged around it.",
+      "score": 0.009433962264150943,
+      "lanes": [
+        "fts"
+      ],
+      "citation": {
+        "entityId": "obj_2T5QAX3BWM0DBNT2KZ1R1TV4T9",
+        "sourcePath": "story/objects/amber-reliquary--obj_2T5QAX3BWM0DBNT2KZ1R1TV4T9.md",
+        "section": "Amber Reliquary"
+      }
+    },
+    {
+      "documentId": "doc:obj_2E54ZD1PAD31YVVX181TS4D29X:entity-public:0:b90bf9786649",
+      "entityId": "obj_2E54ZD1PAD31YVVX181TS4D29X",
+      "documentKind": "entity-public",
+      "heading": "Harrowcross Amber Chest",
+      "audienceKind": "public",
+      "metadata": {
+        "aliases": [],
+        "domain": "props.frontiersmen",
+        "kind": "object",
+        "tags": [
+          "amber",
+          "payment",
+          "danger"
+        ],
+        "title": "Harrowcross Amber Chest"
+      },
+      "ftsRank": 54,
+      "ftsBm25": -2.0511329355863178e-06,
+      "ftsScore": 2.0511329355863178e-06,
+      "snippet": "# Harrowcross <mark>Amber</mark> Chest\n\nThe town's quarterly protection payment: raw and refined <mark>amber</mark> stored together in a cedar chest beneath the watch bunks.",
+      "score": 0.008771929824561403,
+      "lanes": [
+        "fts"
+      ],
+      "citation": {
+        "entityId": "obj_2E54ZD1PAD31YVVX181TS4D29X",
+        "sourcePath": "story/objects/harrowcross-amber-chest--obj_2E54ZD1PAD31YVVX181TS4D29X.md",
+        "section": "Harrowcross Amber Chest"
+      }
+    },
+    {
+      "documentId": "doc:know_1514C0YWW9GJCAKYGVXBNW54FH:knowledge:0:8f7080b2b595",
+      "entityId": "know_1514C0YWW9GJCAKYGVXBNW54FH",
+      "documentKind": "knowledge",
+      "heading": null,
+      "audienceKind": "knowledge",
+      "metadata": {
+        "aliases": [],
+        "claimKey": "amber.is.magically-active",
+        "domain": "knowledge.char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+        "kind": "knowledge",
+        "tags": [
+          "amber",
+          "magic"
+        ],
+        "title": "Veyra suspects amber is magically active"
+      },
+      "ftsRank": 55,
+      "ftsBm25": -2.0456622807706913e-06,
+      "ftsScore": 2.0456622807706913e-06,
+      "snippet": "<mark>Amber</mark> is an active magical material rather than inert gemstone or resin.",
+      "score": 0.008695652173913044,
+      "lanes": [
+        "fts"
+      ],
+      "citation": {
+        "entityId": "know_1514C0YWW9GJCAKYGVXBNW54FH",
+        "sourcePath": "story/knowledge/char-48qc9b4m2rfvxjksdfmrgjwg8y/veyra-suspects-amber-is-magically-active--know_1514C0YWW9GJCAKYGVXBNW54FH.md",
+        "section": "knowledge"
+      }
+    },
+    {
+      "documentId": "doc:obj_485CVZ39Y0QFJWRDZ53C18BQ9T:entity-public:0:3b8c40934cd8",
+      "entityId": "obj_485CVZ39Y0QFJWRDZ53C18BQ9T",
+      "documentKind": "entity-public",
+      "heading": "First Amber Wages",
+      "audienceKind": "public",
+      "metadata": {
+        "aliases": [],
+        "domain": "props.frontiersmen",
+        "kind": "object",
+        "tags": [
+          "amber",
+          "currency"
+        ],
+        "title": "First Amber Wages"
+      },
+      "ftsRank": 56,
+      "ftsBm25": -2.044862669546028e-06,
+      "ftsScore": 2.044862669546028e-06,
+      "snippet": "# First <mark>Amber</mark> Wages\n\nA waxed pouch containing five drilled <mark>amber</mark> discs and a pinch of powdered charcoal. The discs look like liquid gold caught … ",
+      "score": 0.008620689655172414,
+      "lanes": [
+        "fts"
+      ],
+      "citation": {
+        "entityId": "obj_485CVZ39Y0QFJWRDZ53C18BQ9T",
+        "sourcePath": "story/objects/first-amber-wages--obj_485CVZ39Y0QFJWRDZ53C18BQ9T.md",
+        "section": "First Amber Wages"
+      }
+    },
+    {
+      "documentId": "doc:know_0GM73CVAVY50HKTFM44BWB250W:knowledge:0:3c8eead908aa",
+      "entityId": "know_0GM73CVAVY50HKTFM44BWB250W",
+      "documentKind": "knowledge",
+      "heading": null,
+      "audienceKind": "knowledge",
+      "metadata": {
+        "aliases": [],
+        "claimKey": "amber.functions.as-currency",
+        "domain": "knowledge.char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+        "kind": "knowledge",
+        "tags": [
+          "amber",
+          "currency"
+        ],
+        "title": "Veyra Kest knows amber is frontier currency"
+      },
+      "ftsRank": 57,
+      "ftsBm25": -2.0370366681511685e-06,
+      "ftsScore": 2.0370366681511685e-06,
+      "snippet": "Refined <mark>amber</mark> discs function as ordinary wages and exchange value across the Frontier.",
+      "score": 0.008547008547008548,
+      "lanes": [
+        "fts"
+      ],
+      "citation": {
+        "entityId": "know_0GM73CVAVY50HKTFM44BWB250W",
+        "sourcePath": "story/knowledge/char-48qc9b4m2rfvxjksdfmrgjwg8y/veyra-kest-knows-amber-is-frontier-currency--know_0GM73CVAVY50HKTFM44BWB250W.md",
+        "section": "knowledge"
+      }
+    },
+    {
+      "documentId": "doc:know_4WABGVP968ESVHRRKEZ2GDRW57:knowledge:0:48de4e8f4490",
+      "entityId": "know_4WABGVP968ESVHRRKEZ2GDRW57",
+      "documentKind": "knowledge",
+      "heading": null,
+      "audienceKind": "knowledge",
+      "metadata": {
+        "aliases": [],
+        "claimKey": "amber.pulses-shape-wretch",
+        "domain": "knowledge.char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+        "kind": "knowledge",
+        "tags": [
+          "wretch",
+          "amber"
+        ],
+        "title": "Veyra observes amber pulses shaping the wretch"
+      },
+      "ftsRank": 58,
+      "ftsBm25": -2.032751082120887e-06,
+      "ftsScore": 2.032751082120887e-06,
+      "snippet": "Pulses from the raw <mark>amber</mark> chest corresponded to the wretch's changing borrowed anatomy.",
+      "score": 0.00847457627118644,
+      "lanes": [
+        "fts"
+      ],
+      "citation": {
+        "entityId": "know_4WABGVP968ESVHRRKEZ2GDRW57",
+        "sourcePath": "story/knowledge/char-48qc9b4m2rfvxjksdfmrgjwg8y/veyra-observes-amber-pulses-shaping-the-wretch--know_4WABGVP968ESVHRRKEZ2GDRW57.md",
+        "section": "knowledge"
+      }
+    },
+    {
+      "documentId": "doc:know_5GYJNX0X06PH15DQ2BBM9AWTTX:knowledge:0:00d92c3b3a16",
+      "entityId": "know_5GYJNX0X06PH15DQ2BBM9AWTTX",
+      "documentKind": "knowledge",
+      "heading": null,
+      "audienceKind": "knowledge",
+      "metadata": {
+        "aliases": [],
+        "claimKey": "amber.pockets.dowsed-by-gnomes",
+        "domain": "knowledge.char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+        "kind": "knowledge",
+        "tags": [
+          "amber",
+          "dowsing"
+        ],
+        "title": "Veyra Kest knows gnomes dowse for amber pockets"
+      },
+      "ftsRank": 59,
+      "ftsBm25": -2.0284834905523673e-06,
+      "ftsScore": 2.0284834905523673e-06,
+      "snippet": "Gnome dowsers locate shallow <mark>amber</mark> pockets using tuned forks that pull toward the material.",
+      "score": 0.008403361344537815,
+      "lanes": [
+        "fts"
+      ],
+      "citation": {
+        "entityId": "know_5GYJNX0X06PH15DQ2BBM9AWTTX",
+        "sourcePath": "story/knowledge/char-48qc9b4m2rfvxjksdfmrgjwg8y/veyra-kest-knows-gnomes-dowse-for-amber-pockets--know_5GYJNX0X06PH15DQ2BBM9AWTTX.md",
+        "section": "knowledge"
+      }
+    },
+    {
+      "documentId": "doc:know_4PMAFBAQY1T21BM5B636P01H2H:knowledge:0:75801f8d0215",
+      "entityId": "know_4PMAFBAQY1T21BM5B636P01H2H",
+      "documentKind": "knowledge",
+      "heading": null,
+      "audienceKind": "knowledge",
+      "metadata": {
+        "aliases": [],
+        "claimKey": "harrowcross.chest.quick-amber",
+        "domain": "knowledge.char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+        "kind": "knowledge",
+        "tags": [
+          "amber",
+          "wretch"
+        ],
+        "title": "Veyra Kest knows the chest contained quick amber"
+      },
+      "ftsRank": 61,
+      "ftsBm25": -2.007411524165464e-06,
+      "ftsScore": 2.007411524165464e-06,
+      "snippet": "The Harrowcross payment chest contained raw <mark>amber</mark> that had become warm, backward-pulling, and capable of supporting wretch manifestations.",
+      "score": 0.008264462809917356,
+      "lanes": [
+        "fts"
+      ],
+      "citation": {
+        "entityId": "know_4PMAFBAQY1T21BM5B636P01H2H",
+        "sourcePath": "story/knowledge/char-48qc9b4m2rfvxjksdfmrgjwg8y/veyra-kest-knows-the-chest-contained-quick-amber--know_4PMAFBAQY1T21BM5B636P01H2H.md",
+        "section": "knowledge"
+      }
+    },
+    {
+      "documentId": "doc:know_20J14E7QSBEPJXPNGVNBEKV1SM:knowledge:0:e3effc7e0ed8",
+      "entityId": "know_20J14E7QSBEPJXPNGVNBEKV1SM",
+      "documentKind": "knowledge",
+      "heading": null,
+      "audienceKind": "knowledge",
+      "metadata": {
+        "aliases": [],
+        "claimKey": "guild.services.paid-in-amber",
+        "domain": "knowledge.char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+        "kind": "knowledge",
+        "tags": [
+          "amber",
+          "guild"
+        ],
+        "title": "Veyra Kest knows Harrowcross pays Lantern Pike in amber"
+      },
+      "ftsRank": 62,
+      "ftsBm25": -1.9908665639479584e-06,
+      "ftsScore": 1.9908665639479584e-06,
+      "snippet": "Harrowcross transfers a quarterly share of Saint Orra's <mark>amber</mark> production to Lantern Pike in exchange for guards and monster-hunting service.",
+      "score": 0.00819672131147541,
+      "lanes": [
+        "fts"
+      ],
+      "citation": {
+        "entityId": "know_20J14E7QSBEPJXPNGVNBEKV1SM",
+        "sourcePath": "story/knowledge/char-48qc9b4m2rfvxjksdfmrgjwg8y/veyra-kest-knows-harrowcross-pays-lantern-pike-in-amber--know_20J14E7QSBEPJXPNGVNBEKV1SM.md",
+        "section": "knowledge"
+      }
+    }
+  ]
+}

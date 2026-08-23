@@ -1,0 +1,700 @@
+{
+  "protocol": "wedl-search/v4",
+  "revision": "a3e6e3676d4eaf14810724b7906544fe23f0c905",
+  "perspective": "character",
+  "characterId": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+  "sceneId": "scene_7ACNVBH43CXNMQ75YZPKA07PDD",
+  "effectiveTime": {
+    "timeline": "main",
+    "tick": 55,
+    "order": 0
+  },
+  "mode": "vector",
+  "searchState": {
+    "profile": {
+      "name": "hybrid",
+      "ftsEnabled": true,
+      "vectorEnabled": true,
+      "vectorProvider": "lsa",
+      "vectorModel": "wedl-lsa-v1",
+      "vectorDimensions": 192,
+      "vectorMaxFeatures": 8192,
+      "ftsCandidateLimit": 120,
+      "vectorCandidateLimit": 120,
+      "hybridFtsWeight": 1.0,
+      "hybridVectorWeight": 1.0,
+      "hybridRrfK": 60.0
+    },
+    "fts": {
+      "available": true,
+      "documentCount": 906,
+      "provider": "sqlite-fts5"
+    },
+    "vector": {
+      "available": true,
+      "models": [
+        {
+          "scope": "author",
+          "modelId": "lsa:author:wedl-lsa-v1:192:1523c731486e840f",
+          "provider": "lsa",
+          "modelName": "wedl-lsa-v1",
+          "dimensions": 192,
+          "normalized": true
+        },
+        {
+          "scope": "character",
+          "modelId": "lsa:character:wedl-lsa-v1:124:a222f7ee078597c4",
+          "provider": "lsa",
+          "modelName": "wedl-lsa-v1",
+          "dimensions": 124,
+          "normalized": true
+        }
+      ],
+      "uniqueVectors": 499,
+      "documentLinks": 906
+    }
+  },
+  "results": [
+    {
+      "documentId": "doc:conv_4R3Y82F5GYV74A24GJJ6WAYAT5:conversation-turn:7:0192cab3067e",
+      "entityId": "conv_4R3Y82F5GYV74A24GJJ6WAYAT5",
+      "documentKind": "conversation-turn",
+      "heading": "verbatim-turn",
+      "audienceKind": "conversation",
+      "metadata": {
+        "aliases": [],
+        "domain": "conversations.frontiersmen",
+        "fidelity": "verbatim",
+        "kind": "conversation",
+        "speaker": "Sylvi Ashdown",
+        "tags": [
+          "amber",
+          "wages",
+          "frontier-custom"
+        ],
+        "title": "Amber Wages",
+        "turnId": "turn_6CH5GYXH5NBV6EGMTCMYDMJ1YJ"
+      },
+      "vectorRank": 1,
+      "vectorScore": 0.3035544753074646,
+      "snippet": "Sylvi Ashdown: “Amber sweats?”",
+      "score": 0.3035544753074646,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "conv_4R3Y82F5GYV74A24GJJ6WAYAT5",
+        "sourcePath": "story/conversations/amber-wages--conv_4R3Y82F5GYV74A24GJJ6WAYAT5.md",
+        "section": "verbatim-turn"
+      }
+    },
+    {
+      "documentId": "doc:conv_4R3Y82F5GYV74A24GJJ6WAYAT5:conversation-turn:1:6b21a1fc4698",
+      "entityId": "conv_4R3Y82F5GYV74A24GJJ6WAYAT5",
+      "documentKind": "conversation-turn",
+      "heading": "verbatim-turn",
+      "audienceKind": "conversation",
+      "metadata": {
+        "aliases": [],
+        "domain": "conversations.frontiersmen",
+        "fidelity": "verbatim",
+        "kind": "conversation",
+        "speaker": "Pip Fenlock",
+        "tags": [
+          "amber",
+          "wages",
+          "frontier-custom"
+        ],
+        "title": "Amber Wages",
+        "turnId": "turn_0QP1E94NFCTXWKY1Q981CV3X0Q"
+      },
+      "vectorRank": 2,
+      "vectorScore": 0.2676050066947937,
+      "snippet": "Pip Fenlock: “This is amber.”",
+      "score": 0.2676050066947937,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "conv_4R3Y82F5GYV74A24GJJ6WAYAT5",
+        "sourcePath": "story/conversations/amber-wages--conv_4R3Y82F5GYV74A24GJJ6WAYAT5.md",
+        "section": "verbatim-turn"
+      }
+    },
+    {
+      "documentId": "doc:conv_2RBJYJKPMVB96P4S5PBQT10X9R:conversation-turn:5:9c04a7581a85",
+      "entityId": "conv_2RBJYJKPMVB96P4S5PBQT10X9R",
+      "documentKind": "conversation-turn",
+      "heading": "verbatim-turn",
+      "audienceKind": "conversation",
+      "metadata": {
+        "aliases": [],
+        "domain": "conversations.frontiersmen",
+        "fidelity": "verbatim",
+        "kind": "conversation",
+        "speaker": "Veyra Kest",
+        "tags": [
+          "road",
+          "amber",
+          "apparition"
+        ],
+        "title": "Saltmere Campfire",
+        "turnId": "turn_2E14R5AGVQ5R6ZXES1VYYPFRCG"
+      },
+      "vectorRank": 3,
+      "vectorScore": 0.2675861716270447,
+      "snippet": "Veyra Kest: “The wage amber warmed when the fox appeared.”",
+      "score": 0.2675861716270447,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "conv_2RBJYJKPMVB96P4S5PBQT10X9R",
+        "sourcePath": "story/conversations/saltmere-campfire--conv_2RBJYJKPMVB96P4S5PBQT10X9R.md",
+        "section": "verbatim-turn"
+      }
+    },
+    {
+      "documentId": "doc:know_7NE8EVGW85KPZ1V6PR1S4SJMSG:knowledge:0:77ac94f194b0",
+      "entityId": "know_7NE8EVGW85KPZ1V6PR1S4SJMSG",
+      "documentKind": "knowledge",
+      "heading": null,
+      "audienceKind": "knowledge",
+      "metadata": {
+        "aliases": [],
+        "claimKey": "amber.functions.as-currency",
+        "domain": "knowledge.char_36X0KBYZ7MQGKM070H5NF12BK8",
+        "kind": "knowledge",
+        "tags": [
+          "amber",
+          "currency"
+        ],
+        "title": "Rhea Marrow knows amber is frontier currency"
+      },
+      "vectorRank": 4,
+      "vectorScore": 0.24728859961032867,
+      "snippet": "Refined amber discs function as ordinary wages and exchange value across the Frontier.",
+      "score": 0.24728859961032867,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "know_7NE8EVGW85KPZ1V6PR1S4SJMSG",
+        "sourcePath": "story/knowledge/char-36x0kbyz7mqgkm070h5nf12bk8/rhea-marrow-knows-amber-is-frontier-currency--know_7NE8EVGW85KPZ1V6PR1S4SJMSG.md",
+        "section": "knowledge"
+      }
+    },
+    {
+      "documentId": "doc:conv_2RBJYJKPMVB96P4S5PBQT10X9R:conversation-turn:6:75c883456abd",
+      "entityId": "conv_2RBJYJKPMVB96P4S5PBQT10X9R",
+      "documentKind": "conversation-turn",
+      "heading": "verbatim-turn",
+      "audienceKind": "conversation",
+      "metadata": {
+        "aliases": [],
+        "domain": "conversations.frontiersmen",
+        "fidelity": "verbatim",
+        "kind": "conversation",
+        "speaker": "Maela Brigg",
+        "tags": [
+          "road",
+          "amber",
+          "apparition"
+        ],
+        "title": "Saltmere Campfire",
+        "turnId": "turn_6R6Q2BHCS6HAMKRHGD39QQ8950"
+      },
+      "vectorRank": 5,
+      "vectorScore": 0.23623274266719818,
+      "snippet": "Maela Brigg: “Amber warms in coats, sunlight, fever, kitchens, arguments, and stories told by new hires.”",
+      "score": 0.23623274266719818,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "conv_2RBJYJKPMVB96P4S5PBQT10X9R",
+        "sourcePath": "story/conversations/saltmere-campfire--conv_2RBJYJKPMVB96P4S5PBQT10X9R.md",
+        "section": "verbatim-turn"
+      }
+    },
+    {
+      "documentId": "doc:obj_0EM18BF4VSWVHG4CJ121K7P4XF:entity-public:0:c47b3f701224",
+      "entityId": "obj_0EM18BF4VSWVHG4CJ121K7P4XF",
+      "documentKind": "entity-public",
+      "heading": "Refined Amber Discs",
+      "audienceKind": "public",
+      "metadata": {
+        "aliases": [],
+        "domain": "props.frontiersmen",
+        "kind": "object",
+        "tags": [
+          "amber",
+          "currency"
+        ],
+        "title": "Refined Amber Discs"
+      },
+      "vectorRank": 21,
+      "vectorScore": 0.17272420227527618,
+      "snippet": "# Refined Amber Discs\n\nThin standardized discs of amber hardened with charcoal and tin dust for trade.",
+      "score": 0.17272420227527618,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "obj_0EM18BF4VSWVHG4CJ121K7P4XF",
+        "sourcePath": "story/objects/refined-amber-discs--obj_0EM18BF4VSWVHG4CJ121K7P4XF.md",
+        "section": "Refined Amber Discs"
+      }
+    },
+    {
+      "documentId": "doc:char_0NQKTG3NQZFSVFKXS901NJD82E:entity-public:1:b9b7aefc3964",
+      "entityId": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+      "documentKind": "entity-public",
+      "heading": "Summary",
+      "audienceKind": "public",
+      "metadata": {
+        "aliases": [
+          "Syl"
+        ],
+        "domain": "cast.frontiersmen",
+        "kind": "character",
+        "tags": [
+          "half-elf-tracker",
+          "ranger",
+          "viewpoint"
+        ],
+        "title": "Sylvi Ashdown"
+      },
+      "vectorRank": 22,
+      "vectorScore": 0.17046594619750977,
+      "snippet": "## Summary\n\nA half-elven woodsrunner who reads animal absence as carefully as tracks. The Frontier's silence bothers her before its monsters do.",
+      "score": 0.17046594619750977,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+        "sourcePath": "story/characters/sylvi-ashdown--char_0NQKTG3NQZFSVFKXS901NJD82E.md",
+        "section": "Summary"
+      }
+    },
+    {
+      "documentId": "doc:char_1F7JEGBD02MVY0J8M9X0967T5T:entity-public:1:8c7169839b12",
+      "entityId": "char_1F7JEGBD02MVY0J8M9X0967T5T",
+      "documentKind": "entity-public",
+      "heading": "Summary",
+      "audienceKind": "public",
+      "metadata": {
+        "aliases": [
+          "Sergeant Morn"
+        ],
+        "domain": "cast.frontiersmen",
+        "kind": "character",
+        "tags": [
+          "frontier-sergeant",
+          "harrowcross",
+          "sergeant"
+        ],
+        "title": "Sergeant Edrik Morn"
+      },
+      "vectorRank": 25,
+      "vectorScore": 0.14851698279380798,
+      "snippet": "## Summary\n\nThe exhausted sergeant responsible for Harrowcross's dead watch, left with one survivor and too many details that do not fit an animal attack.",
+      "score": 0.14851698279380798,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "char_1F7JEGBD02MVY0J8M9X0967T5T",
+        "sourcePath": "story/characters/sergeant-edrik-morn--char_1F7JEGBD02MVY0J8M9X0967T5T.md",
+        "section": "Summary"
+      }
+    },
+    {
+      "documentId": "doc:obj_485CVZ39Y0QFJWRDZ53C18BQ9T:entity-public:0:3b8c40934cd8",
+      "entityId": "obj_485CVZ39Y0QFJWRDZ53C18BQ9T",
+      "documentKind": "entity-public",
+      "heading": "First Amber Wages",
+      "audienceKind": "public",
+      "metadata": {
+        "aliases": [],
+        "domain": "props.frontiersmen",
+        "kind": "object",
+        "tags": [
+          "amber",
+          "currency"
+        ],
+        "title": "First Amber Wages"
+      },
+      "vectorRank": 27,
+      "vectorScore": 0.13906942307949066,
+      "snippet": "# First Amber Wages\n\nA waxed pouch containing five drilled amber discs and a pinch of powdered charcoal. The discs look like liquid gold caught inside glass.",
+      "score": 0.13906942307949066,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "obj_485CVZ39Y0QFJWRDZ53C18BQ9T",
+        "sourcePath": "story/objects/first-amber-wages--obj_485CVZ39Y0QFJWRDZ53C18BQ9T.md",
+        "section": "First Amber Wages"
+      }
+    },
+    {
+      "documentId": "doc:scene_7ACNVBH43CXNMQ75YZPKA07PDD:scene-observation:2:06b77dedc0cd",
+      "entityId": "scene_7ACNVBH43CXNMQ75YZPKA07PDD",
+      "documentKind": "scene-observation",
+      "heading": "observation",
+      "audienceKind": "scene",
+      "metadata": {
+        "aliases": [],
+        "domain": "scenes.frontiersmen",
+        "kind": "scene",
+        "observationId": "obs_5FB6Q1364GT7M5CB6NPBCGSTDT",
+        "tags": [
+          "harrowcross",
+          "active"
+        ],
+        "title": "Harrowcross at Dusk"
+      },
+      "vectorRank": 29,
+      "vectorScore": 0.12114120274782181,
+      "snippet": "Kellan's bandaged hands tremble hardest when Maela's wagon amber passes near him.",
+      "score": 0.12114120274782181,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "scene_7ACNVBH43CXNMQ75YZPKA07PDD",
+        "sourcePath": "story/scenes/harrowcross-at-dusk--scene_7ACNVBH43CXNMQ75YZPKA07PDD.md",
+        "section": "observation"
+      }
+    },
+    {
+      "documentId": "doc:conv_610WQBPTYT69PGASNV0R7Z6KJF:conversation-turn:6:39f32c546f68",
+      "entityId": "conv_610WQBPTYT69PGASNV0R7Z6KJF",
+      "documentKind": "conversation-turn",
+      "heading": "verbatim-turn",
+      "audienceKind": "conversation",
+      "metadata": {
+        "aliases": [],
+        "domain": "conversations.frontiersmen",
+        "fidelity": "verbatim",
+        "kind": "conversation",
+        "speaker": "Veyra Kest",
+        "tags": [
+          "arrival",
+          "party-formation"
+        ],
+        "title": "Five at the Dock",
+        "turnId": "turn_4XCNKJ4VKAYNKED70Y43XJNRM7"
+      },
+      "vectorRank": 30,
+      "vectorScore": 0.10930946469306946,
+      "snippet": "Veyra Kest: “Veyra Kest. Those pilings are capped with amber nails.”",
+      "score": 0.10930946469306946,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "conv_610WQBPTYT69PGASNV0R7Z6KJF",
+        "sourcePath": "story/conversations/five-at-the-dock--conv_610WQBPTYT69PGASNV0R7Z6KJF.md",
+        "section": "verbatim-turn"
+      }
+    },
+    {
+      "documentId": "doc:conv_59D13VZAFRGGXYWYZAA0ZG7CDT:conversation-turn:2:0274f3a2d022",
+      "entityId": "conv_59D13VZAFRGGXYWYZAA0ZG7CDT",
+      "documentKind": "conversation-turn",
+      "heading": "verbatim-turn",
+      "audienceKind": "conversation",
+      "metadata": {
+        "aliases": [],
+        "domain": "conversations.frontiersmen",
+        "fidelity": "verbatim",
+        "kind": "conversation",
+        "speaker": "Guildmaster Halric Doss",
+        "tags": [
+          "contract",
+          "guild",
+          "emergency-duty"
+        ],
+        "title": "New Hires at Lantern Pike",
+        "turnId": "turn_3SHRRZB6AFNQTBG055JNSWN7B4"
+      },
+      "vectorRank": 32,
+      "vectorScore": 0.07914434373378754,
+      "snippet": "Guildmaster Halric Doss: “Eastroad caravan. Twelve wagons. Keldmouth to the farming and amber settlements. You answer to Maela Brigg until emergency reassignment.”",
+      "score": 0.07914434373378754,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "conv_59D13VZAFRGGXYWYZAA0ZG7CDT",
+        "sourcePath": "story/conversations/new-hires-at-lantern-pike--conv_59D13VZAFRGGXYWYZAA0ZG7CDT.md",
+        "section": "verbatim-turn"
+      }
+    },
+    {
+      "documentId": "doc:conv_59D13VZAFRGGXYWYZAA0ZG7CDT:conversation-recollection:0:a6d87b376a5c",
+      "entityId": "conv_59D13VZAFRGGXYWYZAA0ZG7CDT",
+      "documentKind": "conversation-recollection",
+      "heading": "subjective-recollection",
+      "audienceKind": "conversation",
+      "metadata": {
+        "aliases": [],
+        "confidence": 0.9,
+        "domain": "conversations.frontiersmen",
+        "fidelity": "subjective",
+        "kind": "conversation",
+        "recollectionId": "recol_2ZCMJ187BNZMP4C85ADXZTXMDY",
+        "state": "remembered",
+        "tags": [
+          "contract",
+          "guild",
+          "emergency-duty"
+        ],
+        "title": "New Hires at Lantern Pike"
+      },
+      "vectorRank": 33,
+      "vectorScore": 0.07428371161222458,
+      "snippet": "Halric hired them as one company and made emergency reassignment part of the bargain.\nInterpretation: The clause is broad, but a signed duty remains a duty.\nEmotional impression: professional caution\nGuildmaster Halric Doss: “Eastroad caravan. Twelve wagons. Keldmouth to the farming and amber settle",
+      "score": 0.07428371161222458,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "conv_59D13VZAFRGGXYWYZAA0ZG7CDT",
+        "sourcePath": "story/conversations/new-hires-at-lantern-pike--conv_59D13VZAFRGGXYWYZAA0ZG7CDT.md",
+        "section": "subjective-recollection"
+      }
+    },
+    {
+      "documentId": "doc:conv_1WF5SDFJPJJCMM57MCZ7KTGMWA:conversation-turn:0:de31565d0166",
+      "entityId": "conv_1WF5SDFJPJJCMM57MCZ7KTGMWA",
+      "documentKind": "conversation-turn",
+      "heading": "verbatim-turn",
+      "audienceKind": "conversation",
+      "metadata": {
+        "aliases": [],
+        "domain": "conversations.frontiersmen",
+        "fidelity": "verbatim",
+        "kind": "conversation",
+        "speaker": "Sergeant Edrik Morn",
+        "tags": [
+          "massacre",
+          "assignment",
+          "harrowcross"
+        ],
+        "title": "The Sergeant's Account",
+        "turnId": "turn_6J2Y9MKZQ6WE14APZ6ZZZEBXA5"
+      },
+      "vectorRank": 34,
+      "vectorScore": 0.07294660806655884,
+      "snippet": "Sergeant Edrik Morn: “The east watch was torn apart overnight.”",
+      "score": 0.07294660806655884,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "conv_1WF5SDFJPJJCMM57MCZ7KTGMWA",
+        "sourcePath": "story/conversations/the-sergeant-s-account--conv_1WF5SDFJPJJCMM57MCZ7KTGMWA.md",
+        "section": "verbatim-turn"
+      }
+    },
+    {
+      "documentId": "doc:conv_610WQBPTYT69PGASNV0R7Z6KJF:conversation-turn:9:8c6253919388",
+      "entityId": "conv_610WQBPTYT69PGASNV0R7Z6KJF",
+      "documentKind": "conversation-turn",
+      "heading": "verbatim-turn",
+      "audienceKind": "conversation",
+      "metadata": {
+        "aliases": [],
+        "domain": "conversations.frontiersmen",
+        "fidelity": "verbatim",
+        "kind": "conversation",
+        "speaker": "Sylvi Ashdown",
+        "tags": [
+          "arrival",
+          "party-formation"
+        ],
+        "title": "Five at the Dock",
+        "turnId": "turn_78BNWY610GTH81B5MWPK6059G3"
+      },
+      "vectorRank": 35,
+      "vectorScore": 0.07266305387020111,
+      "snippet": "Sylvi Ashdown: “Then study the forest side. Nothing living is watching the city from there.”",
+      "score": 0.07266305387020111,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "conv_610WQBPTYT69PGASNV0R7Z6KJF",
+        "sourcePath": "story/conversations/five-at-the-dock--conv_610WQBPTYT69PGASNV0R7Z6KJF.md",
+        "section": "verbatim-turn"
+      }
+    },
+    {
+      "documentId": "doc:scene_7ACNVBH43CXNMQ75YZPKA07PDD:scene-observation:1:6f8285c7c4ff",
+      "entityId": "scene_7ACNVBH43CXNMQ75YZPKA07PDD",
+      "documentKind": "scene-observation",
+      "heading": "observation",
+      "audienceKind": "scene",
+      "metadata": {
+        "aliases": [],
+        "domain": "scenes.frontiersmen",
+        "kind": "scene",
+        "observationId": "obs_6M2D09ZP6DRA39YC4P0K83C5TB",
+        "tags": [
+          "harrowcross",
+          "active"
+        ],
+        "title": "Harrowcross at Dusk"
+      },
+      "vectorRank": 37,
+      "vectorScore": 0.06797003000974655,
+      "snippet": "No armed guard meets the caravan, although the gate stands open.",
+      "score": 0.06797003000974655,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "scene_7ACNVBH43CXNMQ75YZPKA07PDD",
+        "sourcePath": "story/scenes/harrowcross-at-dusk--scene_7ACNVBH43CXNMQ75YZPKA07PDD.md",
+        "section": "observation"
+      }
+    },
+    {
+      "documentId": "doc:conv_1WF5SDFJPJJCMM57MCZ7KTGMWA:conversation-turn:2:44a93986a3ae",
+      "entityId": "conv_1WF5SDFJPJJCMM57MCZ7KTGMWA",
+      "documentKind": "conversation-turn",
+      "heading": "verbatim-turn",
+      "audienceKind": "conversation",
+      "metadata": {
+        "aliases": [],
+        "domain": "conversations.frontiersmen",
+        "fidelity": "verbatim",
+        "kind": "conversation",
+        "speaker": "Sergeant Edrik Morn",
+        "tags": [
+          "massacre",
+          "assignment",
+          "harrowcross"
+        ],
+        "title": "The Sergeant's Account",
+        "turnId": "turn_6FRKX5EPD0YGJ0KP3AVPYNAJ5E"
+      },
+      "vectorRank": 38,
+      "vectorScore": 0.06275013089179993,
+      "snippet": "Sergeant Edrik Morn: “If I knew, I would have named it before I asked a caravan for hunters.”",
+      "score": 0.06275013089179993,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "conv_1WF5SDFJPJJCMM57MCZ7KTGMWA",
+        "sourcePath": "story/conversations/the-sergeant-s-account--conv_1WF5SDFJPJJCMM57MCZ7KTGMWA.md",
+        "section": "verbatim-turn"
+      }
+    },
+    {
+      "documentId": "doc:char_4CMM4NQV0GXRD5J73ZVC3BQTKN:entity-public:1:76422053fee9",
+      "entityId": "char_4CMM4NQV0GXRD5J73ZVC3BQTKN",
+      "documentKind": "entity-public",
+      "heading": "Summary",
+      "audienceKind": "public",
+      "metadata": {
+        "aliases": [
+          "Aldren Veyl",
+          "Root-Crowned Aldren"
+        ],
+        "domain": "cast.frontiersmen",
+        "kind": "character",
+        "tags": [
+          "root-host-king",
+          "antagonist",
+          "amber-bound",
+          "secret"
+        ],
+        "title": "The Tree King"
+      },
+      "vectorRank": 39,
+      "vectorScore": 0.06114812195301056,
+      "snippet": "## Summary\n\nA self-crowned sovereign of a masked woodland host who claims communion with the Frontier and demonstrates terrifying control over quickened amber.",
+      "score": 0.06114812195301056,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "char_4CMM4NQV0GXRD5J73ZVC3BQTKN",
+        "sourcePath": "story/characters/the-tree-king--char_4CMM4NQV0GXRD5J73ZVC3BQTKN.md",
+        "section": "Summary"
+      }
+    },
+    {
+      "documentId": "doc:char_4CMM4NQV0GXRD5J73ZVC3BQTKN:entity-public:2:16b5b55ae8cb",
+      "entityId": "char_4CMM4NQV0GXRD5J73ZVC3BQTKN",
+      "documentKind": "entity-public",
+      "heading": "Appearance",
+      "audienceKind": "public",
+      "metadata": {
+        "aliases": [
+          "Aldren Veyl",
+          "Root-Crowned Aldren"
+        ],
+        "domain": "cast.frontiersmen",
+        "kind": "character",
+        "tags": [
+          "root-host-king",
+          "antagonist",
+          "amber-bound",
+          "secret"
+        ],
+        "title": "The Tree King"
+      },
+      "vectorRank": 40,
+      "vectorScore": 0.05563566833734512,
+      "snippet": "## Appearance\n\nTall and gaunt beneath a crown of living roots pinned through an old guild officer's hood. Amber veins shine under scar tissue along his throat.",
+      "score": 0.05563566833734512,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "char_4CMM4NQV0GXRD5J73ZVC3BQTKN",
+        "sourcePath": "story/characters/the-tree-king--char_4CMM4NQV0GXRD5J73ZVC3BQTKN.md",
+        "section": "Appearance"
+      }
+    },
+    {
+      "documentId": "doc:char_36X0KBYZ7MQGKM070H5NF12BK8:entity-self:4:e7983fb4c02e",
+      "entityId": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+      "documentKind": "entity-self",
+      "heading": "Goals",
+      "audienceKind": "character",
+      "metadata": {
+        "aliases": [
+          "Rhea"
+        ],
+        "domain": "cast.frontiersmen",
+        "kind": "character",
+        "tags": [
+          "shield-veteran",
+          "viewpoint",
+          "fighter"
+        ],
+        "title": "Rhea Marrow"
+      },
+      "vectorRank": 49,
+      "vectorScore": 0.014924518764019012,
+      "snippet": "## Goals\n\nKeep the new company alive, earn enough to leave old disgrace behind, and refuse any contract that requires abandoning people already under her protection.",
+      "score": 0.014924518764019012,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+        "sourcePath": "story/characters/rhea-marrow--char_36X0KBYZ7MQGKM070H5NF12BK8.md",
+        "section": "Goals"
+      }
+    }
+  ]
+}

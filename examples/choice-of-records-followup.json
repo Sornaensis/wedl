@@ -1,0 +1,63 @@
+{
+  "protocol": "wedl-changeset/v1",
+  "expectedHead": "HEAD",
+  "idempotencyKey": "example-choice-of-records-provisional-custody-v1",
+  "summary": "Record Mara's provisional custody proposal",
+  "operations": [
+    {
+      "type": "conversation.turn.append",
+      "conversationId": "conv_4Q80NQ0AA0X8EP3N352BRGS10Z",
+      "temporaryId": "$tmp.turn.provisional-custody",
+      "turn": {
+        "at": {"timeline": "main", "tick": 178, "order": 20},
+        "speaker": "char_00HBQM4T4CMF11RKMNDBRP92QC",
+        "text": "Ysabet seals the proof copy. Ansel carries the route key. Ilyra keeps the identities until we can divide custody without building another index.",
+        "delivery": "formal and hurried",
+        "audience": ["participants"]
+      }
+    },
+    {
+      "type": "conversation.recollection.record",
+      "conversationId": "conv_4Q80NQ0AA0X8EP3N352BRGS10Z",
+      "temporaryId": "$tmp.recollection.mara-provisional-custody",
+      "recollection": {
+        "character": "char_00HBQM4T4CMF11RKMNDBRP92QC",
+        "at": {"timeline": "main", "tick": 178, "order": 30},
+        "state": "remembered",
+        "summary": "Mara proposed a temporary split: proof with Ysabet, route with Ansel, identities with Ilyra.",
+        "interpretation": "The arrangement buys time but is not yet a durable custody design.",
+        "emotional_impression": "decisive under pressure",
+        "confidence": 0.98,
+        "exact_turns": ["$tmp.turn.provisional-custody"],
+        "remembered_quotes": []
+      }
+    },
+    {
+      "type": "conversation.recollection.record",
+      "conversationId": "conv_4Q80NQ0AA0X8EP3N352BRGS10Z",
+      "temporaryId": "$tmp.recollection.nessa-provisional-custody",
+      "recollection": {
+        "character": "char_0T8KVZX33X5FQJFYPMH70FADD9",
+        "at": {"timeline": "main", "tick": 178, "order": 30},
+        "state": "remembered",
+        "summary": "Mara assigned three temporary custodians but refused to create a reconstruction index.",
+        "interpretation": "Mara accepted Nessa's distributed idea while keeping the design provisional.",
+        "emotional_impression": "relief constrained by urgency",
+        "confidence": 0.93,
+        "exact_turns": ["$tmp.turn.provisional-custody"],
+        "remembered_quotes": []
+      }
+    },
+    {
+      "type": "entity.update",
+      "entityId": "scene_45FYHCR4ZHK90ZFTPF0WADM6GZ",
+      "frontmatterPatch": {
+        "time": {
+          "start": {"timeline": "main", "tick": 176, "order": 0},
+          "current": {"timeline": "main", "tick": 178, "order": 30},
+          "end": null
+        }
+      }
+    }
+  ]
+}

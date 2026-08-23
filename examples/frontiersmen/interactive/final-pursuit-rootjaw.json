@@ -1,0 +1,122 @@
+{
+  "protocol": "wedl-conversation/v1",
+  "revision": "d61d3215a1567cf07759350dd2b73ef0eaaa1f79",
+  "perspective": "character",
+  "conversationId": "conv_6CAEJ0NV40CEBK9A8BGVK3CAFG",
+  "title": "Running Under the Drums",
+  "characterId": "char_5P1T0F31DJHKZHBC49XEHCX891",
+  "conversationTime": {
+    "start": {
+      "order": 0,
+      "tick": 191,
+      "timeline": "main"
+    },
+    "end": null
+  },
+  "effectiveTime": {
+    "timeline": "main",
+    "tick": 195,
+    "order": 0
+  },
+  "heardVerbatimTurns": [
+    {
+      "id": "turn_77A4EAQEEEAJQFZ3NXDAQF4FWC",
+      "at": {
+        "timeline": "main",
+        "tick": 193,
+        "order": 10
+      },
+      "speakerId": "char_5P1T0F31DJHKZHBC49XEHCX891",
+      "speaker": "Rootjaw",
+      "text": "[a distant boar-like bellow through the rain]",
+      "delivery": "nonverbal",
+      "audience": [
+        "char_5P1T0F31DJHKZHBC49XEHCX891",
+        "char_36X0KBYZ7MQGKM070H5NF12BK8",
+        "char_0NQKTG3NQZFSVFKXS901NJD82E",
+        "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+        "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+        "char_1W0GNKETQY2HF88YHM7CWVFH7C"
+      ],
+      "citation": {
+        "entityId": "conv_6CAEJ0NV40CEBK9A8BGVK3CAFG",
+        "kind": "conversation",
+        "sourcePath": "story/conversations/running-under-the-drums--conv_6CAEJ0NV40CEBK9A8BGVK3CAFG.md",
+        "blobOid": "d3aa84d29db07f89513e781f00dd03a9711d97bd",
+        "revision": "d61d3215a1567cf07759350dd2b73ef0eaaa1f79",
+        "section": "turn:turn_77A4EAQEEEAJQFZ3NXDAQF4FWC"
+      }
+    },
+    {
+      "id": "turn_4Q59YY6EKDQV7KKZNQ0C0NBBHK",
+      "at": {
+        "timeline": "main",
+        "tick": 194,
+        "order": 0
+      },
+      "speakerId": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+      "speaker": "Sylvi Ashdown",
+      "text": "They have cut south of us. The host knows the water route.",
+      "delivery": "urgent",
+      "audience": [
+        "participants"
+      ],
+      "citation": {
+        "entityId": "conv_6CAEJ0NV40CEBK9A8BGVK3CAFG",
+        "kind": "conversation",
+        "sourcePath": "story/conversations/running-under-the-drums--conv_6CAEJ0NV40CEBK9A8BGVK3CAFG.md",
+        "blobOid": "d3aa84d29db07f89513e781f00dd03a9711d97bd",
+        "revision": "d61d3215a1567cf07759350dd2b73ef0eaaa1f79",
+        "section": "turn:turn_4Q59YY6EKDQV7KKZNQ0C0NBBHK"
+      }
+    },
+    {
+      "id": "turn_5C3ZTFZ8ZZRVJQDYNE0NQZKPEY",
+      "at": {
+        "timeline": "main",
+        "tick": 194,
+        "order": 10
+      },
+      "speakerId": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+      "speaker": "Pip Fenlock",
+      "text": "Then the third notch may be theirs, not ours.",
+      "delivery": "suddenly serious",
+      "audience": [
+        "participants"
+      ],
+      "citation": {
+        "entityId": "conv_6CAEJ0NV40CEBK9A8BGVK3CAFG",
+        "kind": "conversation",
+        "sourcePath": "story/conversations/running-under-the-drums--conv_6CAEJ0NV40CEBK9A8BGVK3CAFG.md",
+        "blobOid": "d3aa84d29db07f89513e781f00dd03a9711d97bd",
+        "revision": "d61d3215a1567cf07759350dd2b73ef0eaaa1f79",
+        "section": "turn:turn_5C3ZTFZ8ZZRVJQDYNE0NQZKPEY"
+      }
+    },
+    {
+      "id": "turn_6SMHSS64ZFF30G2PRZ3W1FG0G2",
+      "at": {
+        "timeline": "main",
+        "tick": 195,
+        "order": 0
+      },
+      "speakerId": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+      "speaker": "Rhea Marrow",
+      "text": "Keep it. Keep moving. We learn what it opens when we are not being hunted.",
+      "delivery": "command",
+      "audience": [
+        "participants"
+      ],
+      "citation": {
+        "entityId": "conv_6CAEJ0NV40CEBK9A8BGVK3CAFG",
+        "kind": "conversation",
+        "sourcePath": "story/conversations/running-under-the-drums--conv_6CAEJ0NV40CEBK9A8BGVK3CAFG.md",
+        "blobOid": "d3aa84d29db07f89513e781f00dd03a9711d97bd",
+        "revision": "d61d3215a1567cf07759350dd2b73ef0eaaa1f79",
+        "section": "turn:turn_6SMHSS64ZFF30G2PRZ3W1FG0G2"
+      }
+    }
+  ],
+  "subjectiveRecollection": null,
+  "provenanceBoundary": "heardVerbatimTurns are canonical audible lines; subjectiveRecollection is separately authored memory and may disagree."
+}

@@ -1,0 +1,375 @@
+{
+  "protocol": "wedl-conversation/v1",
+  "revision": "d61d3215a1567cf07759350dd2b73ef0eaaa1f79",
+  "perspective": "character",
+  "conversationId": "conv_6CAEJ0NV40CEBK9A8BGVK3CAFG",
+  "title": "Running Under the Drums",
+  "characterId": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+  "conversationTime": {
+    "start": {
+      "order": 0,
+      "tick": 191,
+      "timeline": "main"
+    },
+    "end": null
+  },
+  "effectiveTime": {
+    "timeline": "main",
+    "tick": 195,
+    "order": 0
+  },
+  "heardVerbatimTurns": [
+    {
+      "id": "turn_5BCSPYWJBA78G5XETD3F7HM6D5",
+      "at": {
+        "timeline": "main",
+        "tick": 191,
+        "order": 0
+      },
+      "speakerId": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+      "speaker": "Rhea Marrow",
+      "text": "Direction.",
+      "delivery": "running",
+      "audience": [
+        "participants"
+      ],
+      "citation": {
+        "entityId": "conv_6CAEJ0NV40CEBK9A8BGVK3CAFG",
+        "kind": "conversation",
+        "sourcePath": "story/conversations/running-under-the-drums--conv_6CAEJ0NV40CEBK9A8BGVK3CAFG.md",
+        "blobOid": "d3aa84d29db07f89513e781f00dd03a9711d97bd",
+        "revision": "d61d3215a1567cf07759350dd2b73ef0eaaa1f79",
+        "section": "turn:turn_5BCSPYWJBA78G5XETD3F7HM6D5"
+      }
+    },
+    {
+      "id": "turn_0RDQ0Q3RC8HCF1WZDE0RFGVMB5",
+      "at": {
+        "timeline": "main",
+        "tick": 191,
+        "order": 10
+      },
+      "speakerId": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+      "speaker": "Sylvi Ashdown",
+      "text": "North ridge, then east into water. The masks cannot spread in the flooded spruce.",
+      "delivery": "breathless",
+      "audience": [
+        "participants"
+      ],
+      "citation": {
+        "entityId": "conv_6CAEJ0NV40CEBK9A8BGVK3CAFG",
+        "kind": "conversation",
+        "sourcePath": "story/conversations/running-under-the-drums--conv_6CAEJ0NV40CEBK9A8BGVK3CAFG.md",
+        "blobOid": "d3aa84d29db07f89513e781f00dd03a9711d97bd",
+        "revision": "d61d3215a1567cf07759350dd2b73ef0eaaa1f79",
+        "section": "turn:turn_0RDQ0Q3RC8HCF1WZDE0RFGVMB5"
+      }
+    },
+    {
+      "id": "turn_4GMZTMCRSX4FS72HD6ZJYNT3JB",
+      "at": {
+        "timeline": "main",
+        "tick": 191,
+        "order": 20
+      },
+      "speakerId": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+      "speaker": "Pip Fenlock",
+      "text": "My map has achieved complete freedom from the landscape.",
+      "delivery": "running",
+      "audience": [
+        "participants"
+      ],
+      "citation": {
+        "entityId": "conv_6CAEJ0NV40CEBK9A8BGVK3CAFG",
+        "kind": "conversation",
+        "sourcePath": "story/conversations/running-under-the-drums--conv_6CAEJ0NV40CEBK9A8BGVK3CAFG.md",
+        "blobOid": "d3aa84d29db07f89513e781f00dd03a9711d97bd",
+        "revision": "d61d3215a1567cf07759350dd2b73ef0eaaa1f79",
+        "section": "turn:turn_4GMZTMCRSX4FS72HD6ZJYNT3JB"
+      }
+    },
+    {
+      "id": "turn_7KJ5JMYHWTD0NPY57S204B26FD",
+      "at": {
+        "timeline": "main",
+        "tick": 191,
+        "order": 30
+      },
+      "speakerId": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+      "speaker": "Brother Garran Holt",
+      "text": "Save the complaint for ground that is not trying to remember our feet.",
+      "delivery": "strained",
+      "audience": [
+        "participants"
+      ],
+      "citation": {
+        "entityId": "conv_6CAEJ0NV40CEBK9A8BGVK3CAFG",
+        "kind": "conversation",
+        "sourcePath": "story/conversations/running-under-the-drums--conv_6CAEJ0NV40CEBK9A8BGVK3CAFG.md",
+        "blobOid": "d3aa84d29db07f89513e781f00dd03a9711d97bd",
+        "revision": "d61d3215a1567cf07759350dd2b73ef0eaaa1f79",
+        "section": "turn:turn_7KJ5JMYHWTD0NPY57S204B26FD"
+      }
+    },
+    {
+      "id": "turn_2PKF1K8BDGDSP40G7GCZXQW6W7",
+      "at": {
+        "timeline": "main",
+        "tick": 191,
+        "order": 40
+      },
+      "speakerId": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+      "speaker": "Veyra Kest",
+      "text": "The reliquary is pulling west. Aldren is using it as a compass.",
+      "delivery": "alarmed",
+      "audience": [
+        "participants"
+      ],
+      "citation": {
+        "entityId": "conv_6CAEJ0NV40CEBK9A8BGVK3CAFG",
+        "kind": "conversation",
+        "sourcePath": "story/conversations/running-under-the-drums--conv_6CAEJ0NV40CEBK9A8BGVK3CAFG.md",
+        "blobOid": "d3aa84d29db07f89513e781f00dd03a9711d97bd",
+        "revision": "d61d3215a1567cf07759350dd2b73ef0eaaa1f79",
+        "section": "turn:turn_2PKF1K8BDGDSP40G7GCZXQW6W7"
+      }
+    },
+    {
+      "id": "turn_147PK2SSQT42KNFNG1KMM2MWGW",
+      "at": {
+        "timeline": "main",
+        "tick": 191,
+        "order": 50
+      },
+      "speakerId": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+      "speaker": "Rhea Marrow",
+      "text": "Can you break the link without opening it?",
+      "delivery": "direct",
+      "audience": [
+        "participants"
+      ],
+      "citation": {
+        "entityId": "conv_6CAEJ0NV40CEBK9A8BGVK3CAFG",
+        "kind": "conversation",
+        "sourcePath": "story/conversations/running-under-the-drums--conv_6CAEJ0NV40CEBK9A8BGVK3CAFG.md",
+        "blobOid": "d3aa84d29db07f89513e781f00dd03a9711d97bd",
+        "revision": "d61d3215a1567cf07759350dd2b73ef0eaaa1f79",
+        "section": "turn:turn_147PK2SSQT42KNFNG1KMM2MWGW"
+      }
+    },
+    {
+      "id": "turn_5QKB9MBBMMX77ZQ7ZSPZZCRKRJ",
+      "at": {
+        "timeline": "main",
+        "tick": 192,
+        "order": 0
+      },
+      "speakerId": "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+      "speaker": "Veyra Kest",
+      "text": "Charcoal, running water, and no terror. I can offer two of those.",
+      "delivery": "grim",
+      "audience": [
+        "participants"
+      ],
+      "citation": {
+        "entityId": "conv_6CAEJ0NV40CEBK9A8BGVK3CAFG",
+        "kind": "conversation",
+        "sourcePath": "story/conversations/running-under-the-drums--conv_6CAEJ0NV40CEBK9A8BGVK3CAFG.md",
+        "blobOid": "d3aa84d29db07f89513e781f00dd03a9711d97bd",
+        "revision": "d61d3215a1567cf07759350dd2b73ef0eaaa1f79",
+        "section": "turn:turn_5QKB9MBBMMX77ZQ7ZSPZZCRKRJ"
+      }
+    },
+    {
+      "id": "turn_1EA7YRW569B6FZGTFG3249NNQT",
+      "at": {
+        "timeline": "main",
+        "tick": 192,
+        "order": 10
+      },
+      "speakerId": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+      "speaker": "Sylvi Ashdown",
+      "text": "Stream ahead. Thirty breaths.",
+      "delivery": "certain",
+      "audience": [
+        "participants"
+      ],
+      "citation": {
+        "entityId": "conv_6CAEJ0NV40CEBK9A8BGVK3CAFG",
+        "kind": "conversation",
+        "sourcePath": "story/conversations/running-under-the-drums--conv_6CAEJ0NV40CEBK9A8BGVK3CAFG.md",
+        "blobOid": "d3aa84d29db07f89513e781f00dd03a9711d97bd",
+        "revision": "d61d3215a1567cf07759350dd2b73ef0eaaa1f79",
+        "section": "turn:turn_1EA7YRW569B6FZGTFG3249NNQT"
+      }
+    },
+    {
+      "id": "turn_6P7QAR5DCSF4AX0A4BZG6943V6",
+      "at": {
+        "timeline": "main",
+        "tick": 192,
+        "order": 20
+      },
+      "speakerId": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+      "speaker": "Pip Fenlock",
+      "text": "Moth's key has three notches. One is shaped like a road marker.",
+      "delivery": "observing",
+      "audience": [
+        "participants"
+      ],
+      "citation": {
+        "entityId": "conv_6CAEJ0NV40CEBK9A8BGVK3CAFG",
+        "kind": "conversation",
+        "sourcePath": "story/conversations/running-under-the-drums--conv_6CAEJ0NV40CEBK9A8BGVK3CAFG.md",
+        "blobOid": "d3aa84d29db07f89513e781f00dd03a9711d97bd",
+        "revision": "d61d3215a1567cf07759350dd2b73ef0eaaa1f79",
+        "section": "turn:turn_6P7QAR5DCSF4AX0A4BZG6943V6"
+      }
+    },
+    {
+      "id": "turn_68NFNJKZDFBMNXQQ5VQPRXNC41",
+      "at": {
+        "timeline": "main",
+        "tick": 192,
+        "order": 30
+      },
+      "speakerId": "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+      "speaker": "Brother Garran Holt",
+      "text": "Then remember the helper without inventing the reason.",
+      "delivery": "firm",
+      "audience": [
+        "participants"
+      ],
+      "citation": {
+        "entityId": "conv_6CAEJ0NV40CEBK9A8BGVK3CAFG",
+        "kind": "conversation",
+        "sourcePath": "story/conversations/running-under-the-drums--conv_6CAEJ0NV40CEBK9A8BGVK3CAFG.md",
+        "blobOid": "d3aa84d29db07f89513e781f00dd03a9711d97bd",
+        "revision": "d61d3215a1567cf07759350dd2b73ef0eaaa1f79",
+        "section": "turn:turn_68NFNJKZDFBMNXQQ5VQPRXNC41"
+      }
+    },
+    {
+      "id": "turn_0Z5XXPPKBNDWHYCBQZKF045EC9",
+      "at": {
+        "timeline": "main",
+        "tick": 193,
+        "order": 0
+      },
+      "speakerId": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+      "speaker": "Rhea Marrow",
+      "text": "We owe him an escape, not a name.",
+      "delivery": "controlled",
+      "audience": [
+        "participants"
+      ],
+      "citation": {
+        "entityId": "conv_6CAEJ0NV40CEBK9A8BGVK3CAFG",
+        "kind": "conversation",
+        "sourcePath": "story/conversations/running-under-the-drums--conv_6CAEJ0NV40CEBK9A8BGVK3CAFG.md",
+        "blobOid": "d3aa84d29db07f89513e781f00dd03a9711d97bd",
+        "revision": "d61d3215a1567cf07759350dd2b73ef0eaaa1f79",
+        "section": "turn:turn_0Z5XXPPKBNDWHYCBQZKF045EC9"
+      }
+    },
+    {
+      "id": "turn_77A4EAQEEEAJQFZ3NXDAQF4FWC",
+      "at": {
+        "timeline": "main",
+        "tick": 193,
+        "order": 10
+      },
+      "speakerId": "char_5P1T0F31DJHKZHBC49XEHCX891",
+      "speaker": "Rootjaw",
+      "text": "[a distant boar-like bellow through the rain]",
+      "delivery": "nonverbal",
+      "audience": [
+        "char_5P1T0F31DJHKZHBC49XEHCX891",
+        "char_36X0KBYZ7MQGKM070H5NF12BK8",
+        "char_0NQKTG3NQZFSVFKXS901NJD82E",
+        "char_671MWM7KTP4DCVVP8EP6SFRJVP",
+        "char_48QC9B4M2RFVXJKSDFMRGJWG8Y",
+        "char_1W0GNKETQY2HF88YHM7CWVFH7C"
+      ],
+      "citation": {
+        "entityId": "conv_6CAEJ0NV40CEBK9A8BGVK3CAFG",
+        "kind": "conversation",
+        "sourcePath": "story/conversations/running-under-the-drums--conv_6CAEJ0NV40CEBK9A8BGVK3CAFG.md",
+        "blobOid": "d3aa84d29db07f89513e781f00dd03a9711d97bd",
+        "revision": "d61d3215a1567cf07759350dd2b73ef0eaaa1f79",
+        "section": "turn:turn_77A4EAQEEEAJQFZ3NXDAQF4FWC"
+      }
+    },
+    {
+      "id": "turn_4Q59YY6EKDQV7KKZNQ0C0NBBHK",
+      "at": {
+        "timeline": "main",
+        "tick": 194,
+        "order": 0
+      },
+      "speakerId": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+      "speaker": "Sylvi Ashdown",
+      "text": "They have cut south of us. The host knows the water route.",
+      "delivery": "urgent",
+      "audience": [
+        "participants"
+      ],
+      "citation": {
+        "entityId": "conv_6CAEJ0NV40CEBK9A8BGVK3CAFG",
+        "kind": "conversation",
+        "sourcePath": "story/conversations/running-under-the-drums--conv_6CAEJ0NV40CEBK9A8BGVK3CAFG.md",
+        "blobOid": "d3aa84d29db07f89513e781f00dd03a9711d97bd",
+        "revision": "d61d3215a1567cf07759350dd2b73ef0eaaa1f79",
+        "section": "turn:turn_4Q59YY6EKDQV7KKZNQ0C0NBBHK"
+      }
+    },
+    {
+      "id": "turn_5C3ZTFZ8ZZRVJQDYNE0NQZKPEY",
+      "at": {
+        "timeline": "main",
+        "tick": 194,
+        "order": 10
+      },
+      "speakerId": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+      "speaker": "Pip Fenlock",
+      "text": "Then the third notch may be theirs, not ours.",
+      "delivery": "suddenly serious",
+      "audience": [
+        "participants"
+      ],
+      "citation": {
+        "entityId": "conv_6CAEJ0NV40CEBK9A8BGVK3CAFG",
+        "kind": "conversation",
+        "sourcePath": "story/conversations/running-under-the-drums--conv_6CAEJ0NV40CEBK9A8BGVK3CAFG.md",
+        "blobOid": "d3aa84d29db07f89513e781f00dd03a9711d97bd",
+        "revision": "d61d3215a1567cf07759350dd2b73ef0eaaa1f79",
+        "section": "turn:turn_5C3ZTFZ8ZZRVJQDYNE0NQZKPEY"
+      }
+    },
+    {
+      "id": "turn_6SMHSS64ZFF30G2PRZ3W1FG0G2",
+      "at": {
+        "timeline": "main",
+        "tick": 195,
+        "order": 0
+      },
+      "speakerId": "char_36X0KBYZ7MQGKM070H5NF12BK8",
+      "speaker": "Rhea Marrow",
+      "text": "Keep it. Keep moving. We learn what it opens when we are not being hunted.",
+      "delivery": "command",
+      "audience": [
+        "participants"
+      ],
+      "citation": {
+        "entityId": "conv_6CAEJ0NV40CEBK9A8BGVK3CAFG",
+        "kind": "conversation",
+        "sourcePath": "story/conversations/running-under-the-drums--conv_6CAEJ0NV40CEBK9A8BGVK3CAFG.md",
+        "blobOid": "d3aa84d29db07f89513e781f00dd03a9711d97bd",
+        "revision": "d61d3215a1567cf07759350dd2b73ef0eaaa1f79",
+        "section": "turn:turn_6SMHSS64ZFF30G2PRZ3W1FG0G2"
+      }
+    }
+  ],
+  "subjectiveRecollection": null,
+  "provenanceBoundary": "heardVerbatimTurns are canonical audible lines; subjectiveRecollection is separately authored memory and may disagree."
+}

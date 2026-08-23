@@ -1,0 +1,170 @@
+# Validation report — wedl 0.5.0
+
+## Causal and continuity validation (source schema `wedl/v0.3`)
+
+The causal layer is source-only: it adds no SQLite migration and does not infer
+facts from prose, shared cast, proximity, routes, or duration. `event.causes`
+remains a direct list of authored event references. Validation requires its
+members to be unique canonical events on the same timeline and strictly earlier
+than the caused event; cycles are rejected. `causing_event` citations on
+knowledge, relationship, and story-point transitions must reference canonical
+events on the same timeline at or before the transition coordinate (`<=`;
+same-coordinate causation is valid).
+
+`story-point.outcome_events` and optional `scene.outcome_events` are typed
+source relations. The former accepts ordered canonical event references; the
+latter accepts unique canonical events inside the scene interval. The read APIs
+also return advisory-only asymmetric plot links and cross-location causal edges;
+these are prompts to record a handoff, never inferred canon or validation
+failures.
+
+Existing concurrent-place codes are intentionally unchanged:
+
+- `WDL-EVENT-006` still reports an individual participant at two places in
+  same-coordinate events.
+- `WDL-SCENE-025`/`WDL-SCENE-026` still report historical overlapping scene
+  presence and the resulting two-place contradiction.
+
+New event-cause checks therefore begin at `WDL-EVENT-007`, and optional scene
+outcome checks begin at `WDL-SCENE-027`; no existing diagnostic was renumbered.
+
+## Release result
+
+The 0.5.0 search/profile iteration passes its release gate.
+
+- Source archive: populated and ZIP-integrity tested.
+- Wheel: valid `py3-none-any`, installed with `pip --no-deps` into an empty
+  target directory.
+- Exact source-ZIP extraction: 35 tests passed.
+- Fresh source and wheel repositories: 238 records, zero validation diagnostics.
+- Fresh source and wheel hybrid databases: 6,299,648 bytes each.
+- Search projection: 931 documents, 931 FTS rows, 931 vector links, 626 unique
+  normalized vectors.
+
+## Automated regression suite
+
+```text
+35 tests passed
+```
+
+Coverage includes:
+
+- `state`, `fts`, `vector`, and `hybrid` profile behavior;
+- rejection of unavailable search lanes rather than silent fallback;
+- weighted FTS aliases, headings, prose, domain, and tags;
+- quoted phrases and Porter stemming;
+- local TF-IDF/truncated-SVD latent-semantic retrieval;
+- optional OpenAI-compatible provider normalization through a deterministic fake
+  endpoint;
+- finite-value, dimensionality, and L2-normalization checks;
+- content-hash vector deduplication and document links;
+- author/character vector-scope separation;
+- independent FTS and vector candidate lanes;
+- hybrid union, lane evidence, and vector-only results;
+- secret-marker character search exclusion;
+- profile persistence after changeset-triggered recompilation;
+- source parsing, temporal state, conversation provenance, context budgets,
+  author as-of search/conversation future-leak prevention and all-time opt-in,
+  atomic Git changesets, idempotency, API authorization, and second-act
+  continuity inherited from 0.4.
+
+## Fresh profile smoke test
+
+| Profile | Search documents | FTS rows | Unique vectors | Vector links | Bad nonzero norms |
+|---|---:|---:|---:|---:|---:|
+| `state` | 0 | 0 | 0 | 0 | 0 |
+| `fts` | 931 | 931 | 0 | 0 | 0 |
+| `vector` | 931 | 0 | 626 | 931 | 0 |
+| `hybrid` | 931 | 931 | 626 | 931 | 0 |
+
+Assertions made against the fresh fixture:
+
+- quoted alias `Chief Sorn` retrieves **Ilyra Sorn** from the alias column;
+- tag phrase `hydraulic key` retrieves **Pressure Gate Seven Key**;
+- `legal authenticity coercion` retrieves **The Notary at the Seventh Drawer**
+  near the top of vector results;
+- hybrid contains documents supported by both lanes and vector-only documents
+  absent from FTS results;
+- a character-scoped query for `ASH-SECRET-LETTER-CONTENTS-7F3Q` returns zero
+  results;
+- every nonzero stored vector has norm 1 within `0.001`.
+
+The complete result is in `SEARCH_PROFILE_SMOKE.json` and the external release
+artifact `wedl-python-0.5.0-smoke.json`.
+
+## Stress validation
+
+- Generated small world: 595 records, zero diagnostics.
+- Generated medium world: 4,303 records, zero diagnostics.
+- Medium search projection: 10,289 documents and 9,369 unique vectors.
+
+The stress generator now creates a canonical relocation event before its active
+scene, so generated participants and objects satisfy the same physical-scene
+invariants as authored worlds.
+
+## Profile benchmarks
+
+Measurements include Python, Git, SQLite, NumPy, SciPy, and scikit-learn
+overhead in the validation container.
+
+### Authored Ash Archive — 238 records
+
+| Profile | Cold forced | Warm forced | Exact reuse | Database |
+|---|---:|---:|---:|---:|
+| `state` | 53.7 ms | 44.7 ms | 5.6 ms | 1.42 MB |
+| `fts` | 77.1 ms | 68.6 ms | 5.2 ms | 2.59 MB |
+| `vector` | 756.3 ms | 95.1 ms | 5.9 ms | 5.89 MB |
+| `hybrid` | 551.6 ms | 102.6 ms | 5.9 ms | 6.30 MB |
+
+Median query latency:
+
+| Lane | Median | p95 | Results |
+|---|---:|---:|---:|
+| FTS | 3.2 ms | 11.4 ms | 4 |
+| Vector | 5.3 ms | 10.5 ms | 20 |
+| Hybrid | 5.9 ms | 6.4 ms | 20 |
+
+For `legal authenticity coercion`, hybrid returned three results supported by
+both lanes and sixteen vector-only results.
+
+### Generated medium world — 4,303 records
+
+| Profile | Cold forced | Warm forced | Exact reuse | Database |
+|---|---:|---:|---:|---:|
+| `state` | 432 ms | 388 ms | 8.7 ms | 13.8 MB |
+| `fts` | 681 ms | 802 ms | 5.4 ms | 23.0 MB |
+| `vector` | 2.95 s | 1.04 s | 7.8 ms | 42.5 MB |
+| `hybrid` | 3.90 s | 949 ms | 8.4 ms | 45.2 MB |
+
+For `consistency checksum neighboring records`, median full-process queries were
+approximately 11 ms FTS, 38 ms vector, and 38 ms hybrid. The runtime now caches
+the immutable normalized matrix and exact query vectors, so repeated in-process
+exact scans avoid BLOB decoding and query reprojection.
+
+Raw benchmark files:
+
+- `SEARCH_PROFILE_BENCHMARKS.json`
+- `MEDIUM_SEARCH_PROFILE_BENCHMARKS.json`
+
+## Search-quality probes
+
+- `counterseal fragment`: all lanes rank **Archive Counterseal Fragment** first.
+- `legal authenticity coercion`: vector retrieval groups the notary scene,
+  Ysabet, the seventh drawer, and Council writ despite sparse lexical overlap.
+- `subterranean water pressure records`: vector retrieval groups pressure-gate,
+  flood-pressure, and underwater-letter material; hybrid preserves exact clues.
+- `custody proof route`: both lanes retrieve the distributed-records proposal
+  and related custody story points.
+
+## Static and packaging checks
+
+- Python compilation: passed.
+- JavaScript syntax: passed.
+- Relative Markdown links: passed.
+- `git diff --check`: passed.
+- Source ZIP integrity: passed.
+- Wheel ZIP integrity: passed.
+- Wheel metadata and console entry points: accepted by pip.
+- Installed wheel reports version `0.5.0`.
+- Source and wheel include all 238 Ash Archive Markdown records.
+- No migration command or migration framework was introduced.

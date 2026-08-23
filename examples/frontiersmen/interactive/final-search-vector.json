@@ -1,0 +1,849 @@
+{
+  "protocol": "wedl-search/v4",
+  "revision": "d61d3215a1567cf07759350dd2b73ef0eaaa1f79",
+  "perspective": "character",
+  "characterId": "char_1W0GNKETQY2HF88YHM7CWVFH7C",
+  "sceneId": "scene_508C0AN1PBBCHYZZDJCEVWGHR9",
+  "effectiveTime": {
+    "timeline": "main",
+    "tick": 195,
+    "order": 0
+  },
+  "mode": "vector",
+  "searchState": {
+    "profile": {
+      "name": "hybrid",
+      "ftsEnabled": true,
+      "vectorEnabled": true,
+      "vectorProvider": "lsa",
+      "vectorModel": "wedl-lsa-v1",
+      "vectorDimensions": 192,
+      "vectorMaxFeatures": 8192,
+      "ftsCandidateLimit": 120,
+      "vectorCandidateLimit": 120,
+      "hybridFtsWeight": 1.0,
+      "hybridVectorWeight": 1.0,
+      "hybridRrfK": 60.0
+    },
+    "fts": {
+      "available": true,
+      "documentCount": 2253,
+      "provider": "sqlite-fts5"
+    },
+    "vector": {
+      "available": true,
+      "models": [
+        {
+          "scope": "author",
+          "modelId": "lsa:author:wedl-lsa-v1:192:65f562dfc9906436",
+          "provider": "lsa",
+          "modelName": "wedl-lsa-v1",
+          "dimensions": 192,
+          "normalized": true
+        },
+        {
+          "scope": "character",
+          "modelId": "lsa:character:wedl-lsa-v1:124:8e194a9a4e6b9d0b",
+          "provider": "lsa",
+          "modelName": "wedl-lsa-v1",
+          "dimensions": 124,
+          "normalized": true
+        }
+      ],
+      "uniqueVectors": 934,
+      "documentLinks": 2253
+    }
+  },
+  "results": [
+    {
+      "documentId": "doc:scene_508C0AN1PBBCHYZZDJCEVWGHR9:scene-observation:2:6ecc32087a00",
+      "entityId": "scene_508C0AN1PBBCHYZZDJCEVWGHR9",
+      "documentKind": "scene-observation",
+      "heading": "observation",
+      "audienceKind": "scene",
+      "metadata": {
+        "aliases": [],
+        "domain": "scenes.frontiersmen",
+        "kind": "scene",
+        "observationId": "obs_73CNX0ATVD0GDHTD93W1H3D439",
+        "tags": [
+          "active",
+          "pursuit"
+        ],
+        "title": "The Hunt Begins"
+      },
+      "vectorRank": 1,
+      "vectorScore": 0.871313214302063,
+      "snippet": "Moth's bone key has three notches: pen tooth, triangular road mark, and an unfamiliar hooked cut.",
+      "score": 0.871313214302063,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "scene_508C0AN1PBBCHYZZDJCEVWGHR9",
+        "sourcePath": "story/scenes/the-hunt-begins--scene_508C0AN1PBBCHYZZDJCEVWGHR9.md",
+        "section": "observation"
+      }
+    },
+    {
+      "documentId": "doc:know_2N8GFNVP23GAN168RSHHEZ1V0E:knowledge:0:22954731f0c6",
+      "entityId": "know_2N8GFNVP23GAN168RSHHEZ1V0E",
+      "documentKind": "knowledge",
+      "heading": null,
+      "audienceKind": "knowledge",
+      "metadata": {
+        "aliases": [],
+        "claimKey": "moth-key.has-road-notch",
+        "domain": "knowledge.char_1W0GNKETQY2HF88YHM7CWVFH7C",
+        "kind": "knowledge",
+        "tags": [
+          "moth",
+          "route"
+        ],
+        "title": "Pip notices a road-marker notch on Moth's key"
+      },
+      "vectorRank": 2,
+      "vectorScore": 0.869253396987915,
+      "snippet": "Moth's bone key includes a triangular notch resembling a Frontier road marker in addition to the prison tooth.",
+      "score": 0.869253396987915,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "know_2N8GFNVP23GAN168RSHHEZ1V0E",
+        "sourcePath": "story/knowledge/char-1w0gnketqy2hf88yhm7cwvfh7c/pip-notices-a-road-marker-notch-on-moth-s-key--know_2N8GFNVP23GAN168RSHHEZ1V0E.md",
+        "section": "knowledge"
+      }
+    },
+    {
+      "documentId": "doc:obj_0X0RH4GV7ZDE3C7JFHJH5JGWPK:entity-public:0:5f3c59d92992",
+      "entityId": "obj_0X0RH4GV7ZDE3C7JFHJH5JGWPK",
+      "documentKind": "entity-public",
+      "heading": "Moth's Bone Key",
+      "audienceKind": "public",
+      "metadata": {
+        "aliases": [],
+        "domain": "props.frontiersmen",
+        "kind": "object",
+        "tags": [
+          "escape",
+          "key"
+        ],
+        "title": "Moth's Bone Key"
+      },
+      "vectorRank": 3,
+      "vectorScore": 0.8175638318061829,
+      "snippet": "# Moth's Bone Key\n\nA carved bone hook that releases the cord-and-root latch on the prison pens.",
+      "score": 0.8175638318061829,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "obj_0X0RH4GV7ZDE3C7JFHJH5JGWPK",
+        "sourcePath": "story/objects/moth-s-bone-key--obj_0X0RH4GV7ZDE3C7JFHJH5JGWPK.md",
+        "section": "Moth's Bone Key"
+      }
+    },
+    {
+      "documentId": "doc:conv_6CAEJ0NV40CEBK9A8BGVK3CAFG:conversation-turn:8:02f92bb31863",
+      "entityId": "conv_6CAEJ0NV40CEBK9A8BGVK3CAFG",
+      "documentKind": "conversation-turn",
+      "heading": "verbatim-turn",
+      "audienceKind": "conversation",
+      "metadata": {
+        "aliases": [],
+        "domain": "conversations.frontiersmen",
+        "fidelity": "verbatim",
+        "kind": "conversation",
+        "speaker": "Pip Fenlock",
+        "tags": [
+          "pursuit",
+          "moth-key",
+          "reliquary"
+        ],
+        "title": "Running Under the Drums",
+        "turnId": "turn_6P7QAR5DCSF4AX0A4BZG6943V6"
+      },
+      "vectorRank": 4,
+      "vectorScore": 0.712314248085022,
+      "snippet": "Pip Fenlock: “Moth's key has three notches. One is shaped like a road marker.”",
+      "score": 0.712314248085022,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "conv_6CAEJ0NV40CEBK9A8BGVK3CAFG",
+        "sourcePath": "story/conversations/running-under-the-drums--conv_6CAEJ0NV40CEBK9A8BGVK3CAFG.md",
+        "section": "verbatim-turn"
+      }
+    },
+    {
+      "documentId": "doc:know_071APQM4E3Z5RWWEAH1YNGPGVE:knowledge:0:7ed775853e79",
+      "entityId": "know_071APQM4E3Z5RWWEAH1YNGPGVE",
+      "documentKind": "knowledge",
+      "heading": null,
+      "audienceKind": "knowledge",
+      "metadata": {
+        "aliases": [],
+        "claimKey": "moth.left-pen-open",
+        "domain": "knowledge.char_1W0GNKETQY2HF88YHM7CWVFH7C",
+        "kind": "knowledge",
+        "tags": [
+          "root-host"
+        ],
+        "title": "Pip Fenlock records moth opened pen"
+      },
+      "vectorRank": 5,
+      "vectorScore": 0.6933313608169556,
+      "snippet": "The moth-notched acolyte deliberately left the prison latch unseated and the bone key visible.",
+      "score": 0.6933313608169556,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "know_071APQM4E3Z5RWWEAH1YNGPGVE",
+        "sourcePath": "story/knowledge/char-1w0gnketqy2hf88yhm7cwvfh7c/pip-fenlock-records-moth-opened-pen--know_071APQM4E3Z5RWWEAH1YNGPGVE.md",
+        "section": "knowledge"
+      }
+    },
+    {
+      "documentId": "doc:conv_6CAEJ0NV40CEBK9A8BGVK3CAFG:conversation-turn:10:082026af0f88",
+      "entityId": "conv_6CAEJ0NV40CEBK9A8BGVK3CAFG",
+      "documentKind": "conversation-turn",
+      "heading": "verbatim-turn",
+      "audienceKind": "conversation",
+      "metadata": {
+        "aliases": [],
+        "domain": "conversations.frontiersmen",
+        "fidelity": "verbatim",
+        "kind": "conversation",
+        "speaker": "Rhea Marrow",
+        "tags": [
+          "pursuit",
+          "moth-key",
+          "reliquary"
+        ],
+        "title": "Running Under the Drums",
+        "turnId": "turn_0Z5XXPPKBNDWHYCBQZKF045EC9"
+      },
+      "vectorRank": 6,
+      "vectorScore": 0.3990079164505005,
+      "snippet": "Rhea Marrow: “We owe him an escape, not a name.”",
+      "score": 0.3990079164505005,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "conv_6CAEJ0NV40CEBK9A8BGVK3CAFG",
+        "sourcePath": "story/conversations/running-under-the-drums--conv_6CAEJ0NV40CEBK9A8BGVK3CAFG.md",
+        "section": "verbatim-turn"
+      }
+    },
+    {
+      "documentId": "doc:conv_7MV33E43SR2ZKC30REKAAC77DP:conversation-turn:8:d58e2fa079e9",
+      "entityId": "conv_7MV33E43SR2ZKC30REKAAC77DP",
+      "documentKind": "conversation-turn",
+      "heading": "verbatim-turn",
+      "audienceKind": "conversation",
+      "metadata": {
+        "aliases": [],
+        "domain": "conversations.frontiersmen",
+        "fidelity": "verbatim",
+        "kind": "conversation",
+        "speaker": "Pip Fenlock",
+        "tags": [
+          "fear",
+          "amber",
+          "guild"
+        ],
+        "title": "Second Night Below",
+        "turnId": "turn_3T373AH784DVWZGMBF8KTPRV4Y"
+      },
+      "vectorRank": 9,
+      "vectorScore": 0.3465678095817566,
+      "snippet": "Pip Fenlock: “I once locked myself in a customs vault for six hours because I had forged the key backward.”",
+      "score": 0.3465678095817566,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "conv_7MV33E43SR2ZKC30REKAAC77DP",
+        "sourcePath": "story/conversations/second-night-below--conv_7MV33E43SR2ZKC30REKAAC77DP.md",
+        "section": "verbatim-turn"
+      }
+    },
+    {
+      "documentId": "doc:conv_56P3J301DJ4WP47N5GK88NXB4P:conversation-recollection:4:f8f91465277e",
+      "entityId": "conv_56P3J301DJ4WP47N5GK88NXB4P",
+      "documentKind": "conversation-recollection",
+      "heading": "subjective-recollection",
+      "audienceKind": "conversation",
+      "metadata": {
+        "aliases": [],
+        "confidence": 0.91,
+        "domain": "conversations.frontiersmen",
+        "fidelity": "subjective",
+        "kind": "conversation",
+        "recollectionId": "recol_3F2BJ6942J3TE2EW855V1FEJE6",
+        "state": "remembered",
+        "tags": [
+          "escape-plan",
+          "moth",
+          "masks"
+        ],
+        "title": "Before the Blood Ring"
+      },
+      "vectorRank": 15,
+      "vectorScore": 0.3185243606567383,
+      "snippet": "The root latch needs the bone tooth, Moth deliberately leaves one hinge loose, and four guards cover the gear route.\nInterpretation: The escape is being offered by someone who cannot speak openly and may pay for discovery.\nEmotional impression: technical clarity and guilt\nPip Fenlock: “The pen latch",
+      "score": 0.3185243606567383,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "conv_56P3J301DJ4WP47N5GK88NXB4P",
+        "sourcePath": "story/conversations/before-the-blood-ring--conv_56P3J301DJ4WP47N5GK88NXB4P.md",
+        "section": "subjective-recollection"
+      }
+    },
+    {
+      "documentId": "doc:scene_508C0AN1PBBCHYZZDJCEVWGHR9:scene-observation:0:f9805415592c",
+      "entityId": "scene_508C0AN1PBBCHYZZDJCEVWGHR9",
+      "documentKind": "scene-observation",
+      "heading": "observation",
+      "audienceKind": "scene",
+      "metadata": {
+        "aliases": [],
+        "domain": "scenes.frontiersmen",
+        "kind": "scene",
+        "observationId": "obs_2K19S0W8W7R90Z4EHXCCG0A2SF",
+        "tags": [
+          "active",
+          "pursuit"
+        ],
+        "title": "The Hunt Begins"
+      },
+      "vectorRank": 18,
+      "vectorScore": 0.31626346707344055,
+      "snippet": "Cold rain erases ordinary tracks but every reliquary pulse leaves a brief gold reflection in puddles.",
+      "score": 0.31626346707344055,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "scene_508C0AN1PBBCHYZZDJCEVWGHR9",
+        "sourcePath": "story/scenes/the-hunt-begins--scene_508C0AN1PBBCHYZZDJCEVWGHR9.md",
+        "section": "observation"
+      }
+    },
+    {
+      "documentId": "doc:obj_2T5QAX3BWM0DBNT2KZ1R1TV4T9:entity-public:0:78cc545fecd2",
+      "entityId": "obj_2T5QAX3BWM0DBNT2KZ1R1TV4T9",
+      "documentKind": "entity-public",
+      "heading": "Amber Reliquary",
+      "audienceKind": "public",
+      "metadata": {
+        "aliases": [],
+        "domain": "props.frontiersmen",
+        "kind": "object",
+        "tags": [
+          "ruins",
+          "amber",
+          "danger"
+        ],
+        "title": "Amber Reliquary"
+      },
+      "vectorRank": 22,
+      "vectorScore": 0.29266124963760376,
+      "snippet": "# Amber Reliquary\n\nA stone box containing an ancient amber lattice and blackened animal teeth arranged around it.",
+      "score": 0.29266124963760376,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "obj_2T5QAX3BWM0DBNT2KZ1R1TV4T9",
+        "sourcePath": "story/objects/amber-reliquary--obj_2T5QAX3BWM0DBNT2KZ1R1TV4T9.md",
+        "section": "Amber Reliquary"
+      }
+    },
+    {
+      "documentId": "doc:conv_7TC8QMY25DHKXCDDD6BRBZCAS0:conversation-turn:1:82fc5ee6e7e1",
+      "entityId": "conv_7TC8QMY25DHKXCDDD6BRBZCAS0",
+      "documentKind": "conversation-turn",
+      "heading": "verbatim-turn",
+      "audienceKind": "conversation",
+      "metadata": {
+        "aliases": [],
+        "domain": "conversations.frontiersmen",
+        "fidelity": "verbatim",
+        "kind": "conversation",
+        "speaker": "Sylvi Ashdown",
+        "tags": [
+          "amber",
+          "memory",
+          "reliquary"
+        ],
+        "title": "The Sunken Hall Debate",
+        "turnId": "turn_1XNC4XG6YJGKYSGP7A4M9ZF6CZ"
+      },
+      "vectorRank": 24,
+      "vectorScore": 0.28071504831314087,
+      "snippet": "Sylvi Ashdown: “No animal bone in the hall. Only teeth placed around the stone box.”",
+      "score": 0.28071504831314087,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "conv_7TC8QMY25DHKXCDDD6BRBZCAS0",
+        "sourcePath": "story/conversations/the-sunken-hall-debate--conv_7TC8QMY25DHKXCDDD6BRBZCAS0.md",
+        "section": "verbatim-turn"
+      }
+    },
+    {
+      "documentId": "doc:env_6988R6QMT47MNDKAZGX9VS5JTD:entity-public:0:c94c6a5127be",
+      "entityId": "env_6988R6QMT47MNDKAZGX9VS5JTD",
+      "documentKind": "entity-public",
+      "heading": "Northwood Pursuit Rain",
+      "audienceKind": "public",
+      "metadata": {
+        "aliases": [],
+        "domain": "environment.frontier",
+        "kind": "environment",
+        "tags": [
+          "frontier"
+        ],
+        "title": "Northwood Pursuit Rain"
+      },
+      "vectorRank": 25,
+      "vectorScore": 0.2694273293018341,
+      "snippet": "# Northwood Pursuit Rain\n\nThe story ends with the party running deeper into the Frontier under pursuit.",
+      "score": 0.2694273293018341,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "env_6988R6QMT47MNDKAZGX9VS5JTD",
+        "sourcePath": "story/environments/northwood-pursuit-rain--env_6988R6QMT47MNDKAZGX9VS5JTD.md",
+        "section": "Northwood Pursuit Rain"
+      }
+    },
+    {
+      "documentId": "doc:conv_56P3J301DJ4WP47N5GK88NXB4P:conversation-turn:0:e03c12fa6b7f",
+      "entityId": "conv_56P3J301DJ4WP47N5GK88NXB4P",
+      "documentKind": "conversation-turn",
+      "heading": "verbatim-turn",
+      "audienceKind": "conversation",
+      "metadata": {
+        "aliases": [],
+        "domain": "conversations.frontiersmen",
+        "fidelity": "verbatim",
+        "kind": "conversation",
+        "speaker": "Pip Fenlock",
+        "tags": [
+          "escape-plan",
+          "moth",
+          "masks"
+        ],
+        "title": "Before the Blood Ring",
+        "turnId": "turn_7GEJSRTFYXARXE0J2C9DSQAYZ3"
+      },
+      "vectorRank": 26,
+      "vectorScore": 0.24383209645748138,
+      "snippet": "Pip Fenlock: “The pen latch is root cord around a bone tooth. I could open it if I had the tooth or a smaller hand than mine.”",
+      "score": 0.24383209645748138,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "conv_56P3J301DJ4WP47N5GK88NXB4P",
+        "sourcePath": "story/conversations/before-the-blood-ring--conv_56P3J301DJ4WP47N5GK88NXB4P.md",
+        "section": "verbatim-turn"
+      }
+    },
+    {
+      "documentId": "doc:loc_3W0Q3EHNGCDQ05QTWK3DW3JQN7:entity-public:0:203e180e830d",
+      "entityId": "loc_3W0Q3EHNGCDQ05QTWK3DW3JQN7",
+      "documentKind": "entity-public",
+      "heading": "Northwood Pursuit Trail",
+      "audienceKind": "public",
+      "metadata": {
+        "aliases": [],
+        "domain": "setting.frontier",
+        "kind": "location",
+        "tags": [
+          "pursuit",
+          "forest"
+        ],
+        "title": "Northwood Pursuit Trail"
+      },
+      "vectorRank": 27,
+      "vectorScore": 0.22561883926391602,
+      "snippet": "# Northwood Pursuit Trail\n\nAn animal path through rain-black spruce, alder tangles, and granite ribs. Drums and hunting grunts carry farther than sight.",
+      "score": 0.22561883926391602,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "loc_3W0Q3EHNGCDQ05QTWK3DW3JQN7",
+        "sourcePath": "story/locations/northwood-pursuit-trail--loc_3W0Q3EHNGCDQ05QTWK3DW3JQN7.md",
+        "section": "Northwood Pursuit Trail"
+      }
+    },
+    {
+      "documentId": "doc:conv_7TC8QMY25DHKXCDDD6BRBZCAS0:conversation-turn:9:778a6ef25cca",
+      "entityId": "conv_7TC8QMY25DHKXCDDD6BRBZCAS0",
+      "documentKind": "conversation-turn",
+      "heading": "verbatim-turn",
+      "audienceKind": "conversation",
+      "metadata": {
+        "aliases": [],
+        "domain": "conversations.frontiersmen",
+        "fidelity": "verbatim",
+        "kind": "conversation",
+        "speaker": "Pip Fenlock",
+        "tags": [
+          "amber",
+          "memory",
+          "reliquary"
+        ],
+        "title": "The Sunken Hall Debate",
+        "turnId": "turn_3SF3FF8M47TD5C78WKA0Q38JQK"
+      },
+      "vectorRank": 28,
+      "vectorScore": 0.2014075517654419,
+      "snippet": "Pip Fenlock: “The stone box has a pressure latch and absolutely no written suggestion that opening it is wise.”",
+      "score": 0.2014075517654419,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "conv_7TC8QMY25DHKXCDDD6BRBZCAS0",
+        "sourcePath": "story/conversations/the-sunken-hall-debate--conv_7TC8QMY25DHKXCDDD6BRBZCAS0.md",
+        "section": "verbatim-turn"
+      }
+    },
+    {
+      "documentId": "doc:conv_7MV33E43SR2ZKC30REKAAC77DP:conversation-recollection:4:cccca0ec9dc2",
+      "entityId": "conv_7MV33E43SR2ZKC30REKAAC77DP",
+      "documentKind": "conversation-recollection",
+      "heading": "subjective-recollection",
+      "audienceKind": "conversation",
+      "metadata": {
+        "aliases": [],
+        "confidence": 0.87,
+        "domain": "conversations.frontiersmen",
+        "fidelity": "subjective",
+        "kind": "conversation",
+        "recollectionId": "recol_18T5A01X6Z8CAAFPRBPSHDZEFM",
+        "state": "remembered",
+        "tags": [
+          "fear",
+          "amber",
+          "guild"
+        ],
+        "title": "Second Night Below"
+      },
+      "vectorRank": 30,
+      "vectorScore": 0.17909255623817444,
+      "snippet": "His genuine humiliation brightened the roots, proving that the underground system distinguishes performed speech from felt recollection.\nInterpretation: The caves are reading them, which makes mapping space alone insufficient.\nEmotional impression: exposure and defiance\nPip Fenlock: “I remember owin",
+      "score": 0.17909255623817444,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "conv_7MV33E43SR2ZKC30REKAAC77DP",
+        "sourcePath": "story/conversations/second-night-below--conv_7MV33E43SR2ZKC30REKAAC77DP.md",
+        "section": "subjective-recollection"
+      }
+    },
+    {
+      "documentId": "doc:conv_2RBJYJKPMVB96P4S5PBQT10X9R:conversation-turn:7:12daab85741d",
+      "entityId": "conv_2RBJYJKPMVB96P4S5PBQT10X9R",
+      "documentKind": "conversation-turn",
+      "heading": "verbatim-turn",
+      "audienceKind": "conversation",
+      "metadata": {
+        "aliases": [],
+        "domain": "conversations.frontiersmen",
+        "fidelity": "verbatim",
+        "kind": "conversation",
+        "speaker": "Brother Garran Holt",
+        "tags": [
+          "road",
+          "amber",
+          "apparition"
+        ],
+        "title": "Saltmere Campfire",
+        "turnId": "turn_6YSYG5QRGN49THQ8XC52GF9HNH"
+      },
+      "vectorRank": 33,
+      "vectorScore": 0.15522263944149017,
+      "snippet": "Brother Garran Holt: “That is an impressive number of explanations for a stone.”",
+      "score": 0.15522263944149017,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "conv_2RBJYJKPMVB96P4S5PBQT10X9R",
+        "sourcePath": "story/conversations/saltmere-campfire--conv_2RBJYJKPMVB96P4S5PBQT10X9R.md",
+        "section": "verbatim-turn"
+      }
+    },
+    {
+      "documentId": "doc:conv_2RBJYJKPMVB96P4S5PBQT10X9R:conversation-turn:4:6228560d0cf3",
+      "entityId": "conv_2RBJYJKPMVB96P4S5PBQT10X9R",
+      "documentKind": "conversation-turn",
+      "heading": "verbatim-turn",
+      "audienceKind": "conversation",
+      "metadata": {
+        "aliases": [],
+        "domain": "conversations.frontiersmen",
+        "fidelity": "verbatim",
+        "kind": "conversation",
+        "speaker": "Maela Brigg",
+        "tags": [
+          "road",
+          "amber",
+          "apparition"
+        ],
+        "title": "Saltmere Campfire",
+        "turnId": "turn_07TYF1N417S8MFM3BY32631TX7"
+      },
+      "vectorRank": 34,
+      "vectorScore": 0.15449707210063934,
+      "snippet": "Maela Brigg: “Then count us continuously and call it professionalism.”",
+      "score": 0.15449707210063934,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "conv_2RBJYJKPMVB96P4S5PBQT10X9R",
+        "sourcePath": "story/conversations/saltmere-campfire--conv_2RBJYJKPMVB96P4S5PBQT10X9R.md",
+        "section": "verbatim-turn"
+      }
+    },
+    {
+      "documentId": "doc:char_626NDG804W9JVF5F3CVCTVWF0Q:entity-public:1:ba657134c9af",
+      "entityId": "char_626NDG804W9JVF5F3CVCTVWF0Q",
+      "documentKind": "entity-public",
+      "heading": "Summary",
+      "audienceKind": "public",
+      "metadata": {
+        "aliases": [],
+        "domain": "cast.frontiersmen",
+        "kind": "character",
+        "tags": [
+          "masked-acolyte",
+          "root-host",
+          "mute",
+          "secret"
+        ],
+        "title": "Moth"
+      },
+      "vectorRank": 39,
+      "vectorScore": 0.13478915393352509,
+      "snippet": "## Summary\n\nA slight masked acolyte of the Tree King, mute like the rest of the host and distinguishable only by a moth-wing notch in the left cheek of the wooden mask.",
+      "score": 0.13478915393352509,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "char_626NDG804W9JVF5F3CVCTVWF0Q",
+        "sourcePath": "story/characters/moth--char_626NDG804W9JVF5F3CVCTVWF0Q.md",
+        "section": "Summary"
+      }
+    },
+    {
+      "documentId": "doc:know_4CW43QN5CFC4ZH2QJCQ4J3EC52:knowledge:0:095731d2df9d",
+      "entityId": "know_4CW43QN5CFC4ZH2QJCQ4J3EC52",
+      "documentKind": "knowledge",
+      "heading": null,
+      "audienceKind": "knowledge",
+      "metadata": {
+        "aliases": [],
+        "claimKey": "amber-routes-react-to-memory",
+        "domain": "knowledge.char_1W0GNKETQY2HF88YHM7CWVFH7C",
+        "kind": "knowledge",
+        "tags": [
+          "amber",
+          "ruins"
+        ],
+        "title": "Pip Fenlock forms an underground amber theory"
+      },
+      "vectorRank": 41,
+      "vectorScore": 0.1284206062555313,
+      "snippet": "Amber routes react to emotionally genuine recollection and can be quieted or redirected by ancient lattice mechanisms.",
+      "score": 0.1284206062555313,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "know_4CW43QN5CFC4ZH2QJCQ4J3EC52",
+        "sourcePath": "story/knowledge/char-1w0gnketqy2hf88yhm7cwvfh7c/pip-fenlock-forms-an-underground-amber-theory--know_4CW43QN5CFC4ZH2QJCQ4J3EC52.md",
+        "section": "knowledge"
+      }
+    },
+    {
+      "documentId": "doc:conv_33YJSY1GRTYH06S8JD2Q6TKWJ1:conversation-turn:1:52a85d0db89f",
+      "entityId": "conv_33YJSY1GRTYH06S8JD2Q6TKWJ1",
+      "documentKind": "conversation-turn",
+      "heading": "verbatim-turn",
+      "audienceKind": "conversation",
+      "metadata": {
+        "aliases": [],
+        "domain": "conversations.frontiersmen",
+        "fidelity": "verbatim",
+        "kind": "conversation",
+        "speaker": "Rhea Marrow",
+        "tags": [
+          "mine",
+          "sealed-drift",
+          "guild"
+        ],
+        "title": "Jorund's Terms",
+        "turnId": "turn_5T32ZZQWJMTTMD1JGGVA14MSZG"
+      },
+      "vectorRank": 46,
+      "vectorScore": 0.11810911446809769,
+      "snippet": "Rhea Marrow: “Harrowcross lost three guards and two wretches led us to your road.”",
+      "score": 0.11810911446809769,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "conv_33YJSY1GRTYH06S8JD2Q6TKWJ1",
+        "sourcePath": "story/conversations/jorund-s-terms--conv_33YJSY1GRTYH06S8JD2Q6TKWJ1.md",
+        "section": "verbatim-turn"
+      }
+    },
+    {
+      "documentId": "doc:obj_6EBRZF2P79J47HXEJWP7CDDFA1:entity-public:0:65db375adaff",
+      "entityId": "obj_6EBRZF2P79J47HXEJWP7CDDFA1",
+      "documentKind": "entity-public",
+      "heading": "Jorund's Lower Drift Map",
+      "audienceKind": "public",
+      "metadata": {
+        "aliases": [],
+        "domain": "props.frontiersmen",
+        "kind": "object",
+        "tags": [
+          "map",
+          "mine"
+        ],
+        "title": "Jorund's Lower Drift Map"
+      },
+      "vectorRank": 47,
+      "vectorScore": 0.11669611185789108,
+      "snippet": "# Jorund's Lower Drift Map\n\nA charcoal plan of the worked mine ending at a blank marked OLD WATER.",
+      "score": 0.11669611185789108,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "obj_6EBRZF2P79J47HXEJWP7CDDFA1",
+        "sourcePath": "story/objects/jorund-s-lower-drift-map--obj_6EBRZF2P79J47HXEJWP7CDDFA1.md",
+        "section": "Jorund's Lower Drift Map"
+      }
+    },
+    {
+      "documentId": "doc:conv_5Q4V1ATZE1B2XWQRTJ4XG9NEC1:conversation-turn:8:76ca5afe014f",
+      "entityId": "conv_5Q4V1ATZE1B2XWQRTJ4XG9NEC1",
+      "documentKind": "conversation-turn",
+      "heading": "verbatim-turn",
+      "audienceKind": "conversation",
+      "metadata": {
+        "aliases": [],
+        "domain": "conversations.frontiersmen",
+        "fidelity": "verbatim",
+        "kind": "conversation",
+        "speaker": "Maela Brigg",
+        "tags": [
+          "contract",
+          "abandonment",
+          "amber-payment"
+        ],
+        "title": "Maela's Departure",
+        "turnId": "turn_6HYYYW9T9JEKHFTP0ZE9T6CSCH"
+      },
+      "vectorRank": 48,
+      "vectorScore": 0.11028926819562912,
+      "snippet": "Maela Brigg: “Your badges, first wages, and return passage are forfeit. More urgently, the east road loses a village tonight.”",
+      "score": 0.11028926819562912,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "conv_5Q4V1ATZE1B2XWQRTJ4XG9NEC1",
+        "sourcePath": "story/conversations/maela-s-departure--conv_5Q4V1ATZE1B2XWQRTJ4XG9NEC1.md",
+        "section": "verbatim-turn"
+      }
+    },
+    {
+      "documentId": "doc:conv_5Q4V1ATZE1B2XWQRTJ4XG9NEC1:conversation-recollection:4:94b2b870e308",
+      "entityId": "conv_5Q4V1ATZE1B2XWQRTJ4XG9NEC1",
+      "documentKind": "conversation-recollection",
+      "heading": "subjective-recollection",
+      "audienceKind": "conversation",
+      "metadata": {
+        "aliases": [],
+        "confidence": 0.9,
+        "domain": "conversations.frontiersmen",
+        "fidelity": "subjective",
+        "kind": "conversation",
+        "recollectionId": "recol_0GR30MWFAZFKAE6GN6GG4JPD5C",
+        "state": "remembered",
+        "tags": [
+          "contract",
+          "abandonment",
+          "amber-payment"
+        ],
+        "title": "Maela's Departure"
+      },
+      "vectorRank": 50,
+      "vectorScore": 0.09356068819761276,
+      "snippet": "Hessa's ledger measures protection fees by amber weight and Maela was prepared to invoke reassignment.\nInterpretation: The Frontier's contracts convert local danger into guild-controlled material flow.\nEmotional impression: admiration for the trap\nPip Fenlock: “Paid in what? The reeve did not put si",
+      "score": 0.09356068819761276,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "conv_5Q4V1ATZE1B2XWQRTJ4XG9NEC1",
+        "sourcePath": "story/conversations/maela-s-departure--conv_5Q4V1ATZE1B2XWQRTJ4XG9NEC1.md",
+        "section": "subjective-recollection"
+      }
+    },
+    {
+      "documentId": "doc:conv_33YJSY1GRTYH06S8JD2Q6TKWJ1:conversation-turn:18:73bbe17cc011",
+      "entityId": "conv_33YJSY1GRTYH06S8JD2Q6TKWJ1",
+      "documentKind": "conversation-turn",
+      "heading": "verbatim-turn",
+      "audienceKind": "conversation",
+      "metadata": {
+        "aliases": [],
+        "domain": "conversations.frontiersmen",
+        "fidelity": "verbatim",
+        "kind": "conversation",
+        "speaker": "Sylvi Ashdown",
+        "tags": [
+          "mine",
+          "sealed-drift",
+          "guild"
+        ],
+        "title": "Jorund's Terms",
+        "turnId": "turn_6S9SRZJ63XWF7XSEMAA122EEA2"
+      },
+      "vectorRank": 52,
+      "vectorScore": 0.09348805248737335,
+      "snippet": "Sylvi Ashdown: “No. We are finished pretending the danger is behind the gate.”",
+      "score": 0.09348805248737335,
+      "lanes": [
+        "vector"
+      ],
+      "citation": {
+        "entityId": "conv_33YJSY1GRTYH06S8JD2Q6TKWJ1",
+        "sourcePath": "story/conversations/jorund-s-terms--conv_33YJSY1GRTYH06S8JD2Q6TKWJ1.md",
+        "section": "verbatim-turn"
+      }
+    }
+  ]
+}

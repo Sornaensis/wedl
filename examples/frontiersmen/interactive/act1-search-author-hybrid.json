@@ -1,0 +1,728 @@
+{
+  "protocol": "wedl-search/v4",
+  "revision": "a3e6e3676d4eaf14810724b7906544fe23f0c905",
+  "perspective": "author",
+  "characterId": null,
+  "sceneId": "scene_7ACNVBH43CXNMQ75YZPKA07PDD",
+  "effectiveTime": {
+    "timeline": "main",
+    "tick": 55,
+    "order": 0
+  },
+  "mode": "hybrid",
+  "searchState": {
+    "profile": {
+      "name": "hybrid",
+      "ftsEnabled": true,
+      "vectorEnabled": true,
+      "vectorProvider": "lsa",
+      "vectorModel": "wedl-lsa-v1",
+      "vectorDimensions": 192,
+      "vectorMaxFeatures": 8192,
+      "ftsCandidateLimit": 120,
+      "vectorCandidateLimit": 120,
+      "hybridFtsWeight": 1.0,
+      "hybridVectorWeight": 1.0,
+      "hybridRrfK": 60.0
+    },
+    "fts": {
+      "available": true,
+      "documentCount": 906,
+      "provider": "sqlite-fts5"
+    },
+    "vector": {
+      "available": true,
+      "models": [
+        {
+          "scope": "author",
+          "modelId": "lsa:author:wedl-lsa-v1:192:1523c731486e840f",
+          "provider": "lsa",
+          "modelName": "wedl-lsa-v1",
+          "dimensions": 192,
+          "normalized": true
+        },
+        {
+          "scope": "character",
+          "modelId": "lsa:character:wedl-lsa-v1:124:a222f7ee078597c4",
+          "provider": "lsa",
+          "modelName": "wedl-lsa-v1",
+          "dimensions": 124,
+          "normalized": true
+        }
+      ],
+      "uniqueVectors": 499,
+      "documentLinks": 906
+    }
+  },
+  "results": [
+    {
+      "documentId": "doc:loc_6ZK8CN42V06ACCJBR2MGFJF0QY:entity-author:0:1d399258a0fc",
+      "entityId": "loc_6ZK8CN42V06ACCJBR2MGFJF0QY",
+      "documentKind": "entity-author",
+      "heading": null,
+      "audienceKind": "author",
+      "metadata": {
+        "aliases": [],
+        "domain": "setting.frontier",
+        "kind": "location",
+        "tags": [
+          "arena",
+          "blood-sport"
+        ],
+        "title": "Blood Ring"
+      },
+      "ftsRank": 3,
+      "ftsBm25": -6.03134278821193,
+      "ftsScore": 6.03134278821193,
+      "snippet": "<mark>Blood</mark> Ring\nKind: location\nDomain: setting.frontier\n\n# <mark>Blood</mark> Ring\n\nA shallow earthen arena edged with roots, stakes, and <mark>amber</mark> shards blackened by old <mark>blood</mark>.",
+      "score": 0.032266458495966696,
+      "lanes": [
+        "fts",
+        "vector"
+      ],
+      "vectorRank": 1,
+      "vectorScore": 0.3823145925998688,
+      "citation": {
+        "entityId": "loc_6ZK8CN42V06ACCJBR2MGFJF0QY",
+        "sourcePath": "story/locations/blood-ring--loc_6ZK8CN42V06ACCJBR2MGFJF0QY.md",
+        "section": "entity-author"
+      }
+    },
+    {
+      "documentId": "doc:know_4J2H4HPBP59DCFJDENXZ2CCE45:entity-author:0:fe6c356731a8",
+      "entityId": "know_4J2H4HPBP59DCFJDENXZ2CCE45",
+      "documentKind": "entity-author",
+      "heading": null,
+      "audienceKind": "author",
+      "metadata": {
+        "aliases": [],
+        "domain": "knowledge.char_37D4GED06VHV5Q82C2GHTKFYCX",
+        "kind": "knowledge",
+        "tags": [
+          "secret",
+          "amber"
+        ],
+        "title": "Halric knows blood can quicken raw amber"
+      },
+      "ftsRank": 6,
+      "ftsBm25": -5.783721241361148,
+      "ftsScore": 5.783721241361148,
+      "snippet": "Halric knows <mark>blood</mark> can quicken raw <mark>amber</mark>\nKind: knowledge\nDomain: knowledge.char_37D4GED06VHV5Q82C2GHTKFYCX\n\n# Halric knows <mark>blood</mark> can quicken raw <mark>amber</mark>\n\nFresh <mark>blood</mark> can quicken … ",
+      "score": 0.03128054740957967,
+      "lanes": [
+        "fts",
+        "vector"
+      ],
+      "vectorRank": 2,
+      "vectorScore": 0.31790298223495483,
+      "citation": {
+        "entityId": "know_4J2H4HPBP59DCFJDENXZ2CCE45",
+        "sourcePath": "story/knowledge/char-37d4ged06vhv5q82c2ghtkfycx/halric-knows-blood-can-quicken-raw-amber--know_4J2H4HPBP59DCFJDENXZ2CCE45.md",
+        "section": "entity-author"
+      }
+    },
+    {
+      "documentId": "doc:env_6JNEM6B6E0WJSK0RKS8DEKRF4D:entity-author:0:6db12f27097c",
+      "entityId": "env_6JNEM6B6E0WJSK0RKS8DEKRF4D",
+      "documentKind": "entity-author",
+      "heading": null,
+      "audienceKind": "author",
+      "metadata": {
+        "aliases": [],
+        "domain": "environment.frontier",
+        "kind": "environment",
+        "tags": [
+          "frontier"
+        ],
+        "title": "Blood Ring Frenzy"
+      },
+      "ftsRank": 4,
+      "ftsBm25": -5.819402147345927,
+      "ftsScore": 5.819402147345927,
+      "snippet": "<mark>Blood</mark> Ring Frenzy\nKind: environment\nDomain: environment.frontier\n\n# <mark>Blood</mark> Ring Frenzy\n\nThe Tree King intends violence to strengthen the host.",
+      "score": 0.03125,
+      "lanes": [
+        "fts",
+        "vector"
+      ],
+      "vectorRank": 4,
+      "vectorScore": 0.30925047397613525,
+      "citation": {
+        "entityId": "env_6JNEM6B6E0WJSK0RKS8DEKRF4D",
+        "sourcePath": "story/environments/blood-ring-frenzy--env_6JNEM6B6E0WJSK0RKS8DEKRF4D.md",
+        "section": "entity-author"
+      }
+    },
+    {
+      "documentId": "doc:obj_5WWW83W569BA52ZJ4CC5NB1BG5:entity-author:0:697df1ec9464",
+      "entityId": "obj_5WWW83W569BA52ZJ4CC5NB1BG5",
+      "documentKind": "entity-author",
+      "heading": null,
+      "audienceKind": "author",
+      "metadata": {
+        "aliases": [],
+        "domain": "props.frontiersmen",
+        "kind": "object",
+        "tags": [
+          "blood-sport",
+          "restraint"
+        ],
+        "title": "Blood Ring Chains"
+      },
+      "ftsRank": 5,
+      "ftsBm25": -5.809653476135752,
+      "ftsScore": 5.809653476135752,
+      "snippet": " … props.frontiersmen\n\n# <mark>Blood</mark> Ring Chains\n\nRoot-bound chains used to tether captives during the Tree King's strengthening rites.",
+      "score": 0.030090497737556562,
+      "lanes": [
+        "fts",
+        "vector"
+      ],
+      "vectorRank": 8,
+      "vectorScore": 0.2716708183288574,
+      "citation": {
+        "entityId": "obj_5WWW83W569BA52ZJ4CC5NB1BG5",
+        "sourcePath": "story/objects/blood-ring-chains--obj_5WWW83W569BA52ZJ4CC5NB1BG5.md",
+        "section": "entity-author"
+      }
+    },
+    {
+      "documentId": "doc:loc_41DV9GRGHE7MV9VTJYWD35QHC2:entity-author:0:fd13ec37bc9a",
+      "entityId": "loc_41DV9GRGHE7MV9VTJYWD35QHC2",
+      "documentKind": "entity-author",
+      "heading": null,
+      "audienceKind": "author",
+      "metadata": {
+        "aliases": [],
+        "domain": "setting.frontier",
+        "kind": "location",
+        "tags": [
+          "ruins",
+          "wretches"
+        ],
+        "title": "Wretch Gallery"
+      },
+      "ftsRank": 2,
+      "ftsBm25": -6.844651301326232,
+      "ftsScore": 6.844651301326232,
+      "snippet": " … setting.frontier\n\n# Wretch Gallery\n\nA long gallery whose reliefs show <mark>animal</mark> and human bodies overlapping. <mark>Amber</mark> lines in the <mark>walls</mark> brighten when anyone bleeds … ",
+      "score": 0.029827662395050816,
+      "lanes": [
+        "fts",
+        "vector"
+      ],
+      "vectorRank": 13,
+      "vectorScore": 0.21316039562225342,
+      "citation": {
+        "entityId": "loc_41DV9GRGHE7MV9VTJYWD35QHC2",
+        "sourcePath": "story/locations/wretch-gallery--loc_41DV9GRGHE7MV9VTJYWD35QHC2.md",
+        "section": "entity-author"
+      }
+    },
+    {
+      "documentId": "doc:obj_2T5QAX3BWM0DBNT2KZ1R1TV4T9:entity-author:0:9f43c190691a",
+      "entityId": "obj_2T5QAX3BWM0DBNT2KZ1R1TV4T9",
+      "documentKind": "entity-author",
+      "heading": null,
+      "audienceKind": "author",
+      "metadata": {
+        "aliases": [],
+        "domain": "props.frontiersmen",
+        "kind": "object",
+        "tags": [
+          "ruins",
+          "amber",
+          "danger"
+        ],
+        "title": "Amber Reliquary"
+      },
+      "ftsRank": 12,
+      "ftsBm25": -3.842926429676967,
+      "ftsScore": 3.842926429676967,
+      "snippet": "<mark>Amber</mark> Reliquary\nKind: object\nDomain: props.frontiersmen\n\n# <mark>Amber</mark> Reliquary\n\nA stone box containing an ancient <mark>amber</mark> lattice and blackened <mark>animal</mark> teeth arranged around it.",
+      "score": 0.02976190476190476,
+      "lanes": [
+        "fts",
+        "vector"
+      ],
+      "vectorRank": 3,
+      "vectorScore": 0.3109573423862457,
+      "citation": {
+        "entityId": "obj_2T5QAX3BWM0DBNT2KZ1R1TV4T9",
+        "sourcePath": "story/objects/amber-reliquary--obj_2T5QAX3BWM0DBNT2KZ1R1TV4T9.md",
+        "section": "entity-author"
+      }
+    },
+    {
+      "documentId": "doc:sp_036KDER9FKFVCH734QS3QS34TC:entity-author:0:398bbce8203e",
+      "entityId": "sp_036KDER9FKFVCH734QS3QS34TC",
+      "documentKind": "entity-author",
+      "heading": null,
+      "audienceKind": "author",
+      "metadata": {
+        "aliases": [],
+        "domain": "plot.frontiersmen",
+        "kind": "story-point",
+        "tags": [
+          "campaign"
+        ],
+        "title": "Escape Before the Blood Sport"
+      },
+      "ftsRank": 8,
+      "ftsBm25": -5.65956778188318,
+      "ftsScore": 5.65956778188318,
+      "snippet": "Escape Before the <mark>Blood</mark> Sport\nKind: story-point\nDomain: plot.frontiersmen\n\n# Escape Before the <mark>Blood</mark> Sport\n\nLeave the Root Host's pens before the … ",
+      "score": 0.02919863597612958,
+      "lanes": [
+        "fts",
+        "vector"
+      ],
+      "vectorRank": 9,
+      "vectorScore": 0.2680467367172241,
+      "citation": {
+        "entityId": "sp_036KDER9FKFVCH734QS3QS34TC",
+        "sourcePath": "story/story-points/escape-before-the-blood-sport--sp_036KDER9FKFVCH734QS3QS34TC.md",
+        "section": "entity-author"
+      }
+    },
+    {
+      "documentId": "doc:obj_0NW2373HV7NXC2D06H6QVBW7PS:entity-author:0:e3b312b48968",
+      "entityId": "obj_0NW2373HV7NXC2D06H6QVBW7PS",
+      "documentKind": "entity-author",
+      "heading": null,
+      "audienceKind": "author",
+      "metadata": {
+        "aliases": [],
+        "domain": "props.frontiersmen",
+        "kind": "object",
+        "tags": [
+          "weapon",
+          "amber",
+          "root-host"
+        ],
+        "title": "Rootjaw's Amber Cudgel"
+      },
+      "ftsRank": 14,
+      "ftsBm25": -3.434253012407294,
+      "ftsScore": 3.434253012407294,
+      "snippet": "Rootjaw's <mark>Amber</mark> Cudgel\nKind: object\nDomain: props.frontiersmen\n\n# Rootjaw's <mark>Amber</mark> Cudgel\n\nA root-club ringed with raw <mark>amber</mark>. Impacts release <mark>animal</mark> screams … ",
+      "score": 0.028665028665028666,
+      "lanes": [
+        "fts",
+        "vector"
+      ],
+      "vectorRank": 6,
+      "vectorScore": 0.27555423974990845,
+      "citation": {
+        "entityId": "obj_0NW2373HV7NXC2D06H6QVBW7PS",
+        "sourcePath": "story/objects/rootjaw-s-amber-cudgel--obj_0NW2373HV7NXC2D06H6QVBW7PS.md",
+        "section": "entity-author"
+      }
+    },
+    {
+      "documentId": "doc:env_2GWWXG5KEJ9NJ54607PPYPYQKD:entity-author:0:e46853cbd4c5",
+      "entityId": "env_2GWWXG5KEJ9NJ54607PPYPYQKD",
+      "documentKind": "entity-author",
+      "heading": null,
+      "audienceKind": "author",
+      "metadata": {
+        "aliases": [],
+        "domain": "environment.frontier",
+        "kind": "environment",
+        "tags": [
+          "frontier"
+        ],
+        "title": "Amber Quickening"
+      },
+      "ftsRank": 13,
+      "ftsBm25": -3.582170686888955,
+      "ftsScore": 3.582170686888955,
+      "snippet": "<mark>Amber</mark> Quickening\nKind: environment\nDomain: environment.frontier\n\n# <mark>Amber</mark> Quickening\n\nFresh fear and old <mark>blood</mark> wake the payment chest.",
+      "score": 0.02862400327131466,
+      "lanes": [
+        "fts",
+        "vector"
+      ],
+      "vectorRank": 7,
+      "vectorScore": 0.27352476119995117,
+      "citation": {
+        "entityId": "env_2GWWXG5KEJ9NJ54607PPYPYQKD",
+        "sourcePath": "story/environments/amber-quickening--env_2GWWXG5KEJ9NJ54607PPYPYQKD.md",
+        "section": "entity-author"
+      }
+    },
+    {
+      "documentId": "doc:event_1DWRJHHRBDYWG9TKQDBKHFYTPH:entity-author:0:ec339c37a314",
+      "entityId": "event_1DWRJHHRBDYWG9TKQDBKHFYTPH",
+      "documentKind": "entity-author",
+      "heading": null,
+      "audienceKind": "author",
+      "metadata": {
+        "aliases": [],
+        "domain": "plot.frontiersmen",
+        "kind": "event",
+        "tags": [
+          "history",
+          "amber",
+          "wretch"
+        ],
+        "title": "The Blackroot Amber Manifestation"
+      },
+      "ftsRank": 22,
+      "ftsBm25": -3.1271304756490803,
+      "ftsScore": 3.1271304756490803,
+      "snippet": " … onto a newly exposed <mark>amber</mark> membrane. Ethereal shapes of a stag, wolf, and wounded man emerge through the pit <mark>wall</mark> and kill three workers … ",
+      "score": 0.027579737335834898,
+      "lanes": [
+        "fts",
+        "vector"
+      ],
+      "vectorRank": 5,
+      "vectorScore": 0.3081057667732239,
+      "citation": {
+        "entityId": "event_1DWRJHHRBDYWG9TKQDBKHFYTPH",
+        "sourcePath": "story/events/main/the-blackroot-amber-manifestation--event_1DWRJHHRBDYWG9TKQDBKHFYTPH.md",
+        "section": "entity-author"
+      }
+    },
+    {
+      "documentId": "doc:obj_1V7FPPZKJPVQE2SV3GHWRVBSER:entity-author:0:8500e31d46b8",
+      "entityId": "obj_1V7FPPZKJPVQE2SV3GHWRVBSER",
+      "documentKind": "entity-author",
+      "heading": null,
+      "audienceKind": "author",
+      "metadata": {
+        "aliases": [],
+        "domain": "props.frontiersmen",
+        "kind": "object",
+        "tags": [
+          "weapon",
+          "evidence"
+        ],
+        "title": "Asha Pell's Broken Spear"
+      },
+      "ftsRank": 15,
+      "ftsBm25": -3.399294859347967,
+      "ftsScore": 3.399294859347967,
+      "snippet": " … props.frontiersmen\n\n# Asha Pell's Broken Spear\n\nThe corporal's spear, broken inward against a <mark>wall</mark> that shows no impact mark.",
+      "score": 0.027417840375586856,
+      "lanes": [
+        "fts",
+        "vector"
+      ],
+      "vectorRank": 11,
+      "vectorScore": 0.24425381422042847,
+      "citation": {
+        "entityId": "obj_1V7FPPZKJPVQE2SV3GHWRVBSER",
+        "sourcePath": "story/objects/asha-pell-s-broken-spear--obj_1V7FPPZKJPVQE2SV3GHWRVBSER.md",
+        "section": "entity-author"
+      }
+    },
+    {
+      "documentId": "doc:world_01M0HH0YXDMTCEX34NPQ7S2AXQ:entity-author:1:f7d95cf8f454",
+      "entityId": "world_01M0HH0YXDMTCEX34NPQ7S2AXQ",
+      "documentKind": "entity-author",
+      "heading": null,
+      "audienceKind": "author",
+      "metadata": {
+        "aliases": [],
+        "domain": "world",
+        "kind": "world",
+        "tags": [
+          "example",
+          "frontier-fantasy",
+          "monster-hunters",
+          "interactive"
+        ],
+        "title": "The Frontiersmen"
+      },
+      "ftsRank": 7,
+      "ftsBm25": -5.709927445891599,
+      "ftsScore": 5.709927445891599,
+      "snippet": " … Fresh <mark>blood</mark>, concentrated fear, and abrupt fracture can make raw <mark>amber</mark> 'quick,' releasing stored predator and victim impressions as ethereal <mark>animal</mark>-wretches that move … ",
+      "score": 0.02712049508554787,
+      "lanes": [
+        "fts",
+        "vector"
+      ],
+      "vectorRank": 22,
+      "vectorScore": 0.13057588040828705,
+      "citation": {
+        "entityId": "world_01M0HH0YXDMTCEX34NPQ7S2AXQ",
+        "sourcePath": "story/world.md",
+        "section": "entity-author"
+      }
+    },
+    {
+      "documentId": "doc:event_2DZVKF0PP4ZNMHYMPSSHMWN1EX:entity-author:0:2b743931b356",
+      "entityId": "event_2DZVKF0PP4ZNMHYMPSSHMWN1EX",
+      "documentKind": "entity-author",
+      "heading": null,
+      "audienceKind": "author",
+      "metadata": {
+        "aliases": [],
+        "domain": "plot.frontiersmen",
+        "kind": "event",
+        "tags": [
+          "massacre",
+          "wretch",
+          "amber"
+        ],
+        "title": "The Harrowcross Guard Detail Is Torn Apart"
+      },
+      "ftsRank": 10,
+      "ftsBm25": -4.93130271130816,
+      "ftsScore": 4.93130271130816,
+      "snippet": " … Detail Is Torn Apart\n\n<mark>Blood</mark> reaches the cracked <mark>amber</mark> chest. Antlered and wolf-like wretches emerge through floor and <mark>walls</mark>, repeating the guards' voices … ",
+      "score": 0.026631393298059962,
+      "lanes": [
+        "fts",
+        "vector"
+      ],
+      "vectorRank": 21,
+      "vectorScore": 0.1487118899822235,
+      "citation": {
+        "entityId": "event_2DZVKF0PP4ZNMHYMPSSHMWN1EX",
+        "sourcePath": "story/events/main/the-harrowcross-guard-detail-is-torn-apart--event_2DZVKF0PP4ZNMHYMPSSHMWN1EX.md",
+        "section": "entity-author"
+      }
+    },
+    {
+      "documentId": "doc:obj_1YPM7180GE8RNP56RK31980M2E:entity-author:0:fae0daacc159",
+      "entityId": "obj_1YPM7180GE8RNP56RK31980M2E",
+      "documentKind": "entity-author",
+      "heading": null,
+      "audienceKind": "author",
+      "metadata": {
+        "aliases": [],
+        "domain": "props.frontiersmen",
+        "kind": "object",
+        "tags": [
+          "mask",
+          "root-host",
+          "amber"
+        ],
+        "title": "Root Host Wooden Mask"
+      },
+      "ftsRank": 19,
+      "ftsBm25": -3.203564256858793,
+      "ftsScore": 3.203564256858793,
+      "snippet": " … props.frontiersmen\n\n# Root Host Wooden Mask\n\nA frightening <mark>animal</mark> mask carved from green wood. A thin <mark>amber</mark> plate is fixed inside where it touches … ",
+      "score": 0.026547116736990152,
+      "lanes": [
+        "fts",
+        "vector"
+      ],
+      "vectorRank": 12,
+      "vectorScore": 0.21697008609771729,
+      "citation": {
+        "entityId": "obj_1YPM7180GE8RNP56RK31980M2E",
+        "sourcePath": "story/objects/root-host-wooden-mask--obj_1YPM7180GE8RNP56RK31980M2E.md",
+        "section": "entity-author"
+      }
+    },
+    {
+      "documentId": "doc:sp_0RTEKC1CPW46B4RZNJX178NKMT:entity-author:0:423653eec0dd",
+      "entityId": "sp_0RTEKC1CPW46B4RZNJX178NKMT",
+      "documentKind": "entity-author",
+      "heading": null,
+      "audienceKind": "author",
+      "metadata": {
+        "aliases": [],
+        "domain": "plot.frontiersmen",
+        "kind": "story-point",
+        "tags": [
+          "campaign"
+        ],
+        "title": "Connect Amber to the Wretches"
+      },
+      "ftsRank": 23,
+      "ftsBm25": -3.061035979383206,
+      "ftsScore": 3.061035979383206,
+      "snippet": "Connect <mark>Amber</mark> to the Wretches\nKind: story-point\nDomain: plot.frontiersmen\n\n# Connect <mark>Amber</mark> to the Wretches\n\nEstablish whether <mark>amber</mark> storage, <mark>blood</mark>, fear, or mining … ",
+      "score": 0.026333907056798625,
+      "lanes": [
+        "fts",
+        "vector"
+      ],
+      "vectorRank": 10,
+      "vectorScore": 0.2469639629125595,
+      "citation": {
+        "entityId": "sp_0RTEKC1CPW46B4RZNJX178NKMT",
+        "sourcePath": "story/story-points/connect-amber-to-the-wretches--sp_0RTEKC1CPW46B4RZNJX178NKMT.md",
+        "section": "entity-author"
+      }
+    },
+    {
+      "documentId": "doc:char_37D4GED06VHV5Q82C2GHTKFYCX:entity-author:1:87fd96bc02dd",
+      "entityId": "char_37D4GED06VHV5Q82C2GHTKFYCX",
+      "documentKind": "entity-author",
+      "heading": null,
+      "audienceKind": "author",
+      "metadata": {
+        "aliases": [
+          "Master Doss"
+        ],
+        "domain": "cast.frontiersmen",
+        "kind": "character",
+        "tags": [
+          "guildmaster",
+          "guild",
+          "secret-keeper"
+        ],
+        "title": "Guildmaster Halric Doss"
+      },
+      "ftsRank": 20,
+      "ftsBm25": -3.1756501971193094,
+      "ftsScore": 3.1756501971193094,
+      "snippet": "He knows fresh <mark>blood</mark> and fractured raw <mark>amber</mark> can call wretches. Secret marker: FRONTIER-SECRET-<mark>AMBER</mark>-ROOT-MEMORY-7K4M.",
+      "score": 0.026013513513513515,
+      "lanes": [
+        "fts",
+        "vector"
+      ],
+      "vectorRank": 14,
+      "vectorScore": 0.20376679301261902,
+      "citation": {
+        "entityId": "char_37D4GED06VHV5Q82C2GHTKFYCX",
+        "sourcePath": "story/characters/guildmaster-halric-doss--char_37D4GED06VHV5Q82C2GHTKFYCX.md",
+        "section": "entity-author"
+      }
+    },
+    {
+      "documentId": "doc:loc_0BPWZNY4CJQ398N3ZKZQ0MNNTF:entity-author:0:83535f9d73b7",
+      "entityId": "loc_0BPWZNY4CJQ398N3ZKZQ0MNNTF",
+      "documentKind": "entity-author",
+      "heading": null,
+      "audienceKind": "author",
+      "metadata": {
+        "aliases": [],
+        "domain": "setting.frontier",
+        "kind": "location",
+        "tags": [
+          "river",
+          "underground"
+        ],
+        "title": "Blackwater Crossing"
+      },
+      "ftsRank": 16,
+      "ftsBm25": -3.327219762450546,
+      "ftsScore": 3.327219762450546,
+      "snippet": " … Pale <mark>animal</mark> shapes move inside the stone banks.",
+      "score": 0.025978407557354925,
+      "lanes": [
+        "fts",
+        "vector"
+      ],
+      "vectorRank": 18,
+      "vectorScore": 0.1704203486442566,
+      "citation": {
+        "entityId": "loc_0BPWZNY4CJQ398N3ZKZQ0MNNTF",
+        "sourcePath": "story/locations/blackwater-crossing--loc_0BPWZNY4CJQ398N3ZKZQ0MNNTF.md",
+        "section": "entity-author"
+      }
+    },
+    {
+      "documentId": "doc:char_0NQKTG3NQZFSVFKXS901NJD82E:entity-author:0:8d285d0d9257",
+      "entityId": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+      "documentKind": "entity-author",
+      "heading": null,
+      "audienceKind": "author",
+      "metadata": {
+        "aliases": [
+          "Syl"
+        ],
+        "domain": "cast.frontiersmen",
+        "kind": "character",
+        "tags": [
+          "half-elf-tracker",
+          "ranger",
+          "viewpoint"
+        ],
+        "title": "Sylvi Ashdown"
+      },
+      "ftsRank": 17,
+      "ftsBm25": -3.253270599094849,
+      "ftsScore": 3.253270599094849,
+      "snippet": " … learn why ordinary <mark>animals</mark> avoid <mark>amber</mark>-bearing ground.\n\n## Private pressure\n\nSylvi hears a second, almost <mark>animal</mark> rhythm in quickened <mark>amber</mark>. She hides it because … ",
+      "score": 0.025974025974025976,
+      "lanes": [
+        "fts",
+        "vector"
+      ],
+      "vectorRank": 17,
+      "vectorScore": 0.17879518866539001,
+      "citation": {
+        "entityId": "char_0NQKTG3NQZFSVFKXS901NJD82E",
+        "sourcePath": "story/characters/sylvi-ashdown--char_0NQKTG3NQZFSVFKXS901NJD82E.md",
+        "section": "entity-author"
+      }
+    },
+    {
+      "documentId": "doc:loc_15QGMX3VX9R9B4VW4CS4QNZWT8:entity-author:0:00602e2c066d",
+      "entityId": "loc_15QGMX3VX9R9B4VW4CS4QNZWT8",
+      "documentKind": "entity-author",
+      "heading": null,
+      "audienceKind": "author",
+      "metadata": {
+        "aliases": [],
+        "domain": "setting.frontier",
+        "kind": "location",
+        "tags": [
+          "barracks",
+          "massacre"
+        ],
+        "title": "Harrowcross Watch Barracks"
+      },
+      "ftsRank": 9,
+      "ftsBm25": -5.472813735212926,
+      "ftsScore": 5.472813735212926,
+      "snippet": " … The door bar was still set after the massacre, and clawed <mark>blood</mark> marks continue behind furniture and through solid plank <mark>walls</mark>.",
+      "score": 0.025856389986824768,
+      "lanes": [
+        "fts",
+        "vector"
+      ],
+      "vectorRank": 28,
+      "vectorScore": 0.11110424995422363,
+      "citation": {
+        "entityId": "loc_15QGMX3VX9R9B4VW4CS4QNZWT8",
+        "sourcePath": "story/locations/harrowcross-watch-barracks--loc_15QGMX3VX9R9B4VW4CS4QNZWT8.md",
+        "section": "entity-author"
+      }
+    },
+    {
+      "documentId": "doc:loc_3W0Q3EHNGCDQ05QTWK3DW3JQN7:entity-author:0:9a452ffdcfff",
+      "entityId": "loc_3W0Q3EHNGCDQ05QTWK3DW3JQN7",
+      "documentKind": "entity-author",
+      "heading": null,
+      "audienceKind": "author",
+      "metadata": {
+        "aliases": [],
+        "domain": "setting.frontier",
+        "kind": "location",
+        "tags": [
+          "pursuit",
+          "forest"
+        ],
+        "title": "Northwood Pursuit Trail"
+      },
+      "ftsRank": 18,
+      "ftsBm25": -3.208253617948091,
+      "ftsScore": 3.208253617948091,
+      "snippet": " … setting.frontier\n\n# Northwood Pursuit Trail\n\nAn <mark>animal</mark> path through rain-black spruce, alder tangles, and granite ribs. Drums and hunting grunts carry farther than … ",
+      "score": 0.02532051282051282,
+      "lanes": [
+        "fts",
+        "vector"
+      ],
+      "vectorRank": 20,
+      "vectorScore": 0.15450122952461243,
+      "citation": {
+        "entityId": "loc_3W0Q3EHNGCDQ05QTWK3DW3JQN7",
+        "sourcePath": "story/locations/northwood-pursuit-trail--loc_3W0Q3EHNGCDQ05QTWK3DW3JQN7.md",
+        "section": "entity-author"
+      }
+    }
+  ]
+}

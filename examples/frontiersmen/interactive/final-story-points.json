@@ -1,0 +1,231 @@
+{
+  "revision": "d61d3215a1567cf07759350dd2b73ef0eaaa1f79",
+  "sceneId": "scene_508C0AN1PBBCHYZZDJCEVWGHR9",
+  "evaluatedAt": {
+    "timeline": "main",
+    "tick": 195,
+    "order": 0
+  },
+  "storyPoints": [
+    {
+      "storyPointId": "sp_036KDER9FKFVCH734QS3QS34TC",
+      "title": "Escape Before the Blood Sport",
+      "storedState": "resolved",
+      "derivedState": "resolved",
+      "eligible": false,
+      "dependenciesSatisfied": true,
+      "triggerSatisfied": true,
+      "priority": 100
+    },
+    {
+      "storyPointId": "sp_3J1S28X5AZ261VA09J5RS573EN",
+      "title": "Escape the Cave-In",
+      "storedState": "resolved",
+      "derivedState": "resolved",
+      "eligible": false,
+      "dependenciesSatisfied": true,
+      "triggerSatisfied": true,
+      "priority": 100
+    },
+    {
+      "storyPointId": "sp_7VDVQCDD7VGSGHMD95RT3SJ0TN",
+      "title": "Flee the Root Host",
+      "storedState": "active",
+      "derivedState": "active",
+      "eligible": false,
+      "dependenciesSatisfied": true,
+      "triggerSatisfied": true,
+      "priority": 100
+    },
+    {
+      "storyPointId": "sp_0BAXPMHPXKQQK0VX505E2YRYT9",
+      "title": "Join the Lantern Pike",
+      "storedState": "resolved",
+      "derivedState": "resolved",
+      "eligible": false,
+      "dependenciesSatisfied": true,
+      "triggerSatisfied": true,
+      "priority": 100
+    },
+    {
+      "storyPointId": "sp_35EY7W2N8WH1PG0S9F367HZT4X",
+      "title": "Escape the Wretch Gallery",
+      "storedState": "resolved",
+      "derivedState": "resolved",
+      "eligible": false,
+      "dependenciesSatisfied": true,
+      "triggerSatisfied": true,
+      "priority": 98
+    },
+    {
+      "storyPointId": "sp_55RMAMRVV8DYG02ZR84VWME0CR",
+      "title": "What Is Amber?",
+      "storedState": "resolved",
+      "derivedState": "resolved",
+      "eligible": false,
+      "dependenciesSatisfied": true,
+      "triggerSatisfied": true,
+      "priority": 97
+    },
+    {
+      "storyPointId": "sp_4FPF4MV3YMFPH5W3Z5T7W3FSAY",
+      "title": "Survive the First Wretch",
+      "storedState": "resolved",
+      "derivedState": "resolved",
+      "eligible": false,
+      "dependenciesSatisfied": true,
+      "triggerSatisfied": true,
+      "priority": 96
+    },
+    {
+      "storyPointId": "sp_56BDX8H6ZW2K20S7Z9EV5RBRTR",
+      "title": "Understand the Tree King",
+      "storedState": "resolved",
+      "derivedState": "resolved",
+      "eligible": false,
+      "dependenciesSatisfied": true,
+      "triggerSatisfied": true,
+      "priority": 95
+    },
+    {
+      "storyPointId": "sp_0KBNVM3A3AVCG4Z88ETRQM1K78",
+      "title": "Replace the Dead Watch",
+      "storedState": "active",
+      "derivedState": "active",
+      "eligible": false,
+      "dependenciesSatisfied": true,
+      "triggerSatisfied": true,
+      "priority": 94
+    },
+    {
+      "storyPointId": "sp_0RTEKC1CPW46B4RZNJX178NKMT",
+      "title": "Connect Amber to the Wretches",
+      "storedState": "resolved",
+      "derivedState": "resolved",
+      "eligible": false,
+      "dependenciesSatisfied": true,
+      "triggerSatisfied": true,
+      "priority": 92
+    },
+    {
+      "storyPointId": "sp_7C05N0E5311W4YY72D8X3PHB6P",
+      "title": "Reach the Surface",
+      "storedState": "resolved",
+      "derivedState": "resolved",
+      "eligible": false,
+      "dependenciesSatisfied": true,
+      "triggerSatisfied": true,
+      "priority": 92
+    },
+    {
+      "storyPointId": "sp_738TMHY3Y8CZK6V7KK1BWXPRZJ",
+      "title": "Expose the Blackroot Compact",
+      "storedState": "active",
+      "derivedState": "active",
+      "eligible": false,
+      "dependenciesSatisfied": true,
+      "triggerSatisfied": true,
+      "priority": 91
+    },
+    {
+      "storyPointId": "sp_05AYKKC34KZ155A2YBVTZJF4VN",
+      "title": "Cross the Lower Caverns",
+      "storedState": "resolved",
+      "derivedState": "resolved",
+      "eligible": false,
+      "dependenciesSatisfied": true,
+      "triggerSatisfied": true,
+      "priority": 90
+    },
+    {
+      "storyPointId": "sp_0DMDKSH6VJ4XKN4HGYP9SDEP1C",
+      "title": "Decode the Sunken Hall",
+      "storedState": "resolved",
+      "derivedState": "resolved",
+      "eligible": false,
+      "dependenciesSatisfied": true,
+      "triggerSatisfied": true,
+      "priority": 89
+    },
+    {
+      "storyPointId": "sp_2KFWNBNCG0RPGS4R85M5DQVV9B",
+      "title": "Reconstruct the Last Watch",
+      "storedState": "resolved",
+      "derivedState": "resolved",
+      "eligible": false,
+      "dependenciesSatisfied": true,
+      "triggerSatisfied": true,
+      "priority": 88
+    },
+    {
+      "storyPointId": "sp_5Q8BN1G91QHYSCRSDSF9QWDK09",
+      "title": "Trace the Attacks to Saint Orra's Mine",
+      "storedState": "resolved",
+      "derivedState": "resolved",
+      "eligible": false,
+      "dependenciesSatisfied": true,
+      "triggerSatisfied": true,
+      "priority": 86
+    },
+    {
+      "storyPointId": "sp_2CS9JPWCRVZJQ6YS41M2BAS4JV",
+      "title": "Return to Harrowcross",
+      "storedState": "active",
+      "derivedState": "active",
+      "eligible": false,
+      "dependenciesSatisfied": true,
+      "triggerSatisfied": true,
+      "priority": 84
+    },
+    {
+      "storyPointId": "sp_5JW98KWBPBPHFYSA7MMC796ZAJ",
+      "title": "Enter Saint Orra's Mine",
+      "storedState": "resolved",
+      "derivedState": "resolved",
+      "eligible": false,
+      "dependenciesSatisfied": true,
+      "triggerSatisfied": true,
+      "priority": 82
+    },
+    {
+      "storyPointId": "sp_4681Q884EX642WEVBEHV4CS24D",
+      "title": "Protect the Eastroad Caravan",
+      "storedState": "resolved",
+      "derivedState": "resolved",
+      "eligible": false,
+      "dependenciesSatisfied": true,
+      "triggerSatisfied": true,
+      "priority": 80
+    },
+    {
+      "storyPointId": "sp_5V3H9T65CY3CQ7WERAGK8PEYYM",
+      "title": "Reach Harrowcross",
+      "storedState": "resolved",
+      "derivedState": "resolved",
+      "eligible": false,
+      "dependenciesSatisfied": true,
+      "triggerSatisfied": true,
+      "priority": 78
+    },
+    {
+      "storyPointId": "sp_76YKCXX41HQC1N17A7S3ZKDRW4",
+      "title": "Learn What Counts as Pay",
+      "storedState": "resolved",
+      "derivedState": "resolved",
+      "eligible": false,
+      "dependenciesSatisfied": true,
+      "triggerSatisfied": true,
+      "priority": 72
+    },
+    {
+      "storyPointId": "sp_0CBN052ZTZNY89D1BNBXSW9VPB",
+      "title": "Identify the Silent Acolyte",
+      "storedState": "active",
+      "derivedState": "active",
+      "eligible": false,
+      "dependenciesSatisfied": true,
+      "triggerSatisfied": true,
+      "priority": 66
+    }
+  ]
+}
