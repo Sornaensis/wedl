@@ -35,8 +35,8 @@ CHANGESET_OPERATION_SCHEMA = [
     },
     {
         "type": "entity.update",
-        "summary": "patch an existing entity's frontmatter and/or bodyMarkdown",
-        "fields": ["entity or entityId", "frontmatterPatch and/or bodyMarkdown"],
+        "summary": "patch an existing entity's frontmatter and/or bodyMarkdown; thread declarations and memberships are full replacements",
+        "fields": ["entity or entityId", "frontmatterPatch and/or bodyMarkdown (world threads; ordinary threadIds)"],
     },
     {
         "type": "entity.delete",
@@ -84,6 +84,8 @@ def schema() -> dict[str, Any]:
             "Use a stable idempotencyKey for retries of the same request.",
             "Preview before applying any edited changeset, then pass its confirmationToken to apply --confirm.",
             "--yes is an explicit unsafe CLI bypass for deliberate one-shot automation; confirmation is not authorization.",
+            "For entity.update, world frontmatterPatch.threads replaces the complete thread declaration list.",
+            "For entity.update, an ordinary non-hypothesis record's frontmatterPatch.threadIds replaces its complete membership list and is serialized as source frontmatter threads.",
         ],
         "operations": CHANGESET_OPERATION_SCHEMA,
     }
@@ -106,7 +108,7 @@ def scaffold(repository: Repository) -> dict[str, Any]:
         "protocol": "wedl-changeset/v1",
         "expectedHead": expected_head,
         "idempotencyKey": f"wedl-scaffold-{expected_head[:12]}",
-        "summary": "Describe the canonical story change",
+        "summary": "Describe the canonical story change (thread declarations and memberships replace complete lists)",
         "operations": [
             {
                 "type": "entity.update",
@@ -242,14 +244,65 @@ def _conversation(operation: dict[str, Any], records: dict[str, Record], source_
     return entity_id
 
 
+def _replace_operation_references(raw_operation: dict[str, Any], replacements: dict[str, str]) -> dict[str, Any]:
+    """Expand entity temporary IDs without treating grouping identifiers as refs.
+
+    ``threadIds`` is public changeset vocabulary, not authored source
+    frontmatter.  Preserve both grouping patch values literally while resolving
+    the ordinary entity references elsewhere in the operation.
+    """
+
+    operation = deepcopy(raw_operation)
+    patch = operation.get("frontmatterPatch")
+    grouping_values: dict[str, Any] = {}
+    if operation.get("type") == "entity.update" and isinstance(patch, dict):
+        grouping_values = {key: patch.pop(key) for key in ("threads", "threadIds") if key in patch}
+    operation = deep_replace(operation, replacements)
+    if grouping_values:
+        operation["frontmatterPatch"].update(grouping_values)
+    return operation
+
+
+def _canonical_frontmatter_patch(record: Record, patch: dict[str, Any]) -> dict[str, Any]:
+    """Validate changeset-only grouping keys and map memberships to source.
+
+    Source Markdown intentionally has one canonical spelling: ``threads``.
+    The public ``threadIds`` spelling is accepted only for ordinary record
+    membership changes, where it always replaces the complete membership list.
+    The complete candidate is validated later, atomically, by the v0.5 source
+    validator.
+    """
+
+    has_threads = "threads" in patch
+    has_thread_ids = "threadIds" in patch
+    if not (has_threads or has_thread_ids):
+        return patch
+    if has_threads and has_thread_ids:
+        raise ProtocolError("frontmatterPatch cannot contain both threads and threadIds")
+    if record.kind == "hypothesis":
+        raise ProtocolError("hypothesis records cannot carry thread grouping")
+    if record.kind == "world":
+        if has_thread_ids:
+            raise ProtocolError("world thread declarations use frontmatterPatch.threads")
+        return patch
+    if has_threads:
+        raise ProtocolError("non-world thread memberships use frontmatterPatch.threadIds")
+    canonical = dict(patch)
+    canonical["threads"] = canonical.pop("threadIds")
+    return canonical
+
+
 def _apply(payload: dict[str, Any], world: World, replacements: dict[str, str]) -> tuple[dict[str, Record], set[str]]:
     records = {entity_id: Record(deepcopy(record.frontmatter), record.body, record.source_path, record.raw_bytes, record.blob_oid, record.revision) for entity_id, record in world.records.items()}
     touched: set[str] = set()
     for index, raw_operation in enumerate(payload.get("operations") or []):
-        operation = deep_replace(deepcopy(raw_operation), replacements)
+        operation = _replace_operation_references(raw_operation, replacements)
         operation_type = operation.get("type")
         if operation_type not in CHANGESET_OPERATION_TYPES:
             raise ProtocolError(f"unsupported operation {operation_type!r}")
+        candidate = operation.get("value") or {}
+        if (isinstance(operation.get("frontmatterPatch"), dict) and "importance" in operation["frontmatterPatch"]) or (isinstance(candidate, dict) and ("importance" in candidate or (isinstance(candidate.get("frontmatter"), dict) and "importance" in candidate["frontmatter"]))):
+            raise ProtocolError("importance is calculated output and cannot appear in changesets")
         seed = f"{_request_hash(payload)}:{index}"
         if operation_type in {"entity.create", "entity.upsert"}:
             touched.add(_upsert(operation, records, world.source_root))
@@ -281,9 +334,14 @@ def _apply(payload: dict[str, Any], world: World, replacements: dict[str, str]) 
         elif operation_type == "entity.update":
             entity_id = str(operation.get("entity") or operation.get("entityId")); record = records.get(entity_id)
             if not record: raise ProtocolError(f"unknown entity {entity_id}")
+            patch = operation.get("frontmatterPatch") or {}
+            if not isinstance(patch, dict):
+                raise ProtocolError("entity.update frontmatterPatch must be an object")
+            grouping_value_supplied = "threads" in patch or "threadIds" in patch
+            patch = _canonical_frontmatter_patch(record, patch)
             changed = False
-            for key, value in (operation.get("frontmatterPatch") or {}).items():
-                if value is None:
+            for key, value in patch.items():
+                if value is None and not (grouping_value_supplied and key == "threads"):
                     if key in record.frontmatter:
                         record.frontmatter.pop(key)
                         changed = True

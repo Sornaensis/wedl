@@ -12,14 +12,33 @@ export function contextRequestPath(character, scene, query) {
   return `/api/context?${parameters}`;
 }
 
-export function authorSearchRequestPath(query, at = null) {
+export function authorSearchRequestPath(query, at = null, selectedThreadIds = null) {
   const parameters = new URLSearchParams({ q: query, perspective: "author" });
   if (at) {
     parameters.set("timeline", at.timeline);
     parameters.set("tick", String(at.tick));
     parameters.set("order", String(at.order ?? 0));
   } else parameters.set("allTime", "true");
+  if (typeof query === "string" && query.trim()) {
+    const ids = Array.isArray(selectedThreadIds) ? selectedThreadIds : [];
+    for (const id of [...new Set(ids.filter((value) => typeof value === "string" && value.trim()))].sort()) parameters.append("threadId", id);
+  }
   return `/api/search?${parameters}`;
+}
+
+export function threadMembershipRequestPaths(recordIds, selectedThreadIds, batchSize = 256) {
+  const records = [...new Set((Array.isArray(recordIds) ? recordIds : []).filter((value) => typeof value === "string" && value.trim()))].sort();
+  const threads = [...new Set((Array.isArray(selectedThreadIds) ? selectedThreadIds : []).filter((value) => typeof value === "string" && value.trim()))].sort();
+  if (!records.length || !threads.length) return [];
+  const size = Number.isInteger(batchSize) && batchSize > 0 ? Math.min(batchSize, 256) : 256;
+  const paths = [];
+  for (let index = 0; index < records.length; index += size) {
+    const parameters = new URLSearchParams();
+    for (const recordId of records.slice(index, index + size)) parameters.append("recordId", recordId);
+    for (const threadId of threads) parameters.append("threadId", threadId);
+    paths.push(`/api/thread-memberships?${parameters}`);
+  }
+  return paths;
 }
 
 function temporalEntityRequestPath(entityId, suffix, at) {

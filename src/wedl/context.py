@@ -4,7 +4,7 @@ from dataclasses import dataclass
 import json
 import re
 from pathlib import Path
-from typing import Any, Sequence
+from typing import Any, Callable, Sequence
 
 from .audience import visible_sections
 from .compiler import connect, require_database
@@ -14,6 +14,7 @@ from .model import Record, StoryTime, World
 from .repository import Repository
 from .search import STOPWORDS, search
 from .semantics import active_environments, current_knowledge, evaluate_all_story_points, relationships_from, resolve_state
+from .thread_filter import ThreadFilter, filter_ranked_candidates, resolve_thread_filter
 from .util import TOKEN_RE
 
 
@@ -550,7 +551,7 @@ def _focus(query: str | None, query_tokens: set[str], *, perspective: str, searc
     return value
 
 
-def _fit(base: dict[str, Any], title: str, intro: str, required: list[Atom], groups: list[list[Atom]], candidates: list[Atom], source_count: int, budget: int, max_items: int, limits: dict[str, int]) -> dict[str, Any]:
+def _fit(base: dict[str, Any], title: str, intro: str, required: list[Atom], groups: list[list[Atom]], candidates: list[Atom], source_count: int, budget: int, max_items: int, limits: dict[str, int], post_select: Callable[[list[Atom]], list[Atom]] | None = None) -> dict[str, Any]:
     minimum_budget = _minimum_budget(base, title, intro, required, source_count)
     if budget < minimum_budget:
         raise UsageError(
@@ -585,19 +586,24 @@ def _fit(base: dict[str, Any], title: str, intro: str, required: list[Atom], gro
                 break
     for atom in sorted(candidates, key=order):
         add(atom)
-    value = _payload(base, title, intro, selected, source_count, budget, minimum_budget)
+    output_atoms = post_select(selected) if post_select is not None else selected
+    value = _payload(base, title, intro, output_atoms, source_count, budget, minimum_budget)
     if _size(value) > budget:
         raise UsageError("context budget enforcement failed")
     return value
 
 
-def build_context(repository: Repository, *, character_id: str, scene_id: str | None = None, revision: str = "HEAD", perspective: str = "character", query: str | None = None, max_characters: int = 8000, max_items: int = 24, search_mode: str = "hybrid", timeline: str | None = None, tick: int | None = None, order: int = 2_147_483_647, require_compiled: bool = False) -> dict[str, Any]:
+def build_context(repository: Repository, *, character_id: str, scene_id: str | None = None, revision: str = "HEAD", perspective: str = "character", query: str | None = None, max_characters: int = 8000, max_items: int = 24, search_mode: str = "hybrid", timeline: str | None = None, tick: int | None = None, order: int = 2_147_483_647, require_compiled: bool = False, _thread_filter_ids: tuple[str, ...] | None = None) -> dict[str, Any]:
     world, database = require_database(repository, revision, require_compiled=require_compiled)
     character = world.find(character_id, "character")
     scene = world.find(scene_id, "scene") if scene_id else _implicit_scene(world, character.id if perspective == "character" else None)
     if not scene:
         raise UsageError("no active scene and no scene selected")
     at = world.story_time(tick, timeline, order) if tick is not None else _default_scene_time(world, scene)
+    thread_filter: ThreadFilter | None = None
+    if _thread_filter_ids is not None:
+        with connect(database, True) as connection:
+            thread_filter = resolve_thread_filter(connection, _thread_filter_ids)
 
     if perspective == "character":
         if not character_scene_allowed(scene, character.id, at, world.default_timeline):
@@ -633,6 +639,26 @@ def build_context(repository: Repository, *, character_id: str, scene_id: str | 
         retrieval, retrieval_total = _retrieval(world, database, character, scene, at, query, query_tokens, scene_tokens, scene_entities, search_mode)
         boundary = Atom("Writing boundary", "Write only from this character’s perceptions, remembered conversations, and explicit beliefs. Do not import canonical events, another mind, or author truth unless this packet says the character knows it.", (), 140, 0, "boundary")
         candidates = [*present[1:], *conversation, *knowledge, *memories, *relationships, *retrieval]
+        def remove_disallowed_recall(selected: list[Atom]) -> list[Atom]:
+            recall = [atom for atom in selected if atom.section == "Useful recall"]
+            if not recall:
+                return selected
+            candidates = [
+                {"entityId": atom.refs[0].entity_id, "atomKey": atom.key}
+                for atom in recall
+                if atom.refs
+            ]
+            with connect(database, True) as connection:
+                allowed = {
+                    str(item["atomKey"])
+                    for item in filter_ranked_candidates(connection, candidates, thread_filter)
+                }
+            return [
+                atom
+                for atom in selected
+                if atom.section != "Useful recall" or atom.key in allowed
+            ]
+
         return _fit(
             {
                 "protocol": "wedl-context/v3",
@@ -648,6 +674,7 @@ def build_context(repository: Repository, *, character_id: str, scene_id: str | 
             3 + len(present) - 1 + len(conversation) + knowledge_total + relationship_total + memory_total + retrieval_total,
             max_characters, max_items,
             {"Voice and intention": 1, "Present moment": 4, "Conversation now": 2, "What matters": 7, "Remembered conversations": 3, "Relationship pressure": 3, "Useful recall": 4, "Writing boundary": 1},
+            remove_disallowed_recall if thread_filter is not None else None,
         )
 
     if perspective == "author":
@@ -714,7 +741,8 @@ def build_context(repository: Repository, *, character_id: str, scene_id: str | 
         # became stale after the outer read succeeded.
         "require_compiled": require_compiled,
     }
-    character_floor = build_context(repository, perspective="character", max_characters=100_000, **packet_args)["selection"]["minimumBudgetCharacters"]
+    character_packet_args = {**packet_args, "_thread_filter_ids": _thread_filter_ids}
+    character_floor = build_context(repository, perspective="character", max_characters=100_000, **character_packet_args)["selection"]["minimumBudgetCharacters"]
     author_floor = build_context(repository, perspective="author", max_characters=100_000, **packet_args)["selection"]["minimumBudgetCharacters"]
     minimum_budget = (character_floor * 100 + DRAMATIC_CHARACTER_PERCENT - 1) // DRAMATIC_CHARACTER_PERCENT
     while minimum_budget - minimum_budget * DRAMATIC_CHARACTER_PERCENT // 100 - DRAMATIC_RESERVE < author_floor:
@@ -723,7 +751,7 @@ def build_context(repository: Repository, *, character_id: str, scene_id: str | 
     def dramatic_packet(budget: int, minimum: int) -> dict[str, Any]:
         char_budget = budget * DRAMATIC_CHARACTER_PERCENT // 100
         author_budget = budget - char_budget - DRAMATIC_RESERVE
-        character_packet = build_context(repository, perspective="character", max_characters=char_budget, **packet_args)
+        character_packet = build_context(repository, perspective="character", max_characters=char_budget, **character_packet_args)
         author_packet = build_context(repository, perspective="author", max_characters=author_budget, **packet_args)
         value = {
             "protocol": "wedl-context/v3",

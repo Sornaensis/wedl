@@ -3,8 +3,9 @@ from __future__ import annotations
 from collections import Counter
 from typing import Any
 
-from . import SOURCE_SCHEMA
+from . import SOURCE_SCHEMA, SUPPORTED_SOURCE_SCHEMAS, THREAD_SOURCE_SCHEMA, V04_RECOVERY_CONTRACT, V04_SOURCE_SCHEMA
 from .conversation import beat_kind, conversation_participant_at, scene_contains_time, participant_at, turn_time, turn_visible_to
+from .errors import SupersededSchemaError
 from .ids import KIND_PREFIX, AUX_PREFIX, valid_id
 from .model import Record, StoryTime, World
 from .source import extract_entity_refs, markdown_entity_links
@@ -28,6 +29,19 @@ VALID_STATUS = {
     # ordinary record lifecycle.
     "hypothesis": {"open", "adopted", "rejected"},
 }
+
+_V05_WITHDRAWN_MEMBERS = (
+    "default_continuity",
+    "continuities",
+    "continuity",
+    "membership",
+    "strands",
+    "synchronization",
+    "current_horizon",
+    "retcon",
+    "causal_handoffs",
+    "presentation_frames",
+)
 
 
 def is_adoptable_canonical_record(record: Record) -> bool:
@@ -73,7 +87,10 @@ def _validate_timelines(world: World) -> tuple[set[str], list[dict[str, Any]]]:
     timelines = record.frontmatter.get("timelines")
     declared: set[str] = set()
     if not isinstance(timelines, list) or not timelines:
-        return declared, [diagnostic("WDL-TIMELINE-001", "timelines must be a non-empty array", record, "timelines")]
+        result.append(diagnostic("WDL-TIMELINE-001", "timelines must be a non-empty array", record, "timelines"))
+        if world.schema == THREAD_SOURCE_SCHEMA:
+            result.append(diagnostic("WDL-TIMELINE-012", "wedl/v0.5 requires exactly one timeline declaration", record, "timelines"))
+        return declared, result
     for index, value in enumerate(timelines):
         field = f"timelines[{index}]"
         if not isinstance(value, dict):
@@ -98,7 +115,7 @@ def _validate_timelines(world: World) -> tuple[set[str], list[dict[str, Any]]]:
             continue
         unexpected_keys = set(origin) - {"tick", "label"}
         if unexpected_keys:
-            unexpected = next(iter(unexpected_keys))
+            unexpected = sorted(unexpected_keys, key=lambda key: (type(key).__module__, type(key).__qualname__, repr(key)))[0]
             result.append(diagnostic("WDL-TIMELINE-007", "timeline origin only permits tick and label", record, f"{origin_field}.{unexpected}"))
         try:
             StoryTime(identifier if isinstance(identifier, str) else "main", origin.get("tick"), 0)
@@ -106,6 +123,8 @@ def _validate_timelines(world: World) -> tuple[set[str], list[dict[str, Any]]]:
             result.append(diagnostic("WDL-TIMELINE-008", str(exc), record, f"{origin_field}.tick"))
         if not isinstance(origin.get("label"), str) or not origin["label"].strip():
             result.append(diagnostic("WDL-TIMELINE-009", "timeline origin label must be a non-empty string", record, f"{origin_field}.label"))
+    if world.schema == THREAD_SOURCE_SCHEMA and len(timelines) != 1:
+        result.append(diagnostic("WDL-TIMELINE-012", "wedl/v0.5 requires exactly one timeline declaration", record, "timelines"))
     default = record.frontmatter.get("default_timeline", "main")
     if not isinstance(default, str) or not default.strip():
         result.append(diagnostic("WDL-TIMELINE-010", "default_timeline must be a non-empty string", record, "default_timeline"))
@@ -214,15 +233,119 @@ def _validate_time_points(world: World, declared: set[str]) -> list[dict[str, An
     return result
 
 
+def _schema_member_paths(record: Record, schema: str) -> list[str]:
+    data = record.frontmatter
+    if schema == SOURCE_SCHEMA:
+        return ["threads"] if "threads" in data else []
+    if schema != THREAD_SOURCE_SCHEMA:
+        return []
+    result = [field for field in _V05_WITHDRAWN_MEMBERS if field in data]
+    for field, value in _time_values(record):
+        if isinstance(value, dict) and "domain" in value:
+            result.append(f"{field}.domain")
+    current_time = data.get("current_time") if record.kind == "world" else None
+    if isinstance(current_time, dict) and "domain" in current_time:
+        result.append("current_time.domain")
+    return result
+
+
+def _validate_threads(world: World) -> list[dict[str, Any]]:
+    """Validate the v0.5 grouping-only declaration and memberships in source order."""
+    result: list[dict[str, Any]] = []
+    world_record = world.world_record
+    declarations = world_record.frontmatter.get("threads")
+    declared: set[str] = set()
+    if not isinstance(declarations, list):
+        return [diagnostic("WDL-THREAD-001", "wedl/v0.5 world threads must be an array", world_record, "threads")]
+
+    declaration_ids: list[str] = []
+    canonical_declarations = True
+    for index, value in enumerate(declarations):
+        field = f"threads[{index}]"
+        if not isinstance(value, dict) or set(value) != {"id", "label"}:
+            result.append(diagnostic("WDL-THREAD-002", "thread declaration must be exactly an id and label mapping", world_record, field))
+            canonical_declarations = False
+            continue
+        identifier = value["id"]
+        label = value["label"]
+        if not valid_id(identifier, "thread"):
+            result.append(diagnostic("WDL-THREAD-003", "thread id must use the thread_<26 Crockford> format", world_record, f"{field}.id"))
+            canonical_declarations = False
+        elif identifier in declared:
+            result.append(diagnostic("WDL-THREAD-004", "thread declaration id is duplicated", world_record, f"{field}.id"))
+        else:
+            declared.add(identifier)
+        if not isinstance(label, str) or not label.strip():
+            result.append(diagnostic("WDL-THREAD-005", "thread label must be a non-empty string", world_record, f"{field}.label"))
+            canonical_declarations = False
+        if isinstance(identifier, str):
+            declaration_ids.append(identifier)
+        else:
+            canonical_declarations = False
+    if canonical_declarations and declaration_ids != sorted(declaration_ids):
+        result.append(diagnostic("WDL-THREAD-006", "thread declarations must be sorted by id", world_record, "threads"))
+
+    for record in sorted(world.records.values(), key=lambda item: (item.source_path.casefold(), item.id)):
+        if record.kind in {"world", "hypothesis"} or "threads" not in record.frontmatter:
+            continue
+        memberships = record.frontmatter["threads"]
+        if not isinstance(memberships, list):
+            result.append(diagnostic("WDL-THREAD-007", "record thread membership must be an array of thread ids", record, "threads"))
+            continue
+        invalid_index = next(
+            (
+                index
+                for index, identifier in enumerate(memberships)
+                if not valid_id(identifier, "thread")
+            ),
+            None,
+        )
+        if invalid_index is not None:
+            result.append(diagnostic("WDL-THREAD-007", "record thread membership must be an array of thread ids", record, f"threads[{invalid_index}]"))
+            continue
+        if (
+            len(memberships) != len(set(memberships))
+            or memberships != sorted(memberships)
+        ):
+            result.append(diagnostic("WDL-THREAD-008", "record thread memberships must be unique and sorted by id", record, "threads"))
+        for index, identifier in enumerate(memberships):
+            if identifier not in declared:
+                result.append(diagnostic("WDL-THREAD-009", "record thread membership is not declared by the world", record, f"threads[{index}]"))
+    return result
+
+
 def validate_world(world: World) -> list[dict[str, Any]]:
     result: list[dict[str, Any]] = []
-    if len(world.by_kind("world")) != 1:
+    schemas: list[Any] = []
+    for record in world:
+        candidate = record.frontmatter.get("schema")
+        if not any(candidate == existing for existing in schemas):
+            schemas.append(candidate)
+    if any(candidate == V04_SOURCE_SCHEMA for candidate in schemas):
+        raise SupersededSchemaError(
+            f"{V04_SOURCE_SCHEMA} is superseded; see {V04_RECOVERY_CONTRACT}",
+            details={"schema": V04_SOURCE_SCHEMA, "recoveryContract": V04_RECOVERY_CONTRACT},
+        )
+    world_records = world.by_kind("world")
+    if len(schemas) > 1:
+        # Preserve the homogeneous-source invariant, but do not suppress
+        # record-kind diagnostics. Changeset previews construct a synthetic
+        # hypothesis before its schema is materialized; callers still need the
+        # established nonoperative-field diagnostics for that candidate.
+        result.append(diagnostic("WDL-SRC-008", "source records must use one homogeneous schema", world_records[0] if world_records else None, "schema"))
+    schema = world_records[0].frontmatter.get("schema") if len(world_records) == 1 else (schemas[0] if schemas else None)
+    if len(world_records) != 1:
         result.append(diagnostic("WDL-WORLD-001", "world must contain exactly one world record"))
     path_counts = Counter(record.source_path.casefold() for record in world)
     for record in world:
         data = record.frontmatter
-        if data.get("schema") != SOURCE_SCHEMA:
+        if not isinstance(schema, str) or schema not in SUPPORTED_SOURCE_SCHEMAS:
             result.append(diagnostic("WDL-SRC-001", f"expected schema {SOURCE_SCHEMA}", record, "schema"))
+        incompatible_members = _schema_member_paths(record, str(schema))
+        for field in incompatible_members:
+            result.append(diagnostic("WDL-SRC-009", "member is incompatible with this source schema", record, field))
+        if "importance" in data:
+            result.append(diagnostic("WDL-SRC-007", "importance is calculated read-model output and is never canonical frontmatter", record, "importance"))
         if record.kind not in KINDS:
             result.append(diagnostic("WDL-SRC-002", f"unsupported entity kind {record.kind!r}", record, "kind"))
             continue
@@ -242,19 +365,23 @@ def validate_world(world: World) -> list[dict[str, Any]]:
         if path_counts[record.source_path.casefold()] > 1:
             result.append(diagnostic("WDL-SRC-005", "case-folding source path collision", record))
 
-        refs = extract_entity_refs(data) | markdown_entity_links(record.body)
-        refs.discard(record.id)
-        for entity_id in sorted(refs):
-            if entity_id not in world.records:
-                result.append(diagnostic("WDL-REF-001", f"unknown referenced entity {entity_id}", record))
+        if not incompatible_members:
+            refs = extract_entity_refs(data) | markdown_entity_links(record.body)
+            refs.discard(record.id)
+            for entity_id in sorted(refs):
+                if entity_id not in world.records:
+                    result.append(diagnostic("WDL-REF-001", f"unknown referenced entity {entity_id}", record))
 
-    if len(world.by_kind("world")) != 1:
+    if len(world_records) != 1:
         return result
     declared, timeline_diagnostics = _validate_timelines(world)
     result.extend(timeline_diagnostics)
     result.extend(_validate_time_points(world, declared))
     if any(item["severity"] == "error" and item["code"].startswith(("WDL-TIME-", "WDL-TIMELINE-")) for item in result):
         return result
+
+    if schema == THREAD_SOURCE_SCHEMA:
+        result.extend(_validate_threads(world))
 
     result.extend(_validate_current_active_scenes(world))
 

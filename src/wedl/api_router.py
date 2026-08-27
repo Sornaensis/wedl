@@ -43,6 +43,8 @@ from .query import (
     show_entity,
     status,
     story_points,
+    thread_catalog,
+    thread_memberships,
     timeline,
     validation_report,
     whereabouts,
@@ -69,7 +71,7 @@ def openapi_contract_errors(schema: dict[str, Any]) -> tuple[str, ...]:
         assert argument.transport_name is not None
         location = {Transport.QUERY: "query", Transport.PATH: "path", Transport.HEADER: "header"}[argument.transport]
         default = missing if argument.required or argument.default is None else argument.default
-        value_type = {"boolean": "boolean", "integer": "integer", "number": "number"}.get(argument.value_type, "string")
+        value_type = "array" if argument.repeated else {"boolean": "boolean", "integer": "integer", "number": "number"}.get(argument.value_type, "string")
         return parameter_value(
             argument.transport_name, location, argument.required or location == "path", value_type,
             enum=argument.choices, default=default, minimum=argument.minimum,
@@ -247,6 +249,8 @@ def _annotation(argument: ArgumentContract) -> Any:
     # Literal supplies both a precise OpenAPI enum and FastAPI's normal value
     # coercion. Parser validation remains the final authority in middleware.
     annotation = Literal.__getitem__(argument.choices) if argument.choices is not None else primitive
+    if argument.repeated:
+        annotation = list[annotation]
     if not argument.required and argument.default is None:
         return annotation | None
     return annotation
@@ -469,6 +473,7 @@ def create_api_router(runtime: Any, authorize: Authorize) -> APIRouter:
             all_time=arguments["all_time"],
             include_text=arguments["include_text"],
             include_hypotheses=arguments["include_hypotheses"],
+            thread_ids=None if arguments["thread_ids"] is None else tuple(arguments["thread_ids"]),
             require_compiled=arguments["require_compiled"],
         )
 
@@ -486,6 +491,7 @@ def create_api_router(runtime: Any, authorize: Authorize) -> APIRouter:
             timeline=arguments["timeline"],
             tick=arguments["tick"],
             order=arguments["order"],
+            _thread_filter_ids=None if arguments["recall_thread_ids"] is None else tuple(arguments["recall_thread_ids"]),
             require_compiled=arguments["require_compiled"],
         )
 
@@ -519,6 +525,22 @@ def create_api_router(runtime: Any, authorize: Authorize) -> APIRouter:
             timeline,
             runtime.repository,
             arguments["timeline"],
+            require_compiled=arguments["require_compiled"],
+        )
+
+    async def threads_handler(**arguments: Any) -> dict[str, Any]:
+        return await asyncio.to_thread(
+            thread_catalog,
+            runtime.repository,
+            require_compiled=arguments["require_compiled"],
+        )
+
+    async def thread_memberships_handler(**arguments: Any) -> dict[str, Any]:
+        return await asyncio.to_thread(
+            thread_memberships,
+            runtime.repository,
+            tuple(arguments["record_ids"]),
+            tuple(arguments["thread_ids"]),
             require_compiled=arguments["require_compiled"],
         )
 
@@ -610,6 +632,8 @@ def create_api_router(runtime: Any, authorize: Authorize) -> APIRouter:
         ("conversation", "show"): conversation_handler,
         ("story-points",): story_points_handler,
         ("timeline",): timeline_handler,
+        ("threads",): threads_handler,
+        ("thread-memberships",): thread_memberships_handler,
         ("whereabouts",): whereabouts_handler,
         ("hypotheses",): hypotheses_handler,
         ("causal",): causal_handler,

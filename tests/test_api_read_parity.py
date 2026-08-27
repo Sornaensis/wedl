@@ -13,6 +13,7 @@ from wedl.query import (
     knowledge,
     search_world,
     story_points,
+    thread_catalog,
     timeline,
     validation_report,
     whereabouts,
@@ -60,6 +61,10 @@ def test_api_read_routes_match_their_cli_query_functions(ash_worktree_repo) -> N
             "/api/timeline",
             params={"timeline": "main", "requireCompiled": "true"},
         ).json() == timeline(ash_worktree_repo, "main", require_compiled=True)
+        assert client.get(
+            "/api/threads",
+            params={"requireCompiled": "true"},
+        ).json() == thread_catalog(ash_worktree_repo, require_compiled=True)
         assert client.get(
             "/api/whereabouts",
             params={"character": mara.id, "tick": 121, "timeline": "main", "order": 0, "requireCompiled": "true"},

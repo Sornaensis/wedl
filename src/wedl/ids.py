@@ -21,6 +21,7 @@ KIND_PREFIX = {
     "hypothesis": "hyp",
 }
 AUX_PREFIX = {
+    "thread": "thread",
     "effect": "effect",
     "knowledge-transition": "kt",
     "relationship-transition": "rt",

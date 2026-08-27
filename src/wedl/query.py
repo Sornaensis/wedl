@@ -1,9 +1,11 @@
 from __future__ import annotations
 
 import json
+import math
 from pathlib import Path
 from typing import Any
 
+from . import THREAD_SOURCE_SCHEMA
 from .compiler import cache_readiness, connect, require_database
 from .context import accessible_entities, build_context
 from .conversation import beat_kind, character_scene_allowed, conversation_context_time, current_recollection, remembered_quotes, scene_contains_time, scene_context_time, turn_time, visible_beats, visible_turns
@@ -12,6 +14,7 @@ from .model import ORDER_MAX, ORDER_MIN, TICK_MAX, TICK_MIN, StoryTime, World
 from .repository import Repository
 from .search import hypothesis_source_search, search, search_state
 from .semantics import canonical_events, current_knowledge, evaluate_all_story_points, event_time, interactions, resolve_state
+from .thread_filter import project_thread_memberships, resolve_membership_record_ids, resolve_thread_filter
 from .util import slugify
 from .validation import validate_world
 
@@ -111,6 +114,59 @@ def validation_report(repository: Repository) -> dict[str, Any]:
         "revision": world.revision,
         "recordCount": len(world.records),
         "diagnostics": diagnostics,
+    }
+
+
+def thread_catalog(repository: Repository, *, require_compiled: bool = False) -> dict[str, Any]:
+    """Return the public narrative-group catalog without exposing membership.
+
+    Threads are optional labels in one shared world.  This deliberately reads
+    no record memberships or temporal/state/search data: callers receive only
+    the declared identifiers and display labels.
+    """
+
+    world, _database = require_database(repository, require_compiled=require_compiled)
+    grouping_available = world.schema == THREAD_SOURCE_SCHEMA
+    threads = (
+        [
+            {"id": thread.id, "label": thread.label}
+            for thread in sorted(world.threads, key=lambda thread: (thread.label.casefold(), thread.id))
+        ]
+        if grouping_available
+        else []
+    )
+    return {
+        "protocol": "wedl-threads/v1",
+        "revision": world.revision,
+        "sourceSchema": world.schema,
+        "groupingAvailable": grouping_available,
+        "threads": threads,
+    }
+
+
+def thread_memberships(
+    repository: Repository,
+    record_ids: tuple[str, ...],
+    thread_ids: tuple[str, ...],
+    *,
+    require_compiled: bool = False,
+) -> dict[str, Any]:
+    """Project selected narrative-group membership for supplied public records."""
+
+    world, database = require_database(repository, require_compiled=require_compiled)
+    normalized_records = resolve_membership_record_ids(record_ids)
+    if len(thread_ids) > 32:
+        raise UsageError("thread membership projection accepts at most 32 thread ids")
+    with connect(database, True) as connection:
+        thread_filter = resolve_thread_filter(connection, thread_ids)
+        assert thread_filter is not None
+        records = project_thread_memberships(connection, normalized_records, thread_filter)
+    return {
+        "protocol": "wedl-thread-memberships/v1",
+        "revision": world.revision,
+        "sourceSchema": world.schema,
+        "selectedThreadIds": list(thread_filter.thread_ids),
+        "records": records,
     }
 
 
@@ -414,27 +470,139 @@ def _location_context(world: World, record: Any) -> dict[str, Any]:
     }
 
 
-def _location_history(world: World, record: Any, at: StoryTime) -> list[dict[str, Any]]:
-    """Return an exact, horizon-bounded history of canonical place changes."""
+IMPORTANCE_ALGORITHM = "wedl-character-importance/v1"
+IMPORTANCE_WEIGHTS = {"scenes": 40, "pointOfViewScenes": 25, "events": 20, "relationshipNeighbors": 15}
 
+
+def _character_projection_index(world: World) -> dict[str, Any]:
+    """Build read-only, revision-local evidence indexes once per World.
+
+    The index deliberately stores source evidence rather than derived scores.
+    It is attached to this immutable revision's ``World`` cache, so replacing a
+    world/database cannot accidentally reuse evidence from a previous revision.
+    """
+    key = "character-projection-index/v1"
+    if key in world._cache:
+        return world._cache[key]
+    locations: list[tuple[StoryTime, str, int, Any, dict[str, Any]]] = []
+    events: list[tuple[StoryTime, set[str]]] = []
+    for event in canonical_events(world):
+        point = event_time(event, world.default_timeline)
+        involved = {
+            str(item.get("character")) for item in event.frontmatter.get("participants") or []
+            if isinstance(item, dict) and item.get("character")
+        }
+        for ordinal, effect in enumerate(event.frontmatter.get("effects") or []):
+            if not isinstance(effect, dict):
+                continue
+            if effect.get("key") == "location" and str(effect.get("operation") or "") in {"set", "clear"} and effect.get("target"):
+                locations.append((point, event.id, ordinal, event, effect))
+            # An event contributes at most once to a character, even if that
+            # character is both a participant and the target of several effects.
+            if effect.get("target") and world.maybe_get(str(effect["target"])) and world.maybe_get(str(effect["target"])).kind == "character":
+                involved.add(str(effect["target"]))
+        events.append((point, involved))
+    locations.sort(key=lambda item: (item[0].timeline, item[0].tick, item[0].order, item[1], item[2]))
+
+    scenes: list[tuple[StoryTime, str, bool, str]] = []
+    for scene in world.by_kind("scene"):
+        if scene.status not in {"active", "closed"}:
+            continue
+        value = scene.frontmatter.get("time") or {}
+        start = _timeline_point(value.get("start"), world.default_timeline, record_id=scene.id, field="time.start")
+        for participant in scene.frontmatter.get("participants") or []:
+            if not isinstance(participant, dict) or not participant.get("character"):
+                continue
+            # A participant does not become evidence before their authored
+            # entrance; later exits do not erase an already authored scene.
+            entered = _timeline_point(participant.get("from") or start.to_dict(), world.default_timeline, record_id=scene.id, field="participants.from")
+            scenes.append((entered, str(participant["character"]), bool(participant.get("point_of_view")), scene.id))
+
+    earliest_neighbors: dict[tuple[str, str, str], tuple[StoryTime, str, str]] = {}
+    for relationship in world.by_kind("relationship"):
+        if relationship.status != "canonical":
+            continue
+        source, target = str(relationship.frontmatter.get("from") or ""), str(relationship.frontmatter.get("to") or "")
+        if not source or not target or source == target:
+            continue
+        for transition in relationship.frontmatter.get("transitions") or []:
+            if not isinstance(transition, dict) or not transition.get("time"):
+                continue
+            point = _timeline_point(transition["time"], world.default_timeline, record_id=relationship.id, field="transitions.time")
+            # Timelines are independent ordinal coordinate spaces. A pair's
+            # first connection on one cannot suppress another timeline.
+            neighbor_key = (point.timeline, *sorted((source, target)))
+            candidate = (point, source, target)
+            previous = earliest_neighbors.get(neighbor_key)
+            if previous is None or (point.timeline, point.tick, point.order, source, target) < (previous[0].timeline, previous[0].tick, previous[0].order, previous[1], previous[2]):
+                earliest_neighbors[neighbor_key] = candidate
+    relationships = sorted(earliest_neighbors.values(), key=lambda item: (item[0].timeline, item[0].tick, item[0].order, item[1], item[2]))
+    value = {"locations": tuple(locations), "events": tuple(events), "scenes": tuple(scenes), "relationships": tuple(relationships)}
+    world._cache[key] = value
+    return value
+
+
+def character_importance(world: World, at: StoryTime) -> dict[str, dict[str, Any]]:
+    """Calculate disposable prominence for the complete eligible cohort.
+
+    It is a relative navigation aid, not authored canon.  Each signal is
+    log-normalized against the unfiltered canonical-and-retired cohort, then
+    weighted 40/25/20/15. Contributions are rounded to two decimals before
+    their final score is summed and rounded, preserving deterministic ties and
+    zero-maxima behavior.
+    """
+    characters = sorted((item for item in world.by_kind("character") if item.status in {"canonical", "retired"}), key=lambda item: (item.title.casefold(), item.id))
+    raw = {item.id: {"scenes": 0, "pointOfViewScenes": 0, "events": 0, "relationshipNeighbors": 0} for item in characters}
+    index = _character_projection_index(world)
+    for point, character_id, pov, _scene_id in index["scenes"]:
+        if point.not_after(at) and character_id in raw:
+            raw[character_id]["scenes"] += 1
+            if pov:
+                raw[character_id]["pointOfViewScenes"] += 1
+    for point, involved in index["events"]:
+        if point.not_after(at):
+            for character_id in involved:
+                if character_id in raw:
+                    raw[character_id]["events"] += 1
+    neighbors = {item.id: set() for item in characters}
+    for point, source, target in index["relationships"]:
+        if point.not_after(at):
+            # Directional relationship records are authored separately, but
+            # their prominence evidence is one reciprocal neighbor connection.
+            if source in neighbors and target in neighbors:
+                neighbors[source].add(target)
+                neighbors[target].add(source)
+    for character_id, values in raw.items():
+        values["relationshipNeighbors"] = len(neighbors[character_id])
+    maxima = {signal: max((values[signal] for values in raw.values()), default=0) for signal in IMPORTANCE_WEIGHTS}
+    result: dict[str, dict[str, Any]] = {}
+    for character in characters:
+        counts = raw[character.id]
+        normalized = {signal: (math.log1p(counts[signal]) / math.log1p(maxima[signal]) if maxima[signal] else 0.0) for signal in IMPORTANCE_WEIGHTS}
+        contributions = {signal: round(IMPORTANCE_WEIGHTS[signal] * normalized[signal], 2) for signal in IMPORTANCE_WEIGHTS}
+        score = round(sum(contributions.values()), 2)
+        result[character.id] = {
+            "algorithm": IMPORTANCE_ALGORITHM,
+            "score": score,
+            "raw": counts,
+            "normalized": {signal: round(value, 6) for signal, value in normalized.items()},
+            "contributions": contributions,
+            "explanation": "Calculated from authored scene appearances, point-of-view appearances, canonical event involvement, and distinct relationship neighbors through this horizon.",
+        }
+    return result
+
+
+def _location_history(world: World, record: Any, at: StoryTime) -> list[dict[str, Any]]:
+    """Return an exact, horizon-bounded history from the shared transition index."""
     initial = _location_id((record.frontmatter.get("initial_state") or {}).get("location"))
     result: list[dict[str, Any]] = []
     if initial:
         result.append({"operation": "initial", "at": None, "location": _timeline_reference(world, initial, "location")})
-    transitions: list[tuple[StoryTime, str, int, dict[str, Any]]] = []
-    for event in canonical_events(world):
-        point = event_time(event, world.default_timeline)
-        if not point.not_after(at):
-            continue
-        for ordinal, effect in enumerate(event.frontmatter.get("effects") or []):
-            if not isinstance(effect, dict) or effect.get("target") != record.id or effect.get("key") != "location":
-                continue
-            if str(effect.get("operation") or "") in {"set", "clear"}:
-                transitions.append((point, event.id, ordinal, effect))
-    for point, event_id, _ordinal, effect in sorted(transitions, key=lambda item: (item[0].timeline, item[0].tick, item[0].order, item[1], item[2])):
-        operation = str(effect["operation"])
-        location = _location_id(effect.get("value")) if operation == "set" else None
-        result.append({"operation": operation, "at": _timeline_coordinate(point), "location": _timeline_reference(world, location, "location"), "event": _timeline_reference(world, event_id, "event")})
+    for point, event_id, _ordinal, _event, effect in _character_projection_index(world)["locations"]:
+        if point.not_after(at) and effect.get("target") == record.id:
+            operation = str(effect["operation"])
+            location = _location_id(effect.get("value")) if operation == "set" else None
+            result.append({"operation": operation, "at": _timeline_coordinate(point), "location": _timeline_reference(world, location, "location"), "event": _timeline_reference(world, event_id, "event")})
     return result
 
 
@@ -605,7 +773,7 @@ def _scope_value(at: Any, all_time: bool) -> dict[str, Any]:
     return {"mode": "all-time"} if all_time else {"mode": "as-of", "at": at.to_dict()}
 
 
-def search_world(repository: Repository, query: str, *, perspective: str = "author", character_id: str | None = None, scene_id: str | None = None, mode: str = "hybrid", limit: int = 20, timeline: str | None = None, tick: int | None = None, order: int | None = None, include_text: bool = False, all_time: bool = False, include_hypotheses: bool = False, require_compiled: bool = False) -> dict[str, Any]:
+def search_world(repository: Repository, query: str, *, perspective: str = "author", character_id: str | None = None, scene_id: str | None = None, mode: str = "hybrid", limit: int = 20, timeline: str | None = None, tick: int | None = None, order: int | None = None, include_text: bool = False, all_time: bool = False, include_hypotheses: bool = False, thread_ids: tuple[str, ...] | None = None, require_compiled: bool = False) -> dict[str, Any]:
     world, database = require_database(repository, require_compiled=require_compiled)
     if include_hypotheses and perspective != "author":
         raise UsageError("hypothesis search is available only to authors")
@@ -635,9 +803,10 @@ def search_world(repository: Repository, query: str, *, perspective: str = "auth
         accessible = accessible_entities(world, character.id, scene, at)
         knowledge_ids = {item["knowledgeId"] for item in current_knowledge(world, character.id, at)}
     with connect(database, True) as connection:
-        results = search(connection, query, perspective=perspective, character_id=canonical_character_id, scene_id=scene.id if scene else None, at=at, accessible_entities=accessible, active_knowledge=knowledge_ids, mode=mode, limit=limit)
+        thread_filter = resolve_thread_filter(connection, thread_ids)
+        results = search(connection, query, perspective=perspective, character_id=canonical_character_id, scene_id=scene.id if scene else None, at=at, accessible_entities=accessible, active_knowledge=knowledge_ids, mode=mode, limit=limit, _thread_filter=thread_filter)
         state = search_state(connection)
-    if include_hypotheses:
+    if include_hypotheses and thread_filter is None:
         # This separate source projection preserves the canonical compiled
         # corpus/model while keeping an explicit author discovery path.
         results.extend(hypothesis_source_search(world, query, limit=limit))
@@ -674,7 +843,6 @@ def conversation_view(repository: Repository, conversation_id: str, *, perspecti
         # Memory may evolve long after the canonical exchange ended, so use the
         # current narrative cursor while reporting the conversation interval
         # separately below.
-        from .conversation import scene_context_time
         at = world.current_time
     elif perspective == "character" and world.active_scene() is not None:
         at = scene_context_time(world.active_scene(), world.default_timeline)
@@ -765,19 +933,10 @@ def _whereabouts_journeys(
                 "to": _timeline_reference(world, initial, "location"), "event": None,
             })
 
-    transitions: list[tuple[StoryTime, str, int, Any, dict[str, Any]]] = []
-    for event in canonical_events(world, at):
-        point = event_time(event, world.default_timeline)
-        for ordinal, effect in enumerate(event.frontmatter.get("effects") or []):
-            if not isinstance(effect, dict):
-                continue
-            character_id = effect.get("target")
-            if character_id not in character_ids or effect.get("key") != "location":
-                continue
-            operation = str(effect.get("operation") or "")
-            if operation in {"set", "clear"}:
-                transitions.append((point, event.id, ordinal, event, effect))
-    transitions.sort(key=lambda item: (item[0].timeline, item[0].tick, item[0].order, item[1], item[2]))
+    transitions = [
+        item for item in _character_projection_index(world)["locations"]
+        if item[0].not_after(at) and item[4].get("target") in character_ids
+    ]
 
     for point, _event_id, _ordinal, event, effect in transitions:
         character_id = str(effect["target"])
@@ -831,11 +990,11 @@ def whereabouts(
     selected = world.find(character_id, "character") if character_id else None
     if selected is not None and selected.status not in {"canonical", "retired"}:
         raise UsageError("whereabouts includes canonical and retired characters only")
-    characters = [
-        character for character in world.by_kind("character")
-        if character.status in {"canonical", "retired"} and (selected is None or character.id == selected.id)
-    ]
-    characters.sort(key=lambda character: (character.title.casefold(), character.id))
+    cohort = sorted((character for character in world.by_kind("character") if character.status in {"canonical", "retired"}), key=lambda character: (character.title.casefold(), character.id))
+    # Calculate before a name filter so a focused read retains the same
+    # relative score and cohort maxima as the bulk projection.
+    importance = character_importance(world, at)
+    characters = [character for character in cohort if selected is None or character.id == selected.id]
     journeys, current_locations, last_known_locations = _whereabouts_journeys(world, characters, at)
 
     # A whereabouts read is an as-of projection.  A scene now closed can be
@@ -880,9 +1039,12 @@ def whereabouts(
             presence = "offstage"
         reference = _timeline_reference(world, character.id, "character")
         assert reference is not None
+        role = character.frontmatter.get("role")
         entry = {
             "character": reference,
             "recordStatus": character.status,
+            "role": str(role).strip() if isinstance(role, str) and role.strip() else None,
+            "importance": importance[character.id],
             "presence": presence,
             "location": _timeline_reference(world, location_id, "location"),
             # This is useful historical context only after an explicit clear.
@@ -925,7 +1087,7 @@ def whereabouts(
         key=lambda item: (str(item["location"]["title"]).casefold(), str(item["location"]["id"])),
     )
     return {
-        "protocol": "wedl-whereabouts/v1",
+        "protocol": "wedl-whereabouts/v2",
         "revision": world.revision,
         "effectiveTime": _timeline_coordinate(at),
         "timeScope": {"mode": "as-of", "at": _timeline_coordinate(at)},
@@ -934,6 +1096,16 @@ def whereabouts(
             "excludedStatuses": ["draft"],
             "locationEvidence": "initial state and canonical location effects only",
             "inference": "none",
+        },
+        "importancePolicy": {
+            "algorithm": IMPORTANCE_ALGORITHM,
+            "calculated": True,
+            "nonCanonical": True,
+            "cohort": "all canonical and retired characters before filtering",
+            "normalization": "per-signal log1p(raw) / log1p(cohort maximum); zero maximum contributes zero",
+            "weights": IMPORTANCE_WEIGHTS,
+            "evidence": "scene appearances and POV subset; canonical event participants/effect targets deduplicated per event; distinct reciprocal relationship neighbors",
+            "exclusions": "No prose, tags, inferred travel, co-presence, knowledge, or manual overrides are used.",
         },
         "characterFilter": None if selected is None else _timeline_reference(world, selected.id, "character"),
         "characters": entries,

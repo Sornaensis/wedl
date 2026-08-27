@@ -12,7 +12,7 @@ import tempfile
 import time
 from typing import Any
 
-from . import SOURCE_SCHEMA, SQLITE_SCHEMA, __version__
+from . import SOURCE_SCHEMA, SQLITE_SCHEMA, SUPPORTED_SOURCE_SCHEMAS, __version__
 from .conversation import turn_time
 from .errors import CompileRequired, ValidationFailed
 from .model import Record, StoryTime, World
@@ -39,6 +39,8 @@ CREATE TABLE entity(id TEXT PRIMARY KEY,kind TEXT NOT NULL,title TEXT NOT NULL,d
 CREATE TABLE entity_tag(entity_id TEXT,tag TEXT,PRIMARY KEY(entity_id,tag));
 CREATE TABLE entity_alias(entity_id TEXT,alias TEXT,PRIMARY KEY(entity_id,alias));
 CREATE TABLE entity_ref(source_id TEXT,target_id TEXT,source_field TEXT,PRIMARY KEY(source_id,target_id,source_field));
+CREATE TABLE narrative_thread(id TEXT PRIMARY KEY,label TEXT NOT NULL);
+CREATE TABLE record_thread(record_id TEXT NOT NULL REFERENCES entity(id),thread_id TEXT NOT NULL REFERENCES narrative_thread(id),PRIMARY KEY(record_id,thread_id));
 CREATE TABLE event(entity_id TEXT PRIMARY KEY,timeline TEXT,tick INTEGER,ordering INTEGER,location_id TEXT,event_status TEXT);
 CREATE TABLE event_participant(event_id TEXT,character_id TEXT,role TEXT,ordinal INTEGER,PRIMARY KEY(event_id,ordinal));
 CREATE TABLE state_effect(effect_id TEXT PRIMARY KEY,event_id TEXT,target_id TEXT,state_key TEXT,operation TEXT,value_json TEXT,ordinal INTEGER);
@@ -69,6 +71,8 @@ CREATE TABLE character_interaction(event_id TEXT,first_character_id TEXT,second_
 INDEX_DDL = r"""
 CREATE INDEX entity_kind_idx ON entity(kind,status,title);
 CREATE INDEX entity_ref_target_idx ON entity_ref(target_id);
+CREATE INDEX narrative_thread_label_idx ON narrative_thread(label,id);
+CREATE INDEX record_thread_thread_idx ON record_thread(thread_id,record_id);
 CREATE INDEX event_time_idx ON event(timeline,tick,ordering);
 CREATE INDEX knowledge_knower_idx ON knowledge(knower_id,claim_key);
 CREATE INDEX relationship_source_idx ON relationship(from_id,to_id);
@@ -136,12 +140,21 @@ def vector_cache(repository: Repository) -> sqlite3.Connection:
 
 def fingerprint(world: World, profile: CompilationProfile) -> str:
     material = canonical_json({
-        "source": SOURCE_SCHEMA,
+        "source": world.schema,
         "sqlite": SQLITE_SCHEMA,
         "version": __version__,
         "profile": profile.as_dict(),
         "worldStateKeys": world.config.get("state_keys") or {},
         "relationshipMetrics": world.config.get("relationship_metrics") or {},
+        "threads": [
+            {"id": thread.id, "label": thread.label}
+            for thread in sorted(world.threads, key=lambda item: item.id)
+        ],
+        "recordThreads": [
+            {"recordId": record.id, "threads": sorted(record.thread_ids)}
+            for record in sorted(world.records.values(), key=lambda item: item.id)
+            if record.kind not in {"world", "hypothesis"} and record.thread_ids
+        ],
     })
     return DOCUMENT_GENERATION_TOKEN + ":" + hashlib.sha256(material.encode()).hexdigest()
 
@@ -185,11 +198,11 @@ def cache_readiness(repository: Repository, revision: str = "HEAD") -> dict[str,
     incompatible_fields = [
         field
         for field, expected, actual in (
-            ("sourceSchema", SOURCE_SCHEMA, meta.get("source_schema")),
+            ("sourceSchema", "supported source schema", meta.get("source_schema")),
             ("sqliteSchema", SQLITE_SCHEMA, meta.get("sqlite_schema")),
             ("compilerVersion", __version__, meta.get("compiler_version")),
         )
-        if actual != expected
+        if (actual not in SUPPORTED_SOURCE_SCHEMAS if field == "sourceSchema" else actual != expected)
     ]
     if not str(meta.get("compiler_fingerprint") or "").startswith(DOCUMENT_GENERATION_TOKEN + ":"):
         incompatible_fields.append("compilerFingerprint")
@@ -253,6 +266,23 @@ def _insert_entities(connection: sqlite3.Connection, world: World) -> None:
         connection.executemany("INSERT INTO entity_alias VALUES (?,?)", aliases)
     if refs:
         connection.executemany("INSERT OR IGNORE INTO entity_ref VALUES (?,?,?)", refs)
+
+
+def _insert_threads(connection: sqlite3.Connection, world: World) -> None:
+    threads = sorted(world.threads, key=lambda thread: thread.id)
+    if threads:
+        connection.executemany(
+            "INSERT INTO narrative_thread VALUES (?,?)",
+            [(thread.id, thread.label) for thread in threads],
+        )
+    memberships = [
+        (record.id, thread_id)
+        for record in sorted(world.records.values(), key=lambda item: item.id)
+        if record.kind not in {"world", "hypothesis"}
+        for thread_id in sorted(record.thread_ids)
+    ]
+    if memberships:
+        connection.executemany("INSERT INTO record_thread VALUES (?,?)", memberships)
 
 
 def _insert_narrative(connection: sqlite3.Connection, world: World) -> None:
@@ -805,6 +835,14 @@ def compile_world(
     stage = time.perf_counter()
     world = repository.load_world(resolved)
     timings["loadSource"] = (time.perf_counter() - stage) * 1000
+    stage = time.perf_counter()
+    diagnostics = validate_world(world)
+    timings["validate"] = (time.perf_counter() - stage) * 1000
+    errors = [item for item in diagnostics if item["severity"] == "error"]
+    if errors:
+        raise ValidationFailed(
+            f"world validation failed with {len(errors)} error(s)", diagnostics
+        )
     if no_profile_override and previous.get("profile_json"):
         # A compilation profile is an operational choice. Preserve it across
         # ordinary commits and external fast-forwards instead of unexpectedly
@@ -829,7 +867,7 @@ def compile_world(
         not force
         and previous.get("head_commit") == world.revision
         and previous.get("tree_oid") == world.tree_oid
-        and previous.get("source_schema") == SOURCE_SCHEMA
+        and previous.get("source_schema") == world.schema
         and previous.get("sqlite_schema") == SQLITE_SCHEMA
         and previous.get("compiler_version") == __version__
         and str(previous.get("compiler_fingerprint") or "").startswith(DOCUMENT_GENERATION_TOKEN + ":")
@@ -848,15 +886,6 @@ def compile_world(
             "sourceLoad": dict(repository.last_load_stats),
             "timingsMs": {key: round(value, 3) for key, value in timings.items()},
         }
-
-    stage = time.perf_counter()
-    diagnostics = validate_world(world)
-    timings["validate"] = (time.perf_counter() - stage) * 1000
-    errors = [item for item in diagnostics if item["severity"] == "error"]
-    if errors:
-        raise ValidationFailed(
-            f"world validation failed with {len(errors)} error(s)", diagnostics
-        )
 
     build_mode = "full"
     changed: list[str] = []
@@ -886,6 +915,9 @@ def compile_world(
             _insert_entities(connection, world)
             timings["entities"] = (time.perf_counter() - stage) * 1000
             stage = time.perf_counter()
+            _insert_threads(connection, world)
+            timings["threads"] = (time.perf_counter() - stage) * 1000
+            stage = time.perf_counter()
             _insert_narrative(connection, world)
             timings["narrative"] = (time.perf_counter() - stage) * 1000
             stage = time.perf_counter()
@@ -902,7 +934,7 @@ def compile_world(
                 (
                     world.revision,
                     world.tree_oid,
-                    SOURCE_SCHEMA,
+                    world.schema,
                     SQLITE_SCHEMA,
                     __version__,
                     compiler_fingerprint,

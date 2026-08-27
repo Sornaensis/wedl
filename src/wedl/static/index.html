@@ -35,7 +35,7 @@
         <button class="nav-item" type="button" data-kind="story-point">Plot threads</button>
         <button class="nav-item" type="button" data-kind="conversation">Conversations</button>
         <p class="nav-group">World</p>
-        <button class="nav-item" type="button" data-kind="character">People</button>
+        <button class="nav-item" type="button" data-kind="character">Characters</button>
         <button class="nav-item" type="button" data-kind="location">Places</button>
         <button class="nav-item" type="button" data-kind="object">Items</button>
         <button class="nav-item" type="button" data-kind="relationship">Relationships</button>
@@ -53,7 +53,7 @@
           <label class="sr-only" for="search-kind">Lore kind</label>
           <select id="search-kind" name="kind">
             <option value="">All kinds</option>
-            <option value="character">People</option>
+            <option value="character">Characters</option>
             <option value="location">Places</option>
             <option value="scene">Scenes</option>
             <option value="event">Events</option>
@@ -63,7 +63,16 @@
             <option value="relationship">Relationships</option>
           </select>
           <button type="submit">Search</button>
+          <label class="sort-control" for="index-sort">Sort
+            <select id="index-sort" name="sort"></select>
+          </label>
         </form>
+        <fieldset id="thread-filter" class="thread-filter" aria-describedby="thread-filter-help thread-filter-status" hidden disabled>
+          <legend>Narrative groups</legend>
+          <p id="thread-filter-help" class="field-help">Show records in any selected narrative group. These groups never change the shared story timeline or canon.</p>
+          <div id="thread-filter-options" class="thread-filter-options"></div>
+        </fieldset>
+        <p id="thread-filter-status" class="section-status" role="status" aria-live="polite" hidden></p>
         <p id="entities-status" class="section-status" role="status" aria-live="polite"></p>
         <div id="search-recovery" hidden>
           <button id="retry-search" type="button">Retry search</button>

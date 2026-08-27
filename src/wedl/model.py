@@ -49,6 +49,14 @@ class StoryTime:
         return self.timeline == other.timeline and (self.tick, self.order) <= (other.tick, other.order)
 
 
+@dataclass(frozen=True, slots=True)
+class Thread:
+    """One label-only grouping in the shared world."""
+
+    id: str
+    label: str
+
+
 @dataclass(slots=True)
 class Record:
     frontmatter: dict[str, Any]
@@ -86,6 +94,13 @@ class Record:
     def aliases(self) -> list[str]:
         return [str(value) for value in self.frontmatter.get("aliases") or []]
 
+    @property
+    def thread_ids(self) -> tuple[str, ...]:
+        values = self.frontmatter.get("threads")
+        if not isinstance(values, list):
+            return ()
+        return tuple(value for value in values if isinstance(value, str))
+
     def citation(self, revision: str, section: str) -> dict[str, Any]:
         return {
             "entityId": self.id,
@@ -121,6 +136,27 @@ class World:
     @property
     def config(self) -> dict[str, Any]:
         return self.world_record.frontmatter
+
+    @property
+    def schema(self) -> str:
+        return str(self.config.get("schema", ""))
+
+    @property
+    def threads(self) -> tuple[Thread, ...]:
+        values = self.config.get("threads")
+        if not isinstance(values, list):
+            return ()
+        return tuple(
+            Thread(value["id"], value["label"])
+            for value in values
+            if isinstance(value, dict)
+            and isinstance(value.get("id"), str)
+            and isinstance(value.get("label"), str)
+        )
+
+    @property
+    def thread_ids(self) -> frozenset[str]:
+        return frozenset(thread.id for thread in self.threads)
 
     @property
     def default_timeline(self) -> str:

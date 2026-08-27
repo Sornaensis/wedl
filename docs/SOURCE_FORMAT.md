@@ -26,6 +26,11 @@ story/
 
 Folders are organizational. The compiler identifies records by frontmatter, not by path. Moving or renaming a file does not change identity.
 
+Schema upgrades are source transactions, not SQLite migrations. For the
+supported local-only v0.3/v0.4 paths, inspect a confirmed `wedl migrate`
+preview before applying it; the compiled database remains disposable. See
+[Migration and recovery](MIGRATION_AND_RECOVERY.md).
+
 ## 2. File envelope
 
 Every record is a UTF-8 Markdown file with one YAML frontmatter document:

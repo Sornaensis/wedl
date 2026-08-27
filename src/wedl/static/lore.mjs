@@ -1,5 +1,5 @@
 const KIND_LABELS = {
-  world: "World overview", character: "Person", location: "Place", object: "Item",
+  world: "World overview", character: "Character", location: "Place", object: "Item",
   environment: "Environment", event: "Event", scene: "Scene", knowledge: "Knowledge",
   relationship: "Relationship", "story-point": "Plot thread", conversation: "Conversation",
 };
@@ -42,6 +42,7 @@ function conversationPersonName(value, registry) {
   if (registry && registry.has(value)) return safeDisplayName(value, registry, "character");
   return isOpaqueIdentifier(value) ? "Unavailable person reference" : authorText(value, registry);
 }
+function conversationPersonId(value, registry) { return typeof value === "string" && registry && registry.has(value) && registry.get(value).kind === "character" ? value : ""; }
 
 // v2 adds `beats`, but retains `verbatimTurns` for speech-only consumers and
 // older compiled worlds.  Normalising here means both shapes render through
@@ -61,6 +62,9 @@ export function conversationTranscriptBeats(payload, registry) {
       speaker: kind === "speech" ? conversationPersonName(beat.speaker, registry) : "",
       addressee: kind === "speech" && beat.addressee ? conversationPersonName(beat.addressee, registry) : "",
       actors,
+      actorIds: kind === "action" ? (Array.isArray(beat.actorIds) ? beat.actorIds.map((actor) => conversationPersonId(actor, registry)) : (Array.isArray(beat.actors) ? beat.actors.map((actor) => conversationPersonId(actor, registry)) : [])) : [],
+      speakerId: kind === "speech" ? (conversationPersonId(beat.speakerId, registry) || conversationPersonId(beat.speaker, registry)) : "",
+      addresseeId: kind === "speech" ? (conversationPersonId(beat.addresseeId, registry) || conversationPersonId(beat.addressee, registry)) : "",
       delivery: kind === "speech" && beat.delivery ? humanizeToken(beat.delivery) : "",
       interrupts: kind === "speech" && typeof beat.interrupts === "string" ? beat.interrupts : "",
     };
@@ -72,8 +76,11 @@ export function conversationTranscriptBeats(payload, registry) {
       kind: beat.kind,
       text: beat.text,
       speaker: beat.speaker,
+      speakerId: beat.speakerId,
       addressee: beat.addressee,
+      addresseeId: beat.addresseeId,
       actors: beat.actors,
+      actorIds: beat.actorIds,
       delivery: beat.delivery,
       // A named, canonical earlier line works even with intervening beats;
       // it never exposes the opaque source link or changes transcript order.

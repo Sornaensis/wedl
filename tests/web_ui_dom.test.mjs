@@ -46,8 +46,8 @@ function makeDom() {
   nav.append(all, timeline, whereabouts, possibilities);
   const elements = {
     appStatus: make("app-status"), article: make("entity-detail-content"), articleStatus: make("article-status"), back: make("back-to-timeline", "button"),
-    entities: make("entities"), entitiesForm: make("entities-form", "form"), entitiesStatus: make("entities-status"), entityText: make("entity-text", "input"), searchKind: make("search-kind", "select"), horizon: make("author-horizon", "select"), retrySearch: make("retry-search", "button"), searchRecovery: make("search-recovery"),
-    indexHeading: make("entries-heading"), mobileBack: make("back-to-navigation", "button"), nav, shell, worldName: make("world-name"), timeline, whereabouts, possibilities,
+    entities: make("entities"), entitiesForm: make("entities-form", "form"), entitiesStatus: make("entities-status"), entityText: make("entity-text", "input"), searchKind: make("search-kind", "select"), horizon: make("author-horizon", "select"), retrySearch: make("retry-search", "button"), searchRecovery: make("search-recovery"), threadFilter: make("thread-filter", "fieldset"), threadFilterOptions: make("thread-filter-options"), threadFilterStatus: make("thread-filter-status"),
+    indexHeading: make("entries-heading"), indexSort: make("index-sort", "select"), mobileBack: make("back-to-navigation", "button"), nav, shell, worldName: make("world-name"), timeline, whereabouts, possibilities,
   };
   const document = {
     querySelector(selector) { return named.get(selector) || null; },
@@ -69,20 +69,236 @@ async function loadBrowserModule() {
   const timeline = dataModule(await read("timeline.mjs"));
   const lore = dataModule((await read("lore.mjs")).replace("./timeline.mjs", timeline));
   const search = dataModule((await read("search.mjs")).replace("./lore.mjs", lore));
-  const api = dataModule(await read("api.js")); const query = dataModule(await read("query.mjs")); const navigation = dataModule(await read("navigation.mjs"));
+  const api = dataModule(await read("api.js")); const query = dataModule(await read("query.mjs")); const navigation = dataModule(await read("navigation.mjs")); const sorting = dataModule(await read("sorting.mjs"));
   let app = await read("app.js");
-  for (const [relative, module] of Object.entries({ "./api.js": api, "./query.mjs": query, "./lore.mjs": lore, "./search.mjs": search, "./navigation.mjs": navigation, "./timeline.mjs": timeline })) app = app.replace(relative, module);
+  for (const [relative, module] of Object.entries({ "./api.js": api, "./query.mjs": query, "./lore.mjs": lore, "./search.mjs": search, "./sorting.mjs": sorting, "./navigation.mjs": navigation, "./timeline.mjs": timeline })) app = app.replace(relative, module);
   return import(dataModule(`${app}\n// browser test instance ${++browserModuleNonce}`));
 }
 
-test("successful whereabouts load replaces its placeholder with visible independent locations and journeys", async () => {
+test("narrative group catalog is server-ordered, works in browse and search, and sends sorted ANY selectors", async () => {
+  const previous = { document: globalThis.document, fetch: globalThis.fetch, history: globalThis.history, location: globalThis.location, requestAnimationFrame: globalThis.requestAnimationFrame, window: globalThis.window, WebSocket: globalThis.WebSocket };
+  const { document, elements } = makeDom(); const calls = []; let revision = "r1";
+  class WebSocketMock { static instances = []; constructor() { this.events = new Map(); WebSocketMock.instances.push(this); } addEventListener(name, listener) { this.events.set(name, listener); } emit(value) { this.events.get("message")?.({ data: JSON.stringify(value) }); } }
+  globalThis.document = document; globalThis.location = { pathname: "/", protocol: "http:", host: "wedl.test" }; globalThis.history = { state: null, pushState() {}, replaceState() {} }; globalThis.requestAnimationFrame = (callback) => callback(); globalThis.window = { addEventListener() {}, matchMedia: () => ({ matches: true }) }; globalThis.WebSocket = WebSocketMock;
+  globalThis.fetch = async (path) => {
+    calls.push(path);
+    const payload = path === "/api/session" ? { token: "test" }
+      : path === "/api/status" ? { revision, recordCount: 1, timeModel: { timelineDeclarations: [], defaultTimeline: "" } }
+        : path === "/api/entities" ? [{ id: "world_story", kind: "world", title: "The Test World" }]
+          : path === "/api/threads" ? revision === "r3" ? { protocol: "wedl-threads/v1", revision, sourceSchema: "wedl/v0.3", groupingAvailable: false, threads: [] } : { protocol: "wedl-threads/v1", revision, sourceSchema: "wedl/v0.5", groupingAvailable: true, threads: revision === "r1" ? [{ id: "thread_z", label: "Road" }, { id: "thread_a", label: "Archive" }] : [{ id: "thread_z", label: "Road" }] }
+            : path.startsWith("/api/search") ? { protocol: "wedl-search/v5", revision, results: [] }
+              : {};
+    return { ok: true, json: async () => payload, text: async () => "" };
+  };
+  try {
+    await loadBrowserModule(); await waitForUi(); await waitForUi();
+    assert.equal(elements.threadFilter.hidden, false);
+    assert.equal(elements.threadFilter.disabled, false, "browse can project selected narrative groups");
+    assert.deepEqual(elements.threadFilterOptions.querySelectorAll(".thread-filter-option").map((input) => input.dataset.threadId), ["thread_z", "thread_a"], "the catalog keeps server display order");
+    elements.entityText.value = "signal"; elements.entitiesForm.dispatch("submit"); await waitForUi(); await waitForUi();
+    assert.equal(elements.threadFilter.disabled, false);
+    assert.ok(calls.includes("/api/search?q=signal&perspective=author&allTime=true"), "no selector preserves the existing request exactly");
+    const options = elements.threadFilterOptions.querySelectorAll(".thread-filter-option"); options[0].checked = true; options[1].checked = true; options[1].focus(); options[1].dispatch("change"); await waitForUi(); await waitForUi();
+    assert.equal(options[1].focused, true, "a checkbox change retains keyboard focus on the live mobile control");
+    assert.ok(calls.includes("/api/search?q=signal&perspective=author&allTime=true&threadId=thread_a&threadId=thread_z"), "the server receives sorted repeated ANY selectors");
+    revision = "r2"; WebSocketMock.instances[0].emit({ revision }); await waitForUi(); await waitForUi(); await waitForUi();
+    assert.deepEqual(elements.threadFilterOptions.querySelectorAll(".thread-filter-option").map((input) => input.dataset.threadId), ["thread_z"], "a revision clears group IDs removed from the catalog");
+    assert.ok(calls.includes("/api/search?q=signal&perspective=author&allTime=true&threadId=thread_z"), "a revision re-runs the surviving group selection");
+    elements.entityText.value = ""; elements.entitiesForm.dispatch("submit"); await waitForUi(); await waitForUi();
+    assert.equal(elements.threadFilter.disabled, false, "clearing text retains the browse selector");
+    revision = "r3"; WebSocketMock.instances[0].emit({ revision }); await waitForUi(); await waitForUi(); await waitForUi();
+    assert.equal(elements.threadFilter.hidden, true, "v0.3 does not show a synthesized narrative group selector");
+  } finally { Object.assign(globalThis, previous); }
+});
+
+test("membership projection filters browse and timeline candidates, labels matches, and reuses a complete batch", async () => {
+  const previous = { document: globalThis.document, fetch: globalThis.fetch, history: globalThis.history, location: globalThis.location, requestAnimationFrame: globalThis.requestAnimationFrame, window: globalThis.window };
+  const { document, elements } = makeDom(); const calls = []; const revision = "r1";
+  const world = { id: "world_story", kind: "world", title: "World" }; const member = { id: "char_member", kind: "character", title: "Member" }; const other = { id: "char_other", kind: "character", title: "Other" }; const event = { id: "event_member", kind: "event", title: "Member event" };
+  globalThis.document = document; globalThis.location = { pathname: "/", protocol: "http:", host: "wedl.test" }; globalThis.history = { state: null, pushState() {}, replaceState() {} }; globalThis.requestAnimationFrame = (callback) => callback(); globalThis.window = { addEventListener() {}, matchMedia: () => ({ matches: false }) };
+  globalThis.fetch = async (path) => {
+    calls.push(path);
+    const payload = path === "/api/session" ? { token: "test" }
+      : path === "/api/status" ? { revision, recordCount: 4, timeModel: { timelineDeclarations: [{ id: "main", label: "Main" }], defaultTimeline: "main" } }
+        : path === "/api/entities" ? [world, member, other, event]
+          : path === "/api/threads" ? { protocol: "wedl-threads/v1", revision, sourceSchema: "wedl/v0.5", groupingAvailable: true, threads: [{ id: "thread_a", label: "Archive" }] }
+            : path === "/api/timeline?timeline=main" ? { revision, timeline: { id: "main" }, points: [{ at: { timeline: "main", tick: "1", order: "0" }, kind: "event", entity: event }], spans: [] }
+              : path.startsWith("/api/thread-memberships?") ? { protocol: "wedl-thread-memberships/v1", revision, sourceSchema: "wedl/v0.5", selectedThreadIds: ["thread_a"], records: path.includes("event_member") ? [{ recordId: "char_member", threadIds: ["thread_a"] }, { recordId: "event_member", threadIds: ["thread_a"] }] : [{ recordId: "char_member", threadIds: ["thread_a"] }] }
+                : {};
+    return { ok: true, json: async () => payload, text: async () => "" };
+  };
+  try {
+    await loadBrowserModule(); await waitForUi(); await waitForUi();
+    const option = elements.threadFilterOptions.querySelector(".thread-filter-option"); option.checked = true; option.dispatch("change"); await waitForUi(); await waitForUi();
+    const browsePath = "/api/thread-memberships?recordId=char_member&recordId=char_other&recordId=event_member&recordId=world_story&threadId=thread_a";
+    assert.ok(calls.includes(browsePath));
+    assert.match(elements.entities.textContent, /Member[\s\S]*Narrative groups: Archive/);
+    assert.doesNotMatch(elements.entities.textContent, /Other/);
+    const firstCount = calls.filter((path) => path === browsePath).length;
+    option.checked = false; option.dispatch("change"); await waitForUi(); option.checked = true; option.dispatch("change"); await waitForUi(); await waitForUi();
+    assert.equal(calls.filter((path) => path === browsePath).length, firstCount, "a complete cached batch is reused");
+    elements.timeline.click(); await waitForUi(); await waitForUi();
+    assert.ok(calls.includes("/api/thread-memberships?recordId=event_member&threadId=thread_a"));
+    assert.match(elements.article.textContent, /Member eventNarrative groups: Archive/);
+  } finally { Object.assign(globalThis, previous); }
+});
+
+test("a failed membership batch closes the selected browse lane and retry replaces it atomically", async () => {
+  const previous = { document: globalThis.document, fetch: globalThis.fetch, history: globalThis.history, location: globalThis.location, requestAnimationFrame: globalThis.requestAnimationFrame, window: globalThis.window };
+  const { document, elements } = makeDom(); const calls = []; let failSecondBatch = true; let membershipCalls = 0; const revision = "r1";
+  const world = { id: "world_story", kind: "world", title: "World" }; const records = Array.from({ length: 257 }, (_, index) => ({ id: `char_${String(index).padStart(3, "0")}`, kind: "character", title: `Record ${index}` }));
+  globalThis.document = document; globalThis.location = { pathname: "/", protocol: "http:", host: "wedl.test" }; globalThis.history = { state: null, pushState() {}, replaceState() {} }; globalThis.requestAnimationFrame = (callback) => callback(); globalThis.window = { addEventListener() {}, matchMedia: () => ({ matches: false }) };
+  globalThis.fetch = async (path) => {
+    calls.push(path);
+    if (path.startsWith("/api/thread-memberships?")) { membershipCalls += 1; if (failSecondBatch && membershipCalls === 2) return { ok: false, status: 503, json: async () => ({}), text: async () => "second batch offline" }; return { ok: true, json: async () => ({ protocol: "wedl-thread-memberships/v1", revision, sourceSchema: "wedl/v0.5", selectedThreadIds: ["thread_a"], records: [{ recordId: "char_000", threadIds: ["thread_a"] }] }), text: async () => "" }; }
+    const payload = path === "/api/session" ? { token: "test" }
+      : path === "/api/status" ? { revision, recordCount: records.length + 1, timeModel: { timelineDeclarations: [], defaultTimeline: "" } }
+        : path === "/api/entities" ? [world, ...records]
+          : path === "/api/threads" ? { protocol: "wedl-threads/v1", revision, sourceSchema: "wedl/v0.5", groupingAvailable: true, threads: [{ id: "thread_a", label: "Archive" }] }
+            : {};
+    return { ok: true, json: async () => payload, text: async () => "" };
+  };
+  try {
+    await loadBrowserModule(); await waitForUi(); await waitForUi();
+    const option = elements.threadFilterOptions.querySelector(".thread-filter-option"); option.checked = true; option.dispatch("change"); await waitForUi(); await waitForUi();
+    assert.equal(calls.filter((path) => path.startsWith("/api/thread-memberships?")).length, 2, "257 candidates use two bounded requests");
+    assert.doesNotMatch(elements.entities.textContent, /Record 0/, "a partial projection never opens an unfiltered lane");
+    assert.match(elements.entitiesStatus.textContent, /selected view is closed/);
+    failSecondBatch = false; elements.retrySearch.click(); await waitForUi(); await waitForUi();
+    assert.match(elements.entities.textContent, /Record 0/);
+    assert.doesNotMatch(elements.entitiesStatus.textContent, /selected view is closed/);
+  } finally { Object.assign(globalThis, previous); }
+});
+
+test("timeline projection failure exposes a local retry while a search query is active", async () => {
+  const previous = { document: globalThis.document, fetch: globalThis.fetch, history: globalThis.history, location: globalThis.location, requestAnimationFrame: globalThis.requestAnimationFrame, window: globalThis.window };
+  const { document, elements } = makeDom(); const calls = []; let failed = false; const revision = "r1"; const event = { id: "event_member", kind: "event", title: "Member event" }; const searchOnly = { id: "event_search", kind: "event", title: "Search-only event" };
+  globalThis.document = document; globalThis.location = { pathname: "/", protocol: "http:", host: "wedl.test" }; globalThis.history = { state: null, pushState() {}, replaceState() {} }; globalThis.requestAnimationFrame = (callback) => callback(); globalThis.window = { addEventListener() {}, matchMedia: () => ({ matches: true }) };
+  globalThis.fetch = async (path) => { calls.push(path);
+    if (path.startsWith("/api/thread-memberships?")) { if (!failed) { failed = true; return { ok: false, status: 503, json: async () => ({}), text: async () => "offline" }; } const record = path.includes("event_search") ? searchOnly : event; return { ok: true, json: async () => ({ protocol: "wedl-thread-memberships/v1", revision, sourceSchema: "wedl/v0.5", selectedThreadIds: ["thread_a"], records: [{ recordId: record.id, threadIds: ["thread_a"] }] }), text: async () => "" }; }
+    const payload = path === "/api/session" ? { token: "test" }
+      : path === "/api/status" ? { revision, recordCount: 2, timeModel: { timelineDeclarations: [{ id: "main", label: "Main" }], defaultTimeline: "main" } }
+        : path === "/api/entities" ? [{ id: "world_story", kind: "world", title: "World" }, event, searchOnly]
+          : path === "/api/threads" ? { protocol: "wedl-threads/v1", revision, sourceSchema: "wedl/v0.5", groupingAvailable: true, threads: [{ id: "thread_a", label: "Archive" }] }
+            : path === "/api/timeline?timeline=main" ? { revision, timeline: { id: "main" }, points: [{ at: { timeline: "main", tick: "1", order: "0" }, kind: "event", entity: event }], spans: [] }
+              : path.startsWith("/api/search") ? { protocol: "wedl-search/v5", revision, results: [{ entityId: searchOnly.id, kind: "event", title: searchOnly.title }] }
+                : {};
+    return { ok: true, json: async () => payload, text: async () => "" };
+  };
+  try {
+    await loadBrowserModule(); await waitForUi(); await waitForUi(); elements.entityText.value = "signal"; elements.entitiesForm.dispatch("submit"); await waitForUi(); await waitForUi(); elements.timeline.click(); await waitForUi(); await waitForUi();
+    assert.match(elements.entities.textContent, /Search-only event/); const option = elements.threadFilterOptions.querySelector(".thread-filter-option"); option.checked = true; option.dispatch("change"); await waitForUi(); await waitForUi();
+    const retry = elements.article.querySelector(".thread-membership-retry");
+    assert.ok(retry, "timeline exposes a reachable local recovery control"); assert.match(elements.article.textContent, /selected view is closed/); assert.equal(elements.articleStatus.textContent.includes("selected view is closed"), true); assert.ok(calls.includes("/api/thread-memberships?recordId=event_member&threadId=thread_a")); assert.equal(calls.some((path) => path.includes("recordId=event_search")), false, "timeline selection ignores distinct search candidates");
+    retry.focus(); assert.equal(retry.focused, true); retry.click(); await waitForUi(); await waitForUi();
+    assert.match(elements.article.textContent, /Member eventNarrative groups: Archive/); assert.match(elements.entities.textContent, /Search-only event/, "selector refresh did not repaint the hidden index from search candidates"); assert.equal(elements.article.querySelector(".thread-membership-retry"), null);
+    elements.back.click(); await waitForUi(); await waitForUi(); await waitForUi();
+    assert.ok(calls.includes("/api/search?q=signal&perspective=author&allTime=true&threadId=thread_a"), "returning to the index refreshes the active server-filtered search"); assert.ok(calls.includes("/api/thread-memberships?recordId=event_search&threadId=thread_a"), "the refreshed search receives its own membership projection"); assert.match(elements.entities.textContent, /Search-only event[\s\S]*Narrative groups: Archive/); assert.doesNotMatch(elements.entities.textContent, /Member event/);
+  } finally { Object.assign(globalThis, previous); }
+});
+
+test("overlapping membership requests cannot overwrite the newest selected lane", async () => {
+  const previous = { document: globalThis.document, fetch: globalThis.fetch, history: globalThis.history, location: globalThis.location, requestAnimationFrame: globalThis.requestAnimationFrame, window: globalThis.window };
+  const { document, elements } = makeDom(); const deferred = []; const revision = "r1"; const old = { id: "char_old", kind: "character", title: "Old" }; const fresh = { id: "char_fresh", kind: "character", title: "Fresh" };
+  globalThis.document = document; globalThis.location = { pathname: "/", protocol: "http:", host: "wedl.test" }; globalThis.history = { state: null, pushState() {}, replaceState() {} }; globalThis.requestAnimationFrame = (callback) => callback(); globalThis.window = { addEventListener() {}, matchMedia: () => ({ matches: false }) };
+  globalThis.fetch = (path) => {
+    if (path.startsWith("/api/thread-memberships?")) { const call = deferred.length; if (call < 2) return new Promise((resolve, reject) => deferred.push({ resolve, reject })); const payload = { protocol: "wedl-thread-memberships/v1", revision, sourceSchema: "wedl/v0.5", selectedThreadIds: ["thread_b"], records: [{ recordId: fresh.id, threadIds: ["thread_b"] }] }; return Promise.resolve({ ok: true, json: async () => payload, text: async () => "" }); }
+    const payload = path === "/api/session" ? { token: "test" }
+      : path === "/api/status" ? { revision, recordCount: 3, timeModel: { timelineDeclarations: [], defaultTimeline: "" } }
+        : path === "/api/entities" ? [{ id: "world_story", kind: "world", title: "World" }, old, fresh]
+          : path === "/api/threads" ? { protocol: "wedl-threads/v1", revision, sourceSchema: "wedl/v0.5", groupingAvailable: true, threads: [{ id: "thread_a", label: "A" }, { id: "thread_b", label: "B" }] }
+            : {};
+    return Promise.resolve({ ok: true, json: async () => payload, text: async () => "" });
+  };
+  try {
+    await loadBrowserModule(); await waitForUi(); await waitForUi(); const [a, b] = elements.threadFilterOptions.querySelectorAll(".thread-filter-option");
+    a.checked = true; a.dispatch("change"); await waitForUi(); b.checked = true; b.dispatch("change"); await waitForUi(); a.checked = false; a.dispatch("change"); await waitForUi(); await waitForUi();
+    deferred[0].reject(new Error("stale failure")); deferred[1].resolve({ ok: true, json: async () => ({ protocol: "wedl-thread-memberships/v1", revision, sourceSchema: "wedl/v0.5", selectedThreadIds: ["thread_a", "thread_b"], records: [{ recordId: old.id, threadIds: ["thread_a"] }] }), text: async () => "" }); await waitForUi(); await waitForUi();
+    assert.match(elements.entities.textContent, /Fresh/); assert.doesNotMatch(elements.entities.textContent, /Old/); assert.doesNotMatch(elements.entitiesStatus.textContent, /selected view is closed/);
+  } finally { Object.assign(globalThis, previous); }
+});
+
+test("a WebSocket revision invalidates and reloads the membership projection before repainting", async () => {
+  const previous = { document: globalThis.document, fetch: globalThis.fetch, history: globalThis.history, location: globalThis.location, requestAnimationFrame: globalThis.requestAnimationFrame, window: globalThis.window, WebSocket: globalThis.WebSocket };
+  const { document, elements } = makeDom(); let revision = "r1"; class WebSocketMock { static instances = []; constructor() { this.events = new Map(); WebSocketMock.instances.push(this); } addEventListener(name, listener) { this.events.set(name, listener); } emit(value) { this.events.get("message")?.({ data: JSON.stringify(value) }); } }
+  const old = { id: "char_old", kind: "character", title: "Old" }; const fresh = { id: "char_fresh", kind: "character", title: "Fresh" };
+  globalThis.document = document; globalThis.location = { pathname: "/", protocol: "http:", host: "wedl.test" }; globalThis.history = { state: null, pushState() {}, replaceState() {} }; globalThis.requestAnimationFrame = (callback) => callback(); globalThis.window = { addEventListener() {}, matchMedia: () => ({ matches: false }) }; globalThis.WebSocket = WebSocketMock;
+  globalThis.fetch = async (path) => {
+    const current = revision === "r1" ? old : fresh;
+    const payload = path === "/api/session" ? { token: "test" }
+      : path === "/api/status" ? { revision, recordCount: 2, timeModel: { timelineDeclarations: [], defaultTimeline: "" } }
+        : path === "/api/entities" ? [{ id: "world_story", kind: "world", title: "World" }, current]
+          : path === "/api/threads" ? { protocol: "wedl-threads/v1", revision, sourceSchema: "wedl/v0.5", groupingAvailable: true, threads: [{ id: "thread_a", label: "Archive" }] }
+            : path.startsWith("/api/thread-memberships?") ? { protocol: "wedl-thread-memberships/v1", revision, sourceSchema: "wedl/v0.5", selectedThreadIds: ["thread_a"], records: [{ recordId: current.id, threadIds: ["thread_a"] }] }
+              : {};
+    return { ok: true, json: async () => payload, text: async () => "" };
+  };
+  try {
+    await loadBrowserModule(); await waitForUi(); await waitForUi(); const option = elements.threadFilterOptions.querySelector(".thread-filter-option"); option.checked = true; option.dispatch("change"); await waitForUi(); await waitForUi(); assert.match(elements.entities.textContent, /Old/);
+    revision = "r2"; WebSocketMock.instances[0].emit({ revision }); await waitForUi(); await waitForUi(); await waitForUi();
+    assert.match(elements.entities.textContent, /Fresh[\s\S]*Narrative groups: Archive/); assert.doesNotMatch(elements.entities.textContent, /Old/);
+  } finally { Object.assign(globalThis, previous); }
+});
+
+test("returning from timeline restores distinct selected browse and unchanged-search lanes", async () => {
+  const previous = { document: globalThis.document, fetch: globalThis.fetch, history: globalThis.history, location: globalThis.location, requestAnimationFrame: globalThis.requestAnimationFrame, window: globalThis.window };
+  const { document, elements } = makeDom(); const revision = "r1"; const browse = { id: "char_browse", kind: "character", title: "Browse match" }; const searched = { id: "char_search", kind: "character", title: "Search match" }; const timeline = { id: "event_timeline", kind: "event", title: "Timeline match" };
+  globalThis.document = document; globalThis.location = { pathname: "/", protocol: "http:", host: "wedl.test" }; globalThis.history = { state: null, pushState() {}, replaceState() {} }; globalThis.requestAnimationFrame = (callback) => callback(); globalThis.window = { addEventListener() {}, matchMedia: () => ({ matches: false }) };
+  globalThis.fetch = async (path) => {
+    let record = browse;
+    if (path.includes("recordId=event_timeline")) record = timeline; else if (path.startsWith("/api/thread-memberships?") && !path.includes("char_browse") && path.includes("char_search")) record = searched;
+    const payload = path === "/api/session" ? { token: "test" }
+      : path === "/api/status" ? { revision, recordCount: 4, timeModel: { timelineDeclarations: [{ id: "main", label: "Main" }], defaultTimeline: "main" } }
+        : path === "/api/entities" ? [{ id: "world_story", kind: "world", title: "World" }, browse, searched]
+          : path === "/api/threads" ? { protocol: "wedl-threads/v1", revision, sourceSchema: "wedl/v0.5", groupingAvailable: true, threads: [{ id: "thread_a", label: "Archive" }] }
+            : path === "/api/timeline?timeline=main" ? { revision, timeline: { id: "main" }, points: [{ at: { timeline: "main", tick: "1", order: "0" }, kind: "event", entity: timeline }], spans: [] }
+              : path.startsWith("/api/search") ? { protocol: "wedl-search/v5", revision, results: [{ entityId: searched.id, kind: searched.kind, title: searched.title }] }
+                : path.startsWith("/api/thread-memberships?") ? { protocol: "wedl-thread-memberships/v1", revision, sourceSchema: "wedl/v0.5", selectedThreadIds: ["thread_a"], records: [{ recordId: record.id, threadIds: ["thread_a"] }] }
+                  : {};
+    return { ok: true, json: async () => payload, text: async () => "" };
+  };
+  try {
+    await loadBrowserModule(); await waitForUi(); await waitForUi(); const option = elements.threadFilterOptions.querySelector(".thread-filter-option");
+    option.checked = true; option.dispatch("change"); await waitForUi(); await waitForUi(); assert.match(elements.entities.textContent, /Browse match/);
+    elements.timeline.click(); await waitForUi(); await waitForUi(); assert.match(elements.article.textContent, /Timeline match/); elements.back.click(); await waitForUi(); await waitForUi(); assert.match(elements.entities.textContent, /Browse match/); assert.doesNotMatch(elements.entities.textContent, /Timeline match/);
+    option.checked = false; option.dispatch("change"); await waitForUi(); elements.entityText.value = "signal"; elements.entitiesForm.dispatch("submit"); await waitForUi(); await waitForUi(); const searchOption = elements.threadFilterOptions.querySelector(".thread-filter-option"); searchOption.checked = true; searchOption.dispatch("change"); await waitForUi(); await waitForUi(); assert.match(elements.entities.textContent, /Search match/);
+    elements.timeline.click(); await waitForUi(); await waitForUi(); elements.back.click(); await waitForUi(); await waitForUi(); assert.match(elements.entities.textContent, /Search match/); assert.doesNotMatch(elements.entities.textContent, /Timeline match/);
+  } finally { Object.assign(globalThis, previous); }
+});
+
+test("a failed narrative group catalog keeps the existing unfiltered author search available", async () => {
   const previous = { document: globalThis.document, fetch: globalThis.fetch, history: globalThis.history, location: globalThis.location, requestAnimationFrame: globalThis.requestAnimationFrame, window: globalThis.window };
   const { document, elements } = makeDom(); const calls = [];
+  globalThis.document = document; globalThis.location = { pathname: "/" }; globalThis.history = { state: null, pushState() {}, replaceState() {} }; globalThis.requestAnimationFrame = (callback) => callback(); globalThis.window = { addEventListener() {}, matchMedia: () => ({ matches: false }) };
+  globalThis.fetch = async (path) => {
+    calls.push(path);
+    if (path === "/api/threads") return { ok: false, status: 503, json: async () => ({}), text: async () => "catalog offline" };
+    const payload = path === "/api/session" ? { token: "test" }
+      : path === "/api/status" ? { revision: "r1", recordCount: 1, timeModel: { timelineDeclarations: [], defaultTimeline: "" } }
+        : path === "/api/entities" ? [{ id: "world_story", kind: "world", title: "The Test World" }]
+          : path.startsWith("/api/search") ? { protocol: "wedl-search/v5", revision: "r1", results: [] }
+            : {};
+    return { ok: true, json: async () => payload, text: async () => "" };
+  };
+  try {
+    await loadBrowserModule(); await waitForUi(); await waitForUi();
+    assert.equal(elements.threadFilter.hidden, true);
+    assert.equal(elements.threadFilterStatus.hidden, false);
+    assert.match(elements.threadFilterStatus.textContent, /unavailable/);
+    elements.entityText.value = "signal"; elements.entitiesForm.dispatch("submit"); await waitForUi(); await waitForUi();
+    assert.ok(calls.includes("/api/search?q=signal&perspective=author&allTime=true"));
+  } finally { Object.assign(globalThis, previous); }
+});
+
+test("successful whereabouts load replaces its placeholder with visible independent locations and journeys", async () => {
+  const previous = { document: globalThis.document, fetch: globalThis.fetch, history: globalThis.history, location: globalThis.location, requestAnimationFrame: globalThis.requestAnimationFrame, window: globalThis.window, WebSocket: globalThis.WebSocket };
+  const { document, elements } = makeDom(); const calls = []; let revision = "r1";
+  class WebSocketMock { static instances = []; constructor() { this.events = new Map(); WebSocketMock.instances.push(this); } addEventListener(name, listener) { this.events.set(name, listener); } emit(value) { this.events.get("message")?.({ data: JSON.stringify(value) }); } }
   globalThis.document = document;
   globalThis.location = { pathname: "/" };
   globalThis.history = { state: null, pushState() {}, replaceState() {} };
   globalThis.requestAnimationFrame = (callback) => callback();
-  globalThis.window = { addEventListener() {}, matchMedia: () => ({ matches: false }) };
+  globalThis.window = { addEventListener() {}, matchMedia: () => ({ matches: false }) }; globalThis.WebSocket = WebSocketMock;
   const entities = [
     { id: "world_story", kind: "world", title: "The Test World" },
     { id: "char_rhea", kind: "character", title: "Rhea" },
@@ -93,15 +309,18 @@ test("successful whereabouts load replaces its placeholder with visible independ
   globalThis.fetch = async (path) => {
     calls.push(path);
     const payload = path === "/api/session" ? { token: "test" }
-      : path === "/api/status" ? { recordCount: entities.length, timeModel: { timelineDeclarations: [], defaultTimeline: "" } }
-        : path === "/api/entities" ? entities
+      : path === "/api/status" ? { revision, recordCount: entities.length, timeModel: { timelineDeclarations: [], defaultTimeline: "" } }
+        : path === "/api/threads" ? { revision, groupingAvailable: false, threads: [] }
+          : path === "/api/entities" ? entities
           : path === "/api/entities/char_rhea" ? { ...entities[1], bodyMarkdown: "A veteran.", frontmatter: { role: "shield-veteran" } }
             : path === "/api/entities/event_move" ? { ...entities[3], bodyMarkdown: "A move is recorded.", frontmatter: {} }
           : path === "/api/whereabouts" ? {
-            effectiveTime: { timeline: "main", tick: "5", order: "0" }, activeScenes: [{ scene: entities[4], location: entities[2], characters: [entities[1]] }],
+            revision, effectiveTime: { timeline: "main", tick: "5", order: "0" }, importancePolicy: { calculated: true }, activeScenes: [{ scene: entities[4], location: entities[2], characters: [entities[1]] }],
             characters: [
-              { character: entities[1], presence: "offstage", location: entities[2], lastKnownLocation: null, activeScene: null, journey: [{ kind: "initial", at: null, from: null, to: entities[2], event: null }, { kind: "move", at: { timeline: "main", tick: "5", order: "0" }, from: null, to: entities[2], event: entities[3] }] },
-              { character: { id: "char_lost", kind: "character", title: "Lost Scout" }, presence: "unlocated", location: null, lastKnownLocation: entities[2], activeScene: null, journey: [{ kind: "clear", at: { timeline: "main", tick: "4", order: "0" }, from: entities[2], to: null, event: entities[3] }] },
+              { character: entities[1], role: revision === "r1" ? "shield-veteran" : "trail-guide", importance: { score: 3, raw: { scenes: 1, pointOfViewScenes: 0, events: 1, relationshipNeighbors: 0 }, contributions: { scenes: 2, pointOfViewScenes: 0, events: 1, relationshipNeighbors: 0 }, explanation: "Calculated evidence." }, presence: "offstage", location: entities[2], lastKnownLocation: null, activeScene: null, journey: [{ kind: "initial", at: null, from: null, to: entities[2], event: null }, { kind: "move", at: { timeline: "main", tick: "5", order: "0" }, from: null, to: entities[2], event: entities[3] }] },
+              { character: { id: "char_lost", kind: "character", title: "Lost Scout" }, role: null, importance: { score: 10, raw: { scenes: 0, pointOfViewScenes: 0, events: 0, relationshipNeighbors: 0 }, contributions: { scenes: 0, pointOfViewScenes: 0, events: 0, relationshipNeighbors: 0 }, explanation: "Calculated evidence." }, presence: "unlocated", location: null, lastKnownLocation: entities[2], activeScene: null, journey: [{ kind: "clear", at: { timeline: "main", tick: "4", order: "0" }, from: entities[2], to: null, event: entities[3] }] },
+              { character: { id: "char_ada", kind: "character", title: "Ada" }, role: null, importance: { score: 0, raw: {}, contributions: {}, explanation: "Calculated evidence." }, presence: "unlocated", location: null, lastKnownLocation: null, activeScene: null, journey: [] },
+              { character: { id: "char_zed", kind: "character", title: "Zed" }, role: null, importance: { score: 0, raw: {}, contributions: {}, explanation: "Calculated evidence." }, presence: "unlocated", location: null, lastKnownLocation: null, activeScene: null, journey: [] },
             ],
           } : {};
     return { ok: true, json: async () => payload, text: async () => "" };
@@ -120,11 +339,21 @@ test("successful whereabouts load replaces its placeholder with visible independ
     assert.match(elements.article.textContent, /At the story’s beginning/);
     assert.match(elements.article.textContent, /At current authored moment/);
     assert.match(elements.article.textContent, /No current place recorded/);
+    assert.doesNotMatch(elements.article.textContent, /Calculated prominence:|Score:|weighted contribution/);
+    assert.match(elements.article.textContent, /lower calculated prominence/);
+    assert.match(elements.article.textContent, /Order characters by/);
+    const people = elements.article.querySelectorAll(".whereabouts-person");
+    assert.match(people[0].textContent, /Lost Scout/, "people are score-sorted from the bulk projection");
+    assert.match(people[2].textContent, /Ada/); assert.match(people[3].textContent, /Zed/, "zero-score ties have deterministic title ordering");
+    assert.doesNotMatch(elements.article.textContent, /Scene appearances: 1/);
     assert.match(elements.article.textContent, /Shield Veteran/);
     assert.doesNotMatch(elements.article.textContent, /Opening whereabouts|Gathering the recorded locations/);
     assert.doesNotMatch(elements.article.textContent, /Whereabouts unavailable/);
     assert.equal(calls.filter((path) => path === "/api/whereabouts").length, 1);
-    assert.equal(calls.filter((path) => path === "/api/entities/char_rhea").length, 1, "the cached character detail supplies the role without a second read");
+    assert.equal(calls.filter((path) => path === "/api/entities/char_rhea").length, 1, "opening the prior detail did not trigger a whereabouts role read");
+    revision = "r2"; WebSocketMock.instances[0].emit({ compile: { revision: "r2" } }); await waitForUi(); await waitForUi(); await waitForUi();
+    assert.match(elements.article.textContent, /Trail Guide/, "a revision event replaces the old bulk role rather than retaining a stale cache");
+    assert.equal(calls.filter((path) => path === "/api/whereabouts").length, 2, "the revision invalidated the horizon projection cache");
     const eventLink = elements.article.querySelectorAll(".lore-link").find((button) => button.textContent === "Rhea reaches the road");
     eventLink.click(); await waitForUi(); await waitForUi();
     elements.back.click(); await waitForUi(); await waitForUi();
@@ -132,6 +361,27 @@ test("successful whereabouts load replaces its placeholder with visible independ
   } finally {
     Object.assign(globalThis, previous);
   }
+});
+
+test("a read-detected revision atomically clears a removed timeline, horizon, and selected entity", async () => {
+  const previous = { document: globalThis.document, fetch: globalThis.fetch, history: globalThis.history, location: globalThis.location, requestAnimationFrame: globalThis.requestAnimationFrame, window: globalThis.window, WebSocket: globalThis.WebSocket };
+  const { document, elements } = makeDom(); const calls = []; let phase = "r1";
+  class WebSocketMock { static instances = []; constructor() { this.events = new Map(); WebSocketMock.instances.push(this); } addEventListener(name, listener) { this.events.set(name, listener); } emit(value) { this.events.get("message")?.({ data: JSON.stringify(value) }); } }
+  globalThis.document = document; globalThis.location = { pathname: "/" }; globalThis.history = { state: null, pushState() {}, replaceState() {} }; globalThis.requestAnimationFrame = (callback) => callback(); globalThis.window = { addEventListener() {}, matchMedia: () => ({ matches: false }) }; globalThis.WebSocket = WebSocketMock;
+  const world = { id: "world_story", kind: "world", title: "The Test World" }; const rhea = { id: "char_rhea", kind: "character", title: "Rhea" };
+  const status = () => phase === "r1" ? { revision: "r1", recordCount: 2, timeModel: { timelineDeclarations: [{ id: "main", label: "Main" }], defaultTimeline: "main" } } : { revision: "r3", recordCount: 1, timeModel: { timelineDeclarations: [], defaultTimeline: "" } };
+  globalThis.fetch = async (path) => { calls.push(path); const payload = path === "/api/session" ? { token: "test" } : path === "/api/status" ? status() : path === "/api/threads" ? { revision: phase === "r1" ? "r1" : "r3", groupingAvailable: false, threads: [] } : path === "/api/entities" ? (phase === "r1" ? [world, rhea] : [world]) : path === "/api/timeline?timeline=main" ? { revision: "r1", timeline: { id: "main" }, points: [{ at: { timeline: "main", tick: "5", order: "0" }, entity: rhea, kind: "event" }], spans: [] } : path === "/api/entities/char_rhea" ? { ...rhea, bodyMarkdown: "A veteran.", frontmatter: {} } : {}; return { ok: true, json: async () => payload, text: async () => "" }; };
+  try {
+    await loadBrowserModule(); await waitForUi(); await waitForUi();
+    elements.horizon.value = "main\u00005\u00000"; elements.horizon.dispatch("change"); await waitForUi();
+    elements.entities.querySelectorAll(".entity-select").find((button) => button.dataset.entityId === "char_rhea").click(); await waitForUi(); await waitForUi();
+    assert.match(elements.article.textContent, /Rhea/);
+    phase = "r3"; elements.entities.querySelectorAll(".entity-select").find((button) => button.dataset.entityId === "char_rhea").click(); await waitForUi(); await waitForUi(); await waitForUi(); await waitForUi();
+    assert.match(elements.article.textContent, /Lore changed/);
+    assert.doesNotMatch(elements.article.textContent, /A veteran/);
+    assert.equal(elements.horizon.disabled, true, "the removed timeline clears its horizon control");
+    assert.equal(calls.filter((path) => path === "/api/timeline?timeline=main").length, 1, "a removed timeline is never requested after the revision race");
+  } finally { Object.assign(globalThis, previous); }
 });
 
 test("Possibilities is text-safe, has no opaque IDs or edit controls, and restores as a non-horizon view", async () => {
@@ -187,6 +437,7 @@ test("Possibilities clears the active horizon across history and opens Whereabou
   try {
     await loadBrowserModule(); await waitForUi(); await waitForUi();
     elements.timeline.click(); await waitForUi(); await waitForUi();
+    assert.equal(calls.filter((path) => path.startsWith("/api/whereabouts")).length, 0, "a character-free timeline does not request prominence data");
     elements.horizon.value = "main\u00005\u00000"; elements.horizon.dispatch("change"); await waitForUi(); await waitForUi();
     const timelineSnapshot = historyWrites.at(-1);
     assert.deepEqual(timelineSnapshot.horizon, horizon, "the selected timeline moment is saved exactly");
@@ -204,6 +455,37 @@ test("Possibilities clears the active horizon across history and opens Whereabou
     assert.equal(elements.horizon.value, "", "Forward restores Possibilities with no stale horizon selection");
     elements.whereabouts.click(); await waitForUi(); await waitForUi();
     assert.equal(calls.at(-1), "/api/whereabouts", "Whereabouts from Possibilities uses the world current moment, not stale query parameters");
+  } finally { Object.assign(globalThis, previous); }
+});
+
+test("timeline participant prominence loads per horizon and refreshes after a revision", async () => {
+  const previous = { document: globalThis.document, fetch: globalThis.fetch, history: globalThis.history, location: globalThis.location, requestAnimationFrame: globalThis.requestAnimationFrame, window: globalThis.window, WebSocket: globalThis.WebSocket };
+  const { document, elements } = makeDom(); const calls = []; let revision = "r1";
+  class WebSocketMock { static instances = []; constructor() { this.events = new Map(); WebSocketMock.instances.push(this); } addEventListener(name, listener) { this.events.set(name, listener); } emit(value) { this.events.get("message")?.({ data: JSON.stringify(value) }); } }
+  globalThis.document = document; globalThis.location = { pathname: "/" }; globalThis.history = { state: { view: "index", kind: "event", searchKind: "event" }, pushState() {}, replaceState() {} }; globalThis.requestAnimationFrame = (callback) => callback(); globalThis.window = { addEventListener() {}, matchMedia: () => ({ matches: false }) }; globalThis.WebSocket = WebSocketMock;
+  const horizon = { timeline: "main", tick: "5", order: "0" }; const world = { id: "world_story", kind: "world", title: "The Test World" }; const event = { id: "event_signal", kind: "event", title: "A signal answers" }; const scout = { id: "char_scout", kind: "character", title: "Scout" };
+  globalThis.fetch = async (path) => {
+    calls.push(path);
+    const payload = path === "/api/session" ? { token: "test" }
+      : path === "/api/status" ? { revision, recordCount: 2, timeModel: { timelineDeclarations: [{ id: "main", label: "Main" }], defaultTimeline: "main" } }
+        : path === "/api/threads" ? { revision, groupingAvailable: false, threads: [] }
+          : path === "/api/entities" ? [world, event, scout]
+          : path === "/api/timeline?timeline=main" ? { revision, timeline: { id: "main" }, points: [{ at: horizon, kind: "event", entity: event, participants: [scout] }], spans: [] }
+            : path.startsWith("/api/whereabouts") ? { revision, effectiveTime: horizon, activeScenes: [], characters: [{ character: scout, importance: { score: revision === "r1" ? 42 : 84 } }] }
+              : {};
+    return { ok: true, json: async () => payload, text: async () => "" };
+  };
+  try {
+    await loadBrowserModule(); await waitForUi(); await waitForUi();
+    assert.equal(calls.filter((path) => path.startsWith("/api/whereabouts")).length, 0, "the character-free index does not request prominence data");
+    elements.timeline.click(); await waitForUi(); await waitForUi();
+    assert.equal(calls.filter((path) => path === "/api/whereabouts").length, 1, "a timeline participant requests prominence data even outside the index");
+    assert.ok(elements.article.querySelectorAll(".character-prominence").some((item) => /Scout/.test(item.textContent)), "the timeline participant receives the prominence presentation");
+    elements.horizon.value = "main\u00005\u00000"; elements.horizon.dispatch("change"); await waitForUi(); await waitForUi();
+    const horizonPath = "/api/whereabouts?timeline=main&tick=5&order=0";
+    assert.equal(calls.filter((path) => path === horizonPath).length, 1, "a selected horizon has its own prominence projection");
+    revision = "r2"; WebSocketMock.instances[0].emit({ revision }); await waitForUi(); await waitForUi(); await waitForUi();
+    assert.equal(calls.filter((path) => path === horizonPath).length, 2, "a revision invalidates the horizon prominence cache for timeline participants");
   } finally { Object.assign(globalThis, previous); }
 });
 

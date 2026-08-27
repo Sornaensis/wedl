@@ -19,6 +19,7 @@ export function createApiClient() {
     setToken(value) {
       token = typeof value === "string" ? value : "";
     },
+    sessionToken() { return token; },
     async get(path, options = {}) {
       const headers = {
         ...(options.headers || {}),

@@ -39,6 +39,12 @@ class ParseError(WedlError):
     code = "parse_error"
 
 
+class SupersededSchemaError(WedlError):
+    """A withdrawn source schema must be recovered outside normal loading."""
+
+    code = "v04_superseded"
+
+
 class ValidationFailed(WedlError):
     code = "validation_failed"
 

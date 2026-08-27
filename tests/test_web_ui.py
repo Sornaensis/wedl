@@ -56,9 +56,10 @@ def test_web_ui_static_root_and_assets_are_served(ui_ash_repo) -> None:
         lore_module = client.get("/assets/lore.mjs")
         search_module = client.get("/assets/search.mjs")
         navigation_module = client.get("/assets/navigation.mjs")
+        sorting_module = client.get("/assets/sorting.mjs")
         favicon = client.get("/assets/favicon.svg")
 
-        assert stylesheet.status_code == app_module.status_code == api_module.status_code == query_module.status_code == lore_module.status_code == search_module.status_code == navigation_module.status_code == favicon.status_code == 200
+        assert stylesheet.status_code == app_module.status_code == api_module.status_code == query_module.status_code == lore_module.status_code == search_module.status_code == navigation_module.status_code == sorting_module.status_code == favicon.status_code == 200
         assert "text/css" in stylesheet.headers["content-type"]
         assert "javascript" in app_module.headers["content-type"]
         assert "javascript" in api_module.headers["content-type"]
@@ -73,11 +74,20 @@ def test_web_ui_static_root_and_assets_are_served(ui_ash_repo) -> None:
         assert "export function buildLoreArticle" in lore_module.text
         assert "export function presentSearchResults" in search_module.text
         assert "export function navigationSnapshot" in navigation_module.text
+        assert "export function indexSortConfiguration" in sorting_module.text
         assert 'from "./navigation.mjs"' in app_module.text
+        assert 'from "./sorting.mjs"' in app_module.text
         assert "Timeline" in root.text
         assert 'data-view="whereabouts"' in root.text
         assert "Whereabouts" in root.text
         assert "Plot threads" in root.text
+        assert "Characters" in root.text
+        assert "People" not in root.text
+        assert 'id="index-sort"' in root.text
+        assert 'id="thread-filter-options"' in root.text
+        assert 'id="thread-filter-status"' in root.text
+        assert '<fieldset id="thread-filter"' in root.text
+        assert "Narrative groups" in root.text
         assert "source_path" not in root.text
         for module in (app_module.text, api_module.text, query_module.text, lore_module.text, search_module.text):
             assert "innerHTML" not in module
@@ -87,6 +97,8 @@ def test_web_ui_static_root_and_assets_are_served(ui_ash_repo) -> None:
         assert ".meanwhile-group" in stylesheet.text
         assert ".whereabouts-person" in stylesheet.text
         assert "max-width: 719px" in stylesheet.text
+        assert ".thread-filter" in stylesheet.text
+        assert "/api/threads" in app_module.text
 
 
 def test_web_ui_serves_the_existing_bulk_whereabouts_projection(ui_ash_repo) -> None:
@@ -96,9 +108,11 @@ def test_web_ui_serves_the_existing_bulk_whereabouts_projection(ui_ash_repo) -> 
 
     assert response.status_code == 200
     payload = response.json()
-    assert payload["protocol"] == "wedl-whereabouts/v1"
+    assert payload["protocol"] == "wedl-whereabouts/v2"
     assert payload["characterPolicy"]["inference"] == "none"
-    assert all("journey" in item and "presence" in item for item in payload["characters"])
+    assert payload["importancePolicy"]["calculated"] is True
+    assert payload["importancePolicy"]["nonCanonical"] is True
+    assert all("journey" in item and "presence" in item and "role" in item and "importance" in item for item in payload["characters"])
 
 
 def test_web_ui_api_supports_entity_selection_context_and_temporal_author_search(ui_ash_repo) -> None:

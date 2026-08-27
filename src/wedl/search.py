@@ -17,6 +17,7 @@ from .errors import UsageError
 from .lexical import fts_query_parts
 from .model import Record, StoryTime, World
 from .profiles import CompilationProfile
+from .thread_filter import ThreadFilter, filter_ranked_candidates
 from .vectors import embed_query, model_from_row
 
 STOPWORDS = {
@@ -841,6 +842,7 @@ def search(
     mode: str = "hybrid",
     limit: int = 20,
     include_hypotheses: bool = False,
+    _thread_filter: ThreadFilter | None = None,
 ) -> list[dict[str, Any]]:
     profile = _compiled_profile(connection)
     _require_mode(profile, mode)
@@ -876,13 +878,13 @@ def search(
             {**item, "score": 1.0 / (profile.hybrid_rrf_k + item["ftsRank"]), "lanes": ["fts"]}
             for item in fts_results
         ]
-        return _deduplicate(ranked, limit)
+        return _finish_ranked_search(connection, ranked, limit, profile, _thread_filter)
     if mode == "vector":
         ranked = [
             {**item, "score": item["vectorScore"], "lanes": ["vector"]}
             for item in vector_results
         ]
-        return _deduplicate(ranked, limit)
+        return _finish_ranked_search(connection, ranked, limit, profile, _thread_filter)
 
     combined: dict[str, dict[str, Any]] = {}
     for item in fts_results:
@@ -902,4 +904,18 @@ def search(
         combined.values(),
         key=lambda item: (-float(item["score"]), item["documentId"]),
     )
-    return _deduplicate(ranked, limit)
+    return _finish_ranked_search(connection, ranked, limit, profile, _thread_filter)
+
+
+def _finish_ranked_search(
+    connection: sqlite3.Connection,
+    ranked: list[dict[str, Any]],
+    limit: int,
+    profile: CompilationProfile,
+    thread_filter: ThreadFilter | None,
+) -> list[dict[str, Any]]:
+    if thread_filter is None:
+        return _deduplicate(ranked, limit)
+    candidate_limit = max(limit, profile.fts_candidate_limit, profile.vector_candidate_limit)
+    candidates = _deduplicate(ranked, candidate_limit)
+    return filter_ranked_candidates(connection, candidates, thread_filter)[:limit]

@@ -9,6 +9,7 @@ from wedl.errors import ValidationFailed
 from wedl.model import ORDER_MAX, ORDER_MIN, TICK_MAX, TICK_MIN, StoryTime
 from wedl import query as query_module
 from wedl.query import entity_state, status, timeline
+from wedl.source import serialize_record
 from wedl.validation import validate_world
 
 
@@ -38,7 +39,9 @@ def test_negative_source_time_and_descriptive_origin_are_valid(ash_repo) -> None
     world.world_record.frontmatter["timelines"] = [
         {"id": "main", "label": "Main chronology", "origin": {"tick": -100, "label": "Before the archive"}}
     ]
-    event = world.by_kind("event")[0]
+    # Keep the draft event unreferenced so this test isolates source-time
+    # validity rather than intentionally breaking causal references.
+    event = world.find("Ysabet Serves the Inventory Writ", "event")
     event.frontmatter["time"] = {"timeline": "main", "tick": -1, "order": ORDER_MIN}
     event.frontmatter["status"] = "draft"
     assert _errors(world) == []
@@ -107,6 +110,18 @@ def test_invalid_timeline_declarations_and_mixed_origin_keys_are_field_aware(ash
         ("WDL-TIMELINE-005", "timelines[1].label"),
         ("WDL-TIMELINE-003", "timelines[2].id"),
     } <= errors
+
+
+def test_origin_diagnostics_and_serialization_have_total_stable_member_order(ash_repo) -> None:
+    world = ash_repo.load_world()
+    origin = {"label": "Origin", "tick": 0, "z": "last", 7: "number"}
+    world.world_record.frontmatter["timelines"] = [{"id": "main", "label": "Main", "origin": origin}]
+    first = _errors(world)
+    world.world_record.frontmatter["timelines"][0]["origin"] = {7: "number", "z": "last", "tick": 0, "label": "Origin"}
+    assert _errors(world) == first
+    frontmatter = world.world_record.frontmatter
+    encoded = serialize_record(frontmatter, "")
+    assert encoded.index(b"tick: 0") < encoded.index(b"label: Origin") < encoded.index(b"7: number") < encoded.index(b"z: last")
 
 
 def test_query_uses_the_same_bounds_and_declared_timeline_contract(ash_repo) -> None:

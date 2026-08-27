@@ -119,13 +119,15 @@ def test_timeline_schema_requires_exact_string_coordinates_and_named_entries() -
 
 def test_whereabouts_schema_keeps_journeys_named_and_coordinates_exact() -> None:
     response = {
-        "protocol": "wedl-whereabouts/v1", "revision": "0123456789abcdef",
+        "protocol": "wedl-whereabouts/v2", "revision": "0123456789abcdef",
         "effectiveTime": {"timeline": "main", "tick": "9223372036854775807", "order": "2147483647"},
         "timeScope": {"mode": "as-of", "at": {"timeline": "main", "tick": "9223372036854775807", "order": "2147483647"}},
         "characterPolicy": {"includedStatuses": ["canonical", "retired"], "excludedStatuses": ["draft"], "locationEvidence": "initial state and canonical location effects only", "inference": "none"},
+        "importancePolicy": {"algorithm": "wedl-character-importance/v1", "calculated": True, "nonCanonical": True, "cohort": "all canonical and retired characters before filtering", "normalization": "per-signal log1p(raw) / log1p(cohort maximum); zero maximum contributes zero", "weights": {"scenes": 40, "pointOfViewScenes": 25, "events": 20, "relationshipNeighbors": 15}, "evidence": "scene appearances and POV subset; canonical event participants/effect targets deduplicated per event; distinct reciprocal relationship neighbors", "exclusions": "No prose, tags, inferred travel, co-presence, knowledge, or manual overrides are used."},
         "characterFilter": None,
         "characters": [{
-            "character": {"id": "char_01", "kind": "character", "title": "Mara"}, "recordStatus": "retired",
+            "character": {"id": "char_01", "kind": "character", "title": "Mara"}, "recordStatus": "retired", "role": None,
+            "importance": {"algorithm": "wedl-character-importance/v1", "score": 0.0, "raw": {"scenes": 0, "pointOfViewScenes": 0, "events": 0, "relationshipNeighbors": 0}, "normalized": {"scenes": 0.0, "pointOfViewScenes": 0.0, "events": 0.0, "relationshipNeighbors": 0.0}, "contributions": {"scenes": 0.0, "pointOfViewScenes": 0.0, "events": 0.0, "relationshipNeighbors": 0.0}, "explanation": "Calculated from authored evidence."},
             "presence": "unlocated", "location": None, "lastKnownLocation": {"id": "loc_01", "kind": "location", "title": "The crossing"}, "activeScene": None,
             "journey": [{"kind": "clear", "at": {"timeline": "main", "tick": "9223372036854775807", "order": "2147483647"}, "from": {"id": "loc_01", "kind": "location", "title": "The crossing"}, "to": None, "event": {"id": "event_01", "kind": "event", "title": "The bridge falls"}}],
         }],

@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import os
 import shutil
 import subprocess
 import sys
@@ -24,7 +25,8 @@ from .errors import NotFound, RepositoryError, UsageError, ValidationFailed, Wed
 from .ids import KIND_PREFIX, new_id
 from .profiles import PROFILE_NAMES, VECTOR_PROVIDERS
 from .model import Record
-from .query import causality, conversation_view, entity_state, hypotheses, interactions_between, knowledge, list_entities, search_world, show_entity, status, story_points, timeline, validation_report, whereabouts
+from .migration import PROTOCOL as MIGRATION_PROTOCOL, apply as apply_migration, preview as preview_migration
+from .query import causality, conversation_view, entity_state, hypotheses, interactions_between, knowledge, list_entities, search_world, show_entity, status, story_points, thread_catalog, thread_memberships, timeline, validation_report, whereabouts
 from .repository import Repository
 from .server import local_server_url, open_local_browser, preflight_local_server, run_local_server
 from .source import serialize_record
@@ -143,6 +145,10 @@ def initialize(
     (path / ".gitignore").write_text(".wedl/\n__pycache__/\n", encoding="utf-8")
     if git:
         subprocess.run(["git", "init", "-q", str(path)], check=True)
+        if os.name == "nt":
+            # Example worlds can legitimately have descriptive paths longer
+            # than the legacy Windows MAX_PATH limit in a user-selected root.
+            subprocess.run(["git", "-C", str(path), "config", "core.longpaths", "true"], check=True)
         subprocess.run(["git", "-C", str(path), "config", "user.name", "wedl"], check=True)
         subprocess.run(["git", "-C", str(path), "config", "user.email", "wedl@localhost"], check=True)
         subprocess.run(["git", "-C", str(path), "add", "story", ".gitignore"], check=True)
@@ -193,17 +199,30 @@ def dispatch(args: argparse.Namespace) -> Any:
             vector_dimensions=args.vector_dimensions,
             vector_max_features=args.vector_max_features,
         )
+    elif args.command == "migrate":
+        request = {
+            "protocol": MIGRATION_PROTOCOL,
+            "mode": args.mode,
+            "expectedHead": args.expected_head,
+            "idempotencyKey": args.idempotency_key,
+            **({"sourceSnapshotHash": args.source_snapshot_hash} if args.source_snapshot_hash else {}),
+            **({"rollbackBackupRef": args.rollback_backup_ref} if args.rollback_backup_ref else {}),
+        }
+        value = preview_migration(repository, request) if args.migration_command == "preview" else apply_migration(repository, request, confirmation_token_value=args.confirm)
+        value.pop("_changes", None); value.pop("_request", None)
     elif args.command == "entity": value = list_entities(repository, args.kind, args.text, require_compiled=args.require_compiled) if args.entity_command == "list" else show_entity(repository, args.entity, require_compiled=args.require_compiled)
     elif args.command == "state": value = entity_state(repository, args.entity, args.tick, args.timeline, args.order, require_compiled=args.require_compiled)
     elif args.command == "knowledge": value = knowledge(repository, args.character, args.tick, args.timeline, args.order, require_compiled=args.require_compiled)
     elif args.command == "interactions": value = interactions_between(repository, args.first, args.second, require_compiled=args.require_compiled)
     elif args.command == "story-points": value = story_points(repository, args.scene, args.tick, args.timeline, args.order, require_compiled=args.require_compiled)
     elif args.command == "timeline": value = timeline(repository, args.timeline, require_compiled=args.require_compiled)
+    elif args.command == "threads": value = thread_catalog(repository, require_compiled=args.require_compiled)
+    elif args.command == "thread-memberships": value = thread_memberships(repository, tuple(args.record_ids), tuple(args.thread_ids), require_compiled=args.require_compiled)
     elif args.command == "whereabouts": value = whereabouts(repository, args.character, args.tick, args.timeline, args.order, require_compiled=args.require_compiled)
     elif args.command == "hypotheses": value = hypotheses(repository, args.hypothesis, status=args.status, text=args.text, require_compiled=args.require_compiled)
     elif args.command == "causal": value = causality(repository, args.event, direction=args.direction, tick=args.tick, timeline=args.timeline, order=args.order, require_compiled=args.require_compiled)
-    elif args.command == "search": value = search_world(repository, args.query, perspective=args.perspective, character_id=args.character, scene_id=args.scene, mode=args.mode, limit=args.limit, timeline=args.timeline, tick=args.tick, order=args.order, include_text=args.include_text, all_time=args.all_time, include_hypotheses=args.include_hypotheses, require_compiled=args.require_compiled)
-    elif args.command == "context": value = build_context(repository, character_id=args.character, scene_id=args.scene, perspective=args.perspective, query=args.query, max_characters=args.max_characters, max_items=args.max_items, search_mode=args.mode, timeline=args.timeline, tick=args.tick, order=args.order, require_compiled=args.require_compiled)
+    elif args.command == "search": value = search_world(repository, args.query, perspective=args.perspective, character_id=args.character, scene_id=args.scene, mode=args.mode, limit=args.limit, timeline=args.timeline, tick=args.tick, order=args.order, include_text=args.include_text, all_time=args.all_time, include_hypotheses=args.include_hypotheses, thread_ids=None if args.thread_ids is None else tuple(args.thread_ids), require_compiled=args.require_compiled)
+    elif args.command == "context": value = build_context(repository, character_id=args.character, scene_id=args.scene, perspective=args.perspective, query=args.query, max_characters=args.max_characters, max_items=args.max_items, search_mode=args.mode, timeline=args.timeline, tick=args.tick, order=args.order, _thread_filter_ids=None if args.recall_thread_ids is None else tuple(args.recall_thread_ids), require_compiled=args.require_compiled)
     elif args.command == "conversation": value = conversation_view(repository, args.conversation, perspective=args.perspective, character_id=args.character, timeline=args.timeline, tick=args.tick, order=args.order, all_time=args.all_time, require_compiled=args.require_compiled)
     elif args.command == "author":
         if args.author_command == "request":

@@ -310,7 +310,7 @@ def test_distinct_context_queries_change_eligible_recall_and_ranking(frontiersme
     assert amber["focus"]["retrieval"]["eligibleCandidates"] == 3
     assert route["focus"]["retrieval"]["eligibleCandidates"] == 1
     assert "With **Pip Fenlock**" in amber["promptText"]
-    assert "With **Veyra Kest**" in route["promptText"]
+    assert "With **Brother Garran Holt**" in route["promptText"]
 
 
 def test_planned_scene_and_absent_character_are_rejected(ash_repo) -> None:

@@ -98,6 +98,7 @@ class ArgumentContract:
     choices: tuple[Any, ...] | None
     help: str | None
     positional: bool
+    repeated: bool
     value_type: str
     minimum: int | float | None
     maximum: int | float | None
@@ -143,6 +144,8 @@ class CommandContract:
 _POLICY: dict[tuple[str, ...], tuple[ApiClass, str, str, RouteBinding | None, str | None]] = {
     ("completion",): (ApiClass.LOCAL_ONLY, "local", "local_only", None, "emits shell code locally"),
     ("init",): (ApiClass.LOCAL_ONLY, "write", "local_only", None, "creates a repository and may invoke Git"),
+    ("migrate", "preview"): (ApiClass.LOCAL_ONLY, "write", "local_only", None, "audits local Git source snapshots without an HTTP migration surface"),
+    ("migrate", "apply"): (ApiClass.LOCAL_ONLY, "write", "local_only", None, "writes a confirmed local Git source migration and rebuilds its cache"),
     ("status",): (ApiClass.QUERY, "read", "mounted", RouteBinding("GET", "/api/status"), None),
     ("validate",): (ApiClass.QUERY, "read", "mounted", RouteBinding("GET", "/api/validate"), None),
     ("compile",): (ApiClass.ACTION, "write", "mounted", RouteBinding("POST", "/api/compile", (("force", "force"), ("profile", "profile"), ("vector_provider", "vector_provider"), ("vector_model", "vector_model"), ("vector_dimensions", "vector_dimensions"), ("vector_max_features", "vector_max_features")), AuthPolicy.SESSION), None),
@@ -153,11 +156,13 @@ _POLICY: dict[tuple[str, ...], tuple[ApiClass, str, str, RouteBinding | None, st
     ("interactions",): (ApiClass.QUERY, "read", "mounted", RouteBinding("GET", "/api/interactions", (("first", "first"), ("second", "second"), ("require_compiled", "requireCompiled"))), None),
     ("story-points",): (ApiClass.QUERY, "read", "mounted", RouteBinding("GET", "/api/story-points", (("scene", "scene"), ("tick", "tick"), ("timeline", "timeline"), ("order", "order"), ("require_compiled", "requireCompiled"))), None),
     ("timeline",): (ApiClass.QUERY, "read", "mounted", RouteBinding("GET", "/api/timeline", (("timeline", "timeline"), ("require_compiled", "requireCompiled"))), None),
+    ("threads",): (ApiClass.QUERY, "read", "mounted", RouteBinding("GET", "/api/threads", (("require_compiled", "requireCompiled"),)), None),
+    ("thread-memberships",): (ApiClass.QUERY, "read", "mounted", RouteBinding("GET", "/api/thread-memberships", (("record_ids", "recordId"), ("thread_ids", "threadId"), ("require_compiled", "requireCompiled"))), None),
     ("whereabouts",): (ApiClass.QUERY, "read", "mounted", RouteBinding("GET", "/api/whereabouts", (("character", "character"), ("tick", "tick"), ("timeline", "timeline"), ("order", "order"), ("require_compiled", "requireCompiled"))), None),
     ("hypotheses",): (ApiClass.QUERY, "read", "mounted", RouteBinding("GET", "/api/hypotheses", (("hypothesis", "hypothesis"), ("status", "status"), ("text", "text"), ("require_compiled", "requireCompiled"))), None),
     ("causal",): (ApiClass.QUERY, "read", "mounted", RouteBinding("GET", "/api/causal/{event_id}", (("direction", "direction"), ("tick", "tick"), ("timeline", "timeline"), ("order", "order"), ("require_compiled", "requireCompiled"))), None),
-    ("search",): (ApiClass.QUERY, "read", "mounted", RouteBinding("GET", "/api/search", (("query", "q"), ("perspective", "perspective"), ("character", "character"), ("scene", "scene"), ("mode", "mode"), ("limit", "limit"), ("include_text", "includeText"), ("include_hypotheses", "includeHypotheses"), ("timeline", "timeline"), ("tick", "tick"), ("order", "order"), ("all_time", "allTime"), ("require_compiled", "requireCompiled"))), None),
-    ("context",): (ApiClass.QUERY, "read", "mounted", RouteBinding("GET", "/api/context", (("character", "character"), ("scene", "scene"), ("perspective", "perspective"), ("query", "q"), ("mode", "mode"), ("max_characters", "maxCharacters"), ("max_items", "maxItems"), ("timeline", "timeline"), ("tick", "tick"), ("order", "order"), ("require_compiled", "requireCompiled"))), None),
+    ("search",): (ApiClass.QUERY, "read", "mounted", RouteBinding("GET", "/api/search", (("query", "q"), ("perspective", "perspective"), ("character", "character"), ("scene", "scene"), ("mode", "mode"), ("limit", "limit"), ("include_text", "includeText"), ("include_hypotheses", "includeHypotheses"), ("thread_ids", "threadId"), ("timeline", "timeline"), ("tick", "tick"), ("order", "order"), ("all_time", "allTime"), ("require_compiled", "requireCompiled"))), None),
+    ("context",): (ApiClass.QUERY, "read", "mounted", RouteBinding("GET", "/api/context", (("character", "character"), ("scene", "scene"), ("perspective", "perspective"), ("query", "q"), ("mode", "mode"), ("max_characters", "maxCharacters"), ("max_items", "maxItems"), ("recall_thread_ids", "recallThreadId"), ("timeline", "timeline"), ("tick", "tick"), ("order", "order"), ("require_compiled", "requireCompiled"))), None),
     ("conversation", "show"): (ApiClass.QUERY, "read", "mounted", RouteBinding("GET", "/api/conversations/{conversation_id}", (("perspective", "perspective"), ("character", "character"), ("timeline", "timeline"), ("tick", "tick"), ("order", "order"), ("all_time", "allTime"), ("require_compiled", "requireCompiled"))), None),
     ("author", "current-time", "set"): (ApiClass.LOCAL_ONLY, "write", "local_only", None, "the CLI's ergonomic flags compile to the semantic authoring API request"),
     ("author", "scene", "create"): (ApiClass.LOCAL_ONLY, "write", "local_only", None, "the CLI's ergonomic flags compile to the semantic authoring API request"),
@@ -195,7 +200,9 @@ _DISCOVERY: dict[tuple[str, ...], DiscoveryDescriptor] = {
     ("interactions",): DiscoveryDescriptor("Read interactions", "Resolve interactions between the two required entity references.", ("Queries",), "Interactions.", ("usage_error", "not_found", "compile_required", "validation_failed", "parse_error", "repository_error")),
     ("story-points",): DiscoveryDescriptor("List story points", "List story points scoped by an optional scene and timeline position.", ("Queries",), "Story points.", ("usage_error", "compile_required", "validation_failed", "parse_error", "repository_error")),
     ("timeline",): DiscoveryDescriptor("Read an ordinal story timeline", "Return all chronology points and inclusive spans for one declared timeline. Tick gaps are ordinal sequence only and do not represent elapsed duration.", ("Queries",), "Timeline chronology.", ("usage_error", "compile_required", "validation_failed", "parse_error", "repository_error")),
-    ("whereabouts",): DiscoveryDescriptor("Read character whereabouts", "Return canonical and retired characters' explicit location state and journey history at one author horizon. The result does not infer routes, travel, group membership, or knowledge.", ("Queries",), "Character whereabouts.", ("usage_error", "not_found", "compile_required", "validation_failed", "parse_error", "repository_error")),
+    ("threads",): DiscoveryDescriptor("List narrative thread labels", "Return only declared optional narrative grouping labels for the shared world; memberships, state, time, and retrieval data are not exposed.", ("Queries",), "Narrative thread catalog.", ("compile_required", "validation_failed", "parse_error", "repository_error")),
+    ("thread-memberships",): DiscoveryDescriptor("Project selected narrative memberships", "Return the selected narrative-group intersection for supplied canonical records only. It exposes neither unselected membership nor state, time, or retrieval data.", ("Queries",), "Selected narrative membership projection.", ("usage_error", "compile_required", "validation_failed", "parse_error", "repository_error")),
+    ("whereabouts",): DiscoveryDescriptor("Read character whereabouts", "Return canonical and retired characters' explicit location state and journey history plus a calculated, noncanonical prominence breakdown at one author horizon. The result does not infer routes, travel, group membership, or knowledge.", ("Queries",), "Character whereabouts.", ("usage_error", "not_found", "compile_required", "validation_failed", "parse_error", "repository_error")),
     ("hypotheses",): DiscoveryDescriptor("Read author possibilities", "Return explicitly non-canonical author hypotheses. They are never horizon-scoped facts and do not affect state, causality, whereabouts, scenes, or character context.", ("Queries",), "Non-canonical possibilities.", ("usage_error", "not_found", "compile_required", "validation_failed", "parse_error", "repository_error")),
     ("causal",): DiscoveryDescriptor("Trace authored event causality", "Return the explicit event.cause DAG around one event, clipped at an author horizon. No edge is inferred from proximity, shared cast, or prose.", ("Queries",), "Causal event DAG.", ("usage_error", "not_found", "compile_required", "validation_failed", "parse_error", "repository_error")),
     ("search",): DiscoveryDescriptor("Search the world", "Search indexed content with author or character perspective and optional temporal scope. Hypotheses require explicit author opt-in and are never canonical facts.", ("Queries",), "Search results.", ("usage_error", "compile_required", "validation_failed", "parse_error", "repository_error")),
@@ -240,6 +247,8 @@ def _request_example(command: tuple[str, ...], binding: RouteBinding) -> tuple[d
         ("interactions",): {"query": {"first": "character-mara-vale", "second": "character-ilyra-sorn"}},
         ("story-points",): {"query": {"scene": "scene-market-day", "tick": 12}},
         ("timeline",): {"query": {"timeline": "main"}},
+        ("threads",): {},
+        ("thread-memberships",): {"query": {"recordId": "event_0123456789ABCDEFGHJKMNPQRS", "threadId": "thread_0123456789ABCDEFGHJKMNPQRS"}},
         ("whereabouts",): {"query": {"character": "Mara Vale", "tick": 12}},
         ("hypotheses",): {"query": {"status": "open"}},
         ("causal",): {"pathParams": {"event_id": "event-market-alarm"}, "query": {"direction": "upstream", "tick": 12}},
@@ -263,7 +272,11 @@ _DISCOVERY = {
         descriptor.description,
         descriptor.tags,
         descriptor.success_description,
-        descriptor.errors,
+        (
+            (*descriptor.errors, "v04_superseded")
+            if "parse_error" in descriptor.errors
+            else descriptor.errors
+        ),
         _request_example(command, binding),
         operation_schema(" ".join(command)),
         operation_example(" ".join(command)),
@@ -314,6 +327,7 @@ ERROR_VOCABULARY: Mapping[str, tuple[int, str]] = {
     "repository_error": (400, "The repository could not satisfy the operation."),
     "parse_error": (400, "WEDL source parsing failed."),
     "protocol_error": (400, "The changeset protocol is structurally invalid for this operation."),
+    "v04_superseded": (400, "The withdrawn wedl/v0.4 source schema must be recovered before use."),
 }
 
 
@@ -358,6 +372,11 @@ _ARGUMENT_DISPOSITIONS: dict[str, tuple[Transport, str | None, str]] = {
     "author_subject_command": (Transport.OMIT, None, "the semantic authoring action is encoded in the request body"),
     "summary": (Transport.OMIT, None, "the CLI-only summary is encoded in its semantic intent"),
     "idempotency_key": (Transport.OMIT, None, "the CLI-only retry key is encoded in its semantic intent"),
+    "mode": (Transport.OMIT, None, "source migration mode is local-only"),
+    "expected_head": (Transport.OMIT, None, "source migration expected-head protection is local-only"),
+    "source_snapshot_hash": (Transport.OMIT, None, "source migration snapshot binding is local-only"),
+    "rollback_backup_ref": (Transport.OMIT, None, "source migration rollback ref is local-only"),
+    "migration_command": (Transport.OMIT, None, "source migration action is local-only"),
     "tick": (Transport.OMIT, None, "the CLI-only time field is encoded in its semantic intent"),
     "timeline": (Transport.OMIT, None, "the CLI-only time field is encoded in its semantic intent"),
     "order": (Transport.OMIT, None, "the CLI-only time field is encoded in its semantic intent"),
@@ -464,6 +483,7 @@ def _argument_contract_with_transport(
         choices=tuple(action.choices) if action.choices is not None else None,
         help=action.help,
         positional=positional,
+        repeated=isinstance(action, argparse._AppendAction),
         value_type=value_type,
         minimum=getattr(action.type, "minimum", None),
         maximum=getattr(action.type, "maximum", None),
@@ -786,14 +806,19 @@ def validate_request_values(method: str, path: str, values: Mapping[str, str]) -
     if contract is None: return
     for argument in contract.arguments:
         if argument.transport != Transport.QUERY or argument.transport_name is None: continue
-        value = values.get(argument.transport_name)
-        if value is None:
+        if argument.repeated:
+            getter = getattr(values, "getlist", None)
+            raw_values = getter(argument.transport_name) if getter is not None else [values.get(argument.transport_name)]
+        else:
+            raw_values = [values.get(argument.transport_name)]
+        if raw_values == [None]:
             if argument.required:
                 raise UsageError("missing required API request field", details={"field": argument.transport_name})
             continue
-        try:
-            converted = argument.validator(value) if argument.validator is not None else value
-        except (TypeError, ValueError, argparse.ArgumentTypeError) as exc:
-            raise UsageError("invalid API request field", details={"field": argument.transport_name, "value": value, "reason": str(exc)}) from exc
-        if argument.choices is not None and converted not in argument.choices:
-            raise UsageError("invalid API request field", details={"field": argument.transport_name, "value": value, "choices": list(argument.choices)})
+        for value in raw_values:
+            try:
+                converted = argument.validator(value) if argument.validator is not None else value
+            except (TypeError, ValueError, argparse.ArgumentTypeError) as exc:
+                raise UsageError("invalid API request field", details={"field": argument.transport_name, "value": value, "reason": str(exc)}) from exc
+            if argument.choices is not None and converted not in argument.choices:
+                raise UsageError("invalid API request field", details={"field": argument.transport_name, "value": value, "choices": list(argument.choices)})

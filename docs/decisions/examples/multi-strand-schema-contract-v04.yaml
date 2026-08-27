@@ -1,0 +1,5 @@
+status: withdrawn-nonnormative
+superseded_by: ../0002-shared-world-concurrent-narrative-threads.md
+historical_contract: ../../CONTINUITY_SCHEMA_CONTRACT.md
+source_schema: wedl/v0.3
+statement: This tombstone preserves a withdrawal notice only; it defines no v0.4 schema, vectors, diagnostics, or upgrade behavior.

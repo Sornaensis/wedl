@@ -13,7 +13,7 @@ from wedl.authoring import _scene_characters_at
 from wedl.authoring import _stationary_scene_objects
 from wedl.authoring import _validate_scene_move_reconciliation
 from wedl.api_schemas import SCHEMAS
-from wedl.changeset import _apply, apply, preview
+from wedl.changeset import _apply, preview
 from wedl.cli import main
 from wedl.ids import id_from_seed
 from wedl.model import Record, StoryTime

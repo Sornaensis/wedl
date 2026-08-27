@@ -11,10 +11,10 @@ from typing import Any, Iterable
 
 import yaml
 
-from . import SOURCE_SCHEMA, __version__
-from .errors import DirtyManagedTree, RepositoryError, StaleRevision
+from . import SUPPORTED_SOURCE_SCHEMAS, __version__
+from .errors import DirtyManagedTree, RepositoryError, StaleRevision, SupersededSchemaError
 from .model import Record, World
-from .source import parse_record
+from .source import parse_record, quarantine_superseded_schema
 from .util import sha256_bytes
 
 
@@ -28,7 +28,7 @@ class Snapshot:
 
 
 PARSER_FINGERPRINT = (
-    f"wedl-parser:{__version__}:{SOURCE_SCHEMA}:pyyaml-{yaml.__version__}:"
+    f"wedl-parser:{__version__}:{','.join(sorted(SUPPORTED_SOURCE_SCHEMAS))}:pyyaml-{yaml.__version__}:"
     f"{'libyaml' if getattr(yaml, '__with_libyaml__', False) else 'python'}"
 )
 
@@ -47,6 +47,11 @@ class Repository:
         path = requested.resolve()
         cwd = Path.cwd().resolve()
         generic_hint = "Use --repo . from a repository directory, or pass an absolute repository root."
+        # An installed example may be nested inside a larger Git checkout. Its
+        # own story directory is still the explicitly requested repository,
+        # rather than the enclosing checkout's top-level worktree.
+        if (path / "story").is_dir():
+            return path
         process = subprocess.run(
             ["git", "-C", str(path), "rev-parse", "--show-toplevel"],
             stdout=subprocess.PIPE,
@@ -101,7 +106,16 @@ class Repository:
 
     @property
     def is_git(self) -> bool:
-        return (self.root / ".git").exists() or self._git(["rev-parse", "--git-dir"], check=False).returncode == 0
+        if (self.root / ".git").exists():
+            return True
+        # A bare source root may be created beneath a larger checkout (as is
+        # common for previews and temporary authoring fixtures).  ``git -C``
+        # then finds that enclosing repository, but it must not make this
+        # independent source root read the enclosing repository's HEAD.
+        process = self._git(["rev-parse", "--show-toplevel"], check=False)
+        if process.returncode != 0:
+            return False
+        return Path(process.stdout.decode().strip()).resolve() == self.root
 
     def _git(
         self,
@@ -337,6 +351,15 @@ class Repository:
                 cached_value = cached.get(oid)
                 if cached_value is not None:
                     frontmatter, body, raw_bytes = cached_value
+                    try:
+                        quarantine_superseded_schema(frontmatter, path)
+                    except SupersededSchemaError:
+                        cache.execute(
+                            "DELETE FROM parsed_record WHERE parser_fingerprint=? AND blob_oid=?",
+                            (PARSER_FINGERPRINT, oid),
+                        )
+                        cache.commit()
+                        raise
                     record = Record(frontmatter, body, path, raw_bytes, blob_oid=oid, revision=resolved)
                     cache_hits += 1
                 else:
@@ -382,6 +405,35 @@ class Repository:
             return []
         output = self._git(["diff", "--name-only", older, newer, "--", self.source_root]).stdout.decode()
         return [line for line in output.splitlines() if line]
+
+    def ref(self, name: str) -> str | None:
+        """Return a fully qualified ref's object ID without resolving HEAD."""
+
+        if not self.is_git:
+            return None
+        process = self._git(["rev-parse", "--verify", "--quiet", name], check=False)
+        return process.stdout.decode().strip() or None
+
+    def ensure_backup_ref(self, name: str, expected_head: str) -> str:
+        """Create an immutable migration backup ref with compare-and-swap.
+
+        A retry may observe a ref made by its own earlier interrupted attempt;
+        accepting only that exact old head keeps the operation idempotent while
+        never replacing a different backup.
+        """
+
+        if not self.is_git:
+            raise RepositoryError("Git is required for migration backups")
+        if not name.startswith("refs/wedl/backups/migration/"):
+            raise RepositoryError("migration backup refs must live below refs/wedl/backups/migration/")
+        zero = "0" * 40
+        process = self._git(["update-ref", name, expected_head, zero], check=False)
+        if process.returncode == 0:
+            return name
+        if self.ref(name) == expected_head:
+            return name
+        message = process.stderr.decode("utf-8", "replace").strip()
+        raise RepositoryError(message or "migration backup ref already exists for a different revision")
 
     def commit_files(
         self,

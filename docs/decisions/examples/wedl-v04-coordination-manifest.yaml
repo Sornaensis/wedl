@@ -1,0 +1,38 @@
+manifest: wedl-v05-shared-world-thread-reservation
+status: validation-slice-implemented
+source_schema: wedl/v0.5
+legacy_projection: wedl-timeline/v1
+release_rule: v0.5 source/model/validation only; compiled database publication remains disabled
+released_protocol_tokens: [wedl-continuity/v1]
+owners:
+  - project: 88d1d538-452a-4eb5-8b2e-1c42a0361ea8
+    scope: shared-world-thread-schema-and-migration
+    contract: ../../THREAD_SCHEMA_CONTRACT.md
+    gate: reserved-by-this-contract
+    id_prefixes: [thread_]
+    diagnostic_family: null
+    protocol_tokens: []
+  - project: 490749b5-56a3-40aa-97d2-5661b9283690
+    scope: calendar-and-historical-chronology
+    gate: namespace-reserved
+    id_prefixes: [calendar_, era_, chronology_]
+    diagnostic_family: WDL-CAL-
+    protocol_tokens: []
+  - project: 9117cf1b-a8fb-4df3-8452-635de023de62
+    scope: generational-history
+    gate: namespace-reserved
+    id_prefixes: [organization_, kinship_, union_, affiliation_, legacy_]
+    diagnostic_family: WDL-GEN-
+    protocol_tokens: []
+  - project: 598e3653-7964-4c13-9f73-47f7fdd3d58a
+    scope: large-world-spatial-management
+    gate: namespace-reserved
+    id_prefixes: [map_, route_, overlay_, geometry_]
+    diagnostic_family: WDL-SPAT-
+    protocol_tokens: []
+finalization_requirements:
+  - Treat the former multi-strand/v0.4 reservation as withdrawn and nonnormative.
+  - Preserve the listed non-thread project entries and their reserved namespaces.
+  - Release only the withdrawn `wedl-continuity/v1` protocol token; no runtime replacement is published.
+  - Preserve global StoryTime semantics while the v0.5 validation slice is enabled.
+  - Keep compiled database publication, migration, API, query, search, and UI behind separate approval gates.

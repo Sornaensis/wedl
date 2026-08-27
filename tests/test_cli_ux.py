@@ -104,10 +104,14 @@ def test_cli_whereabouts_uses_a_name_filter_and_exact_transport(ash_repo, capsys
     assert main(["whereabouts", "--repo", str(ash_repo.root), "--character", "Mara Vale", "--tick", "121", "--timeline", "main", "--order", "0"]) == 0
 
     output = json.loads(capsys.readouterr().out)
-    assert output["protocol"] == "wedl-whereabouts/v1"
+    assert output["protocol"] == "wedl-whereabouts/v2"
+    assert output["importancePolicy"]["nonCanonical"] is True
+    assert output["importancePolicy"]["weights"] == {"scenes": 40, "pointOfViewScenes": 25, "events": 20, "relationshipNeighbors": 15}
     assert output["characterFilter"]["title"] == "Mara Vale"
     assert output["effectiveTime"] == {"timeline": "main", "tick": "121", "order": "0"}
     assert len(output["characters"]) == 1
+    assert output["characters"][0]["role"] is None or isinstance(output["characters"][0]["role"], str)
+    assert output["characters"][0]["importance"]["algorithm"] == "wedl-character-importance/v1"
 
 
 def test_top_level_help_includes_end_to_end_and_temporal_examples() -> None:

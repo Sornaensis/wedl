@@ -131,7 +131,7 @@ Turns a Git tree into a validated SQLite snapshot:
 
 ### 4.5 `wedl-db`
 
-Owns the disposable SQLite schema, query primitives, and materialized read models. Pre-release wedl deliberately has no runtime migration framework: incompatible derived databases are deleted and rebuilt from Git source. Callers use typed query functions rather than depending on ad hoc SQL.
+Owns the disposable SQLite schema, query primitives, and materialized read models. Source migrations are explicit local Git transactions; incompatible derived databases are never migrated in place and are rebuilt from Git source. Callers use typed query functions rather than depending on ad hoc SQL.
 
 ### 4.6 `wedl-query`
 
@@ -341,6 +341,11 @@ wedl init
 wedl compile
 wedl serve
 ```
+
+For the narrow documented source-schema transitions, `wedl migrate` is a
+local-only, preview-confirmed Git transaction. It rewrites Markdown in a
+forward commit and rebuilds SQLite; it never performs an in-place database
+migration or exposes a server endpoint.
 
 `wedl serve` may launch the server implementation in-process or delegate to `wedld`. Windows, Linux, and macOS packages should contain no separate Node runtime in normal use. Node/Elm tooling is needed only for frontend development.
 

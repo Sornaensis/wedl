@@ -14,7 +14,11 @@ export function navigationSnapshot(state, { listScroll = 0 } = {}) {
     horizon: view === "possibilities" ? null : (state.horizon || null),
     kind: state.kind || "",
     query: state.query || "",
+    ...(Array.isArray(state.selectedThreadIds) ? { threadIds: state.selectedThreadIds.filter((value) => typeof value === "string") } : {}),
     ...(state.searchKind ? { searchKind: state.searchKind } : {}),
+    ...(state.indexSort ? { indexSort: state.indexSort } : {}),
+    ...(state.whereaboutsSort ? { whereaboutsSort: state.whereaboutsSort } : {}),
+    ...(state.possibilitiesSort ? { possibilitiesSort: state.possibilitiesSort } : {}),
     listScroll: Number.isFinite(listScroll) ? listScroll : 0,
   };
 }
@@ -35,7 +39,11 @@ export function restoreNavigation(snapshot, fallback = {}) {
     horizon: view === "possibilities" ? null : (horizon && typeof horizon.timeline === "string" && horizon.tick != null ? horizon : null),
     kind: typeof value.kind === "string" ? value.kind : "",
     query: typeof value.query === "string" ? value.query : "",
+    threadIds: Array.isArray(value.threadIds) ? value.threadIds.filter((item) => typeof item === "string") : [],
     ...(typeof value.searchKind === "string" ? { searchKind: value.searchKind } : {}),
+    ...(typeof value.indexSort === "string" ? { indexSort: value.indexSort } : {}),
+    ...(typeof value.whereaboutsSort === "string" ? { whereaboutsSort: value.whereaboutsSort } : {}),
+    ...(typeof value.possibilitiesSort === "string" ? { possibilitiesSort: value.possibilitiesSort } : {}),
     listScroll: Number.isFinite(value.listScroll) && value.listScroll >= 0 ? value.listScroll : 0,
   };
 }

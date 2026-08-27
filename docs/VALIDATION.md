@@ -167,4 +167,50 @@ Raw benchmark files:
 - Wheel metadata and console entry points: accepted by pip.
 - Installed wheel reports version `0.5.0`.
 - Source and wheel include all 238 Ash Archive Markdown records.
-- No migration command or migration framework was introduced.
+- Source migration is local-only and preview-confirmed; compiled SQLite remains
+  disposable and is rebuilt rather than migrated in place.
+
+## Migration/recovery release evidence
+
+The migration release gate exercises the v0.3 upgrade and the deliberately
+narrow raw-envelope v0.4 recovery path through their confirmed forward commits,
+then reopens/recompiles the resulting v0.5 source. It also verifies the forward
+rollback boundary: an ordinary backup is restored as source and recompiled,
+while a recovered v0.4 backup is restored byte-for-byte only by explicit
+rollback and remains unavailable to ordinary load, validation, compile, and
+query paths.
+
+On Windows, the integration fixture defers the changeset and rollback apply
+methods' immediate cache publication after a reproducible `os.replace` lock on
+the just-read SQLite file. It does not stub migration conversion or release
+cache verification: each path is followed by a fresh `Repository` and a real
+hybrid rebuild before its public catalog, unfiltered and selected-thread search,
+and membership assertions. The release integration checks the authored catalog
+label and selected-thread search behavior after the grouping changeset; its
+selected results contain only the declared member while the unfiltered search
+remains available. Unfiltered search rows remain equal to the pre-grouping
+result.
+For the archive semantic comparison, the migrated source snapshot is copied to
+a fresh non-Git `Repository` before that real rebuild; this avoids Windows
+temporary Git/SQLite handle contention while preserving the exact authored
+source bytes under test.
+
+The archive comparison asserts only observable data-plane evidence: public
+search rows/ranking, causal edges, entity state, search-document chunk hashes,
+vector payloads, vector model identity/configuration, and document-vector
+links. It does not claim an unavailable general-purpose state or corpus hash.
+
+Thread grouping is checked as empty after conversion and as a projection-only
+layer once a declaration is authored: it does not create a second StoryTime,
+cursor, causal graph, state projection, corpus, rank, vector, or embedding
+space. The bounded membership projection uses one `record_thread`/`entity`
+join for a batch (see the one-statement regression in
+`tests/test_thread_memberships.py`); a no-selection browser view issues no
+membership request.
+
+No standalone migration stress-generator or machine-neutral latency budget is
+available in this repository. Consequently this release records bounded query
+count/plan behavior rather than fabricated conversion, cache-size, latency, or
+memory figures. Reproduce environment-specific timings with the existing
+`tests/test_performance_cache.py` cache checks and the migration and membership
+test suites on the target machine.

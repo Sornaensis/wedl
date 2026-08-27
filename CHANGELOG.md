@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Added local-only `wedl migrate preview|apply` for the narrow confirmed v0.3
+  upgrade, quarantined v0.4 recovery, and forward rollback paths. It does not
+  add an HTTP/browser migration surface or an in-place SQLite migration.
+
 ## 0.6.0
 
 - Added **The Frontiersmen** as a second first-class executable example world.

@@ -3,10 +3,11 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
-import { authorSearchRequestPath, characterKnowledgeRequestPath, contextRequestPath, conversationRequestPath, entityRequestPath, entityStateRequestPath, whereaboutsRequestPath } from "../src/wedl/static/query.mjs";
+import { authorSearchRequestPath, characterKnowledgeRequestPath, contextRequestPath, conversationRequestPath, entityRequestPath, entityStateRequestPath, threadMembershipRequestPaths, whereaboutsRequestPath } from "../src/wedl/static/query.mjs";
 import { authorText, buildLoreArticle, conversationTranscriptBeats, createEntityRegistry, intervalContains, observationVisibleAt, referenceVisibleAt, safeDisplayName } from "../src/wedl/static/lore.mjs";
 import { authorSearchHeading, filterSearchResultsByKind, isAuthorSearchResult, plainSearchText, presentSearchResults, refreshAuthorSearch } from "../src/wedl/static/search.mjs";
 import { clearSupersededNavigationLoading, createNavigationGeneration, historyAction, navigationSnapshot, restoreNavigation } from "../src/wedl/static/navigation.mjs";
+import { compareCharacters, indexSortConfiguration, prominenceBand, sortIndex, sortPossibilities, sortWhereabouts } from "../src/wedl/static/sorting.mjs";
 import { chronologyEntries, classifyStoryMoment, compareStoryTime, horizonForTimeline, isAtOrBeforeHorizon, isEntityAvailable, originLabel, referencePresentAt, sceneContainsMoment, sceneSnapshotsAt, selectedTimelineId, timelineDisplayLabel, timelinePresentationGroups, trailPositionLabel } from "../src/wedl/static/timeline.mjs";
 
 const source = await readFile(new URL("../src/wedl/static/api.js", import.meta.url), "utf8");
@@ -77,6 +78,8 @@ test("author search and character moment request builders use the shared horizon
   const allTimeSearch = new URL(authorSearchRequestPath("flood register", ""), "http://wedl.test").searchParams;
   assert.equal(allTimeSearch.get("allTime"), "true");
   assert.equal(allTimeSearch.has("timeline"), false);
+  assert.deepEqual(new URL(authorSearchRequestPath("flood register", null, ["thread_b", "thread_a", "thread_b"]), "http://wedl.test").searchParams.getAll("threadId"), ["thread_a", "thread_b"]);
+  assert.equal(authorSearchRequestPath("   ", null, ["thread_a"]), "/api/search?q=+++&perspective=author&allTime=true");
 
   const state = new URL(entityStateRequestPath("char_123", { timeline: "main", tick: "17", order: "3" }), "http://wedl.test");
   const knowledge = new URL(characterKnowledgeRequestPath("char_123", { timeline: "main", tick: "17", order: "3" }), "http://wedl.test");
@@ -94,8 +97,8 @@ test("whereabouts uses the existing horizon-aware read projection and kind filte
   ];
   assert.deepEqual(filterSearchResultsByKind(cards, "character"), [cards[0]]);
   assert.deepEqual(filterSearchResultsByKind(cards), cards);
-  assert.match(appSource, /whereaboutsRequestPath\(at\)/);
-  assert.match(appSource, /Every person is shown independently/);
+  assert.match(appSource, /revisionRead\(\(\) => whereaboutsRequestPath\(at\)\)/);
+  assert.match(appSource, /Every character is shown independently/);
   assert.match(appSource, /does not invent routes, travel, or collective membership/);
   assert.match(htmlSource, /data-view="whereabouts"/);
   assert.match(htmlSource, /id="search-kind"/);
@@ -114,6 +117,38 @@ test("whereabouts mounts its successful projection and keeps cached roles and jo
   assert.match(appSource, /"At current authored moment"/);
   assert.match(appSource, /"At selected moment"/);
   assert.match(appSource, /"Earlier in the story"/);
+});
+
+test("bulk prominence is retained only for styled names and character detail", () => {
+  assert.match(appSource, /function renderCalculatedProminence\(entry, payload\)/);
+  assert.match(appSource, /Score: \$\{Number\(importance\.score\)\.toFixed\(2\)\}/);
+  assert.match(appSource, /function decorateCharacterName/);
+  assert.match(appSource, /calculated prominence unavailable/);
+  assert.match(appSource, /const role = entry\.role \? humanizeToken\(entry\.role\) : ""/);
+  assert.doesNotMatch(appSource, /Calculated prominence: \$\{Number\(importance\.score/);
+  assert.doesNotMatch(appSource, /whereabouts-importance/);
+  assert.match(appSource, /const requestRevision = state\.revision; const key = `\$\{requestRevision\}/);
+  assert.match(appSource, /function connectRevisionChannel\(\)/);
+  assert.match(appSource, /async function revisionRead\(path\)/);
+  assert.match(appSource, /for \(let attempt = 0; attempt < 3; attempt \+= 1\)/);
+  assert.match(appSource, /revisionRead\(\(\) => entityStateRequestPath/);
+  assert.match(appSource, /revisionRead\(\(\) => characterKnowledgeRequestPath/);
+  assert.match(appSource, /revisionRead\(\(\) => conversationRequestPath/);
+  assert.match(appSource, /revisionRead\("\/api\/hypotheses"\)/);
+  assert.doesNotMatch(appSource, /return loadWhereabouts\(\)/);
+});
+
+test("contextual sort helpers are deterministic and keep unscored characters last", () => {
+  const scored = [{ id: "z", kind: "character", title: "Zed" }, { id: "a", kind: "character", title: "Ada" }, { id: "draft", kind: "character", title: "Draft" }];
+  const scores = new Map([["z", 33.33], ["a", 66.67]]);
+  assert.equal(prominenceBand(0), "none"); assert.equal(prominenceBand(33.32), "lower"); assert.equal(prominenceBand(33.33), "moderate"); assert.equal(prominenceBand(66.67), "higher"); assert.equal(prominenceBand(null), "unavailable");
+  assert.deepEqual(sortIndex(scored, "prominence-high", scores).map((item) => item.id), ["a", "z", "draft"]);
+  assert.deepEqual(sortIndex(scored, "prominence-low", scores).map((item) => item.id), ["z", "a", "draft"]);
+  assert.notEqual(compareCharacters({ id: "a", title: "Same" }, { id: "b", title: "same" }, "high", new Map()), 0);
+  assert.equal(indexSortConfiguration({ kind: "character" }).defaultValue, "prominence-high");
+  assert.equal(indexSortConfiguration({ query: "mara", kind: "character" }).defaultValue, "relevance");
+  assert.deepEqual(sortWhereabouts([{ character: scored[0], presence: "unlocated" }, { character: scored[1], presence: "active-scene" }], "presence", scores).map((item) => item.character.id), ["a", "z"]);
+  assert.deepEqual(sortPossibilities([{ id: "r", title: "R", status: "rejected" }, { id: "o", title: "O", status: "open" }], "status-name").map((item) => item.id), ["o", "r"]);
 });
 
 test("search cards are named, deduplicated, and strip indexed markup without exposing IDs", () => {
@@ -168,8 +203,8 @@ test("retrying the same failed author search keeps its earlier-context cards", a
   assert.deepEqual(retry.results, previous);
   assert.match(appSource, /async function search\(\{ preserveResults = false \} = \{\}\)/);
   assert.match(appSource, /const priorResults = preserveResults && query === state\.query \? state\.searchResults : null/);
-  assert.match(appSource, /refreshAuthorSearch\(\(\) => api\.get\(authorSearchRequestPath\(state\.query, activeHorizon\(\)\)\), \(payload\) => presentSearchResults\(payload, state\.registry\), priorResults\)/);
-  assert.match(appSource, /retrySearch\.addEventListener\("click", \(\) => \{ void search\(\{ preserveResults: true \}\); \}\)/);
+  assert.match(appSource, /refreshAuthorSearch\(\(\) => revisionRead\(\(\) => authorSearchRequestPath\(state\.query, activeHorizon\(\), selectedThreadIds\(\)\)\), \(payload\) => presentSearchResults\(payload, state\.registry\), priorResults\)/);
+  assert.match(appSource, /retrySearch\.addEventListener\("click", \(\) => \{/);
 });
 
 test("lore presentation resolves names and never falls back to opaque identifiers", () => {
@@ -178,7 +213,7 @@ test("lore presentation resolves names and never falls back to opaque identifier
     { id: "loc_1234567890ABC", kind: "location", title: "Reading Room" },
   ]);
   assert.equal(safeDisplayName("char_1234567890ABC", registry), "Mara Vale");
-  assert.equal(safeDisplayName("missing_1234567890ABC", registry, "character"), "Unavailable person reference");
+  assert.equal(safeDisplayName("missing_1234567890ABC", registry, "character"), "Unavailable character reference");
   const article = buildLoreArticle({
     id: "scene_1234567890ABC", kind: "scene", title: "A Quiet Meeting", bodyMarkdown: "A meeting in the archive.",
     frontmatter: { kind: "scene", id: "scene_1234567890ABC", location: "loc_1234567890ABC", participants: [{ character: "char_1234567890ABC", role: "viewpoint" }] },
@@ -354,7 +389,7 @@ test("concurrent scene projection keeps one chronology while grouping active fro
   assert.equal(groups[0].entries.length, 2);
   assert.equal(timelinePresentationGroups(groups[0].entries, at)[0].classification, "current");
   assert.equal(timelinePresentationGroups(groups[0].entries, { timeline: "main", tick: "209", order: "0" })[0].classification, "later");
-  assert.match(appSource, /timelinePresentationGroups\(currentTimeline\(\), activeHorizon\(\)\)/);
+  assert.match(appSource, /timelinePresentationGroups\(selectedEntries, activeHorizon\(\)\)/);
   assert.match(appSource, /timeline-concurrent-scenes/);
   assert.match(stylesheetSource, /timeline-concurrent-scenes\.is-revealed::before/);
   assert.match(stylesheetSource, /timeline-concurrent-scenes::before \{ background: #718796/);
@@ -431,10 +466,31 @@ test("author horizon is inclusive, filters later entries, and keeps exact same-t
 test("navigation state serializes article, timeline, horizon, and index position without changing URLs", () => {
   const state = historyAction({ view: "index", activeTimelineId: "main", kind: "scene", query: "quiet", horizon: { timeline: "main", tick: "17", order: "3" } }, { type: "open-article", entryId: "scene_opaque", returnView: "timeline" });
   const snapshot = navigationSnapshot(state, { listScroll: 240 });
-  assert.deepEqual(restoreNavigation(snapshot), { view: "article", mobilePane: "article", returnView: "timeline", entryId: "scene_opaque", timelineId: "main", horizon: { timeline: "main", tick: "17", order: "3" }, kind: "scene", query: "quiet", listScroll: 240 });
+  assert.deepEqual(restoreNavigation(snapshot), { view: "article", mobilePane: "article", returnView: "timeline", entryId: "scene_opaque", timelineId: "main", horizon: { timeline: "main", tick: "17", order: "3" }, kind: "scene", query: "quiet", threadIds: [], listScroll: 240 });
   assert.equal(restoreNavigation({ view: "nonsense", listScroll: -1 }).view, "index");
   assert.match(appSource, /history\.pushState\(snapshot, "", location\.pathname\)/);
   assert.doesNotMatch(appSource, /location\.search|URLSearchParams\(location/);
+});
+
+test("narrative group history saves only string selectors for the active grouping view", () => {
+  const saved = navigationSnapshot({ view: "index", query: "signal", selectedThreadIds: ["thread_b", 3, "thread_a"] });
+  assert.deepEqual(saved.threadIds, ["thread_b", "thread_a"]);
+  assert.deepEqual(restoreNavigation({ query: "signal", threadIds: ["thread_b", 3, "thread_a"] }).threadIds, ["thread_b", "thread_a"]);
+  assert.equal(Object.hasOwn(navigationSnapshot({ view: "index", query: "", selectedThreadIds: ["thread_a"] }), "threadIds"), true);
+  assert.match(appSource, /threadCatalog\.revision !== revision/);
+  assert.match(appSource, /state\.selectedThreadIds = previousThreadIds\.filter\(\(id\) => catalogThreadIds\(\)\.has\(id\)\)/);
+  assert.match(appSource, /el\.threadFilter\.hidden = !available/);
+  assert.match(appSource, /Narrative group filters are unavailable; author search remains unfiltered\./);
+  assert.match(htmlSource, /<fieldset id="thread-filter"[^>]*aria-describedby=/);
+  assert.match(stylesheetSource, /\.thread-filter-option:focus-visible|:focus-visible/);
+});
+
+test("membership projection request paths are sorted, deduplicated, bounded, and omitted without selection", () => {
+  assert.deepEqual(threadMembershipRequestPaths(["record_z", "record_a", "record_z"], ["thread_z", "thread_a", "thread_z"]), ["/api/thread-memberships?recordId=record_a&recordId=record_z&threadId=thread_a&threadId=thread_z"]);
+  assert.deepEqual(threadMembershipRequestPaths(["record_a"], []), []);
+  assert.equal(threadMembershipRequestPaths(Array.from({ length: 257 }, (_, index) => `record_${String(index).padStart(3, "0")}`), ["thread_a"]).length, 2);
+  assert.match(appSource, /membershipCache/);
+  assert.match(appSource, /Promise\.all\(threadMembershipRequestPaths/);
 });
 
 test("navigation persists an explicit mobile nav-only pane and duplicate-coordinate horizon anchor", () => {
@@ -458,13 +514,13 @@ test("navigation persists an explicit mobile nav-only pane and duplicate-coordin
   assert.equal(restoreNavigation({ view: "possibilities", horizon: { timeline: "main", tick: "4", order: "0" } }).horizon, null, "legacy Possibilities snapshots discard stale horizons");
   assert.equal(historyAction({ view: "index", horizon: { timeline: "main", tick: "4", order: "0" } }, { type: "open-possibilities" }).horizon, null);
   assert.match(appSource, /const applicable = state\.view !== "possibilities" && state\.horizonEntries\.size > 0/);
-  assert.match(appSource, /state\.horizon = null; setView\("possibilities"\)/);
+  assert.match(appSource, /state\.horizon = null; state\.importanceByCharacter = new Map\(\); state\.importanceLoaded = false;/);
 });
 
 test("kind search follows a browse selection and a changed search selector updates the visible section", () => {
   assert.match(appSource, /function browse\(kind, label\).*state\.searchKind = kind/s);
   assert.match(appSource, /state\.kind = kind; state\.searchKind = kind/);
-  assert.match(appSource, /el\.searchKind\.addEventListener\("change", \(\) => \{ state\.searchKind = el\.searchKind\.value; state\.kind = state\.searchKind; updateIndexHeading\(\); syncNavigation\(\);/);
+  assert.match(appSource, /el\.searchKind\.addEventListener\("change", \(\) => \{ state\.searchKind = el\.searchKind\.value; state\.kind = state\.searchKind; state\.indexSort = ""; updateIndexHeading\(\); syncNavigation\(\);/);
   assert.match(appSource, /function updateIndexHeading\(\)/);
 });
 
@@ -518,7 +574,7 @@ test("a delayed restore search cannot overwrite a newer navigation result", asyn
   await pendingRestore;
 
   assert.deepEqual(state.searchResults, ["newer search"]);
-  assert.match(appSource, /const refreshed = await refreshAuthorSearch\(\(\) => api\.get\(authorSearchRequestPath\(state\.query, activeHorizon\(\)\)\)/);
+  assert.match(appSource, /const refreshed = await refreshAuthorSearch\(\(\) => revisionRead\(\(\) => authorSearchRequestPath\(state\.query, activeHorizon\(\), selectedThreadIds\(\)\)\)/);
   assert.match(appSource, /if \(!currentRestore\(\)\) return; state\.searchResults = refreshed\.results;/);
 });
 
@@ -563,7 +619,7 @@ test("article rendering receives contract-shaped horizon filters and mobile navi
   assert.match(appSource, /window\.addEventListener\("popstate"/);
   assert.match(appSource, /timelineCache\.has/);
   assert.match(appSource, /Back to list/);
-  assert.match(appSource, /authorSearchRequestPath\(state\.query, activeHorizon\(\)\)/);
+  assert.match(appSource, /authorSearchRequestPath\(state\.query, activeHorizon\(\), selectedThreadIds\(\)\)/);
   assert.match(appSource, /renderCharacterMoment/);
   assert.match(appSource, /Full story is not one story moment/);
   assert.match(appSource, /The recorded state could not be loaded/);

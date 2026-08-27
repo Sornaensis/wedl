@@ -1,0 +1,67 @@
+contract: ../../THREAD_SCHEMA_CONTRACT.md
+adr: ../0002-shared-world-concurrent-narrative-threads.md
+status: validation-slice-implemented
+source_schema: wedl/v0.5
+supported_schemas: [wedl/v0.3, wedl/v0.5]
+global_model:
+  timelines: exactly-one
+  default_timeline: matches-only-timeline
+  current_time: optional-global
+  semantics: shared characters, locations, mutable state, StoryTime, tick/calendar interpretation, causes, and cursor
+thread_membership:
+  world: 'sorted [{id: thread_<26 Crockford Base32 characters>, label: nonempty}]'
+  record: 'optional sorted-unique declared IDs; omitted is []'
+  hypothesis: rejected
+  semantics: zero-to-many grouping only; no canon, time, state, causality, cursor, or corpus effect
+prohibited:
+  thread_fields: [parent, status, canon, time, horizon, presentation, search, model, cursor]
+  thread_scoped_fields: [timeline, domain, fork, continuity, strand, sync, retcon, projection, author-all]
+  inference: prohibited
+vectors:
+  - id: zero-membership
+    memberships: []
+    expected: accepted-grouping-only
+  - id: one-membership
+    memberships: [thread_0123456789ABCDEFGHJKMNPQRS]
+    expected: accepted-grouping-only
+  - id: many-membership
+    memberships: [thread_0123456789ABCDEFGHJKMNPQRS, thread_0123456789ABCDEFGHJKMNPQRT]
+    expected: accepted-grouping-only
+  - id: duplicate-membership
+    memberships: [thread_0123456789ABCDEFGHJKMNPQRS, thread_0123456789ABCDEFGHJKMNPQRS]
+    expected: rejected-duplicate
+  - id: global-cause-state-cursor
+    expected: strict-global-story-time-only
+validation:
+  v04: 'v04_superseded; see docs/THREAD_SCHEMA_CONTRACT.md#4-quarantined-v04-recovery'
+  schema:
+    mixed: {code: WDL-SRC-008, field: schema, message: source records must use one homogeneous schema}
+    incompatible_member: {code: WDL-SRC-009, field: offending-member-path, message: member is incompatible with this source schema}
+  timeline: {code: WDL-TIMELINE-012, field: timelines, message: wedl/v0.5 requires exactly one timeline declaration}
+  threads:
+    WDL-THREAD-001: {field: threads, message: wedl/v0.5 world threads must be an array}
+    WDL-THREAD-002: {field: 'threads[i]', message: thread declaration must be exactly an id and label mapping}
+    WDL-THREAD-003: {field: 'threads[i].id', message: thread id must use the thread_<26 Crockford> format}
+    WDL-THREAD-004: {field: 'threads[i].id', message: thread declaration id is duplicated}
+    WDL-THREAD-005: {field: 'threads[i].label', message: thread label must be a non-empty string}
+    WDL-THREAD-006: {field: threads, message: thread declarations must be sorted by id}
+    WDL-THREAD-007: {field: threads, message: record thread membership must be an array of thread ids}
+    WDL-THREAD-008: {field: threads, message: record thread memberships must be unique and sorted by id}
+    WDL-THREAD-009: {field: 'threads[i]', message: record thread membership is not declared by the world}
+migration:
+  v03_automatic: 'exact-head-clean-dry-hash-confirm-backup; one timeline and matching default only; world threads []; record memberships omitted; schemas atomic'
+  v03_multitimeline: blocked
+  v03_mixed: rejected
+  v03_rerun: idempotent
+  inference: prohibited
+recovery:
+  v04_normal_path: v04_superseded; stop before topology or reinterpretation
+  automatic_only: exactly one root continuity/domain with primary status and matching default_continuity; no parent/fork/retcon/sync/handoff/vector-or-synchronized-horizon/frame; global empty-strand membership; coordinates map global timeline
+  scalar_horizon: may map global current_time
+  alternate_sole_continuity: blocked
+  experimental_sole_continuity: blocked
+  retired_sole_continuity: blocked
+  mismatched_default_continuity: blocked
+  conversion: atomic all-schema-markers to homogeneous wedl/v0.5; drop wrappers; world threads []; record memberships omitted; backup rollback; no partial sources
+  otherwise: author-supplied-mapping-required
+  safeguards: exact-head-clean-dry-hash-confirm-backup

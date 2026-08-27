@@ -1,0 +1,3 @@
+status: withdrawn-nonnormative
+superseded_by: ../0002-shared-world-concurrent-narrative-threads.md
+statement: Historical ADR 0001 vectors are withdrawn. This tombstone defines no continuity, fork, domain, horizon, projection, canon, or schema behavior.

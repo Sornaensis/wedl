@@ -70,11 +70,26 @@ _WHEREABOUTS_JOURNEY = _strict_object(
         "event": _TIMELINE_NULLABLE_REFERENCE,
     },
 )
+_IMPORTANCE_BREAKDOWN = _strict_object(
+    "algorithm", "score", "raw", "normalized", "contributions", "explanation",
+    properties={
+        "algorithm": {"const": "wedl-character-importance/v1"}, "score": {"type": "number"},
+        "raw": _strict_object("scenes", "pointOfViewScenes", "events", "relationshipNeighbors", properties={"scenes": _INTEGER, "pointOfViewScenes": _INTEGER, "events": _INTEGER, "relationshipNeighbors": _INTEGER}),
+        "normalized": _strict_object("scenes", "pointOfViewScenes", "events", "relationshipNeighbors", properties={"scenes": {"type": "number"}, "pointOfViewScenes": {"type": "number"}, "events": {"type": "number"}, "relationshipNeighbors": {"type": "number"}}),
+        "contributions": _strict_object("scenes", "pointOfViewScenes", "events", "relationshipNeighbors", properties={"scenes": {"type": "number"}, "pointOfViewScenes": {"type": "number"}, "events": {"type": "number"}, "relationshipNeighbors": {"type": "number"}}),
+        "explanation": _STRING,
+    },
+)
+_IMPORTANCE_POLICY = _strict_object("algorithm", "calculated", "nonCanonical", "cohort", "normalization", "weights", "evidence", "exclusions", properties={
+    "algorithm": {"const": "wedl-character-importance/v1"}, "calculated": {"const": True}, "nonCanonical": {"const": True}, "cohort": _STRING, "normalization": _STRING,
+    "weights": _strict_object("scenes", "pointOfViewScenes", "events", "relationshipNeighbors", properties={"scenes": _INTEGER, "pointOfViewScenes": _INTEGER, "events": _INTEGER, "relationshipNeighbors": _INTEGER}), "evidence": _STRING, "exclusions": _STRING,
+})
 _WHEREABOUTS_CHARACTER = _strict_object(
-    "character", "recordStatus", "presence", "location", "lastKnownLocation", "activeScene", "journey",
+    "character", "recordStatus", "role", "importance", "presence", "location", "lastKnownLocation", "activeScene", "journey",
     properties={
         "character": _TIMELINE_REFERENCE,
         "recordStatus": {"enum": ["canonical", "retired"]},
+        "role": {"type": ["string", "null"]}, "importance": _IMPORTANCE_BREAKDOWN,
         "presence": {"enum": ["active-scene", "offstage", "unlocated"]},
         "location": _TIMELINE_NULLABLE_REFERENCE,
         "lastKnownLocation": _TIMELINE_NULLABLE_REFERENCE,
@@ -213,13 +228,16 @@ SCHEMAS: dict[str, dict[str, Any]] = {
     "EntityResponse": _object("id", "kind", "title", properties={"id": _STRING, "kind": _STRING, "title": _STRING, "frontmatter": _OBJECT, "locationContext": _LOCATION_CONTEXT}),
     "StateResponse": _object("revision", "entityId", "at", "state", "citations", "locationHistory", properties={"revision": _STRING, "entityId": _STRING, "at": _OBJECT, "state": _OBJECT, "citations": _OBJECT, "locationHistory": {"type": "array", "items": _LOCATION_HISTORY_ITEM}}),
     "WhereaboutsJourney": _WHEREABOUTS_JOURNEY,
+    "ImportanceBreakdown": _IMPORTANCE_BREAKDOWN,
+    "ImportancePolicy": _IMPORTANCE_POLICY,
     "WhereaboutsCharacter": _WHEREABOUTS_CHARACTER,
     "WhereaboutsLocation": _WHEREABOUTS_LOCATION,
     "WhereaboutsActiveScene": _WHEREABOUTS_ACTIVE_SCENE,
-    "WhereaboutsResponse": _object("protocol", "revision", "effectiveTime", "timeScope", "characterPolicy", "characters", "locations", "activeScenes", "offstageCharacters", "unlocatedCharacters", properties={
-        "protocol": {"const": "wedl-whereabouts/v1"}, "revision": _STRING,
+    "WhereaboutsResponse": _object("protocol", "revision", "effectiveTime", "timeScope", "characterPolicy", "importancePolicy", "characters", "locations", "activeScenes", "offstageCharacters", "unlocatedCharacters", properties={
+        "protocol": {"const": "wedl-whereabouts/v2"}, "revision": _STRING,
         "effectiveTime": _TIMELINE_COORDINATE, "timeScope": _object("mode", "at", properties={"mode": {"const": "as-of"}, "at": _TIMELINE_COORDINATE}),
         "characterPolicy": _object("includedStatuses", "excludedStatuses", "locationEvidence", "inference", properties={"includedStatuses": {"type": "array", "items": _STRING}, "excludedStatuses": {"type": "array", "items": _STRING}, "locationEvidence": _STRING, "inference": {"const": "none"}}),
+        "importancePolicy": _IMPORTANCE_POLICY,
         "characterFilter": _TIMELINE_NULLABLE_REFERENCE,
         "characters": {"type": "array", "items": _WHEREABOUTS_CHARACTER},
         "locations": {"type": "array", "items": _WHEREABOUTS_LOCATION},
@@ -245,6 +263,10 @@ SCHEMAS: dict[str, dict[str, Any]] = {
     "TimelinePoint": _TIMELINE_POINT,
     "TimelineSpan": _TIMELINE_SPAN,
     "TimelineResponse": _object("protocol", "revision", "timeline", "temporalSemantics", "points", "spans", properties={"protocol": {"const": "wedl-timeline/v1"}, "revision": _STRING, "timeline": _object("id", "label", properties={"id": _STRING, "label": _STRING, "origin": _TIMELINE_ORIGIN}), "temporalSemantics": _object("spacing", "durationSemantics", "intervalEndpoints", properties={"spacing": {"const": "ordinal"}, "durationSemantics": {"const": "none"}, "intervalEndpoints": {"const": "inclusive"}}), "points": {"type": "array", "items": _TIMELINE_POINT}, "spans": {"type": "array", "items": _TIMELINE_SPAN}}),
+    "ThreadCatalogEntry": _strict_object("id", "label", properties={"id": _STRING, "label": _STRING}),
+    "ThreadCatalogResponse": _strict_object("protocol", "revision", "sourceSchema", "groupingAvailable", "threads", properties={"protocol": {"const": "wedl-threads/v1"}, "revision": _STRING, "sourceSchema": _STRING, "groupingAvailable": _BOOLEAN, "threads": {"type": "array", "items": {"$ref": "#/components/schemas/ThreadCatalogEntry"}}}),
+    "ThreadMembershipEntry": _strict_object("recordId", "threadIds", properties={"recordId": _STRING, "threadIds": {"type": "array", "items": _STRING}}),
+    "ThreadMembershipResponse": _strict_object("protocol", "revision", "sourceSchema", "selectedThreadIds", "records", properties={"protocol": {"const": "wedl-thread-memberships/v1"}, "revision": _STRING, "sourceSchema": _STRING, "selectedThreadIds": {"type": "array", "items": _STRING}, "records": {"type": "array", "items": {"$ref": "#/components/schemas/ThreadMembershipEntry"}}}),
     "CausalityResponse": _object("protocol", "revision", "direction", "effectiveTime", "timeScope", "focusEvent", "nodes", "edges", "continuityAdvisories", properties={"protocol": {"const": "wedl-causality/v1"}, "revision": _STRING, "direction": {"enum": ["upstream", "downstream", "both"]}, "effectiveTime": _STORY_TIME, "timeScope": _OBJECT, "focusEvent": _TIMELINE_REFERENCE, "nodes": {"type": "array", "items": _CAUSALITY_NODE}, "edges": {"type": "array", "items": _CAUSALITY_EDGE}, "continuityAdvisories": {"type": "array", "items": _CONTINUITY_ADVISORY}}),
     "SearchResponse": _object("protocol", "revision", "perspective", "characterId", "sceneId", "effectiveTime", "timeScope", "mode", "searchState", "results", properties={"protocol": _STRING, "revision": _STRING, "perspective": _STRING, "characterId": {"type": ["string", "null"]}, "sceneId": {"type": ["string", "null"]}, "effectiveTime": {"type": ["object", "null"]}, "timeScope": _OBJECT, "mode": _STRING, "searchState": _OBJECT, "results": {"type": "array", "items": _OBJECT}}),
     "ContextResponse": {
@@ -309,12 +331,14 @@ _OPERATIONS: dict[str, tuple[str, dict[str, Any]]] = {
     "entity list": ("EntityListResponse", [{"id": "character-mara-vale", "kind": "character", "title": "Mara Vale"}]),
     "entity show": ("EntityResponse", {"id": "character-mara-vale", "kind": "character", "title": "Mara Vale"}),
     "state": ("StateResponse", {"revision": "0123456789abcdef", "entityId": "character-mara-vale", "at": {"tick": 12}, "state": {}, "citations": {}, "locationHistory": []}),
-    "whereabouts": ("WhereaboutsResponse", {"protocol": "wedl-whereabouts/v1", "revision": "0123456789abcdef", "effectiveTime": {"timeline": "main", "tick": "12", "order": "0"}, "timeScope": {"mode": "as-of", "at": {"timeline": "main", "tick": "12", "order": "0"}}, "characterPolicy": {"includedStatuses": ["canonical", "retired"], "excludedStatuses": ["draft"], "locationEvidence": "initial state and canonical location effects only", "inference": "none"}, "characters": [], "locations": [], "activeScenes": [], "offstageCharacters": [], "unlocatedCharacters": []}),
+    "whereabouts": ("WhereaboutsResponse", {"protocol": "wedl-whereabouts/v2", "revision": "0123456789abcdef", "effectiveTime": {"timeline": "main", "tick": "12", "order": "0"}, "timeScope": {"mode": "as-of", "at": {"timeline": "main", "tick": "12", "order": "0"}}, "characterPolicy": {"includedStatuses": ["canonical", "retired"], "excludedStatuses": ["draft"], "locationEvidence": "initial state and canonical location effects only", "inference": "none"}, "importancePolicy": {"algorithm": "wedl-character-importance/v1", "calculated": True, "nonCanonical": True, "cohort": "all canonical and retired characters before filtering", "normalization": "per-signal log1p(raw) / log1p(cohort maximum); zero maximum contributes zero", "weights": {"scenes": 40, "pointOfViewScenes": 25, "events": 20, "relationshipNeighbors": 15}, "evidence": "scene appearances and POV subset; canonical event participants/effect targets deduplicated per event; distinct reciprocal relationship neighbors", "exclusions": "No prose, tags, inferred travel, co-presence, knowledge, or manual overrides are used."}, "characters": [], "locations": [], "activeScenes": [], "offstageCharacters": [], "unlocatedCharacters": []}),
     "hypotheses": ("HypothesesResponse", {"protocol": "wedl-hypotheses/v1", "revision": "0123456789abcdef", "nonCanonical": True, "hypotheses": []}),
     "knowledge": ("KnowledgeResponse", {"revision": "0123456789abcdef", "characterId": "character-mara-vale", "at": {"tick": 12}, "knowledge": []}),
     "interactions": ("InteractionsResponse", {"revision": "0123456789abcdef", "firstCharacterId": "character-mara-vale", "secondCharacterId": "character-ilyra-sorn", "interactions": []}),
     "story-points": ("StoryPointsResponse", {"revision": "0123456789abcdef", "sceneId": "scene-market-day", "evaluatedAt": {"timeline": "main", "tick": 12, "order": 0}, "storyPoints": [], "continuityAdvisories": []}),
     "timeline": ("TimelineResponse", {"protocol": "wedl-timeline/v1", "revision": "0123456789abcdef", "timeline": {"id": "main", "label": "Main chronology"}, "temporalSemantics": {"spacing": "ordinal", "durationSemantics": "none", "intervalEndpoints": "inclusive"}, "points": [], "spans": []}),
+    "threads": ("ThreadCatalogResponse", {"protocol": "wedl-threads/v1", "revision": "0123456789abcdef", "sourceSchema": "wedl/v0.5", "groupingAvailable": True, "threads": [{"id": "thread_0123456789ABCDEFGHJKMNPQRS", "label": "Archive"}]}),
+    "thread-memberships": ("ThreadMembershipResponse", {"protocol": "wedl-thread-memberships/v1", "revision": "0123456789abcdef", "sourceSchema": "wedl/v0.5", "selectedThreadIds": ["thread_0123456789ABCDEFGHJKMNPQRS"], "records": [{"recordId": "event_0123456789ABCDEFGHJKMNPQRS", "threadIds": ["thread_0123456789ABCDEFGHJKMNPQRS"]}]}),
     "causal": ("CausalityResponse", {"protocol": "wedl-causality/v1", "revision": "0123456789abcdef", "direction": "both", "effectiveTime": {"timeline": "main", "tick": 12, "order": 0}, "timeScope": {"mode": "as-of", "at": {"timeline": "main", "tick": 12, "order": 0}}, "focusEvent": {"id": "event-market-alarm", "kind": "event", "title": "Market alarm"}, "nodes": [{"event": {"id": "event-market-alarm", "kind": "event", "title": "Market alarm"}, "at": {"timeline": "main", "tick": 12, "order": 0}, "status": "canonical"}], "edges": [], "continuityAdvisories": []}),
     "search": ("SearchResponse", {"protocol": "wedl-search/v5", "revision": "0123456789abcdef", "perspective": "character", "characterId": "character-mara-vale", "sceneId": "scene-market-day", "effectiveTime": {"tick": 12}, "timeScope": {"mode": "as-of", "at": {"tick": 12}}, "mode": "hybrid", "searchState": {}, "results": []}),
     "context": ("ContextResponse", {"protocol": "wedl-context/v3", "revision": "0123456789abcdef", "perspective": "author", "characterId": "character-mara-vale", "sceneId": "scene-market-day", "effectiveTime": {"tick": 12}, "focus": {}, "promptText": "Use only canonical evidence.", "selection": {}}),

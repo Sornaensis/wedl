@@ -15,7 +15,7 @@ _ROUTES = {
     ("POST", "/api/compile"), ("GET", "/api/entities"), ("GET", "/api/entities/{entity_id}"),
     ("GET", "/api/entities/{entity_id}/state"), ("GET", "/api/entities/{character_id}/knowledge"),
     ("GET", "/api/interactions"), ("GET", "/api/story-points"), ("GET", "/api/search"),
-    ("GET", "/api/timeline"), ("GET", "/api/whereabouts"), ("GET", "/api/causal/{event_id}"),
+    ("GET", "/api/timeline"), ("GET", "/api/threads"), ("GET", "/api/thread-memberships"), ("GET", "/api/whereabouts"), ("GET", "/api/hypotheses"), ("GET", "/api/causal/{event_id}"),
     ("GET", "/api/context"), ("GET", "/api/conversations/{conversation_id}"),
     ("GET", "/api/changesets/schema"), ("POST", "/api/changesets/scaffold"),
     ("POST", "/api/changesets/preview"), ("POST", "/api/changesets/apply"),
@@ -24,11 +24,11 @@ _ROUTES = {
 _ERRORS = {
     "usage_error", "validation_failed", "confirmation_required", "confirmation_mismatch", "not_found",
     "compile_required", "authentication_required", "conflict", "stale_revision", "dirty_managed_tree",
-    "repository_error", "parse_error", "protocol_error",
+    "repository_error", "parse_error", "protocol_error", "v04_superseded",
 }
 _LOCAL_ONLY = {
-    "completion", "init", "serve", "--repo", "--compact", "--output", "--yes", "--use-current-head",
-    "--host", "--port", "--open", "--version", "FILE",
+    "completion", "init", "serve", "migrate", "--repo", "--compact", "--output", "--yes", "--use-current-head",
+    "--host", "--port", "--open", "--expected-head", "--source-snapshot-hash", "--rollback-backup-ref", "--version", "FILE",
 }
 
 
@@ -75,7 +75,7 @@ def _validate(document: dict[str, Any], schema: dict[str, Any], value: object) -
 def test_http_api_documentation_has_the_exact_public_route_error_and_local_only_inventory() -> None:
     markdown = (_ROOT / "docs" / "HTTP_API.md").read_text(encoding="utf-8")
     assert _route_table(markdown) == _ROUTES
-    assert len(_route_table(markdown)) == 23
+    assert len(_route_table(markdown)) == 26
     assert all(f"`{error}`" in markdown for error in _ERRORS)
     assert all(f"`{item}`" in markdown for item in _LOCAL_ONLY)
 

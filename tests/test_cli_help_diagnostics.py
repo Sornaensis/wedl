@@ -34,10 +34,10 @@ def test_help_remains_human_readable_and_explains_global_compact() -> None:
 
     assert result.returncode == 0
     assert result.stderr == ""
+    help_text = " ".join(result.stdout.split())
     assert "Explore and manage Git-backed interactive story worlds." in result.stdout
     assert "--compact" in result.stdout
-    assert "search the compiled world within a perspective and time" in result.stdout
-    assert "scope" in result.stdout
+    assert "search the compiled world within a perspective and time scope" in help_text
     assert "print the installed WEDL version and exit" in result.stdout
 
 

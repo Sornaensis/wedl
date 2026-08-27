@@ -1,0 +1,35 @@
+adr: ../0002-shared-world-concurrent-narrative-threads.md
+status: Accepted
+named_approver: Sornaensis
+approval_date: 2026-08-26
+scope: governance-only
+source_schema: wedl/v0.3
+assertions:
+  - id: one-global-story-time
+    outcome: allowed
+    statement: All threads share one global StoryTime ordering.
+  - id: thread-is-grouping-only
+    outcome: allowed
+    statement: A thread groups related narrative work and does not select canon.
+  - id: shared-world-resources
+    outcome: allowed
+    statement: Threads share characters, locations, mutable world state, and tick/calendar interpretation, including when concurrent or overlapping.
+  - id: cross-thread-cause
+    outcome: allowed
+    statement: A cross-thread cause is valid only when strictly earlier in global StoryTime.
+  - id: alternate-canon
+    outcome: forbidden
+    statement: Threads cannot create alternate canon or fictional forks.
+  - id: thread-local-clock
+    outcome: forbidden
+    statement: Threads cannot introduce domains, replay projections, or per-thread horizons.
+  - id: thread-local-corpus
+    outcome: forbidden
+    statement: Search has one corpus and ordinary global filters only.
+  - id: presentation-rewrites-canon
+    outcome: forbidden
+    statement: Presentation grouping has no canon or chronology effect.
+withdrawal:
+  superseded_adr: ../0001-multi-strand-chronology-and-fictional-continuities.md
+  continuity_contract: ../../CONTINUITY_SCHEMA_CONTRACT.md
+  statement: Archived continuity material is nonnormative and supplies no schema or migration.

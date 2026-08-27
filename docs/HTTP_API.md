@@ -33,6 +33,8 @@ call.
 | GET | `/api/interactions` | no | Interactions for required `first` and `second`. |
 | GET | `/api/story-points` | no | Story points at a scene or time. |
 | GET | `/api/timeline` | no | Complete ordinal chronology for one declared timeline. |
+| GET | `/api/threads` | no | Declared optional narrative grouping labels only. |
+| GET | `/api/thread-memberships` | no | Selected grouping membership projection for supplied records. |
 | GET | `/api/whereabouts` | no | Horizon-bounded character locations and explicit journeys. |
 | GET | `/api/hypotheses` | no | Explicitly non-canonical author possibilities. |
 | GET | `/api/causal/{event_id}` | no | Explicit event-cause trail at an author horizon. |
@@ -51,6 +53,37 @@ Query names preserve the established aliases where applicable: `q`,
 Use `/openapi.json` for the full current parameter list, parser defaults,
 enums, numeric bounds, and descriptions.
 
+## Narrative thread catalog
+
+`GET /api/threads` (and `wedl threads`) returns the `wedl-threads/v1` catalog
+of declared optional narrative grouping labels. A `wedl/v0.3` world returns an
+empty catalog with `groupingAvailable: false`; it does not invent a default
+thread. A `wedl/v0.5` world returns only `{id, label}` declarations, ordered by
+case-folded label and then ID. The catalog never includes memberships, record
+counts, state, time, status, search ranks, corpus text, or vector data.
+
+`GET /api/search` accepts repeated `threadId` values (CLI: repeated
+`--thread-id`); `GET /api/context` accepts repeated `recallThreadId` values
+(CLI: repeated `--recall-thread-id`). IDs must be declared, unique, and sorted
+in a validated `wedl/v0.5` world. Search retains the stable filtered
+subsequence after ranking and deduplication without backfilling. Context uses
+the selector only to remove already-selected useful recall after fitting; it
+does not alter other packet sections, authorization, chronology, state, or
+retrieval ranking. Omitting either parameter preserves the existing response
+byte-for-byte.
+
+`GET /api/thread-memberships` (CLI: `wedl thread-memberships`) accepts required
+repeated `recordId` (one to 256) and `threadId` (one to 32) values. Both lists
+must be stable IDs, unique, and lexicographically sorted. The selected thread
+IDs use the same validated v0.5 selector as search and context, with ANY
+semantics. Its `wedl-thread-memberships/v1` response contains only the
+requested public canonical records that belong to at least one selected group;
+each entry returns `{recordId, threadIds}` where `threadIds` is only the sorted
+selected intersection. Unknown, unavailable, noncanonical, and hypothesis
+candidates are omitted, so it cannot reveal membership outside the caller's
+already visible candidate set. It does not expose state, chronology, ranking,
+corpus, or vector data.
+
 ## Whereabouts
 
 `GET /api/whereabouts` (and `wedl whereabouts`) is an author-only bulk read
@@ -65,12 +98,26 @@ authored.
 selected horizon. A scene closed in the present can therefore appear when the
 requested moment falls inside its authored interval.
 
-The `wedl-whereabouts/v1` response contains only initial character locations
-and canonical `location` set/clear effects. Its journey entries distinguish an
-initial placement, move, reaffirmation, and clear, and carry exact decimal
-story coordinates plus named event references. It never infers travel from
-scene participation, location links, routes, group labels, or character
-knowledge.
+The `wedl-whereabouts/v2` response retains the v1 location, journey, front,
+and aggregate fields and adds display-ready `role`, a per-character
+`importance` breakdown, and top-level `importancePolicy`. Prominence is a
+calculated, disposable, noncanonical navigation aid: it is never authored,
+serialized into Markdown/frontmatter, or available to changesets.
+
+The score is calculated at the selected horizon over the complete canonical
+and retired cohort before any `character` filter. Raw scene appearances,
+point-of-view scene appearances, canonical event involvement (participant or
+effect target, once per event), and distinct reciprocal relationship neighbors
+are respectively normalized as `log1p(raw) / log1p(cohort maximum)` and
+weighted 40/25/20/15. A zero maximum contributes zero; contributions and the
+final score are rounded deterministically. It deliberately excludes prose,
+tags, knowledge, inferred travel, co-presence, and manual overrides.
+
+Location fields still contain only initial character locations and canonical
+`location` set/clear effects. Journey entries distinguish an initial placement,
+move, reaffirmation, and clear, and carry exact decimal story coordinates plus
+named event references. They never infer travel from scene participation,
+location links, routes, group labels, or character knowledge.
 
 ## Possibilities
 
@@ -100,7 +147,7 @@ responses (not FastAPI `422`). The complete semantic error inventory is:
 
 | HTTP status | Codes |
 | --- | --- |
-| 400 | `usage_error`, `validation_failed`, `confirmation_required`, `confirmation_mismatch`, `not_found`, `compile_required`, `repository_error`, `parse_error`, `protocol_error` |
+| 400 | `usage_error`, `validation_failed`, `confirmation_required`, `confirmation_mismatch`, `not_found`, `compile_required`, `repository_error`, `parse_error`, `protocol_error`, `v04_superseded` |
 | 401 | `authentication_required` |
 | 409 | `conflict`, `stale_revision`, `dirty_managed_tree` |
 
@@ -136,6 +183,32 @@ An exact retry with the same idempotency key, request hash, full payload, and
 confirmation token returns the saved result with `idempotentReplay: true`; it
 does not write, compile, or broadcast another revision. Reusing the key for a
 different full payload is a `409 conflict`.
+
+Thread grouping changes use the existing `entity.update` operation and only
+its `frontmatterPatch`; there is no separate route or operation type. It is
+optional narrative grouping in the one shared world, not a second canon,
+calendar, mutable state, or search corpus. A world record replaces its complete
+declaration list with canonical source `threads`:
+
+```json
+{"entity":"world_...","frontmatterPatch":{"threads":[{"id":"thread_...","label":"Archive"}]}}
+```
+
+An ordinary non-hypothesis record replaces its complete membership list with
+public `threadIds`; it is translated internally and serialized as canonical
+Markdown frontmatter `threads`, never `threadIds`. Use `[]` to clear
+membership:
+
+```json
+{"entity":"character_...","frontmatterPatch":{"threadIds":[]}}
+```
+
+Lists are full replacements, never merged, sorted, deduplicated, or inferred.
+A changeset may replace declarations and memberships together, and validation
+runs against that final candidate atomically: removing a still-used declaration
+fails without writing any part of the changeset. Hypotheses cannot use either
+grouping key. The raw request is not rewritten, so confirmation and
+idempotency remain bound to precisely the submitted JSON.
 
 ## Authoring intents
 
@@ -179,6 +252,7 @@ local-only inventory; use the CLI for each of these instead.
 | `completion` | Emits shell code on the local machine. |
 | `init` | Creates a repository and may invoke Git locally. |
 | `serve` | Owns local host, port, and browser lifecycle. |
+| `migrate` | Performs a confirmed local Git source migration/recovery and cache rebuild; it has no HTTP equivalent. |
 | `--repo` | Selects a local filesystem repository. |
 | `--compact` | Controls CLI output formatting only. |
 | `--version` | Reports the local CLI/application version rather than a repository operation. |
@@ -186,6 +260,7 @@ local-only inventory; use the CLI for each of these instead.
 | `FILE` | Is the CLI positional local changeset file path; HTTP sends raw JSON instead. |
 | `--yes` | Is an unsafe CLI-only confirmation bypass. |
 | `--use-current-head` | Is a CLI-only expected-HEAD escape hatch. |
+| `--expected-head`, `--source-snapshot-hash`, `--rollback-backup-ref` | Bind the local-only migration preview/apply and forward rollback flow. |
 | `--host`, `--port`, `--open` | Configure local server binding/browser launch. |
 
 The API also does not accept a confirmation token in a JSON body. It uses only

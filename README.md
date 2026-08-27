@@ -30,13 +30,15 @@ interface.
 - Optional strict compiled-cache reads for automation that must not trigger an
   implicit local rebuild.
 - A local FastAPI service and bundled inspection/authoring interface.
+- Horizon-aware calculated character prominence in whereabouts: a disposable,
+  noncanonical 40/25/20/15 scene/POV/event/relationship navigation aid that
+  is never written to Markdown, frontmatter, changesets, or source schemas.
 - A **262-record completed Ash Archive fixture** spanning a full mystery and epilogue.
 - A **308-record open-campaign Frontiersmen fixture** spanning arrival, caravan duty, a slaughtered crossroads watch, amber manifestations, mine collapse, two days underground, the Tree King, blood-sport escape, the Drowned Waymark, and an uncertain southward road.
 - Generated stress worlds at 594, 4,302, and 10,662 records.
-
-There is deliberately **no migration command or migration framework**. The
-source schema is pre-release; until it stabilizes, runtime repositories must
-match the program version that authored them.
+- A local-only, preview-confirmed source migration/recovery kernel for the
+  narrow v0.3-to-v0.5 and quarantined v0.4 cases; see
+  [Migration and recovery](docs/MIGRATION_AND_RECOVERY.md).
 
 ## Install
 
@@ -295,6 +297,7 @@ wedl state "Amber Reliquary" --repo frontiersmen --timeline main --tick 210
 wedl knowledge Rhea --repo frontiersmen --timeline main --tick 210
 wedl interactions Rhea Veyra --repo frontiersmen
 wedl story-points --repo frontiersmen --scene "Southward Cut"
+wedl threads --repo frontiersmen
 wedl conversation show "The Southward Cut" --repo frontiersmen \
   --perspective character --character Rhea --timeline main --tick 210
 wedl search "Blackroot amber handling evidence" --repo frontiersmen \
@@ -461,6 +464,30 @@ token=$(printf '%s' "$preview" | python -c "import json, sys; print(json.load(sy
 wedl --compact changeset apply change.json --confirm "$token"
 ```
 
+Thread grouping is an optional narrative label system inside the one shared
+world: it does not create a separate canon, clock, state, or search corpus.
+Use target-specific, complete-list replacements in an `entity.update`
+`frontmatterPatch`. World declarations use canonical source `threads`:
+
+```json
+{"entity":"world_...","frontmatterPatch":{"threads":[{"id":"thread_...","label":"Archive"}]}}
+```
+
+Ordinary non-hypothesis record memberships use public `threadIds`; this is
+translated before serialization, so the resulting Markdown contains only its
+canonical `threads` list. An empty list clears membership:
+
+```json
+{"entity":"character_...","frontmatterPatch":{"threadIds":[]}}
+```
+
+Each list replaces—not merges with—the previous list. A single changeset may
+replace declarations and memberships together, and its complete final
+candidate is validated atomically; removing a declaration still used by a
+membership fails without writing either change. Hypotheses cannot carry either
+grouping key. The submitted changeset itself is unchanged, so preview
+confirmation and idempotency hashes always describe the exact request.
+
 Supported operations include:
 
 - `entity.create`, `entity.upsert`, `entity.update`, and `entity.delete`;
@@ -474,6 +501,21 @@ advances the branch with expected-HEAD protection, recompiles the resulting
 revision, preserves unrelated staged files, and returns stable generated IDs.
 The HTTP equivalent uses the same raw changeset object, but carries its session
 token and review confirmation in headers; see [HTTP API](docs/HTTP_API.md).
+
+### Local source migration and recovery
+
+The local-only migration kernel is intentionally separate from the HTTP API and
+browser interface. Always inspect a preview against the exact current commit,
+then apply its exact hash and confirmation token:
+
+```bash
+wedl migrate preview --mode upgrade-v03 --expected-head "$(git rev-parse HEAD)" --idempotency-key schema-upgrade-1
+wedl migrate apply --mode upgrade-v03 --expected-head <HEAD> --source-snapshot-hash <SHA256> --idempotency-key schema-upgrade-1 --confirm <TOKEN>
+```
+
+It supports the narrow documented `upgrade-v03`, quarantined `recover-v04`,
+and forward `rollback` modes only. It never migrates SQLite in place. See the
+[migration and recovery runbook](docs/MIGRATION_AND_RECOVERY.md).
 
 ### Name-oriented authoring
 

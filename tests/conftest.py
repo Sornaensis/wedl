@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from importlib import resources
+import os
 from pathlib import Path
 import shutil
 import subprocess
@@ -11,7 +12,10 @@ from wedl.repository import Repository
 
 
 def git(root: Path, *args: str, check: bool = True) -> subprocess.CompletedProcess[str]:
-    return subprocess.run(["git", "-C", str(root), *args], check=check, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    result = subprocess.run(["git", "-C", str(root), *args], check=check, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    if os.name == "nt" and args and args[0] == "init":
+        subprocess.run(["git", "-C", str(root), "config", "core.longpaths", "true"], check=True, text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    return result
 
 
 @pytest.fixture()
