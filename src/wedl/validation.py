@@ -940,6 +940,21 @@ def _location_target(value: Any) -> str | None:
     return target if isinstance(target, str) and target.strip() else None
 
 
+def _invalid_location_link_prose_fields(value: Any) -> tuple[str, ...]:
+    """Return malformed detailed-link prose fields for every source envelope.
+
+    The spatial component retains ordinary directional location links, so this
+    narrow legacy rule is shared rather than re-specified by a second parser.
+    """
+    if not isinstance(value, dict):
+        return ()
+    return tuple(
+        prose_key
+        for prose_key in ("description", "label", "summary")
+        if prose_key in value and (not isinstance(value[prose_key], str) or not value[prose_key].strip())
+    )
+
+
 def _validate_location_reference(
     world: World,
     owner: Record,
@@ -991,10 +1006,8 @@ def _validate_location(world: World, record: Record) -> list[dict[str, Any]]:
         if target_id is None:
             result.append(diagnostic("WDL-LOC-005", "location link must be a location reference or a mapping with exactly one location, entity, or target reference", record, field))
             continue
-        if isinstance(link, dict):
-            for prose_key in ("description", "label", "summary"):
-                if prose_key in link and (not isinstance(link[prose_key], str) or not link[prose_key].strip()):
-                    result.append(diagnostic("WDL-LOC-009", f"location link {prose_key} must be non-empty text", record, f"{field}.{prose_key}"))
+        for prose_key in _invalid_location_link_prose_fields(link):
+            result.append(diagnostic("WDL-LOC-009", f"location link {prose_key} must be non-empty text", record, f"{field}.{prose_key}"))
         if target_id == record.id:
             result.append(diagnostic("WDL-LOC-007", "location cannot link to itself", record, field))
         if target_id in seen:

@@ -1,0 +1,9 @@
+# Invalid component fixture: tests must report a leaf-addressed diagnostic.
+location:
+  schema: wedl/v0.7
+  kind: location
+  id: location:impossible
+  title: Impossible
+  spatial:
+    map_id: map:plain
+    geometry: {kind: point, coordinates: [.nan, 0]}

@@ -277,4 +277,11 @@ v0.1 reports these conflicts but does not attempt an automatic semantic merge. A
 
 ## 13. Example corpus
 
+### Latent spatial component boundary
+
+The accepted spatial v0.7 component preserves Markdown bodies exactly during a
+frontmatter round trip: only the single envelope separator blank line is
+consumed.  It remains a component validator, not generic v0.7 parser,
+compiler, migration, CLI, HTTP, or UI acceptance.
+
 The [`examples/`](examples/) directory contains the expanded **Ash Archive** world: a deterministic 120-record corpus spanning every v0.1 entity kind. Its IDs and base64url provenance payloads are structurally valid, and its frontmatter/reference graph is checked as part of packaging. The corpus is intended both as schema illustration and as the primary provisional integration fixture; it may still evolve until the pre-1.0 source schema is frozen.

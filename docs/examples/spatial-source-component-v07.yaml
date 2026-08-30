@@ -1,0 +1,51 @@
+# Component-test fixture; it is not a runtime-accepted world yet.
+world:
+  schema: wedl/v0.7
+  kind: world
+  id: world_00000000000000000000000000
+  title: Component world
+  capabilities: [spatial-core-v1, geometry-v1, route-v1, overlay-v1]
+  default_timeline: main
+  timelines: [{id: main, label: Main}]
+  chronology: {calendars: [], eras: [], anchors: []}
+map:
+  schema: wedl/v0.7
+  kind: map
+  id: map:plain
+  title: Plain
+  crs: local-planar:plain
+  axis_order: [east, north]
+  unit: pace
+  bounds: {min: [-100, -100], max: [100, 100]}
+locations:
+  - {schema: wedl/v0.7, kind: location, id: location:town, title: Town}
+  - schema: wedl/v0.7
+    kind: location
+    id: location:gate
+    title: Gate
+    parent_id: location:town
+    spatial: {map_id: map:plain, geometry: {kind: point, coordinates: [10, 5]}}
+route:
+  schema: wedl/v0.7
+  kind: route
+  id: route:town-gate
+  title: Town gate path
+  from_location_id: location:town
+  to_location_id: location:gate
+  direction: one-way
+  modes: [foot]
+  route_distance: {value: 12, unit: pace}
+  availability: open
+  uncertainty: exact
+overlay:
+  schema: wedl/v0.7
+  kind: overlay
+  id: overlay:ward
+  title: Ward
+  lifecycle: time-bounded
+  membership: {location_ids: [location:gate]}
+  audience: [council]
+  perspectives: [council-ledger]
+  valid:
+    start: {timeline: main, tick: -2, order: 0}
+    end: {timeline: main, tick: 2, order: 0}

@@ -1,0 +1,19 @@
+world:
+  schema: wedl/v0.7
+  kind: world
+  id: world_00000000000000000000000000
+  title: Valid shared world
+  capabilities: [spatial-core-v1, geometry-v1, route-v1, overlay-v1]
+  default_timeline: main
+  timelines: [{id: main, label: Main}]
+  chronology: {calendars: [], eras: [], anchors: []}
+maps:
+  - {schema: wedl/v0.7, kind: map, id: map:town, title: Town, crs: local-planar:town, axis_order: [east, north], unit: pace, bounds: {min: [-100, -100], max: [100, 100]}}
+  - {schema: wedl/v0.7, kind: map, id: map:earth, title: Earth, crs: EPSG:4326, axis_order: [longitude, latitude], unit: degree, bounds: {min: [-180, -90], max: [180, 90]}}
+locations:
+  - {schema: wedl/v0.7, kind: location, id: loc_00000000000000000000000000, title: Legacy Place}
+  - {schema: wedl/v0.7, kind: location, id: location:gate, title: Gate, parent_id: loc_00000000000000000000000000, spatial: {map_id: map:town, geometry: {kind: point, coordinates: [0, 0]}}}
+anchor: {schema: wedl/v0.7, kind: anchor, id: anchor:town-earth, title: Authorial anchor, from: {map_id: map:town, coordinates: [1, 1]}, to: {map_id: map:earth, coordinates: [12, 55]}}
+portal: {schema: wedl/v0.7, kind: portal, id: portal:gate-place, title: Gate portal, from_location_id: location:gate, to: loc_00000000000000000000000000, modes: [foot]}
+route: {schema: wedl/v0.7, kind: route, id: route:place-gate, title: Place gate, from_location_id: loc_00000000000000000000000000, to_location_id: location:gate, direction: one-way, modes: [foot, horse]}
+overlay: {schema: wedl/v0.7, kind: overlay, id: overlay:ward, title: Ward, lifecycle: time-bounded, membership: {location_ids: [location:gate]}, audience: [author], perspectives: [author], valid: {start: {timeline: main, tick: -1, order: 0}, end: {timeline: main, tick: 1, order: 0}}}

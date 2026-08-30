@@ -147,3 +147,9 @@
 - `sable/sable-letter-oren` — `know_0VEF5CS5H9E9Q6D9KNNC55DF5B` — `letter.source.sable`
 - `sable/sable-letter-origin-unknown` — `know_0YFNJ8MNKP9SSBJQ7ZR6ADAKVM` — `letter.author.unknown-to-sable`
 - `sable/sable-map-lost` — `know_0TZR50W0EWF9RG5ACQSQP406P6` — `map.held-by-rusk`
+
+## Latent v0.7 component fixture
+
+`spatial-source-component-v07.yaml` exercises component-only maps, opaque
+references, directed routes, and bounded overlays.  It does not activate a
+migration, public endpoint, compiled index, or UI.

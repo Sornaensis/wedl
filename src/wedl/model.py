@@ -101,6 +101,13 @@ class Record:
             return ()
         return tuple(value for value in values if isinstance(value, str))
 
+    @property
+    def spatial(self) -> Any | None:
+        """Immutable authored location spatial value, if it has that shape."""
+        # Local import avoids a model/spatial import cycle.
+        from .spatial import spatial_frontmatter
+        return spatial_frontmatter(self)
+
     def citation(self, revision: str, section: str) -> dict[str, Any]:
         return {
             "entityId": self.id,

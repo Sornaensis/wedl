@@ -40,3 +40,8 @@ Mara may know that Oren deliberately gave her the letter, that Caldrin requested
 - A future multi-record outcome suitable for change-set tests.
 
 See [`STORY_GUIDE.md`](STORY_GUIDE.md), [`EXPECTED_QUERIES.md`](EXPECTED_QUERIES.md), [`CHANGESET_EXAMPLE.md`](CHANGESET_EXAMPLE.md), and [`MANIFEST.md`](MANIFEST.md).
+
+## Latent spatial component fixture
+
+`spatial-source-component-v07.yaml` is a source-validator fixture for the
+accepted spatial contract.  It is not a generic runtime-accepted source world.

@@ -10,6 +10,7 @@ import yaml
 from . import THREAD_SOURCE_SCHEMA, V04_RECOVERY_CONTRACT, V04_SOURCE_SCHEMA
 from .errors import ParseError, SupersededSchemaError
 from .model import Record
+from .ids import spatial_id_path, valid_id, valid_spatial_id
 from .util import ENTITY_ID_RE, STORY_LINK_RE, sha256_bytes, slugify
 
 
@@ -62,9 +63,31 @@ KIND_DIR = {
     "scene": "scenes",
     "conversation": "conversations",
     "hypothesis": "hypotheses",
+    # Latent v0.7 component paths. Generic readers still reject v0.7; these
+    # mappings only make component-authoring serialization portable.
+    "map": "maps",
+    "anchor": "anchors",
+    "portal": "portals",
+    "route": "routes",
+    "overlay": "overlays",
 }
 
 COMMON_ORDER = ["schema", "kind", "id", "title", "domain", "status", "tags", "aliases", "section_audiences"]
+SPATIAL_ORDER = {
+    "world": ["schema", "kind", "id", "title", "capabilities", "domain", "status", "tags", "aliases", "default_timeline", "timelines", "threads", "section_audiences"],
+    "map": ["schema", "kind", "id", "title", "crs", "axis_order", "unit", "bounds", "origin", "scale", "z_policy", "domain", "status", "tags", "aliases", "threads", "section_audiences"],
+    "location": ["schema", "kind", "id", "title", "parent_id", "links", "spatial", "domain", "status", "tags", "aliases", "threads", "section_audiences"],
+    "anchor": ["schema", "kind", "id", "title", "from", "to", "conversion", "domain", "status", "tags", "aliases", "threads"],
+    "portal": ["schema", "kind", "id", "title", "from_location_id", "to", "modes", "domain", "status", "tags", "aliases", "threads"],
+    "route": ["schema", "kind", "id", "title", "from_location_id", "to_location_id", "direction", "modes", "route_distance", "travel_cost", "duration", "availability", "uncertainty", "domain", "status", "tags", "aliases", "threads"],
+    "overlay": ["schema", "kind", "id", "title", "lifecycle", "membership", "audience", "perspectives", "valid", "domain", "status", "tags", "aliases", "threads"],
+}
+SPATIAL_NESTED_ORDER = {
+    "bounds": ["min", "max"], "origin": ["label", "coordinates"], "spatial": ["map_id", "geometry"],
+    "geometry": ["kind", "coordinates"], "from": ["map_id", "coordinates"], "to": ["map_id", "coordinates"],
+    "membership": ["location_ids"], "valid": ["start", "end"], "start": ["timeline", "tick", "order"], "end": ["timeline", "tick", "order"],
+    "route_distance": ["value", "unit"], "travel_cost": ["value", "unit"], "duration": ["value", "unit"], "scale": ["value", "unit"],
+}
 
 
 def split_envelope(data: bytes, path: str) -> tuple[dict[str, Any], str]:
@@ -84,13 +107,24 @@ def split_envelope(data: bytes, path: str) -> tuple[dict[str, Any], str]:
     if end < 0:
         raise ParseError(f"{path}: missing YAML frontmatter terminator")
     yaml_text = text[len(opener):end]
-    body = text[end + len(terminator):].lstrip("\r\n")
     try:
         value = yaml.load(yaml_text, Loader=StrictLoader)
     except yaml.YAMLError as exc:
         raise ParseError(f"{path}: invalid YAML: {exc}") from exc
     if not isinstance(value, dict):
         raise ParseError(f"{path}: frontmatter must be a mapping")
+    raw_body = text[end + len(terminator):]
+    # This deliberately preserves the historical parser/serializer contract
+    # for every legacy schema.  Opaque body preservation is a v0.7 component
+    # property only; broadening it changed legacy corpus object IDs.
+    if value.get("schema") == "wedl/v0.7":
+        if raw_body.startswith("\r\n"):
+            raw_body = raw_body[2:]
+        elif raw_body.startswith("\n"):
+            raw_body = raw_body[1:]
+        body = raw_body
+    else:
+        body = raw_body.lstrip("\r\n")
     return value, body
 
 
@@ -163,6 +197,19 @@ def _canonical_threads(frontmatter: dict[str, Any]) -> dict[str, Any]:
     return result
 
 
+def _canonical_spatial_parent(frontmatter: dict[str, Any]) -> dict[str, Any]:
+    """Emit the ADR 0004 ``parent_id`` spelling for a v0.7 location."""
+    if frontmatter.get("schema") != "wedl/v0.7" or frontmatter.get("kind") != "location" or "parent" not in frontmatter:
+        return frontmatter
+    result = dict(frontmatter)
+    legacy_parent = result.pop("parent")
+    # Never resolve contradictory containment input by silently choosing one.
+    if "parent_id" in result:
+        raise ParseError("v0.7 location cannot contain both parent and parent_id")
+    result["parent_id"] = legacy_parent
+    return result
+
+
 def quarantine_superseded_schema(frontmatter: dict[str, Any], path: str | None = None) -> None:
     if frontmatter.get("schema") != V04_SOURCE_SCHEMA:
         return
@@ -174,6 +221,8 @@ def quarantine_superseded_schema(frontmatter: dict[str, Any], path: str | None =
 
 
 def _ordered(frontmatter: dict[str, Any]) -> dict[str, Any]:
+    if frontmatter.get("schema") == "wedl/v0.7":
+        return _ordered_spatial(frontmatter)
     result: dict[str, Any] = {}
     for key in COMMON_ORDER:
         if key in frontmatter:
@@ -186,10 +235,29 @@ def _ordered(frontmatter: dict[str, Any]) -> dict[str, Any]:
     return result
 
 
+def _ordered_spatial(value: Any, context: str | None = None) -> Any:
+    """Canonical component ordering without changing opaque x-* extension data."""
+    if isinstance(value, list):
+        return [_ordered_spatial(item) for item in value]
+    if not isinstance(value, dict):
+        return value
+    order = SPATIAL_ORDER.get(str(value.get("kind"))) if context is None else SPATIAL_NESTED_ORDER.get(context)
+    result: dict[Any, Any] = {}
+    for key in order or []:
+        if key in value:
+            result[key] = _ordered_spatial(value[key], key)
+    for key in sorted((key for key in value if key not in result and key != "provenance"), key=_member_sort_key):
+        result[key] = _ordered_spatial(value[key], str(key))
+    if "provenance" in value:
+        result["provenance"] = _ordered_spatial(value["provenance"], "provenance")
+    return result
+
+
 def serialize_record(frontmatter: dict[str, Any], body: str) -> bytes:
     frontmatter = _canonical_legacy_origins(frontmatter)
     quarantine_superseded_schema(frontmatter)
     frontmatter = _canonical_threads(frontmatter)
+    frontmatter = _canonical_spatial_parent(frontmatter)
     if "importance" in frontmatter:
         raise ParseError("importance is calculated output and cannot be serialized into canonical source")
     payload = yaml.dump(
@@ -200,6 +268,11 @@ def serialize_record(frontmatter: dict[str, Any], body: str) -> bytes:
         width=1000,
         default_flow_style=False,
     ).rstrip()
+    if frontmatter.get("schema") == "wedl/v0.7":
+        # Component bodies are opaque authored bytes once decoded as UTF-8.
+        return f"---\n{payload}\n---\n\n{body}".encode("utf-8")
+    # Keep the exact legacy canonical serializer behavior.  Existing source
+    # object IDs and corpus tests depend on this byte-level normalization.
     return f"---\n{payload}\n---\n\n{body.strip()}\n".encode("utf-8")
 
 
@@ -216,6 +289,17 @@ def generated_path(source_root: str, kind: str, title: str, entity_id: str, fron
         time_value = frontmatter.get("time")
         timeline = str(time_value.get("timeline", "main")) if isinstance(time_value, dict) else "main"
         base = f"events/{slugify(timeline)}"
+    if frontmatter.get("schema") == "wedl/v0.7" and kind in {"map", "location", "anchor", "portal", "route", "overlay"}:
+        # v0.7 retains existing ``loc_`` identifiers verbatim; only new
+        # colon IDs use the portable path codec.
+        if kind == "location" and valid_id(entity_id, "location"):
+            return f"{source_root}/{base}/{slugify(title)}--{entity_id}.md"
+        if not valid_spatial_id(entity_id, kind):
+            raise ParseError(f"invalid spatial entity ID {entity_id}")
+        suffix = spatial_id_path(entity_id, kind)
+        if suffix is None:
+            raise ParseError(f"invalid spatial entity ID {entity_id}")
+        return f"{source_root}/{base}/{suffix}.md"
     filename = f"{slugify(title)}--{entity_id}.md"
     return f"{source_root}/{base}/{filename}"
 
