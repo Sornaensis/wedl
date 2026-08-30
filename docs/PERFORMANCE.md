@@ -81,8 +81,24 @@ query plans. Large signed-integer bounds stay exact in the NUMERIC Btree model;
 optional outward-rounded RTree bounds remain candidate-only and use an exact
 base-table post-filter. Cache-miss compilation performs one source load/validation pass;
 cache reuse includes structural and integrity checks before the fast path. It
-does not claim a public
-spatial-query latency until the query contract is implemented.
+did not claim a public spatial-query latency before the query contract was
+implemented.
+
+## Latent compiled spatial-query benchmark
+
+The compiled-only v0.7 query boundary uses exact SQLite projection rows and is
+still not generic source, CLI, HTTP, or UI support. On the deterministic full
+envelope of 100,000 locations (including depth 128), 32 maps, 250,000 routes,
+100 portals, and 10,000 overlays, three median in-memory reads measured 0.262 ms
+indexed containment, 0.052 ms bounds, 0.057 ms same-map nearby, 0.080 ms
+overlay-as-of, and 1.320 ms weighted path. All five results were repeat-stable
+with evidence digest
+`c426b9e7e050302a1c97a96c3728b866972a3cd267af45042b4662292df9029c`.
+Each read remains bounded by the ratified 100-result, 1,000-hierarchy/route
+expansion, 2,000-authorized-overlay-candidate, and 10,000-geometry-candidate
+limits. Full counts, result digests, and timings are in
+[`spatial-query-benchmark.json`](spatial-query-benchmark.json), produced by
+`tools/benchmark_spatial_query.py`.
 
 ## Implemented performance work
 

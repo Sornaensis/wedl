@@ -1,0 +1,74 @@
+{
+  "hierarchyDepth": 128,
+  "locations": 100000,
+  "maps": 32,
+  "medianMs": {
+    "bbox": 0.052,
+    "containment": 0.262,
+    "nearby": 0.057,
+    "overlay": 0.08,
+    "path": 1.32
+  },
+  "outcomes": {
+    "bbox": "ok",
+    "containment": "ok",
+    "nearby": "ok",
+    "overlay": "ok",
+    "path": "ok"
+  },
+  "overlays": 10000,
+  "portals": 100,
+  "protocol": "wedl-spatial/v1",
+  "resultDigest": "c426b9e7e050302a1c97a96c3728b866972a3cd267af45042b4662292df9029c",
+  "results": {
+    "bbox": {
+      "count": 4,
+      "first": "location:bench-0",
+      "idsDigest": "b11dce2638e5c6bccb82d96adff52ce282766b77f993b8d061b2a2c30b880ccc",
+      "last": "location:bench-96",
+      "reason": null,
+      "state": "ok"
+    },
+    "containment": {
+      "count": 128,
+      "first": "location:bench-0",
+      "idsDigest": "fb0047eec1fd375c4c7476a110e0bebc922317a5d0aa6d5e64c4918882b6ca96",
+      "last": "location:bench-127",
+      "reason": null,
+      "state": "ok"
+    },
+    "nearby": {
+      "count": 3,
+      "first": "location:bench-0",
+      "idsDigest": "a8b34e20b1784a5cf1037f4690446ea39e55402653d8ea193cfb409718f2b132",
+      "last": "location:bench-64",
+      "reason": null,
+      "state": "ok"
+    },
+    "overlay": {
+      "count": 1,
+      "first": "overlay:bench-0",
+      "idsDigest": "d069d84d70ac60da43aa055f08ed037e2faa963c87ed94d8f9c423b7961dfa90",
+      "last": "overlay:bench-0",
+      "reason": null,
+      "state": "ok"
+    },
+    "path": {
+      "count": 100,
+      "first": "location:bench-0",
+      "idsDigest": "8b3e280485263f1f33dd76cd3c596d56d482f210eea9f4686d120f669c1971be",
+      "last": "location:bench-99",
+      "metric": {
+        "unit": "pace",
+        "value": 99
+      },
+      "reason": null,
+      "routeCount": 99,
+      "routeIdsDigest": "2466c4bdc7a72c6c2384fa6cdc7a3d93ed138ee0e4310fbd31a29f13473e3364",
+      "state": "ok"
+    }
+  },
+  "revision": "benchmark-revision",
+  "routes": 250000,
+  "runs": 3
+}
