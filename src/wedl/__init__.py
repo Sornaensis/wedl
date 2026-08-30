@@ -10,5 +10,7 @@ SUPPORTED_SOURCE_SCHEMAS = frozenset((SOURCE_SCHEMA, THREAD_SOURCE_SCHEMA))
 COMPILED_SOURCE_SCHEMAS = frozenset((*SUPPORTED_SOURCE_SCHEMAS, CHRONOLOGY_SOURCE_SCHEMA))
 V04_SOURCE_SCHEMA = "wedl/v0." + "4"
 V04_RECOVERY_CONTRACT = "docs/THREAD_SCHEMA_CONTRACT.md#4-quarantined-v04-recovery"
-SQLITE_SCHEMA = "wedl-sqlite/v6"
+# v0.7 spatial records are not yet generic-runtime source schemas.  This
+# SQLite revision only reserves their disposable normalized projection.
+SQLITE_SCHEMA = "wedl-sqlite/v7"
 PROTOCOL_VERSION = "wedl-command/v2"

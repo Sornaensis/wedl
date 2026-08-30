@@ -70,6 +70,20 @@ wedl performs a safe full rebuild for changed revisions and exact reuse for an
 unchanged revision. Git Markdown remains canonical; SQLite and both content
 caches are disposable.
 
+## Spatial-index benchmark boundary
+
+The latent v0.7 spatial projection is measured separately before public query
+work lands. Its acceptance envelope is bounded batch insertion, deterministic
+map/location/route/overlay row ordering, Btree-backed map-bounds and adjacency
+candidate reads, and optional-RTree fallback. Repeated builds also compare the
+serialized database SHA-256, canonical row SHA-256, byte size, and representative
+query plans. Large signed-integer bounds stay exact in the NUMERIC Btree model;
+optional outward-rounded RTree bounds remain candidate-only and use an exact
+base-table post-filter. Cache-miss compilation performs one source load/validation pass;
+cache reuse includes structural and integrity checks before the fast path. It
+does not claim a public
+spatial-query latency until the query contract is implemented.
+
 ## Implemented performance work
 
 ### Source loading

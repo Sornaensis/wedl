@@ -25,6 +25,7 @@ from .source import extract_entity_refs, markdown_entity_links
 from .util import canonical_json, sha256_bytes
 from .validation import validate_world
 from .chronology_index import build_chronology_projection, insert_chronology_index
+from .v07 import SOURCE_SCHEMA as V07_SOURCE_SCHEMA
 
 
 # Bump when search-document construction changes without a SQLite DDL change.
@@ -32,7 +33,12 @@ from .chronology_index import build_chronology_projection, insert_chronology_ind
 # early cache hit path as well as require_database's compatibility gate.
 DOCUMENT_GENERATION_TOKEN = "wedl-document-generation/v3"
 CHRONOLOGY_INDEX_GENERATION_TOKEN = "wedl-chronology-index/v3"
-COMPILER_FINGERPRINT_PREFIX = f"{DOCUMENT_GENERATION_TOKEN}:{CHRONOLOGY_INDEX_GENERATION_TOKEN}:"
+# The spatial projection is latent until the explicit v0.7 migration task
+# enables generic compilation.  It still participates in the cache contract:
+# a database created before its DDL must never be mistaken for a compatible
+# read model by a later opt-in caller.
+SPATIAL_INDEX_GENERATION_TOKEN = "wedl-spatial-index/v1"
+COMPILER_FINGERPRINT_PREFIX = f"{DOCUMENT_GENERATION_TOKEN}:{CHRONOLOGY_INDEX_GENERATION_TOKEN}:{SPATIAL_INDEX_GENERATION_TOKEN}:"
 
 DDL = r"""
 PRAGMA foreign_keys=ON;
@@ -77,6 +83,22 @@ CREATE TABLE chronology_anchor(id TEXT PRIMARY KEY,source_ordinal INTEGER NOT NU
 CREATE TABLE chronology_annotation(record_id TEXT NOT NULL REFERENCES entity(id),record_ordinal INTEGER NOT NULL,annotation_id TEXT NOT NULL,source_ordinal INTEGER NOT NULL,role TEXT,display TEXT,provenance_json TEXT NOT NULL,value_kind TEXT NOT NULL,calendar_id TEXT REFERENCES chronology_calendar(id),era_id TEXT REFERENCES chronology_era(id),precision TEXT NOT NULL,basis_id TEXT,lower_day INTEGER,upper_day INTEGER,lower_unbounded INTEGER NOT NULL,upper_unbounded INTEGER NOT NULL,comparison_kind TEXT NOT NULL,exclusion_reason TEXT,unknown_basis INTEGER NOT NULL CHECK(unknown_basis IN (0,1)),value_json TEXT NOT NULL,PRIMARY KEY(record_id,annotation_id),UNIQUE(record_id,source_ordinal));
 CREATE TABLE chronology_annotation_basis_scope(record_id TEXT NOT NULL,annotation_id TEXT NOT NULL,basis_id TEXT NOT NULL,PRIMARY KEY(record_id,annotation_id,basis_id),FOREIGN KEY(record_id,annotation_id) REFERENCES chronology_annotation(record_id,annotation_id));
 CREATE TABLE chronology_annotation_era_scope(record_id TEXT NOT NULL,annotation_id TEXT NOT NULL,era_id TEXT NOT NULL,PRIMARY KEY(record_id,annotation_id,era_id),FOREIGN KEY(record_id,annotation_id) REFERENCES chronology_annotation(record_id,annotation_id));
+CREATE TABLE spatial_capability(name TEXT PRIMARY KEY,source_ordinal INTEGER NOT NULL UNIQUE);
+CREATE TABLE spatial_map(id TEXT PRIMARY KEY REFERENCES entity(id),source_ordinal INTEGER NOT NULL UNIQUE,crs TEXT NOT NULL,axis_first TEXT NOT NULL,axis_second TEXT NOT NULL,unit TEXT NOT NULL,z_policy TEXT NOT NULL,min_x NUMERIC NOT NULL,min_y NUMERIC NOT NULL,min_z NUMERIC,max_x NUMERIC NOT NULL,max_y NUMERIC NOT NULL,max_z NUMERIC,definition_json TEXT NOT NULL);
+CREATE TABLE spatial_location(id TEXT PRIMARY KEY REFERENCES entity(id),source_ordinal INTEGER NOT NULL UNIQUE,has_spatial INTEGER NOT NULL CHECK(has_spatial IN (0,1)),parent_id TEXT REFERENCES spatial_location(id) DEFERRABLE INITIALLY DEFERRED,map_id TEXT REFERENCES spatial_map(id),geometry_kind TEXT,min_x NUMERIC,min_y NUMERIC,min_z NUMERIC,max_x NUMERIC,max_y NUMERIC,max_z NUMERIC,geometry_json TEXT,definition_json TEXT NOT NULL);
+CREATE TABLE spatial_location_vertex(location_id TEXT NOT NULL REFERENCES spatial_location(id),vertex_ordinal INTEGER NOT NULL,x NUMERIC NOT NULL,y NUMERIC NOT NULL,z NUMERIC,PRIMARY KEY(location_id,vertex_ordinal));
+CREATE TABLE spatial_hierarchy(location_id TEXT PRIMARY KEY REFERENCES spatial_location(id),parent_id TEXT NOT NULL REFERENCES spatial_location(id),source_ordinal INTEGER NOT NULL);
+CREATE TABLE spatial_location_link(location_id TEXT NOT NULL REFERENCES spatial_location(id),target_location_id TEXT NOT NULL REFERENCES spatial_location(id),source_ordinal INTEGER NOT NULL,definition_json TEXT NOT NULL,PRIMARY KEY(location_id,source_ordinal),UNIQUE(location_id,target_location_id));
+CREATE TABLE spatial_route(id TEXT PRIMARY KEY REFERENCES entity(id),source_ordinal INTEGER NOT NULL UNIQUE,from_location_id TEXT NOT NULL REFERENCES spatial_location(id),to_location_id TEXT NOT NULL REFERENCES spatial_location(id),direction TEXT NOT NULL,modes_json TEXT NOT NULL,availability TEXT NOT NULL,uncertainty TEXT NOT NULL,route_distance NUMERIC,route_distance_unit TEXT,travel_cost NUMERIC,travel_cost_unit TEXT,duration NUMERIC,duration_unit TEXT,definition_json TEXT NOT NULL);
+CREATE TABLE spatial_route_edge(route_id TEXT NOT NULL REFERENCES spatial_route(id),from_location_id TEXT NOT NULL REFERENCES spatial_location(id),to_location_id TEXT NOT NULL REFERENCES spatial_location(id),reverse_of_authored INTEGER NOT NULL CHECK(reverse_of_authored IN (0,1)),PRIMARY KEY(route_id,reverse_of_authored));
+CREATE TABLE spatial_route_mode(route_id TEXT NOT NULL REFERENCES spatial_route(id),mode TEXT NOT NULL,source_ordinal INTEGER NOT NULL,PRIMARY KEY(route_id,mode));
+CREATE TABLE spatial_anchor(id TEXT PRIMARY KEY REFERENCES entity(id),source_ordinal INTEGER NOT NULL UNIQUE,from_map_id TEXT NOT NULL REFERENCES spatial_map(id),from_coordinates_json TEXT NOT NULL,to_map_id TEXT NOT NULL REFERENCES spatial_map(id),to_coordinates_json TEXT NOT NULL,conversion TEXT,definition_json TEXT NOT NULL);
+CREATE TABLE spatial_portal(id TEXT PRIMARY KEY REFERENCES entity(id),source_ordinal INTEGER NOT NULL UNIQUE,from_location_id TEXT NOT NULL REFERENCES spatial_location(id),target_kind TEXT NOT NULL,target_location_id TEXT REFERENCES spatial_location(id),target_map_id TEXT REFERENCES spatial_map(id),target_coordinates_json TEXT,modes_json TEXT NOT NULL,definition_json TEXT NOT NULL,CHECK((target_kind='location' AND target_location_id IS NOT NULL AND target_map_id IS NULL AND target_coordinates_json IS NULL) OR (target_kind='position' AND target_location_id IS NULL AND target_map_id IS NOT NULL AND target_coordinates_json IS NOT NULL)));
+CREATE TABLE spatial_portal_mode(portal_id TEXT NOT NULL REFERENCES spatial_portal(id),mode TEXT NOT NULL,source_ordinal INTEGER NOT NULL,PRIMARY KEY(portal_id,mode));
+CREATE TABLE spatial_overlay(id TEXT PRIMARY KEY REFERENCES entity(id),source_ordinal INTEGER NOT NULL UNIQUE,lifecycle TEXT NOT NULL,audience_json TEXT NOT NULL,perspectives_json TEXT NOT NULL,timeline TEXT,start_tick INTEGER,start_order INTEGER,end_tick INTEGER,end_order INTEGER,definition_json TEXT NOT NULL);
+CREATE TABLE spatial_overlay_location(overlay_id TEXT NOT NULL REFERENCES spatial_overlay(id),location_id TEXT NOT NULL REFERENCES spatial_location(id),source_ordinal INTEGER NOT NULL,PRIMARY KEY(overlay_id,location_id));
+CREATE TABLE spatial_overlay_audience(overlay_id TEXT NOT NULL REFERENCES spatial_overlay(id),audience TEXT NOT NULL,source_ordinal INTEGER NOT NULL,PRIMARY KEY(overlay_id,audience));
+CREATE TABLE spatial_overlay_perspective(overlay_id TEXT NOT NULL REFERENCES spatial_overlay(id),perspective TEXT NOT NULL,source_ordinal INTEGER NOT NULL,PRIMARY KEY(overlay_id,perspective));
 """
 INDEX_DDL = r"""
 CREATE INDEX entity_kind_idx ON entity(kind,status,title);
@@ -102,7 +124,46 @@ CREATE INDEX chronology_annotation_era_basis_order_idx ON chronology_annotation(
 CREATE INDEX chronology_annotation_exclusion_idx ON chronology_annotation(comparison_kind,era_id,calendar_id,record_ordinal,source_ordinal,record_id,annotation_id);
 CREATE INDEX chronology_annotation_basis_scope_idx ON chronology_annotation_basis_scope(basis_id,record_id,annotation_id);
 CREATE INDEX chronology_annotation_era_scope_idx ON chronology_annotation_era_scope(era_id,record_id,annotation_id);
+CREATE INDEX spatial_location_parent_idx ON spatial_location(parent_id,id);
+CREATE INDEX spatial_location_map_bounds_idx ON spatial_location(map_id,min_x,max_x,min_y,max_y,id);
+CREATE INDEX spatial_location_vertex_location_idx ON spatial_location_vertex(location_id,vertex_ordinal);
+CREATE INDEX spatial_hierarchy_parent_idx ON spatial_hierarchy(parent_id,location_id);
+CREATE INDEX spatial_location_link_target_idx ON spatial_location_link(target_location_id,location_id,source_ordinal);
+CREATE INDEX spatial_route_from_idx ON spatial_route(from_location_id,to_location_id,id);
+CREATE INDEX spatial_route_edge_from_idx ON spatial_route_edge(from_location_id,to_location_id,route_id);
+CREATE INDEX spatial_route_mode_mode_idx ON spatial_route_mode(mode,route_id);
+CREATE INDEX spatial_anchor_maps_idx ON spatial_anchor(from_map_id,to_map_id,id);
+CREATE INDEX spatial_portal_from_idx ON spatial_portal(from_location_id,id);
+CREATE INDEX spatial_portal_target_location_idx ON spatial_portal(target_location_id,id);
+CREATE INDEX spatial_portal_target_map_idx ON spatial_portal(target_map_id,id);
+CREATE INDEX spatial_portal_mode_mode_idx ON spatial_portal_mode(mode,portal_id);
+CREATE INDEX spatial_overlay_candidate_idx ON spatial_overlay(timeline,start_tick,start_order,end_tick,end_order,id);
+CREATE INDEX spatial_overlay_reverse_idx ON spatial_overlay(timeline,end_tick,end_order,start_tick,start_order,id);
+CREATE INDEX spatial_overlay_location_location_idx ON spatial_overlay_location(location_id,overlay_id);
+CREATE INDEX spatial_overlay_audience_audience_idx ON spatial_overlay_audience(audience,overlay_id);
+CREATE INDEX spatial_overlay_perspective_perspective_idx ON spatial_overlay_perspective(perspective,overlay_id);
 """
+
+_REQUIRED_SPATIAL_TABLES = frozenset({
+    "spatial_capability", "spatial_map", "spatial_location",
+    "spatial_location_vertex", "spatial_hierarchy", "spatial_location_link",
+    "spatial_route", "spatial_route_edge", "spatial_route_mode",
+    "spatial_anchor", "spatial_portal", "spatial_portal_mode",
+    "spatial_overlay", "spatial_overlay_location", "spatial_overlay_audience",
+    "spatial_overlay_perspective",
+})
+_REQUIRED_SPATIAL_INDEXES = frozenset({
+    "spatial_location_parent_idx", "spatial_location_map_bounds_idx",
+    "spatial_location_vertex_location_idx", "spatial_hierarchy_parent_idx",
+    "spatial_location_link_target_idx", "spatial_route_from_idx",
+    "spatial_route_edge_from_idx", "spatial_route_mode_mode_idx",
+    "spatial_anchor_maps_idx", "spatial_portal_from_idx",
+    "spatial_portal_target_location_idx", "spatial_portal_target_map_idx",
+    "spatial_portal_mode_mode_idx", "spatial_overlay_candidate_idx",
+    "spatial_overlay_reverse_idx", "spatial_overlay_location_location_idx",
+    "spatial_overlay_audience_audience_idx",
+    "spatial_overlay_perspective_perspective_idx",
+})
 
 
 
@@ -190,6 +251,51 @@ def database_meta(path: Path) -> dict[str, Any]:
         return {}
 
 
+def _compiled_database_issues(path: Path) -> tuple[str, ...]:
+    """Return deterministic integrity failures for a disposable read model."""
+    if not path.exists():
+        return ("databaseMissing",)
+    try:
+        with closing(connect(path, True)) as connection:
+            quick = tuple(str(row[0]) for row in connection.execute("PRAGMA quick_check"))
+            if quick != ("ok",):
+                return ("databaseIntegrity",)
+            tables = {
+                str(row[0])
+                for row in connection.execute(
+                    "SELECT name FROM sqlite_schema WHERE type='table'"
+                )
+            }
+            indexes = {
+                str(row[0])
+                for row in connection.execute(
+                    "SELECT name FROM sqlite_schema WHERE type='index'"
+                )
+            }
+            issues = [f"missingTable:{name}" for name in sorted(_REQUIRED_SPATIAL_TABLES - tables)]
+            issues.extend(f"missingIndex:{name}" for name in sorted(_REQUIRED_SPATIAL_INDEXES - indexes))
+            if issues:
+                return tuple(issues)
+            if connection.execute("PRAGMA foreign_key_check").fetchone() is not None:
+                issues.append("foreignKeyIntegrity")
+            invalid_portal = connection.execute(
+                """
+                SELECT 1 FROM spatial_portal
+                WHERE NOT (
+                  (target_kind='location' AND target_location_id IS NOT NULL AND target_map_id IS NULL AND target_coordinates_json IS NULL)
+                  OR
+                  (target_kind='position' AND target_location_id IS NULL AND target_map_id IS NOT NULL AND target_coordinates_json IS NOT NULL)
+                )
+                LIMIT 1
+                """
+            ).fetchone()
+            if invalid_portal is not None:
+                issues.append("spatialPortalTargetUnion")
+            return tuple(issues)
+    except sqlite3.Error:
+        return ("databaseIntegrity",)
+
+
 def cache_readiness(repository: Repository, revision: str = "HEAD") -> dict[str, Any]:
     """Inspect the compiled cache without creating, rebuilding, or mutating it.
 
@@ -240,6 +346,16 @@ def cache_readiness(repository: Repository, revision: str = "HEAD") -> dict[str,
             "state": "incompatible",
             "reason": "compiled database is incompatible with this WEDL version or schema",
             "incompatibleFields": incompatible_fields,
+            "database": str(database),
+            "target": target,
+            "compiled": compiled,
+        }
+    integrity_issues = _compiled_database_issues(database)
+    if integrity_issues:
+        return {
+            "state": "incompatible",
+            "reason": "compiled database failed structural or integrity checks",
+            "incompatibleFields": list(integrity_issues),
             "database": str(database),
             "target": target,
             "compiled": compiled,
@@ -805,13 +921,12 @@ def compile_world(
     started = time.perf_counter()
     timings: dict[str, float] = {}
     cache, database, revisions = cache_paths(repository)
-    cache.mkdir(parents=True, exist_ok=True)
-    revisions.mkdir(parents=True, exist_ok=True)
 
     stage = time.perf_counter()
     resolved = repository.resolve(revision)
     tree_oid = repository.tree_oid(resolved)
     previous = database_meta(database)
+    database_issues = _compiled_database_issues(database)
     timings["resolveRevision"] = (time.perf_counter() - stage) * 1000
     no_profile_override = all(
         value is None
@@ -833,6 +948,7 @@ def compile_world(
         and previous.get("compiler_version") == __version__
         and str(previous.get("compiler_fingerprint") or "").startswith(COMPILER_FINGERPRINT_PREFIX)
         and previous.get("profile_json")
+        and not database_issues
     ):
         timings["total"] = (time.perf_counter() - started) * 1000
         return {
@@ -853,9 +969,15 @@ def compile_world(
             "timingsMs": {key: round(value, 3) for key, value in timings.items()},
         }
 
+    # Load and parse once.  The non-writing path preserves the latent v0.7
+    # boundary: rejecting that component must not create a source or compiled
+    # cache as a side effect.
     stage = time.perf_counter()
-    world = repository.load_world(resolved)
+    world = repository.load_world(resolved, cache_write=False)
     timings["loadSource"] = (time.perf_counter() - stage) * 1000
+    if world.schema == V07_SOURCE_SCHEMA:
+        diagnostics = validate_world(world)
+        raise ValidationFailed("generic compilation does not yet accept wedl/v0.7", diagnostics)
     stage = time.perf_counter()
     diagnostics = validate_world(world)
     timings["validate"] = (time.perf_counter() - stage) * 1000
@@ -893,6 +1015,7 @@ def compile_world(
         and previous.get("compiler_version") == __version__
         and str(previous.get("compiler_fingerprint") or "").startswith(COMPILER_FINGERPRINT_PREFIX)
         and previous.get("compiler_fingerprint") == compiler_fingerprint
+        and not database_issues
     ):
         timings["total"] = (time.perf_counter() - started) * 1000
         return {
@@ -916,6 +1039,12 @@ def compile_world(
         build_mode = "fast-forward-rebuild"
         changed = repository.changed_paths(str(previous["head_commit"]), world.revision)
 
+    # Do not create a disposable cache merely by attempting to compile an
+    # unsupported or invalid source component. This keeps latent v0.7
+    # validation an entirely read-only boundary until its migration owns
+    # generic runtime acceptance.
+    cache.mkdir(parents=True, exist_ok=True)
+    revisions.mkdir(parents=True, exist_ok=True)
     descriptor, temporary_name = tempfile.mkstemp(
         prefix="world-", suffix=".sqlite", dir=cache
     )
@@ -976,6 +1105,8 @@ def compile_world(
             connection.commit()
             if connection.execute("PRAGMA integrity_check").fetchone()[0] != "ok":
                 raise RuntimeError("SQLite integrity check failed")
+            if connection.execute("PRAGMA foreign_key_check").fetchone() is not None:
+                raise RuntimeError("SQLite foreign-key check failed")
         os.replace(temporary, database)
         if world.revision != "WORKTREE":
             retained = revisions / f"{world.revision}.sqlite"

@@ -59,6 +59,29 @@ These tables are implementation details behind the Python query API. Temporal
 resolution remains defined by the source model and deterministic `(timeline,
 tick, order, stable ID)` ordering.
 
+## Spatial component projection (latent v0.7)
+
+The v0.7 spatial component reserves disposable normalized tables for maps,
+locations and direct hierarchy adjacency, authored route edges, anchors,
+portals, overlays, overlay membership, and every authored directional legacy
+location link. Link rows preserve source order and exact JSON, so plain and
+detailed links remain distinguishable without inferring reverse edges.
+Portal location targets and map-position targets use separate foreign keys and
+an exclusive database check. It is not a generic source-schema
+registration: the migration task must explicitly enable runtime compilation.
+The portable base uses Btree candidate indexes; an optional RTree can accelerate
+authored location bounds when supported by the local SQLite build. Spatial rows
+retain entity foreign keys; direct parent references are deferred so canonical
+source-path ordering never changes their authored meaning.
+Integer spatial values are checked against SQLite's signed-i64 binding range
+before insertion and NUMERIC-affinity columns retain them as exact INTEGER
+values. Valid floating-point values remain REAL. Required Btree predicates run
+against those exact bounds. Optional RTree bounds round conservatively outward
+and are candidate-only; exact NUMERIC post-filtering is mandatory. Cache
+readiness verifies required spatial tables/indexes, integrity, foreign keys,
+and portal target shape before accepting revision metadata; an incompatible
+cache is rebuilt by atomic replacement.
+
 ## 4. Search documents
 
 Search is built from bounded, audience-labelled chunks:
