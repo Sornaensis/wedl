@@ -1,0 +1,92 @@
+status: accepted-contract-only
+schema: wedl/v0.7
+protocol: wedl-spatial/v1
+capabilities:
+  required: [spatial-core-v1]
+  optional: [geometry-v1, route-v1, overlay-v1]
+identity:
+  id_paths_are_opaque: true
+  title_matching: forbidden
+  stable_prefixes: [map:, location:, overlay:, route:, anchor:, portal:]
+maps:
+  - id: map:riverward
+    crs: local-planar:riverward-grid
+    axis_order: [east, north]
+    unit: pace
+    origin: {label: Archive datum, coordinates: [0, 0]}
+    scale: {value: 1, unit: pace}
+    z_policy: optional-level
+    bounds: {min: [-1000000, -1000000], max: [1000000, 1000000]}
+  - id: map:coast
+    crs: EPSG:4326
+    axis_order: [longitude, latitude]
+    unit: degree
+    bounds: {min: [-180, -90], max: [180, 90]}
+locations:
+  - id: location:archive
+    title: Archive
+    parent_id: location:city
+    spatial: {map_id: map:riverward, geometry: {kind: point, coordinates: [40, 12]}}
+  - id: location:city
+    title: Riverward
+  - id: location:shore-gate
+    title: Shore Gate
+    spatial: {map_id: map:riverward, geometry: {kind: point, coordinates: [70, 12]}}
+anchors:
+  - id: anchor:riverward-coast-datum
+    from: {map_id: map:riverward, coordinates: [0, 0]}
+    to: {map_id: map:coast, coordinates: [12.0, 55.0]}
+    conversion: none-unless-explicitly-declared
+portals:
+  - id: portal:shore-ferry
+    from_location_id: location:shore-gate
+    to: {map_id: map:coast, coordinates: [12.1, 55.0]}
+    modes: [ferry]
+routes:
+  - id: route:archive-gate
+    from_location_id: location:archive
+    to_location_id: location:shore-gate
+    direction: one-way
+    modes: [foot]
+    route_distance: {value: 30, unit: pace}
+    travel_cost: {value: 4, unit: fatigue}
+    duration: {value: 2, unit: scene-turn}
+    availability: open
+    uncertainty: exact
+overlays:
+  - id: overlay:ward
+    lifecycle: time-bounded
+    membership: {location_ids: [location:archive]}
+    audience: [council]
+    perspectives: [council-archive]
+    valid: {start: {timeline: main, tick: 10, order: 0}, end: {timeline: main, tick: 20, order: 0}}
+  - id: overlay:wayfinding
+    lifecycle: static
+    membership: {location_ids: [location:shore-gate]}
+    audience: [public]
+    perspectives: [ordinary]
+visibility_boundary:
+  filter_order: [timeline, horizon, audience, perspective, membership, ordering, pagination, serialization]
+  catalogue_hidden_result: observationally-identical-to-no-overlay
+  explicit_overlay_id_denial: forbidden
+  deferred_boundary_kinds:
+    faction: {owner: scope-governance-maintainer, state: not-v07-semantics}
+    institution: {owner: scope-governance-maintainer, state: not-v07-semantics}
+    calendar: {owner: scope-governance-maintainer, state: not-v07-semantics}
+non_inference:
+  - geometry does not create containment, route, movement, distance, access, or visibility
+  - proximity does not create topology or reverse routes
+  - unequal maps, crs, axis_order, or units have no shared metric
+  - ticks do not imply duration or calendar conversion
+  - missing geometry remains valid and queryable by id/tree
+  - faction, institution, and calendar labels do not imply overlay visibility
+version_matrix:
+  wedl/v0.3: {spatial: unavailable, mixed_with_v07: rejected}
+  wedl/v0.5: {spatial: unavailable, mixed_with_v07: rejected}
+  wedl/v0.6: {spatial: unavailable, mixed_with_v07: rejected}
+  wedl/v0.7: {spatial: capabilities-required, mixed_with_v07: not-applicable}
+migration:
+  state: future-work
+  guarantees: [lossless, previewable, atomic, idempotent, expected-head-protected, git-reversible]
+  retains: [legacy-location-ids, links, coordinate-free-locations]
+  blocked_on: generational-history-adr
