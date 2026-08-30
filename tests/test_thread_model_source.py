@@ -11,6 +11,7 @@ from wedl import (
     SUPPORTED_SOURCE_SCHEMAS,
     THREAD_SOURCE_SCHEMA,
     V04_RECOVERY_CONTRACT,
+    V07_SOURCE_SCHEMA,
 )
 from wedl.errors import SupersededSchemaError
 from wedl.ids import id_from_seed, valid_id
@@ -29,15 +30,17 @@ def _record(frontmatter: dict[str, object], path: str) -> Record:
     return Record(frontmatter, "", path, b"")
 
 
-def test_thread_ids_are_non_entity_identifiers_and_v05_invalidates_parser_cache() -> None:
+def test_thread_ids_are_non_entity_identifiers_and_source_schema_cache_contract() -> None:
     generated = id_from_seed("thread", "main narrative work")
 
     assert valid_id(generated, "thread")
     assert generated.startswith("thread_")
     assert SOURCE_SCHEMA == "wedl/v0.3"
     assert THREAD_SOURCE_SCHEMA == "wedl/v0.5"
-    assert SUPPORTED_SOURCE_SCHEMAS == frozenset((SOURCE_SCHEMA, THREAD_SOURCE_SCHEMA))
-    assert "wedl/v0.3,wedl/v0.5" in PARSER_FINGERPRINT
+    assert V07_SOURCE_SCHEMA == "wedl/v0.7"
+    assert SUPPORTED_SOURCE_SCHEMAS == frozenset((SOURCE_SCHEMA, THREAD_SOURCE_SCHEMA, V07_SOURCE_SCHEMA))
+    assert "wedl/v0.3,wedl/v0.5,wedl/v0.7" in PARSER_FINGERPRINT
+    assert "capability-envelope-v1" in PARSER_FINGERPRINT
 
 
 def test_v05_world_and_record_expose_grouping_membership_without_entity_refs() -> None:
