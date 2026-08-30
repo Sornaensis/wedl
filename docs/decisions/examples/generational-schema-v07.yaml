@@ -1,0 +1,174 @@
+adr: ../0005-first-class-generational-history.md
+status: accepted-contract-only
+schema: wedl/v0.7
+protocol: wedl-generational/v1
+capability_registry:
+  canonical_order: [generational-core-v1, spatial-core-v1, geometry-v1, route-v1, overlay-v1]
+  ordering_algorithm: reject-unknown-or-unsatisfied-prerequisite; require-exact-registry-rank-projection; reject-duplicate-or-unsorted; never-silently-sort
+  fingerprint: canonical-utf8-json-object-schema-then-ordered-capabilities
+  optional_requires: {geometry-v1: spatial-core-v1, route-v1: spatial-core-v1, overlay-v1: spatial-core-v1}
+  envelopes:
+    generational_only: {world: {schema: wedl/v0.7, kind: world, id: world_00000000000000000000000001, title: Shared World, domain: world, status: canonical, tags: [], aliases: [], threads: [], timelines: [{id: main, label: Shared world chronology, origin: {tick: 0, label: World origin}}], default_timeline: main, chronology: {calendars: [], eras: [], anchors: []}, capabilities: [generational-core-v1]}, state: valid}
+    spatial_only: {world: {schema: wedl/v0.7, kind: world, id: world_00000000000000000000000001, title: Shared World, domain: world, status: canonical, tags: [], aliases: [], threads: [], timelines: [{id: main, label: Shared world chronology, origin: {tick: 0, label: World origin}}], default_timeline: main, chronology: {calendars: [], eras: [], anchors: []}, capabilities: [spatial-core-v1]}, state: valid}
+    combined_core_and_optional: {world: {schema: wedl/v0.7, kind: world, id: world_00000000000000000000000001, title: Shared World, domain: world, status: canonical, tags: [], aliases: [], threads: [], timelines: [{id: main, label: Shared world chronology, origin: {tick: 0, label: World origin}}], default_timeline: main, chronology: {calendars: [], eras: [], anchors: []}, capabilities: [generational-core-v1, spatial-core-v1, geometry-v1, route-v1, overlay-v1]}, state: valid}
+    missing_capabilities: {world: {schema: wedl/v0.7, kind: world, id: world_00000000000000000000000001, title: Shared World, domain: world, status: canonical, tags: [], aliases: [], threads: [], timelines: [{id: main, label: Shared world chronology, origin: {tick: 0, label: World origin}}], default_timeline: main, chronology: {calendars: [], eras: [], anchors: []}}, state: invalid, code: GEN-CAPABILITY-001}
+    unknown_capability: {world: {schema: wedl/v0.7, kind: world, id: world_00000000000000000000000001, title: Shared World, domain: world, status: canonical, tags: [], aliases: [], threads: [], timelines: [{id: main, label: Shared world chronology, origin: {tick: 0, label: World origin}}], default_timeline: main, chronology: {calendars: [], eras: [], anchors: []}, capabilities: [generational-core-v1, unknown-core-v1]}, state: invalid, code: GEN-CAPABILITY-001}
+    duplicate_capability: {world: {schema: wedl/v0.7, kind: world, id: world_00000000000000000000000001, title: Shared World, domain: world, status: canonical, tags: [], aliases: [], threads: [], timelines: [{id: main, label: Shared world chronology, origin: {tick: 0, label: World origin}}], default_timeline: main, chronology: {calendars: [], eras: [], anchors: []}, capabilities: [generational-core-v1, generational-core-v1]}, state: invalid, code: GEN-CAPABILITY-001}
+    unsorted_capability: {world: {schema: wedl/v0.7, kind: world, id: world_00000000000000000000000001, title: Shared World, domain: world, status: canonical, tags: [], aliases: [], threads: [], timelines: [{id: main, label: Shared world chronology, origin: {tick: 0, label: World origin}}], default_timeline: main, chronology: {calendars: [], eras: [], anchors: []}, capabilities: [spatial-core-v1, generational-core-v1]}, state: invalid, code: GEN-CAPABILITY-001}
+    missing_prerequisite: {world: {schema: wedl/v0.7, kind: world, id: world_00000000000000000000000001, title: Shared World, domain: world, status: canonical, tags: [], aliases: [], threads: [], timelines: [{id: main, label: Shared world chronology, origin: {tick: 0, label: World origin}}], default_timeline: main, chronology: {calendars: [], eras: [], anchors: []}, capabilities: [geometry-v1]}, state: invalid, code: GEN-CAPABILITY-001}
+shared_world:
+  threads_are_grouping_only: true
+  story_time_source: {timeline: main, tick: -7, order: 2}
+  story_time_transport: {timeline: main, tick: "-7", order: "2"}
+source_envelope:
+  required: [schema, kind, id, title, domain, status, tags, aliases, threads, audience, perspectives, initialization, transitions]
+  kind_is_record_discriminator: true
+  kinds: [organization, parentage, union, affiliation, legacy, tenure, claim, vital-history]
+  source_status: [canonical, draft, retired]
+  threads: sorted-unique-declared-thread-id-list
+  audience: sorted-unique-nonempty-audience-id-list
+  perspectives: sorted-unique-nonempty-perspective-id-list
+  capabilities: forbidden-on-non-world-records
+authoritative_world_envelope:
+  capability_location: world.frontmatter.capabilities-only
+  required: [schema, kind, id, title, domain, status, tags, aliases, threads, timelines, default_timeline, chronology, capabilities]
+  kind: world
+  record_capabilities: forbidden
+  timelines: array-of-closed-id-label-optional-origin-mappings
+  chronology: closed-v06-world-declaration-calendars-eras-anchors
+identity:
+  id_paths_are_opaque: true
+  prefixes: [organization_, kinship_, union_, affiliation_, legacy_, tenure_, claim_, vital_, transition_]
+  paths: {organization_: organizations/<id>.md, kinship_: kinships/<id>.md, union_: unions/<id>.md, affiliation_: affiliations/<id>.md, legacy_: legacies/<id>.md, tenure_: tenures/<id>.md, claim_: claims/<id>.md, vital_: vitals/<id>.md}
+closed_variants:
+  organization_kind: [house, dynasty, clan, institution, other]
+  legacy_kind: [office, estate, title, other]
+  parentage_basis: [biological, adoptive]
+  tenure_basis: [legal, de-facto]
+  disclosure: [known, unknown, withheld]
+  transition_kind: [organization-initialize, organization-rename, organization-reparent, organization-dormant, organization-dissolve, parentage-initialize, parentage-confirm, parentage-end, union-initialize, union-form, union-end, union-annul, union-reconcile, affiliation-initialize, affiliation-role, affiliation-end, legacy-initialize, legacy-rename, legacy-dormant, legacy-dissolve, tenure-initialize, tenure-designate, tenure-hold, tenure-vacate, tenure-transfer, tenure-end, claim-initialize, claim-dispute, claim-recognize, claim-withdraw, claim-reject, vital-initialize, vital-birth, vital-death, vital-existence-start, vital-existence-end]
+applicability_union:
+  discriminator: applicability_kind
+  variants:
+    static: {required: [applicability_kind], literal: static}
+    instant: {required: [applicability_kind, point], literal: instant, point: story_time}
+    inclusive_interval: {required: [applicability_kind, first, last], literal: inclusive-interval, first: story_time, last: story_time, invariant: first-not-after-last}
+transition_contract:
+  initialization: {required: [transition_id, transition_kind, applicability, payload], discriminator_suffix: initialize, transition_id: transition_<26-crockford>, applicability: instant}
+  transition: {required: [transition_id, transition_kind, applicability, payload], optional: [cause_event_id, replaces_transition_id], discriminator: closed-transition-kind, transition_id: transition_<26-crockford>, applicability: instant-except-tenure-vacate-inclusive-interval}
+  replacement: {same_record: true, same_exact_applicability: true, target_must_exist: true, fold: replacement-wins-but-superseded-citation-retained, mutation: append-only}
+  cause_endpoint: {field: cause_event_id, optional: true, nullable: false, reference_kind: event, reference_prefix: event_, target_must_exist: true, target_type: event, target_timeline: same-as-transition, target_story_time: strictly-before-transition}
+  replacement_endpoint: {field: replaces_transition_id, optional: true, nullable: false, reference_kind: transition, target_must_exist: true, target_record: same-as-transition, target_applicability: same-exact-applicability, target_type: closed-transition-kind}
+  payload_schemas:
+    organization-initialize: {required: [title, aliases], properties: {title: nonempty-text, aliases: sorted-unique-text-list}, exact: true}
+    organization-rename: {required: [title, aliases], properties: {title: nonempty-text, aliases: sorted-unique-text-list}, exact: true}
+    organization-reparent: {required: [parent_id], properties: {parent_id: organization-id-or-null}, exact: true}
+    organization-dormant: {required: [], properties: {}, exact: true}
+    organization-dissolve: {required: [], properties: {}, exact: true}
+    parentage-initialize: {required: [basis], properties: {basis: parentage_basis}, exact: true}
+    parentage-confirm: {required: [basis], properties: {basis: parentage_basis}, exact: true}
+    parentage-end: {required: [], properties: {}, exact: true}
+    union-initialize: {required: [participant_ids], properties: {participant_ids: sorted-unique-character-id-list-min-2}, exact: true}
+    union-form: {required: [participant_ids], properties: {participant_ids: sorted-unique-character-id-list-min-2}, exact: true}
+    union-end: {required: [], properties: {}, exact: true}
+    union-annul: {required: [], properties: {}, exact: true}
+    union-reconcile: {required: [participant_ids], properties: {participant_ids: sorted-unique-character-id-list-min-2}, exact: true}
+    affiliation-initialize: {required: [role], properties: {role: text-or-null}, exact: true}
+    affiliation-role: {required: [role], properties: {role: nonempty-text}, exact: true}
+    affiliation-end: {required: [], properties: {}, exact: true}
+    legacy-initialize: {required: [title, aliases], properties: {title: nonempty-text, aliases: sorted-unique-text-list}, exact: true}
+    legacy-rename: {required: [title, aliases], properties: {title: nonempty-text, aliases: sorted-unique-text-list}, exact: true}
+    legacy-dormant: {required: [], properties: {}, exact: true}
+    legacy-dissolve: {required: [], properties: {}, exact: true}
+    tenure-initialize: {required: [holder_id, basis], properties: {holder_id: character-id-or-null, basis: tenure_basis}, exact: true}
+    tenure-designate: {required: [holder_id, basis], properties: {holder_id: character-id, basis: tenure_basis}, exact: true}
+    tenure-hold: {required: [holder_id, basis], properties: {holder_id: character-id, basis: tenure_basis}, exact: true}
+    tenure-vacate: {required: [holder_id], properties: {holder_id: literal-null}, exact: true}
+    tenure-transfer: {required: [from_tenure_id, to_tenure_id], properties: {from_tenure_id: tenure-id, to_tenure_id: tenure-id}, exact: true}
+    tenure-end: {required: [], properties: {}, exact: true}
+    claim-initialize: {required: [competes_with], properties: {competes_with: sorted-unique-claim-id-list}, exact: true}
+    claim-dispute: {required: [competes_with], properties: {competes_with: sorted-unique-claim-id-list}, exact: true}
+    claim-recognize: {required: [], properties: {}, exact: true}
+    claim-withdraw: {required: [], properties: {}, exact: true}
+    claim-reject: {required: [], properties: {}, exact: true}
+    vital-initialize: {required: [], properties: {}, exact: true}
+    vital-birth: {required: [], properties: {}, exact: true}
+    vital-death: {required: [], properties: {}, exact: true}
+    vital-existence-start: {required: [], properties: {}, exact: true}
+    vital-existence-end: {required: [], properties: {}, exact: true}
+history_rules:
+  applicability_sort_start: point-for-instant-first-for-inclusive-interval-static-before-timed
+  fold_order: [applicability_sort_start.timeline, applicability_sort_start.tick, applicability_sort_start.order, source_ordinal, transition_id]
+  nonoverlap: same-dimension-inclusive-intervals-do-not-overlap-except-explicit-coholding-tenure
+  tenure_interval_rule: tenancy-is-folded-at-the-query-point; tenure-vacate-replaces-holding-with-vacant-only-for-its-literal-inclusive-interval; before-first-use-predecessor-fold; after-last-run-closed-tenure-vacate-expire-and-fold-other-literal-tenures; current-holder-selects-only-holding-tenures-at-the-query-point
+  tenure_vacate_expiry: {operation: tenure-vacate-expire, closed: true, trigger: query-point-strictly-after-inclusive-last, input_state: vacant-interval, output_state: expired, persisted_transition: forbidden, effect: vacancy-no-longer-applies-and-other-literal-tenures-fold}
+  tenure_fold_vectors:
+    before: {at: {timeline: main, tick: -1, order: 0}, vacancy_record_state: holding, holders: [character_alpha]}
+    inside: {at: {timeline: main, tick: -1, order: 1}, vacancy_record_state: vacant-interval, holders: []}
+    after: {at: {timeline: main, tick: 0, order: 0}, vacancy_record_state: expired, holders: [character_alpha, character_beta]}
+  tenure_example: {vacancy: {record_id: tenure_00000000000000000000000001, transition_id: transition_00000000000000000000000011, applicability: {applicability_kind: inclusive-interval, first: {timeline: main, tick: -1, order: 1}, last: {timeline: main, tick: 0, order: -1}}}, current_holders: [tenure_00000000000000000000000002, tenure_00000000000000000000000003], horizon: {timeline: main, tick: 0, order: 0}}
+state_fold_contract:
+  universal: {initialization: exactly-one-first-transition-and-matches-record-kind, initialization_null: only-where-payload-schema-permits, timeline: one-per-record-and-every-transition-or-interval-endpoint-matches-it, monotonicity: applicability-sort-start-nondecreasing; equal-exact-applicability-only-for-replacement, transition_order: source_ordinal-then-transition_id, illegal: [second-initialize, cross-timeline, backwards-applicability, transition-after-terminal-state, unlisted-from-to]}
+  organization: {states: [active, dormant, dissolved], initialization: {organization-initialize: active}, transitions: {organization-rename: {from: [active, dormant], to: same}, organization-reparent: {from: [active, dormant], to: same}, organization-dormant: {from: [active], to: dormant}, organization-dissolve: {from: [active, dormant], to: dissolved}}}
+  parentage: {states: [asserted, confirmed, ended], initialization: {parentage-initialize: asserted}, transitions: {parentage-confirm: {from: [asserted], to: confirmed}, parentage-end: {from: [asserted, confirmed], to: ended}}}
+  union: {states: [declared, formed, ended, annulled], initialization: {union-initialize: declared}, transitions: {union-form: {from: [declared], to: formed}, union-reconcile: {from: [formed], to: formed}, union-end: {from: [declared, formed], to: ended}, union-annul: {from: [declared, formed], to: annulled}}}
+  affiliation: {states: [active, ended], initialization: {affiliation-initialize: active}, transitions: {affiliation-role: {from: [active], to: active}, affiliation-end: {from: [active], to: ended}}}
+  legacy: {states: [active, dormant, dissolved], initialization: {legacy-initialize: active}, transitions: {legacy-rename: {from: [active, dormant], to: same}, legacy-dormant: {from: [active], to: dormant}, legacy-dissolve: {from: [active, dormant], to: dissolved}}}
+  tenure: {states: [vacant, designated, holding, expired, ended], initialization: {tenure-initialize: holder-null-to-vacant-holder-id-to-holding}, transitions: {tenure-designate: {from: [vacant], to: designated}, tenure-hold: {from: [vacant, designated], to: holding}, tenure-vacate: {from: [designated, holding], to: vacant-interval}, tenure-transfer: {from: [holding], to: vacant, target_tenure: extant-vacant-or-designated-no-implicit-hold}, tenure-end: {from: [vacant, designated, holding], to: ended}}, fold_operations: {tenure-vacate-expire: {from: vacant-interval, to: expired, trigger: query-point-strictly-after-inclusive-last, persisted_transition: forbidden}}}
+  claim: {states: [proposed, disputed, recognized, withdrawn, rejected], initialization: {claim-initialize: proposed}, transitions: {claim-dispute: {from: [proposed, disputed], to: disputed}, claim-recognize: {from: [proposed, disputed], to: recognized}, claim-withdraw: {from: [proposed, disputed], to: withdrawn}, claim-reject: {from: [proposed, disputed], to: rejected}}}
+  vital_history: {states: [unknown, living, dead, existing, ended], initialization: {vital-initialize: unknown}, transitions: {vital-birth: {from: [unknown], to: living}, vital-death: {from: [living], to: dead}, vital-existence-start: {from: [unknown], to: existing}, vital-existence-end: {from: [existing], to: ended}}, illegal: [birth-after-existence-start, existence-start-after-birth, death-after-existence-end, existence-end-after-death]}
+endpoint_vectors:
+  events:
+    event_compact: {kind: event, id: event_compact, story_time: {timeline: main, tick: -3, order: 0}}
+    event_appointment: {kind: event, id: event_appointment, story_time: {timeline: main, tick: 0, order: -1}}
+    event_transfer: {kind: event, id: event_transfer, story_time: {timeline: main, tick: 1, order: 0}}
+reference_catalog:
+  characters:
+    character_adoptive: {kind: character, id: character_adoptive}
+    character_alpha: {kind: character, id: character_alpha}
+    character_beta: {kind: character, id: character_beta}
+    character_biological: {kind: character, id: character_biological}
+    character_child: {kind: character, id: character_child}
+    character_construct: {kind: character, id: character_construct}
+    character_future_lineage: {kind: character, id: character_future_lineage}
+    character_future_parent: {kind: character, id: character_future_parent}
+    character_gamma: {kind: character, id: character_gamma}
+    character_secret: {kind: character, id: character_secret}
+    character_secret_parent: {kind: character, id: character_secret_parent}
+    character_unrecorded: {kind: character, id: character_unrecorded}
+    character_no_lineage: {kind: character, id: character_no_lineage}
+  locations:
+    location_archive: {kind: location, id: location_archive}
+  records: frontmatter_vectors-by-id
+privacy_contract:
+  viewer_selector: {required: true, value: authenticated-principal, binding: server-authenticated-principal-not-caller-chosen}
+  caller_supplied_audience_or_perspective: invalid
+  filter_order: [authenticated_viewer, server_derived_audience, server_derived_perspective, capability, timeline, horizon, record_audience, record_perspectives, applicability, ordering, pagination, serialization, derived_traversal]
+  character_discovery_equivalence: [absent, future, withheld]
+  character_discovery_outcome: unknown
+frontmatter_vectors:
+  organization: {schema: wedl/v0.7, kind: organization, id: organization_00000000000000000000000001, title: House Aster, domain: history.organizations, status: canonical, tags: [house], aliases: [Aster], threads: [], audience: [public], perspectives: [ordinary], organization_kind: house, location_id: location_archive, initialization: {transition_id: transition_00000000000000000000000001, transition_kind: organization-initialize, applicability: {applicability_kind: instant, point: {timeline: main, tick: -20, order: 0}}, payload: {title: House Aster, aliases: [Aster]}}, transitions: [{transition_id: transition_00000000000000000000000002, transition_kind: organization-rename, applicability: {applicability_kind: instant, point: {timeline: main, tick: -5, order: 0}}, payload: {title: House Aster, aliases: [Aster, First House]}}]}
+  organization_child: {schema: wedl/v0.7, kind: organization, id: organization_00000000000000000000000002, title: Cadet House, domain: history.organizations, status: canonical, tags: [house], aliases: [], threads: [], audience: [public], perspectives: [ordinary], organization_kind: house, parent_id: organization_00000000000000000000000001, initialization: {transition_id: transition_00000000000000000000000022, transition_kind: organization-initialize, applicability: {applicability_kind: instant, point: {timeline: main, tick: -2, order: 0}}, payload: {title: Cadet House, aliases: []}}, transitions: []}
+  parentage: {schema: wedl/v0.7, kind: parentage, id: kinship_00000000000000000000000001, title: Child of the Archive, domain: history.kinship, status: canonical, tags: [biological], aliases: [], threads: [], audience: [public], perspectives: [ordinary], child_id: character_child, parent_id: character_biological, initialization: {transition_id: transition_00000000000000000000000003, transition_kind: parentage-initialize, applicability: {applicability_kind: instant, point: {timeline: main, tick: -10, order: 0}}, payload: {basis: biological}}, transitions: [{transition_id: transition_00000000000000000000000004, transition_kind: parentage-confirm, applicability: {applicability_kind: instant, point: {timeline: main, tick: -10, order: 1}}, payload: {basis: biological}}]}
+  parentage_adoptive: {schema: wedl/v0.7, kind: parentage, id: kinship_00000000000000000000000002, title: Child joins the Archive, domain: history.kinship, status: canonical, tags: [adoptive], aliases: [], threads: [], audience: [public], perspectives: [ordinary], child_id: character_child, parent_id: character_adoptive, initialization: {transition_id: transition_00000000000000000000000023, transition_kind: parentage-initialize, applicability: {applicability_kind: instant, point: {timeline: main, tick: -2, order: 0}}, payload: {basis: adoptive}}, transitions: []}
+  union: {schema: wedl/v0.7, kind: union, id: union_00000000000000000000000001, title: The Threefold Compact, domain: history.unions, status: canonical, tags: [compact], aliases: [], threads: [], audience: [public], perspectives: [ordinary], participant_ids: [character_alpha, character_beta, character_gamma], initialization: {transition_id: transition_00000000000000000000000005, transition_kind: union-initialize, applicability: {applicability_kind: instant, point: {timeline: main, tick: -3, order: 0}}, payload: {participant_ids: [character_alpha, character_beta, character_gamma]}}, transitions: [{transition_id: transition_00000000000000000000000006, transition_kind: union-form, applicability: {applicability_kind: instant, point: {timeline: main, tick: -3, order: 1}}, payload: {participant_ids: [character_alpha, character_beta, character_gamma]}, cause_event_id: event_compact}]}
+  affiliation: {schema: wedl/v0.7, kind: affiliation, id: affiliation_00000000000000000000000001, title: Child serves the cadet house, domain: history.affiliations, status: canonical, tags: [role], aliases: [], threads: [], audience: [council], perspectives: [council-ledger], character_id: character_child, organization_id: organization_00000000000000000000000002, initialization: {transition_id: transition_00000000000000000000000007, transition_kind: affiliation-initialize, applicability: {applicability_kind: instant, point: {timeline: main, tick: -1, order: 0}}, payload: {role: null}}, transitions: [{transition_id: transition_00000000000000000000000008, transition_kind: affiliation-role, applicability: {applicability_kind: instant, point: {timeline: main, tick: -1, order: 1}}, payload: {role: heir-apparent}}]}
+  legacy: {schema: wedl/v0.7, kind: legacy, id: legacy_00000000000000000000000001, title: Keeper of Keys, domain: history.legacies, status: canonical, tags: [office], aliases: [Keykeeper], threads: [], audience: [public], perspectives: [ordinary], legacy_kind: office, organization_id: organization_00000000000000000000000001, initialization: {transition_id: transition_00000000000000000000000009, transition_kind: legacy-initialize, applicability: {applicability_kind: instant, point: {timeline: main, tick: -20, order: 0}}, payload: {title: Keeper of Keys, aliases: [Keykeeper]}}, transitions: []}
+  tenure_vacancy: {schema: wedl/v0.7, kind: tenure, id: tenure_00000000000000000000000001, title: Vacancy after Alpha held the Keeper of Keys, domain: history.tenures, status: canonical, tags: [vacancy], aliases: [], threads: [], audience: [public], perspectives: [ordinary], legacy_id: legacy_00000000000000000000000001, initialization: {transition_id: transition_00000000000000000000000010, transition_kind: tenure-initialize, applicability: {applicability_kind: instant, point: {timeline: main, tick: -1, order: 0}}, payload: {holder_id: character_alpha, basis: legal}}, transitions: [{transition_id: transition_00000000000000000000000011, transition_kind: tenure-vacate, applicability: {applicability_kind: inclusive-interval, first: {timeline: main, tick: -1, order: 1}, last: {timeline: main, tick: 0, order: -1}}, payload: {holder_id: null}}]}
+  tenure: {schema: wedl/v0.7, kind: tenure, id: tenure_00000000000000000000000002, title: Alpha holds the keys, domain: history.tenures, status: canonical, tags: [legal], aliases: [], threads: [], audience: [public], perspectives: [ordinary], legacy_id: legacy_00000000000000000000000001, predecessor_tenure_id: tenure_00000000000000000000000001, initialization: {transition_id: transition_00000000000000000000000012, transition_kind: tenure-initialize, applicability: {applicability_kind: instant, point: {timeline: main, tick: -1, order: 1}}, payload: {holder_id: null, basis: legal}}, transitions: [{transition_id: transition_00000000000000000000000013, transition_kind: tenure-hold, applicability: {applicability_kind: instant, point: {timeline: main, tick: 0, order: 0}}, payload: {holder_id: character_alpha, basis: legal}, cause_event_id: event_appointment}, {transition_id: transition_00000000000000000000000029, transition_kind: tenure-transfer, applicability: {applicability_kind: instant, point: {timeline: main, tick: 1, order: 1}}, payload: {from_tenure_id: tenure_00000000000000000000000002, to_tenure_id: tenure_00000000000000000000000004}, cause_event_id: event_transfer}]}
+  tenure_coholder: {schema: wedl/v0.7, kind: tenure, id: tenure_00000000000000000000000003, title: Beta holds the keys in fact, domain: history.tenures, status: canonical, tags: [de-facto], aliases: [], threads: [], audience: [public], perspectives: [ordinary], legacy_id: legacy_00000000000000000000000001, initialization: {transition_id: transition_00000000000000000000000014, transition_kind: tenure-initialize, applicability: {applicability_kind: instant, point: {timeline: main, tick: 0, order: 0}}, payload: {holder_id: character_beta, basis: de-facto}}, transitions: []}
+  tenure_transfer_target: {schema: wedl/v0.7, kind: tenure, id: tenure_00000000000000000000000004, title: Gamma receives the keys, domain: history.tenures, status: canonical, tags: [legal], aliases: [], threads: [], audience: [public], perspectives: [ordinary], legacy_id: legacy_00000000000000000000000001, predecessor_tenure_id: tenure_00000000000000000000000002, initialization: {transition_id: transition_00000000000000000000000030, transition_kind: tenure-initialize, applicability: {applicability_kind: instant, point: {timeline: main, tick: 1, order: 0}}, payload: {holder_id: null, basis: legal}}, transitions: [{transition_id: transition_00000000000000000000000031, transition_kind: tenure-hold, applicability: {applicability_kind: instant, point: {timeline: main, tick: 1, order: 2}}, payload: {holder_id: character_gamma, basis: legal}}]}
+  claim: {schema: wedl/v0.7, kind: claim, id: claim_00000000000000000000000001, title: Gamma claims the keys, domain: history.claims, status: canonical, tags: [claim], aliases: [], threads: [], audience: [council], perspectives: [council-ledger], legacy_id: legacy_00000000000000000000000001, claimant_id: character_gamma, initialization: {transition_id: transition_00000000000000000000000015, transition_kind: claim-initialize, applicability: {applicability_kind: instant, point: {timeline: main, tick: 0, order: 0}}, payload: {competes_with: [claim_00000000000000000000000002]}}, transitions: [{transition_id: transition_00000000000000000000000016, transition_kind: claim-dispute, applicability: {applicability_kind: instant, point: {timeline: main, tick: 0, order: 1}}, payload: {competes_with: [claim_00000000000000000000000002]}}]}
+  claim_competing: {schema: wedl/v0.7, kind: claim, id: claim_00000000000000000000000002, title: Alpha claims the keys, domain: history.claims, status: canonical, tags: [claim], aliases: [], threads: [], audience: [council], perspectives: [council-ledger], legacy_id: legacy_00000000000000000000000001, claimant_id: character_alpha, initialization: {transition_id: transition_00000000000000000000000024, transition_kind: claim-initialize, applicability: {applicability_kind: instant, point: {timeline: main, tick: 0, order: 0}}, payload: {competes_with: [claim_00000000000000000000000001]}}, transitions: [{transition_id: transition_00000000000000000000000025, transition_kind: claim-dispute, applicability: {applicability_kind: instant, point: {timeline: main, tick: 0, order: 1}}, payload: {competes_with: [claim_00000000000000000000000001]}}]}
+  vital_history: {schema: wedl/v0.7, kind: vital-history, id: vital_00000000000000000000000001, title: Child vital history, domain: history.vitals, status: canonical, tags: [vital], aliases: [], threads: [], audience: [public], perspectives: [ordinary], character_id: character_child, disclosure: known, initialization: {transition_id: transition_00000000000000000000000017, transition_kind: vital-initialize, applicability: {applicability_kind: instant, point: {timeline: main, tick: -10, order: -1}}, payload: {}}, transitions: [{transition_id: transition_00000000000000000000000018, transition_kind: vital-birth, applicability: {applicability_kind: instant, point: {timeline: main, tick: -10, order: 0}}, payload: {}}, {transition_id: transition_00000000000000000000000019, transition_kind: vital-death, applicability: {applicability_kind: instant, point: {timeline: main, tick: 3, order: 1}}, payload: {}}]}
+  vital_construct: {schema: wedl/v0.7, kind: vital-history, id: vital_00000000000000000000000002, title: Construct vital history, domain: history.vitals, status: canonical, tags: [vital], aliases: [], threads: [], audience: [public], perspectives: [ordinary], character_id: character_construct, disclosure: known, initialization: {transition_id: transition_00000000000000000000000026, transition_kind: vital-initialize, applicability: {applicability_kind: instant, point: {timeline: main, tick: -10, order: 0}}, payload: {}}, transitions: [{transition_id: transition_00000000000000000000000027, transition_kind: vital-existence-start, applicability: {applicability_kind: instant, point: {timeline: main, tick: -10, order: 1}}, payload: {}}, {transition_id: transition_00000000000000000000000028, transition_kind: vital-existence-end, applicability: {applicability_kind: instant, point: {timeline: main, tick: 3, order: 1}}, payload: {}}]}
+  future_parentage: {schema: wedl/v0.7, kind: parentage, id: kinship_00000000000000000000000004, title: Future lineage, domain: history.kinship, status: canonical, tags: [biological], aliases: [], threads: [], audience: [public], perspectives: [ordinary], child_id: character_future_lineage, parent_id: character_future_parent, initialization: {transition_id: transition_00000000000000000000000020, transition_kind: parentage-initialize, applicability: {applicability_kind: instant, point: {timeline: main, tick: 5, order: 0}}, payload: {basis: biological}}, transitions: []}
+  withheld_parentage: {schema: wedl/v0.7, kind: parentage, id: kinship_00000000000000000000000003, title: Sealed lineage, domain: history.kinship, status: canonical, tags: [biological], aliases: [], threads: [], audience: [archivist], perspectives: [archive], child_id: character_secret, parent_id: character_secret_parent, initialization: {transition_id: transition_00000000000000000000000021, transition_kind: parentage-initialize, applicability: {applicability_kind: instant, point: {timeline: main, tick: -8, order: 0}}, payload: {basis: biological}}, transitions: []}
+domain_invariants:
+  - no-self-or-duplicate-parentage; combined-parentage-is-acyclic
+  - organization-parent-containment-is-acyclic
+  - union-participants-are-sorted-unique-and-at-least-two
+  - tenure-is-not-claim; vacancy-is-explicit; co-holding-is-not-collapsed
+  - claims-compete-reciprocally-on-the-same-legacy-and-point
+  - organization-location-reference-never-implies-geometry-topology-access-or-route
+  - no-legitimacy-inheritance-genetics-residence-or-spatial-inference

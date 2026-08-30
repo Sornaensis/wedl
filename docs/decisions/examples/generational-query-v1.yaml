@@ -1,0 +1,95 @@
+adr: ../0005-first-class-generational-history.md
+protocol: wedl-generational/v1
+common:
+  revision: 89c703b8b0ff76ba4679a9d7903effd4fc5fae05
+  capabilities: [generational-core-v1]
+  limit: {depth: 8, items: 100}
+  cursor: opaque-keyset-bound-to-normalized-request-and-revision
+  states: [available, unknown, unavailable, invalid, limit]
+  story_time: {timeline: main, tick: "-7", order: "2"}
+  orders:
+    default: [applicability_story_time, source_ordinal, stable_id]
+    traversal: [breadth_first_depth, applicability_story_time, source_ordinal, stable_id]
+  diagnostics:
+    malformed: GEN-REQUEST-001
+    cross_timeline: GEN-TIME-001
+    inaccessible: GEN-ACCESS-001
+    budget: GEN-LIMIT-001
+  viewer_contract:
+    authenticated_viewer: required
+    audience_and_perspective: server-derived-not-caller-supplied
+    selector: {required: true, value: authenticated-principal, binding: server-authenticated-principal-not-caller-chosen}
+    filter_order: [authenticated_viewer, server_derived_audience, server_derived_perspective, capability, timeline, horizon, record_audience, record_perspective, applicability, ordering, pagination, serialization, derived_traversal]
+  mode_contracts:
+    author-as-of: {required: [at], forbidden: [], filter_order: [authenticated_viewer, server_derived_audience, server_derived_perspective, capability, timeline, horizon, record_audience, record_perspective, applicability, ordering, pagination, serialization, derived_traversal], future_visibility: excluded-after-at}
+    author-all-time: {required: [timeline], forbidden: [at], filter_order: [authenticated_viewer, server_derived_audience, server_derived_perspective, capability, timeline, record_audience, record_perspective, applicability, ordering, pagination, serialization, derived_traversal], future_visibility: all-authored-applicable-facts-through-revision}
+    character: {required: [at], forbidden: [], filter_order: [authenticated_viewer, server_derived_audience, server_derived_perspective, capability, timeline, horizon, record_audience, record_perspective, applicability, ordering, pagination, serialization, derived_traversal], future_visibility: observationally-unknown}
+queries:
+  biological_parent_as_of:
+    request: {protocol: wedl-generational/v1, revision: 89c703b8b0ff76ba4679a9d7903effd4fc5fae05, capabilities: [generational-core-v1], viewer: {selector: authenticated-principal}, mode: author-as-of, character_id: character_child, relation: biological-parent, at: {timeline: main, tick: "-7", order: "2"}, limit: {depth: 8, items: 100}, cursor: null}
+    response: {state: available, relations: [{label: biological-parent, target_id: character_biological, citations: [{record_id: kinship_00000000000000000000000001, path: kinships/kinship_00000000000000000000000001.md, applicability: {applicability_kind: instant, point: {timeline: main, tick: "-10", order: "1"}}}]}]}
+  adoptive_parent_boundary:
+    request: {protocol: wedl-generational/v1, revision: 89c703b8b0ff76ba4679a9d7903effd4fc5fae05, capabilities: [generational-core-v1], viewer: {selector: authenticated-principal}, mode: author-as-of, character_id: character_child, relation: adoptive-parent, at: {timeline: main, tick: "-2", order: "0"}, limit: {depth: 8, items: 100}, cursor: null}
+    response: {state: available, relations: [{label: adoptive-parent, target_id: character_adoptive, citations: [{record_id: kinship_00000000000000000000000002, path: kinships/kinship_00000000000000000000000002.md, applicability: {applicability_kind: instant, point: {timeline: main, tick: "-2", order: "0"}}}]}]}
+  three_party_union:
+    request: {protocol: wedl-generational/v1, revision: 89c703b8b0ff76ba4679a9d7903effd4fc5fae05, capabilities: [generational-core-v1], viewer: {selector: authenticated-principal}, mode: author-as-of, union_id: union_00000000000000000000000001, at: {timeline: main, tick: "0", order: "0"}, limit: {depth: 8, items: 100}, cursor: null}
+    response: {state: available, participants: [character_alpha, character_beta, character_gamma], citations: [{record_id: union_00000000000000000000000001, path: unions/union_00000000000000000000000001.md, applicability: {applicability_kind: instant, point: {timeline: main, tick: "-3", order: "1"}}}]}
+  nested_organization_role:
+    request: {protocol: wedl-generational/v1, revision: 89c703b8b0ff76ba4679a9d7903effd4fc5fae05, capabilities: [generational-core-v1], viewer: {selector: authenticated-principal}, mode: author-as-of, organization_id: organization_00000000000000000000000002, at: {timeline: main, tick: "0", order: "0"}, limit: {depth: 8, items: 100}, cursor: null}
+    response: {state: available, parent_path: [organization_00000000000000000000000001, organization_00000000000000000000000002], roles: [heir-apparent], citations: [{record_id: organization_00000000000000000000000002, path: organizations/organization_00000000000000000000000002.md, applicability: {applicability_kind: static}}, {record_id: affiliation_00000000000000000000000001, path: affiliations/affiliation_00000000000000000000000001.md, applicability: {applicability_kind: instant, point: {timeline: main, tick: "-1", order: "1"}}}]}
+  vacancy_and_coholding:
+    request: {protocol: wedl-generational/v1, revision: 89c703b8b0ff76ba4679a9d7903effd4fc5fae05, capabilities: [generational-core-v1], viewer: {selector: authenticated-principal}, mode: author-as-of, legacy_id: legacy_00000000000000000000000001, at: {timeline: main, tick: "0", order: "0"}, limit: {depth: 8, items: 100}, cursor: null}
+    response: {state: available, vacancy_before: tenure_00000000000000000000000001, holders: [character_alpha, character_beta], bases: [legal, de-facto], citations: [{record_id: tenure_00000000000000000000000001, path: tenures/tenure_00000000000000000000000001.md, applicability: {applicability_kind: inclusive-interval, first: {timeline: main, tick: "-1", order: "1"}, last: {timeline: main, tick: "0", order: "-1"}}}, {record_id: tenure_00000000000000000000000002, path: tenures/tenure_00000000000000000000000002.md, applicability: {applicability_kind: instant, point: {timeline: main, tick: "0", order: "0"}}}, {record_id: tenure_00000000000000000000000003, path: tenures/tenure_00000000000000000000000003.md, applicability: {applicability_kind: instant, point: {timeline: main, tick: "0", order: "0"}}}]}
+  competing_claims:
+    request: {protocol: wedl-generational/v1, revision: 89c703b8b0ff76ba4679a9d7903effd4fc5fae05, capabilities: [generational-core-v1], viewer: {selector: authenticated-principal}, mode: author-as-of, legacy_id: legacy_00000000000000000000000001, claims: true, at: {timeline: main, tick: "0", order: "1"}, limit: {depth: 8, items: 100}, cursor: null}
+    response: {state: available, claims: [claim_00000000000000000000000001, claim_00000000000000000000000002], inference: none, citations: [{record_id: claim_00000000000000000000000001, path: claims/claim_00000000000000000000000001.md, applicability: {applicability_kind: instant, point: {timeline: main, tick: "0", order: "1"}}}, {record_id: claim_00000000000000000000000002, path: claims/claim_00000000000000000000000002.md, applicability: {applicability_kind: instant, point: {timeline: main, tick: "0", order: "1"}}}]}
+  secret_lineage_character:
+    request: {protocol: wedl-generational/v1, revision: 89c703b8b0ff76ba4679a9d7903effd4fc5fae05, capabilities: [generational-core-v1], viewer: {selector: authenticated-principal}, mode: character, character_id: character_secret, relation: ancestor, at: {timeline: main, tick: "0", order: "0"}, limit: {depth: 8, items: 100}, cursor: null}
+    response: {state: unknown, relations: []}
+  vital_unknown:
+    request: {protocol: wedl-generational/v1, revision: 89c703b8b0ff76ba4679a9d7903effd4fc5fae05, capabilities: [generational-core-v1], viewer: {selector: authenticated-principal}, mode: author-as-of, character_id: character_unrecorded, relation: vital, at: {timeline: main, tick: "-7", order: "2"}, limit: {depth: 8, items: 100}, cursor: null}
+    response: {state: unknown}
+  vital_pre_birth_character:
+    request: {protocol: wedl-generational/v1, revision: 89c703b8b0ff76ba4679a9d7903effd4fc5fae05, capabilities: [generational-core-v1], viewer: {selector: authenticated-principal}, mode: character, character_id: character_child, relation: vital, at: {timeline: main, tick: "-11", order: "0"}, limit: {depth: 8, items: 100}, cursor: null}
+    response: {state: unknown}
+  negative_tick_exact_transport:
+    request: {protocol: wedl-generational/v1, revision: 89c703b8b0ff76ba4679a9d7903effd4fc5fae05, capabilities: [generational-core-v1], viewer: {selector: authenticated-principal}, mode: author-as-of, character_id: character_child, relation: vital, at: {timeline: main, tick: "-10", order: "0"}, limit: {depth: 8, items: 100}, cursor: null}
+    response: {state: available, vital: living, story_time: {timeline: main, tick: "-10", order: "0"}, citations: [{record_id: vital_00000000000000000000000001, path: vitals/vital_00000000000000000000000001.md, applicability: {applicability_kind: instant, point: {timeline: main, tick: "-10", order: "0"}}}]}
+  same_tick_ordering:
+    request: {protocol: wedl-generational/v1, revision: 89c703b8b0ff76ba4679a9d7903effd4fc5fae05, capabilities: [generational-core-v1], viewer: {selector: authenticated-principal}, mode: author-as-of, legacy_id: legacy_00000000000000000000000001, at: {timeline: main, tick: "0", order: "1"}, limit: {depth: 8, items: 100}, cursor: null}
+    response: {state: available, ordered_transitions: [{record_id: tenure_00000000000000000000000002, path: tenures/tenure_00000000000000000000000002.md, applicability: {applicability_kind: instant, point: {timeline: main, tick: "0", order: "0"}}}, {record_id: claim_00000000000000000000000001, path: claims/claim_00000000000000000000000001.md, applicability: {applicability_kind: instant, point: {timeline: main, tick: "0", order: "1"}}}]}
+  cross_timeline_rejected:
+    request: {protocol: wedl-generational/v1, revision: 89c703b8b0ff76ba4679a9d7903effd4fc5fae05, capabilities: [generational-core-v1], viewer: {selector: authenticated-principal}, mode: author-as-of, character_id: character_child, relation: biological-parent, at: {timeline: alternate, tick: "0", order: "0"}, limit: {depth: 8, items: 100}, cursor: null}
+    response: {state: invalid, code: GEN-TIME-001}
+  bounded_traversal:
+    request: {protocol: wedl-generational/v1, revision: 89c703b8b0ff76ba4679a9d7903effd4fc5fae05, capabilities: [generational-core-v1], viewer: {selector: authenticated-principal}, mode: author-all-time, timeline: main, character_id: character_child, relation: ancestor, limit: {depth: 1, items: 1}, cursor: null}
+    response: {state: limit, code: GEN-LIMIT-001, relations: []}
+  author_all_time_future_visible:
+    request: {protocol: wedl-generational/v1, revision: 89c703b8b0ff76ba4679a9d7903effd4fc5fae05, capabilities: [generational-core-v1], viewer: {selector: authenticated-principal}, mode: author-all-time, timeline: main, character_id: character_future_lineage, relation: biological-parent, limit: {depth: 8, items: 100}, cursor: null}
+    response: {state: available, relations: [{label: biological-parent, target_id: character_future_parent, citations: [{record_id: kinship_00000000000000000000000004, path: kinships/kinship_00000000000000000000000004.md, applicability: {applicability_kind: instant, point: {timeline: main, tick: "5", order: "0"}}}]}]}
+  secret_lineage_absent_character:
+    request: {protocol: wedl-generational/v1, revision: 89c703b8b0ff76ba4679a9d7903effd4fc5fae05, capabilities: [generational-core-v1], viewer: {selector: authenticated-principal}, mode: character, character_id: character_no_lineage, relation: ancestor, at: {timeline: main, tick: "0", order: "0"}, limit: {depth: 8, items: 100}, cursor: null}
+    response: {state: unknown, relations: []}
+  secret_lineage_future_character:
+    request: {protocol: wedl-generational/v1, revision: 89c703b8b0ff76ba4679a9d7903effd4fc5fae05, capabilities: [generational-core-v1], viewer: {selector: authenticated-principal}, mode: character, character_id: character_future_lineage, relation: ancestor, at: {timeline: main, tick: "0", order: "0"}, limit: {depth: 8, items: 100}, cursor: null}
+    response: {state: unknown, relations: []}
+  vital_birth_boundary:
+    request: {protocol: wedl-generational/v1, revision: 89c703b8b0ff76ba4679a9d7903effd4fc5fae05, capabilities: [generational-core-v1], viewer: {selector: authenticated-principal}, mode: author-as-of, character_id: character_child, relation: vital, at: {timeline: main, tick: "-10", order: "0"}, limit: {depth: 8, items: 100}, cursor: null}
+    response: {state: available, vital: living, citations: [{record_id: vital_00000000000000000000000001, path: vitals/vital_00000000000000000000000001.md, applicability: {applicability_kind: instant, point: {timeline: main, tick: "-10", order: "0"}}}]}
+  vital_death_before_same_tick:
+    request: {protocol: wedl-generational/v1, revision: 89c703b8b0ff76ba4679a9d7903effd4fc5fae05, capabilities: [generational-core-v1], viewer: {selector: authenticated-principal}, mode: author-as-of, character_id: character_child, relation: vital, at: {timeline: main, tick: "3", order: "0"}, limit: {depth: 8, items: 100}, cursor: null}
+    response: {state: available, vital: living, citations: [{record_id: vital_00000000000000000000000001, path: vitals/vital_00000000000000000000000001.md, applicability: {applicability_kind: instant, point: {timeline: main, tick: "-10", order: "0"}}}]}
+  vital_death_at_same_tick:
+    request: {protocol: wedl-generational/v1, revision: 89c703b8b0ff76ba4679a9d7903effd4fc5fae05, capabilities: [generational-core-v1], viewer: {selector: authenticated-principal}, mode: author-as-of, character_id: character_child, relation: vital, at: {timeline: main, tick: "3", order: "1"}, limit: {depth: 8, items: 100}, cursor: null}
+    response: {state: available, vital: dead, citations: [{record_id: vital_00000000000000000000000001, path: vitals/vital_00000000000000000000000001.md, applicability: {applicability_kind: instant, point: {timeline: main, tick: "3", order: "1"}}}]}
+  vital_existence_start_boundary:
+    request: {protocol: wedl-generational/v1, revision: 89c703b8b0ff76ba4679a9d7903effd4fc5fae05, capabilities: [generational-core-v1], viewer: {selector: authenticated-principal}, mode: author-as-of, character_id: character_construct, relation: vital, at: {timeline: main, tick: "-10", order: "1"}, limit: {depth: 8, items: 100}, cursor: null}
+    response: {state: available, vital: existing, citations: [{record_id: vital_00000000000000000000000002, path: vitals/vital_00000000000000000000000002.md, applicability: {applicability_kind: instant, point: {timeline: main, tick: "-10", order: "1"}}}]}
+  vital_existence_end_boundary:
+    request: {protocol: wedl-generational/v1, revision: 89c703b8b0ff76ba4679a9d7903effd4fc5fae05, capabilities: [generational-core-v1], viewer: {selector: authenticated-principal}, mode: author-as-of, character_id: character_construct, relation: vital, at: {timeline: main, tick: "3", order: "1"}, limit: {depth: 8, items: 100}, cursor: null}
+    response: {state: available, vital: ended, citations: [{record_id: vital_00000000000000000000000002, path: vitals/vital_00000000000000000000000002.md, applicability: {applicability_kind: instant, point: {timeline: main, tick: "3", order: "1"}}}]}
+transport_rejections:
+  numeric_tick: {at: {timeline: main, tick: -7, order: "2"}, expected: {state: invalid, code: GEN-REQUEST-001}}
+  plus_prefixed_tick: {at: {timeline: main, tick: "+7", order: "2"}, expected: {state: invalid, code: GEN-REQUEST-001}}
+  leading_zero_negative_tick: {at: {timeline: main, tick: "-07", order: "2"}, expected: {state: invalid, code: GEN-REQUEST-001}}
+  numeric_order: {at: {timeline: main, tick: "-7", order: 2}, expected: {state: invalid, code: GEN-REQUEST-001}}

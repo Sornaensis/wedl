@@ -1,0 +1,80 @@
+adr: ../0005-first-class-generational-history.md
+status: accepted-contract-only
+protocol: wedl-migration/v1
+mode: upgrade-v07
+target:
+  schema: wedl/v0.7
+  capability_location: authoritative-world-frontmatter-only
+  capability_rule: one-homogeneous-sorted-capability-envelope
+  allowed_capabilities: [generational-core-v1, spatial-core-v1]
+  spatial_optional_capabilities: [geometry-v1, route-v1, overlay-v1]
+  optional_requires: {geometry-v1: spatial-core-v1, route-v1: spatial-core-v1, overlay-v1: spatial-core-v1}
+  canonical_capability_order: [generational-core-v1, spatial-core-v1, geometry-v1, route-v1, overlay-v1]
+  ordering_algorithm: reject-unknown-or-unsatisfied-prerequisite; require-exact-registry-rank-projection; reject-duplicate-or-unsorted; never-silently-sort
+  fingerprint_input: '{"schema":"wedl/v0.7","capabilities":["generational-core-v1","spatial-core-v1","geometry-v1","route-v1","overlay-v1"]}'
+source_matrix:
+  wedl/v0.3: {read: pinned-legacy, generational: unavailable, mixed_with_v07: rejected, preserves: [shared-world-records]}
+  wedl/v0.5: {read: pinned-thread-legacy, generational: unavailable, mixed_with_v07: rejected, preserves: [shared-world-records, thread-declarations, record-thread-membership-byte-semantics]}
+  wedl/v0.6: {read: pinned-chronology-legacy, generational: unavailable, mixed_with_v07: rejected, preserves: [shared-world-records, thread-declarations, record-thread-membership-byte-semantics, chronology-world-declaration, chronology-record-semantics]}
+  wedl/v0.7: {read: capability-negotiated, generational: declared-only, mixed_with_v07: not-applicable, preserves: [all-authored-facts]}
+single_migration:
+  command: wedl migrate preview|apply --mode upgrade-v07
+  reproducible_preview_command: wedl migrate preview --mode upgrade-v07 --expected-head 89c703b8b0ff76ba4679a9d7903effd4fc5fae05 --idempotency-key generational-v07-contract-vector
+  reproducible_apply_command: wedl migrate apply --mode upgrade-v07 --expected-head 89c703b8b0ff76ba4679a9d7903effd4fc5fae05 --source-snapshot-hash <preview-source-snapshot-hash> --idempotency-key generational-v07-contract-vector --confirm <preview-confirmation-token>
+  request_contract:
+    preview_cli_required: [protocol, mode, expectedHead, idempotencyKey]
+    targetCapabilities: {closed: true, normalized_by: canonical_capability_order, allowed: [generational-core-v1, spatial-core-v1, geometry-v1, route-v1, overlay-v1], location: authoritative-world-preview-plan, transport: server-derived-not-cli-flag, legacy_default: [generational-core-v1, spatial-core-v1], selection: legacy-v03-v05-v06-use-legacy_default; v07-noop-uses-exact-existing-world-capabilities}
+    normalized_request: {base_required: [protocol, mode, expectedHead, sourceSnapshotHash, idempotencyKey, targetCapabilities], base_request_hash: canonical-json-sha256-before-backupRef, append: [backupRef], request_hash: canonical-json-sha256-after-backupRef}
+    requestHash: server-derived-preview-response-not-cli-argument
+    confirmation_binds: [normalized_request, requestHash]
+    confirmation_transport: preview-derives-token-from-normalized_request-and-requestHash; apply-passes-token-only-via---confirm; token-is-not-an-input-to-its-own-binding
+    apply_cli_required: [protocol, mode, expectedHead, sourceSnapshotHash, idempotencyKey, confirm]
+    apply_rechecks: [expectedHead, cleanManagedSourceAndIndex, sourceSnapshotHash, completeNormalizedRequest, serverDerivedRequestHash, confirm]
+    preservation: [thread-declarations, record-thread-membership-byte-semantics, chronology-world-declaration, chronology-record-semantics, no-added-spatial-facts, no-added-generational-facts]
+  forbidden_competing_modes: [upgrade-spatial, upgrade-generational]
+  preview: [read-only, expected-head-required, clean-managed-source-and-index-required, deterministic-source-snapshot, deterministic-confirmation-token]
+  apply: [exact-preview-binding, atomic-forward-git-commit, idempotent, preserves-thread-grouping, preserves-chronology, adds-no-spatial-facts, adds-no-generational-facts, rebuilds-disposable-sqlite]
+  fingerprint_tokens: [schema-version, sorted-capability-tokens]
+  rollback: [git-revert-or-forward-source-restoration, dispose-and-rebuild-sqlite, never-reset-history]
+cases:
+  v03_preservation:
+    source: wedl/v0.3
+    targetCapabilities: [generational-core-v1, spatial-core-v1]
+    expected: {state: previewable, added_generational_records: 0, added_spatial_records: 0, preserved: [shared-world-records]}
+  v05_thread_preservation:
+    source: wedl/v0.5
+    targetCapabilities: [generational-core-v1, spatial-core-v1]
+    expected: {state: previewable, added_generational_records: 0, added_spatial_records: 0, preserved: [thread-declarations, record-thread-membership-byte-semantics]}
+  v06_chronology_preservation:
+    source: wedl/v0.6
+    targetCapabilities: [generational-core-v1, spatial-core-v1]
+    expected: {state: previewable, added_generational_records: 0, added_spatial_records: 0, preserved: [thread-declarations, chronology-world-declaration, chronology-record-semantics]}
+  unsupported_capability:
+    source: wedl/v0.7
+    targetCapabilities: [generational-core-v1, spatial-core-v1]
+    world_capabilities: [generational-core-v1, unknown-core-v1]
+    expected: {state: rejected, code: GEN-CAPABILITY-001}
+  mixed_world:
+    source: [wedl/v0.6, wedl/v0.7]
+    targetCapabilities: [generational-core-v1, spatial-core-v1]
+    expected: {state: rejected, code: GEN-VERSION-001}
+  already_homogeneous_v07:
+    source: wedl/v0.7
+    targetCapabilities: [generational-core-v1, spatial-core-v1]
+    world_capabilities: [generational-core-v1, spatial-core-v1]
+    expected: {state: noop, idempotent: true}
+  generational_only_v07:
+    source: wedl/v0.7
+    targetCapabilities: [generational-core-v1]
+    world_capabilities: [generational-core-v1]
+    expected: {state: noop, idempotent: true}
+  spatial_only_v07:
+    source: wedl/v0.7
+    targetCapabilities: [spatial-core-v1]
+    world_capabilities: [spatial-core-v1]
+    expected: {state: noop, idempotent: true}
+  combined_optional_v07:
+    source: wedl/v0.7
+    targetCapabilities: [generational-core-v1, spatial-core-v1, geometry-v1, route-v1, overlay-v1]
+    world_capabilities: [generational-core-v1, spatial-core-v1, geometry-v1, route-v1, overlay-v1]
+    expected: {state: noop, idempotent: true}

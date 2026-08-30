@@ -8,3 +8,4 @@ approver and recorded approval date may change a record to `Accepted`.
 - [0002 — Shared-world concurrent narrative threads](0002-shared-world-concurrent-narrative-threads.md) — **Accepted** (approved by Sornaensis on 2026-08-26)
 - [0003 — Calendar and historical chronology semantics](0003-calendar-and-historical-chronology-semantics.md) — **Accepted** (approved by Project owner (user) on 2026-08-27)
 - [0004 — Spatial domain, queries, and schema-version contract](0004-spatial-domain-query-and-version-contract.md) — **Accepted** (approved by Project owner (user) on 2026-08-30)
+- [0005 — First-class generational history and coordinated v0.7 contract](0005-first-class-generational-history.md) — **Accepted** (ratified by the current project owner on 2026-08-30 after independent review)
