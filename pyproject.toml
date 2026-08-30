@@ -36,5 +36,6 @@ where = ["src"]
 wedl = [
   "static/*",
   "data/ash_archive/story/**/*.md",
+  "data/chronology_conformance/story/**/*.md",
   "data/frontiersmen/story/**/*.md",
 ]

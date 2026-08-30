@@ -2,6 +2,14 @@
 
 ## Unreleased
 
+- Added the public `wedl-chronology/v1` read protocol and confirmed complete
+  chronology replacement authoring surface.
+
+- Added the v0.6 conformance fixture and report builder, plus the confirmed
+  local `upgrade-v06` route for homogeneous v0.3/v0.5 source. It preserves
+  grouping data, creates no inferred dates, and is a validator-checked no-op
+  for an already-valid v0.6 repository.
+
 - Added local-only `wedl migrate preview|apply` for the narrow confirmed v0.3
   upgrade, quarantined v0.4 recovery, and forward rollback paths. It does not
   add an HTTP/browser migration surface or an in-place SQLite migration.

@@ -43,11 +43,12 @@ function makeDom() {
   const timeline = new Element("button"); timeline.className = "nav-item"; timeline.dataset.view = "timeline";
   const whereabouts = new Element("button"); whereabouts.className = "nav-item"; whereabouts.dataset.view = "whereabouts";
   const possibilities = new Element("button"); possibilities.className = "nav-item"; possibilities.dataset.view = "possibilities";
-  nav.append(all, timeline, whereabouts, possibilities);
+  const chronology = new Element("button"); chronology.className = "nav-item"; chronology.dataset.view = "chronology";
+  nav.append(all, timeline, whereabouts, possibilities, chronology);
   const elements = {
     appStatus: make("app-status"), article: make("entity-detail-content"), articleStatus: make("article-status"), back: make("back-to-timeline", "button"),
     entities: make("entities"), entitiesForm: make("entities-form", "form"), entitiesStatus: make("entities-status"), entityText: make("entity-text", "input"), searchKind: make("search-kind", "select"), horizon: make("author-horizon", "select"), retrySearch: make("retry-search", "button"), searchRecovery: make("search-recovery"), threadFilter: make("thread-filter", "fieldset"), threadFilterOptions: make("thread-filter-options"), threadFilterStatus: make("thread-filter-status"),
-    indexHeading: make("entries-heading"), indexSort: make("index-sort", "select"), mobileBack: make("back-to-navigation", "button"), nav, shell, worldName: make("world-name"), timeline, whereabouts, possibilities,
+    indexHeading: make("entries-heading"), indexSort: make("index-sort", "select"), mobileBack: make("back-to-navigation", "button"), nav, shell, worldName: make("world-name"), timeline, whereabouts, possibilities, chronology,
   };
   const document = {
     querySelector(selector) { return named.get(selector) || null; },
@@ -69,9 +70,9 @@ async function loadBrowserModule() {
   const timeline = dataModule(await read("timeline.mjs"));
   const lore = dataModule((await read("lore.mjs")).replace("./timeline.mjs", timeline));
   const search = dataModule((await read("search.mjs")).replace("./lore.mjs", lore));
-  const api = dataModule(await read("api.js")); const query = dataModule(await read("query.mjs")); const navigation = dataModule(await read("navigation.mjs")); const sorting = dataModule(await read("sorting.mjs"));
+  const api = dataModule(await read("api.js")); const chronology = dataModule(await read("chronology.mjs")); const query = dataModule(await read("query.mjs")); const navigation = dataModule(await read("navigation.mjs")); const sorting = dataModule(await read("sorting.mjs"));
   let app = await read("app.js");
-  for (const [relative, module] of Object.entries({ "./api.js": api, "./query.mjs": query, "./lore.mjs": lore, "./search.mjs": search, "./sorting.mjs": sorting, "./navigation.mjs": navigation, "./timeline.mjs": timeline })) app = app.replace(relative, module);
+  for (const [relative, module] of Object.entries({ "./api.js": api, "./chronology.mjs": chronology, "./query.mjs": query, "./lore.mjs": lore, "./search.mjs": search, "./sorting.mjs": sorting, "./navigation.mjs": navigation, "./timeline.mjs": timeline })) app = app.replace(relative, module);
   return import(dataModule(`${app}\n// browser test instance ${++browserModuleNonce}`));
 }
 
@@ -108,6 +109,166 @@ test("narrative group catalog is server-ordered, works in browse and search, and
     assert.equal(elements.threadFilter.disabled, false, "clearing text retains the browse selector");
     revision = "r3"; WebSocketMock.instances[0].emit({ revision }); await waitForUi(); await waitForUi(); await waitForUi();
     assert.equal(elements.threadFilter.hidden, true, "v0.3 does not show a synthesized narrative group selector");
+  } finally { Object.assign(globalThis, previous); }
+});
+
+test("Chronology is a server-backed navigation pane with ordered selectors and an ordinal-only horizon notice", async () => {
+  const previous = { document: globalThis.document, fetch: globalThis.fetch, history: globalThis.history, location: globalThis.location, requestAnimationFrame: globalThis.requestAnimationFrame, window: globalThis.window };
+  const { document, elements } = makeDom(); const calls = [];
+  globalThis.document = document; globalThis.location = { pathname: "/", protocol: "http:", host: "wedl.test" };
+  globalThis.history = { state: null, pushState() {}, replaceState() {} }; globalThis.requestAnimationFrame = (callback) => callback(); globalThis.window = { addEventListener() {}, matchMedia: () => ({ matches: false }) };
+  const catalog = { protocol: "wedl-chronology/v1", revision: "r1", capability: { mode: "chronology-enabled", publicReads: true }, calendars: [{ id: "calendar_z", label: "Zeta", basisId: "basis_z" }, { id: "calendar_a", label: "Alpha", basisId: "basis_a" }], eras: [{ id: "era_z", label: "Z era", basisId: "basis_z" }, { id: "era_a", label: "A era", basisId: "basis_a" }], anchors: [] };
+  globalThis.fetch = async (path) => { calls.push(path); const payload = path === "/api/session" ? { token: "test" }
+    : path === "/api/status" ? { revision: "r1", recordCount: 1, timeModel: { timelineDeclarations: [], defaultTimeline: "" } }
+      : path === "/api/entities" ? [{ id: "world_story", kind: "world", title: "The Test World" }]
+        : path === "/api/chronology" ? catalog : {};
+    return { ok: true, json: async () => payload, text: async () => "" };
+  };
+  try {
+    await loadBrowserModule(); await waitForUi(); await waitForUi(); elements.chronology.click(); await waitForUi(); await waitForUi();
+    assert.ok(calls.includes("/api/chronology"));
+    assert.match(elements.article.textContent, /Query the published chronology catalogue/);
+    assert.equal(elements.article.querySelectorAll(".chronology-calendar")[0].children.map((item) => item.textContent).join(","), "Zeta,Alpha", "calendar order remains server order");
+  } finally { Object.assign(globalThis, previous); }
+});
+
+test("Chronology keeps source values separate from conversion targets and retains an entered range upper bound", async () => {
+  const previous = { document: globalThis.document, fetch: globalThis.fetch, history: globalThis.history, location: globalThis.location, requestAnimationFrame: globalThis.requestAnimationFrame, window: globalThis.window };
+  const { document, elements } = makeDom(); const requests = [];
+  globalThis.document = document; globalThis.location = { pathname: "/", protocol: "http:", host: "wedl.test" }; globalThis.history = { state: null, pushState() {}, replaceState() {} }; globalThis.requestAnimationFrame = (callback) => callback(); globalThis.window = { addEventListener() {}, matchMedia: () => ({ matches: false }) };
+  const catalog = {
+    protocol: "wedl-chronology/v1", revision: "r1", capability: { mode: "chronology-enabled", publicReads: true },
+    calendars: [{ id: "calendar_shared", label: "Shared", basisId: "basis_shared" }, { id: "calendar_other", label: "Other", basisId: "basis_other" }, { id: "calendar_isolated", label: "Isolated", basisId: "basis_isolated" }],
+    eras: [{ id: "era_shared", label: "Shared era", basisId: "basis_shared" }, { id: "era_other", label: "Other era", basisId: "basis_other" }], anchors: [],
+  };
+  globalThis.fetch = async (path, options = {}) => {
+    if (options.method === "POST") {
+      const body = JSON.parse(options.body); requests.push({ path, body });
+      if (path === "/api/chronology/convert" && body.target.calendarId === "calendar_isolated") return { ok: true, json: async () => ({ outcome: "unavailable", detail: "isolated target has no shared axis", advisories: [] }), text: async () => "" };
+      if (path === "/api/chronology/search") return { ok: true, json: async () => ({ outcome: "ok", result: { matches: [] }, advisories: [] }), text: async () => "" };
+      if (path === "/api/chronology/story-times") return { ok: true, json: async () => ({ outcome: "ok", result: { mapping: "ambiguous", storyTimes: [{ timeline: "main", tick: "-1", order: "0" }, { timeline: "main", tick: "1", order: "0" }] }, advisories: [] }), text: async () => "" };
+      return { ok: true, json: async () => ({ outcome: "ok", result: { formatted: "server formatted", axisDay: "-9" }, advisories: [] }), text: async () => "" };
+    }
+    const payload = path === "/api/session" ? { token: "test" }
+      : path === "/api/status" ? { revision: "r1", recordCount: 1, timeModel: { timelineDeclarations: [], defaultTimeline: "" } }
+        : path === "/api/entities" ? [{ id: "world_story", kind: "world", title: "World" }]
+          : path === "/api/threads" ? { revision: "r1", groupingAvailable: false, threads: [] }
+            : path === "/api/chronology" ? catalog : {};
+    return { ok: true, json: async () => payload, text: async () => "" };
+  };
+  try {
+    await loadBrowserModule(); await waitForUi(); await waitForUi(); elements.chronology.click(); await waitForUi(); await waitForUi();
+    const sourceKind = elements.article.querySelector(".chronology-kind"); const sourceCalendar = elements.article.querySelector(".chronology-calendar"); const sourceEra = elements.article.querySelector(".chronology-era"); const year = elements.article.querySelector(".chronology-year"); const upperYear = elements.article.querySelector(".chronology-upper-year"); const targetKind = elements.article.querySelector(".chronology-target-kind"); const targetCalendar = elements.article.querySelector(".chronology-target-calendar"); const targetEra = elements.article.querySelector(".chronology-target-era");
+    sourceKind.value = "civil"; sourceCalendar.value = "calendar_shared"; sourceEra.value = "era_shared"; year.value = "-9007199254740993";
+    targetKind.value = "era"; targetKind.dispatch("change"); targetEra.value = "era_shared";
+    const convert = elements.article.querySelector(".chronology-actions").children.find((item) => item.textContent === "Convert"); convert.click(); await waitForUi(); await waitForUi();
+    assert.deepEqual(requests.at(-1).body.target, { eraId: "era_shared" });
+    assert.deepEqual(requests.at(-1).body.value, { kind: "civil", calendarId: "calendar_shared", year: "-9007199254740993" });
+    assert.equal(sourceCalendar.value, "calendar_shared", "switching conversion target never changes the source calendar"); assert.equal(year.value, "-9007199254740993");
+    targetKind.value = "calendar"; targetKind.dispatch("change"); targetCalendar.value = "calendar_other"; convert.click(); await waitForUi(); await waitForUi();
+    assert.deepEqual(requests.at(-1).body.target, { calendarId: "calendar_other" }); assert.equal(sourceEra.value, "era_shared");
+    sourceKind.value = "era"; sourceEra.value = "era_shared"; targetCalendar.value = "calendar_shared"; convert.click(); await waitForUi(); await waitForUi();
+    assert.deepEqual(requests.at(-1).body, { protocol: "wedl-chronology/v1", value: { kind: "era", eraId: "era_shared", year: "-9007199254740993" }, target: { calendarId: "calendar_shared" } });
+    targetCalendar.value = "calendar_isolated"; convert.click(); await waitForUi(); await waitForUi(); assert.match(elements.article.textContent, /isolated target has no shared axis/);
+    sourceKind.value = "range"; sourceCalendar.value = "calendar_shared"; year.value = "-5"; upperYear.value = "9007199254740993"; elements.article.querySelector(".chronology-predicate").value = "overlaps";
+    const actions = elements.article.querySelector(".chronology-actions"); for (const label of ["Format", "Convert", "Search", "Map to StoryTime"]) { actions.children.find((item) => item.textContent === label).click(); await waitForUi(); await waitForUi(); }
+    const rangeRequests = requests.slice(-4); for (const request of rangeRequests) assert.equal(request.body.value.upper.year, "9007199254740993", `${request.path} preserves the exact entered range upper endpoint`);
+    assert.match(elements.article.textContent, /Ambiguous explicit StoryTimes/);
+    upperYear.value = ""; actions.children.find((item) => item.textContent === "Format").click(); await waitForUi(); await waitForUi(); assert.equal(requests.at(-1).body.value.upper, null, "a blank upper year remains an open range");
+  } finally { Object.assign(globalThis, previous); }
+});
+
+test("Chronology replacement previews are draft-keyed, show exact diffs, and reconcile a stale record without a write", async () => {
+  const previous = { document: globalThis.document, fetch: globalThis.fetch, history: globalThis.history, location: globalThis.location, requestAnimationFrame: globalThis.requestAnimationFrame, window: globalThis.window };
+  const { document, elements } = makeDom(); const previews = []; let applyCalls = 0; let revision = "a".repeat(40); let currentDisplay = "Current server annotation";
+  globalThis.document = document; globalThis.location = { pathname: "/", protocol: "http:", host: "wedl.test" }; globalThis.history = { state: null, pushState() {}, replaceState() {} }; globalThis.requestAnimationFrame = (callback) => callback(); globalThis.window = { addEventListener() {}, matchMedia: () => ({ matches: false }) };
+  const annotation = (display) => ({ id: "chronology_one", display, provenance: ["test"], value: { kind: "civil", calendarId: "calendar_shared", year: "0" } });
+  const detail = () => ({ id: "char_one", kind: "character", title: "Record one", bodyMarkdown: "A record.", frontmatter: {}, chronologyAnnotations: [annotation(currentDisplay)] });
+  globalThis.fetch = (path, options = {}) => {
+    if (path === "/api/authoring/preview") return new Promise((resolve) => previews.push(resolve));
+    if (path === "/api/authoring/apply") { applyCalls += 1; revision = "b".repeat(40); currentDisplay = "Current server annotation after concurrent edit"; return Promise.resolve({ ok: false, status: 409, text: async () => JSON.stringify({ code: "stale_revision", message: "record changed", details: {} }) }); }
+    const payload = path === "/api/session" ? { token: "test" }
+      : path === "/api/status" ? { revision, recordCount: 2, timeModel: { timelineDeclarations: [], defaultTimeline: "" } }
+        : path === "/api/entities" ? [{ id: "world_story", kind: "world", title: "World" }, { id: "char_one", kind: "character", title: "Record one" }]
+          : path === "/api/entities/char_one" ? detail()
+            : path === "/api/threads" ? { revision, groupingAvailable: false, threads: [] }
+              : path === "/api/chronology" ? { protocol: "wedl-chronology/v1", revision, capability: { mode: "chronology-enabled", publicReads: true }, calendars: [], eras: [], anchors: [] } : {};
+    return Promise.resolve({ ok: true, json: async () => payload, text: async () => "" });
+  };
+  const previewResponse = (token, diff) => ({ ok: true, json: async () => ({ preview: { valid: true, confirmationToken: token, diff }, authorImpact: { summary: "Changed chronology" } }), text: async () => "" });
+  try {
+    await loadBrowserModule(); await waitForUi(); await waitForUi(); elements.entities.querySelector(".entity-select").click(); await waitForUi(); await waitForUi(); elements.article.querySelector(".chronology-edit-button").click(); await waitForUi();
+    let form = elements.article.querySelector(".chronology-editor"); let textarea = elements.article.querySelector(".chronology-annotations-json"); let replay = elements.article.querySelector(".chronology-editor").children.find((item) => item.tagName === "input"); let apply = elements.article.querySelector(".chronology-editor").children.find((item) => item.textContent === "Confirm and apply replacement");
+    textarea.value += "\n"; textarea.dispatch("input"); form.dispatch("submit"); await waitForUi(); assert.equal(previews.length, 1);
+    textarea.value += " "; textarea.dispatch("input"); previews[0](previewResponse("old-token", "old diff")); await waitForUi(); await waitForUi(); assert.equal(apply.disabled, true, "an edited draft cannot inherit an earlier preview");
+    form.dispatch("submit"); await waitForUi(); assert.equal(previews.length, 2); previews[1](previewResponse("fresh-token", "--- a/story/record.md\n+++ b/story/record.md\n@@\n-old\n+new\n")); await waitForUi(); await waitForUi();
+    const diff = elements.article.querySelector(".chronology-preview-diff"); assert.equal(diff.textContent, "--- a/story/record.md\n+++ b/story/record.md\n@@\n-old\n+new\n"); assert.equal(diff.hidden, false); assert.equal(apply.disabled, false);
+    replay.value = "safe-replay"; replay.dispatch("input"); assert.equal(apply.disabled, true, "a replay-key edit invalidates the confirmation token"); assert.equal(diff.hidden, true); assert.equal(diff.textContent, ""); assert.match(elements.article.querySelector(".chronology-editor").textContent, /Draft changed\. Preview the current draft before applying\./); assert.doesNotMatch(elements.article.querySelector(".chronology-editor").textContent, /Preview ready/); apply.click(); await waitForUi(); assert.equal(applyCalls, 0, "apply cannot write after any draft/key edit");
+    form.dispatch("submit"); await waitForUi(); assert.equal(previews.length, 3); previews[2](previewResponse("stale-token", "changed source")); await waitForUi(); await waitForUi(); apply = elements.article.querySelector(".chronology-editor").children.find((item) => item.textContent === "Confirm and apply replacement"); assert.equal(apply.disabled, false); const retainedDraft = elements.article.querySelector(".chronology-annotations-json").value;
+    apply.click(); await waitForUi(); await waitForUi(); await waitForUi(); await waitForUi();
+    assert.equal(applyCalls, 1); assert.match(elements.article.textContent, /Reconcile the current record and your draft/); assert.match(elements.article.querySelector(".chronology-current-annotations").textContent, /Current server annotation after concurrent edit/); textarea = elements.article.querySelector(".chronology-annotations-json"); assert.equal(textarea.value, retainedDraft, "the user draft is retained separately from the reloaded source"); apply = elements.article.querySelector(".chronology-editor").children.find((item) => item.textContent === "Confirm and apply replacement"); assert.equal(apply.disabled, true); apply.click(); await waitForUi(); assert.equal(applyCalls, 1, "a stale reconciliation requires an explicit fresh preview before another write");
+    form = elements.article.querySelector(".chronology-editor"); form.dispatch("submit"); await waitForUi(); assert.equal(previews.length, 4); previews[3](previewResponse("no-op-token", "")); await waitForUi(); await waitForUi(); assert.match(elements.article.querySelector(".chronology-editor").textContent, /No source changes/); assert.equal(elements.article.querySelector(".chronology-preview-diff").hidden, true);
+  } finally { Object.assign(globalThis, previous); }
+});
+
+test("Chronology uses in-world labels for hit and annotation presentation, and an older read cannot repaint the panel", async () => {
+  const previous = { document: globalThis.document, fetch: globalThis.fetch, history: globalThis.history, location: globalThis.location, requestAnimationFrame: globalThis.requestAnimationFrame, window: globalThis.window };
+  const { document, elements } = makeDom(); const formats = []; const revision = "r1";
+  globalThis.document = document; globalThis.location = { pathname: "/", protocol: "http:", host: "wedl.test" }; globalThis.history = { state: null, pushState() {}, replaceState() {} }; globalThis.requestAnimationFrame = (callback) => callback(); globalThis.window = { addEventListener() {}, matchMedia: () => ({ matches: false }) };
+  const keeper = { id: "char_opaque_keeper", kind: "character", title: "Keeper of the Archive" };
+  const catalog = { protocol: "wedl-chronology/v1", revision, capability: { mode: "chronology-enabled", publicReads: true }, calendars: [{ id: "calendar_opaque_sun", label: "Sun Reckoning", basisId: "shared" }], eras: [{ id: "era_opaque_foundation", label: "Foundation Era", basisId: "shared" }], anchors: [] };
+  const detail = { ...keeper, bodyMarkdown: "Keeps the archive.", frontmatter: {}, chronologyAnnotations: [{ id: "chronology_opaque_entry", value: { kind: "era", eraId: "era_opaque_foundation", year: "-5" }, provenance: ["archive ledger"] }] };
+  globalThis.fetch = (path, options = {}) => {
+    if (options.method === "POST") {
+      if (path === "/api/chronology/format") return new Promise((resolve) => formats.push(resolve));
+      if (path === "/api/chronology/search") return Promise.resolve({ ok: true, json: async () => ({ outcome: "ok", result: { matches: [{ recordId: keeper.id, annotationId: "chronology_opaque_entry", sourceOrdinal: 0, role: "authored", display: null, provenance: ["archive ledger"], value: { kind: "era", eraId: "era_opaque_foundation", year: "-5" }, precision: "year", relation: "overlaps" }] }, advisories: [{ code: "result-limit", count: 1, message: "The server retained the first result." }] }), text: async () => "" });
+      return Promise.resolve({ ok: true, json: async () => ({ outcome: "ok", result: { mapping: "none", storyTimes: [] }, advisories: [] }), text: async () => "" });
+    }
+    const payload = path === "/api/session" ? { token: "test" }
+      : path === "/api/status" ? { revision, recordCount: 2, timeModel: { timelineDeclarations: [], defaultTimeline: "" } }
+        : path === "/api/entities" ? [{ id: "world_story", kind: "world", title: "World" }, keeper]
+          : path === `/api/entities/${keeper.id}` ? detail
+            : path === "/api/threads" ? { revision, groupingAvailable: false, threads: [] }
+              : path === "/api/chronology" ? catalog : {};
+    return Promise.resolve({ ok: true, json: async () => payload, text: async () => "" });
+  };
+  try {
+    await loadBrowserModule(); await waitForUi(); await waitForUi(); elements.entities.querySelectorAll(".entity-select").find((button) => button.dataset.entityId === keeper.id).click(); await waitForUi(); await waitForUi(); await waitForUi();
+    assert.match(elements.article.textContent, /Foundation Era: -5/); assert.doesNotMatch(elements.article.textContent, /era_opaque_foundation|chronology_opaque_entry/);
+    const annotationFormat = elements.article.querySelector(".chronology-format-button"); assert.equal(annotationFormat.attributes.get("aria-label"), "Format Foundation Era: -5", "per-annotation formatting has a contextual accessible name");
+    elements.chronology.click(); await waitForUi(); await waitForUi();
+    const actions = elements.article.querySelector(".chronology-actions"); const controls = { kind: elements.article.querySelector(".chronology-kind"), era: elements.article.querySelector(".chronology-era"), year: elements.article.querySelector(".chronology-year"), predicate: elements.article.querySelector(".chronology-predicate") };
+    controls.kind.value = "era"; controls.era.value = "era_opaque_foundation"; controls.predicate.value = "overlaps";
+    actions.children.find((item) => item.textContent === "Search").click(); await waitForUi(); await waitForUi();
+    assert.match(elements.article.textContent, /Keeper of the Archive: Foundation Era: -5 Overlaps for Overlaps, Year precision\. Provenance: archive ledger\./);
+    assert.doesNotMatch(elements.article.textContent, /char_opaque_keeper|chronology_opaque_entry|era_opaque_foundation/, "primary hit text never exposes opaque implementation IDs");
+    const format = actions.children.find((item) => item.textContent === "Format"); format.click(); await waitForUi(); controls.year.value = "2"; controls.year.dispatch("input"); format.click(); await waitForUi();
+    formats[1]({ ok: true, json: async () => ({ outcome: "ok", result: { formatted: "new server format" }, advisories: [] }), text: async () => "" }); await waitForUi(); await waitForUi();
+    formats[0]({ ok: true, json: async () => ({ outcome: "ok", result: { formatted: "obsolete server format" }, advisories: [] }), text: async () => "" }); await waitForUi(); await waitForUi();
+    assert.match(elements.article.textContent, /new server format/); assert.doesNotMatch(elements.article.textContent, /obsolete server format/, "a reversed older response cannot overwrite the current operation");
+  } finally { Object.assign(globalThis, previous); }
+});
+
+test("Every record offers chronology authoring when empty, with an empty complete replacement and no write for invalid JSON", async () => {
+  const previous = { document: globalThis.document, fetch: globalThis.fetch, history: globalThis.history, location: globalThis.location, requestAnimationFrame: globalThis.requestAnimationFrame, window: globalThis.window };
+  const { document, elements } = makeDom(); const previews = []; let applyCalls = 0; const revision = "a".repeat(40); const empty = { id: "char_empty", kind: "character", title: "An Empty Chronicle" };
+  globalThis.document = document; globalThis.location = { pathname: "/", protocol: "http:", host: "wedl.test" }; globalThis.history = { state: null, pushState() {}, replaceState() {} }; globalThis.requestAnimationFrame = (callback) => callback(); globalThis.window = { addEventListener() {}, matchMedia: () => ({ matches: false }) };
+  globalThis.fetch = (path, options = {}) => {
+    if (path === "/api/authoring/preview") { previews.push(JSON.parse(options.body)); return Promise.resolve({ ok: true, json: async () => ({ preview: { valid: true, confirmationToken: "empty-token", diff: "add []" }, authorImpact: { summary: "Empty replacement" } }), text: async () => "" }); }
+    if (path === "/api/authoring/apply") { applyCalls += 1; return Promise.resolve({ ok: true, json: async () => ({ newHead: revision }), text: async () => "" }); }
+    const payload = path === "/api/session" ? { token: "test" }
+      : path === "/api/status" ? { revision, recordCount: 2, timeModel: { timelineDeclarations: [], defaultTimeline: "" } }
+        : path === "/api/entities" ? [{ id: "world_story", kind: "world", title: "World" }, empty]
+          : path === "/api/entities/char_empty" ? { ...empty, bodyMarkdown: "No chronology yet.", frontmatter: {}, chronologyAnnotations: [] }
+            : path === "/api/threads" ? { revision, groupingAvailable: false, threads: [] } : {};
+    return Promise.resolve({ ok: true, json: async () => payload, text: async () => "" });
+  };
+  try {
+    await loadBrowserModule(); await waitForUi(); await waitForUi(); elements.entities.querySelectorAll(".entity-select").find((button) => button.dataset.entityId === empty.id).click(); await waitForUi(); await waitForUi();
+    const add = elements.article.querySelector(".chronology-edit-button"); assert.ok(add); assert.equal(add.textContent, "Add chronology entry"); add.click(); await waitForUi();
+    const form = elements.article.querySelector(".chronology-editor"); const textarea = elements.article.querySelector(".chronology-annotations-json"); assert.equal(textarea.value, "[]", "an empty record starts a complete empty replacement draft");
+    form.dispatch("submit"); await waitForUi(); await waitForUi(); assert.deepEqual(previews[0].change.records[0].annotations, []); assert.equal(elements.article.querySelector(".chronology-preview-diff").hidden, false);
+    textarea.value = "[not valid JSON"; textarea.dispatch("input"); form.dispatch("submit"); await waitForUi(); await waitForUi(); assert.equal(previews.length, 1, "invalid JSON is rejected before preview or any write"); assert.equal(applyCalls, 0); assert.match(elements.article.textContent, /Unexpected token|JSON/);
   } finally { Object.assign(globalThis, previous); }
 });
 

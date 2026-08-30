@@ -32,6 +32,53 @@ def _strict_object(*required: str, properties: dict[str, Any] | None = None) -> 
     }
 
 
+def _extension_object(*required: str, properties: dict[str, Any] | None = None) -> dict[str, Any]:
+    """A closed source-shaped object which preserves documented ``x-*`` data."""
+
+    result = _strict_object(*required, properties=properties)
+    result["patternProperties"] = {"^x-[A-Za-z0-9_.-]+$": {}}
+    return result
+
+
+def _less_than_or_equal_pattern(bound: int) -> str:
+    """Return an exact canonical-positive-decimal pattern through ``bound``."""
+
+    digits = str(bound)
+    alternatives = ["[1-9][0-9]{0," + str(len(digits) - 2) + "}"]
+    for index, character in enumerate(digits):
+        digit = int(character)
+        minimum = 1 if index == 0 else 0
+        if digit > minimum:
+            suffix = "[0-9]{" + str(len(digits) - index - 1) + "}" if index + 1 < len(digits) else ""
+            alternatives.append(digits[:index] + "[" + str(minimum) + "-" + str(digit - 1) + "]" + suffix)
+    alternatives.append(digits)
+    return "(?:" + "|".join(alternatives) + ")"
+
+
+def _bounded_decimal_string(maximum: int, negative_magnitude: int) -> dict[str, Any]:
+    """JSON Schema for a canonical string whose numeric value is bounded."""
+
+    positive = _less_than_or_equal_pattern(maximum)
+    negative = _less_than_or_equal_pattern(negative_magnitude)
+    return {"type": "string", "pattern": "^(?:0|" + positive + "|-" + negative + ")$"}
+
+
+def _identified_author_item(prefix: str, *required: str, properties: dict[str, Any]) -> dict[str, Any]:
+    """Return a closed source object with exactly one permanent or scoped ID."""
+
+    shared = {
+        **properties,
+        "id": _CHRONOLOGY_NONBLANK_STRING,
+        "temporaryId": {"type": "string", "pattern": "^\\$" + prefix + "\\.[A-Za-z0-9_.-]+$"},
+    }
+    return {
+        "oneOf": [
+            _extension_object(*required, "id", properties=shared),
+            _extension_object(*required, "temporaryId", properties=shared),
+        ]
+    }
+
+
 _STRING = {"type": "string"}
 _BOOLEAN = {"type": "boolean"}
 _INTEGER = {"type": "integer"}
@@ -170,6 +217,7 @@ _CHANGESET_REQUEST = _object(
 
 _AUTHORING_TIME = _object("tick", properties={"timeline": _STRING, "tick": _INTEGER, "order": _INTEGER})
 _NONBLANK_STRING = {"type": "string", "minLength": 1}
+_CHRONOLOGY_NONBLANK_STRING = {"type": "string", "minLength": 1, "pattern": ".*\\S.*"}
 _AUTHORING_COMMON = {
     "time": _AUTHORING_TIME, "title": _STRING, "location": _STRING, "scene": _STRING,
     "conversation": _STRING, "characters": {"type": "array", "items": _STRING}, "text": _STRING,
@@ -191,12 +239,14 @@ _AUTHORING_REQUEST = {"oneOf": [
     _object("action", "title", "statement", "subjects", "alternatives", "context", properties={**_AUTHORING_COMMON, "action": {"const": "hypothesis.create"}}),
     _object("action", "hypothesis", "canonicalRecords", properties={**_AUTHORING_COMMON, "action": {"const": "hypothesis.adopt"}}),
     _object("action", "hypothesis", "note", properties={**_AUTHORING_COMMON, "action": {"const": "hypothesis.reject"}, "note": _NONBLANK_STRING}),
+    {"$ref": "#/components/schemas/ChronologyAuthoringRequest"},
 ]}
 
 _AUTHOR_IMPACT_ITEM = _object(
     "kind",
     properties={
-        "kind": {"enum": ["conversation-created", "conversation-turn-appended", "author-horizon-advanced", "hypothesis-recorded", "hypothesis-status"]},
+        "kind": {"enum": ["conversation-created", "conversation-turn-appended", "author-horizon-advanced", "hypothesis-recorded", "hypothesis-status", "chronology-catalog-replaced", "chronology-annotations-replaced"]},
+        "record": {"type": ["string", "null"]},
         "conversation": {"type": ["string", "null"]},
         "scene": {"type": ["string", "null"]}, "location": {"type": ["string", "null"]},
         "characters": {"type": "array", "items": _STRING},
@@ -215,17 +265,99 @@ _AUTHOR_IMPACT = _object(
 )
 
 
+def _chronology_outcome(operation: str, result: str) -> dict[str, Any]:
+    """Closed semantic outcomes shared by each public chronology read."""
+    common = {"protocol": {"const": "wedl-chronology/v1"}, "operation": {"const": operation}, "revision": _STRING, "advisories": {"type": "array", "items": {"$ref": "#/components/schemas/ChronologyAdvisory"}}}
+    return {"oneOf": [
+        _strict_object("protocol", "operation", "revision", "outcome", "advisories", "result", properties={**common, "outcome": {"const": "ok"}, "result": {"$ref": f"#/components/schemas/{result}"}}),
+        _strict_object("protocol", "operation", "revision", "outcome", "reason", "detail", "advisories", properties={**common, "outcome": {"const": "invalid"}, "reason": {"enum": ["definition", "date", "range", "era", "anchor", "overflow", "invalid_request"]}, "detail": _STRING}),
+        _strict_object("protocol", "operation", "revision", "outcome", "reason", "detail", "advisories", properties={**common, "outcome": {"const": "unavailable"}, "reason": {"enum": ["no_epoch", "table_gap", "disconnected_table", "no_shared_axis", "approximate_only", "conflicting_claims", "no_chronology", "conversion_exactness"]}, "detail": _STRING}),
+    ]}
+
+
 SCHEMAS: dict[str, dict[str, Any]] = {
+    "ChronologyDecimalI64": _bounded_decimal_string(2 ** 63 - 1, 2 ** 63),
+    "ChronologyDecimalI32": _bounded_decimal_string(2 ** 31 - 1, 2 ** 31),
+    "ChronologyTagExtensions": _extension_object(),
+    "ChronologyCivilDate": {"allOf": [_strict_object("kind", "calendarId", "year", properties={"kind": {"const": "civil"}, "calendarId": _CHRONOLOGY_NONBLANK_STRING, "year": {"$ref": "#/components/schemas/ChronologyDecimalI64"}, "month": {"$ref": "#/components/schemas/ChronologyDecimalI64"}, "day": {"$ref": "#/components/schemas/ChronologyDecimalI64"}, "tagExtensions": {"$ref": "#/components/schemas/ChronologyTagExtensions"}}), {"if": {"required": ["day"]}, "then": {"required": ["month"]}}]},
+    "ChronologyEraDate": {"allOf": [_strict_object("kind", "eraId", "year", properties={"kind": {"const": "era"}, "eraId": _CHRONOLOGY_NONBLANK_STRING, "year": {"$ref": "#/components/schemas/ChronologyDecimalI64"}, "month": {"$ref": "#/components/schemas/ChronologyDecimalI64"}, "day": {"$ref": "#/components/schemas/ChronologyDecimalI64"}, "tagExtensions": {"$ref": "#/components/schemas/ChronologyTagExtensions"}}), {"if": {"required": ["day"]}, "then": {"required": ["month"]}}]},
+    "ChronologyCivilEndpoint": {"allOf": [_strict_object("year", properties={"calendarId": _CHRONOLOGY_NONBLANK_STRING, "year": {"$ref": "#/components/schemas/ChronologyDecimalI64"}, "month": {"$ref": "#/components/schemas/ChronologyDecimalI64"}, "day": {"$ref": "#/components/schemas/ChronologyDecimalI64"}}), {"if": {"required": ["day"]}, "then": {"required": ["month"]}}]},
+    "ChronologyRange": _strict_object("kind", "calendarId", "lower", "upper", properties={"kind": {"const": "range"}, "calendarId": _CHRONOLOGY_NONBLANK_STRING, "lower": {"anyOf": [{"$ref": "#/components/schemas/ChronologyCivilEndpoint"}, {"type": "null"}]}, "upper": {"anyOf": [{"$ref": "#/components/schemas/ChronologyCivilEndpoint"}, {"type": "null"}]}, "tagExtensions": {"$ref": "#/components/schemas/ChronologyTagExtensions"}}),
+    "ChronologyApproximate": _strict_object("kind", "displayValue", "bounds", properties={"kind": {"const": "approximate"}, "displayValue": _STRING, "bounds": _strict_object("calendarId", "lower", "upper", properties={"calendarId": _CHRONOLOGY_NONBLANK_STRING, "lower": {"anyOf": [{"$ref": "#/components/schemas/ChronologyCivilEndpoint"}, {"type": "null"}]}, "upper": {"anyOf": [{"$ref": "#/components/schemas/ChronologyCivilEndpoint"}, {"type": "null"}]}}), "tagExtensions": {"$ref": "#/components/schemas/ChronologyTagExtensions"}}),
+    "ChronologyNonConflictDateValue": {"oneOf": [{"$ref": "#/components/schemas/ChronologyCivilDate"}, {"$ref": "#/components/schemas/ChronologyEraDate"}, {"$ref": "#/components/schemas/ChronologyRange"}, {"$ref": "#/components/schemas/ChronologyApproximate"}]},
+    "ChronologyConflict": _strict_object("kind", "claims", properties={"kind": {"const": "conflict"}, "claims": {"type": "array", "minItems": 2, "maxItems": 64, "items": {"$ref": "#/components/schemas/ChronologyDateValueDepth1"}}, "tagExtensions": {"$ref": "#/components/schemas/ChronologyTagExtensions"}}),
+    "ChronologyDateValue": {"oneOf": [{"$ref": "#/components/schemas/ChronologyNonConflictDateValue"}, {"$ref": "#/components/schemas/ChronologyConflict"}]},
+    "ChronologyFormatRequest": _strict_object("protocol", "value", properties={"protocol": {"const": "wedl-chronology/v1"}, "value": {"$ref": "#/components/schemas/ChronologyNonConflictDateValue"}}),
+    "ChronologyConversionTarget": {"oneOf": [_strict_object("calendarId", properties={"calendarId": _CHRONOLOGY_NONBLANK_STRING}), _strict_object("eraId", properties={"eraId": _CHRONOLOGY_NONBLANK_STRING})]},
+    "ChronologyEraFilter": _strict_object("eraId", "mode", properties={"eraId": _CHRONOLOGY_NONBLANK_STRING, "mode": {"enum": ["authored", "overlaps_bounds"]}}),
+    "ChronologyConvertRequest": _strict_object("protocol", "value", "target", properties={"protocol": {"const": "wedl-chronology/v1"}, "value": {"$ref": "#/components/schemas/ChronologyNonConflictDateValue"}, "target": {"$ref": "#/components/schemas/ChronologyConversionTarget"}}),
+    "ChronologySearchRequest": {"oneOf": [_strict_object("protocol", "predicate", "value", "upper", properties={"protocol": {"const": "wedl-chronology/v1"}, "predicate": {"const": "between"}, "value": {"$ref": "#/components/schemas/ChronologyDateValue"}, "upper": {"$ref": "#/components/schemas/ChronologyDateValue"}, "eraFilter": {"$ref": "#/components/schemas/ChronologyEraFilter"}, "limit": {"type": "integer", "minimum": 1, "maximum": 10000}}), _strict_object("protocol", "predicate", "value", properties={"protocol": {"const": "wedl-chronology/v1"}, "predicate": {"enum": ["on_date", "overlaps", "before", "after"]}, "value": {"$ref": "#/components/schemas/ChronologyDateValue"}, "eraFilter": {"$ref": "#/components/schemas/ChronologyEraFilter"}, "limit": {"type": "integer", "minimum": 1, "maximum": 10000}})]},
+    "ChronologyStoryTimesRequest": _strict_object("protocol", "value", properties={"protocol": {"const": "wedl-chronology/v1"}, "value": {"$ref": "#/components/schemas/ChronologyDateValue"}}),
+    "ChronologyCapability": _strict_object("protocol", "sourceSchema", "mode", "publicReads", "authoring", "upgradeRequired", "upgradeAvailable", "durationSemantics", properties={"protocol": {"const": "wedl-chronology/v1"}, "sourceSchema": _STRING, "mode": {"enum": ["ordinal-only", "chronology-enabled"]}, "publicReads": _BOOLEAN, "authoring": _BOOLEAN, "upgradeRequired": _BOOLEAN, "upgradeAvailable": {"const": False}, "durationSemantics": {"const": "none"}}),
+    "ChronologyCatalogResponse": _strict_object("protocol", "operation", "revision", "capability", "calendars", "eras", "anchors", properties={"protocol": {"const": "wedl-chronology/v1"}, "operation": {"const": "catalog"}, "revision": _STRING, "capability": {"$ref": "#/components/schemas/ChronologyCapability"}, "calendars": {"type": "array", "items": {"$ref": "#/components/schemas/ChronologyCalendar"}}, "eras": {"type": "array", "items": {"$ref": "#/components/schemas/ChronologyEra"}}, "anchors": {"type": "array", "items": {"$ref": "#/components/schemas/ChronologyAnchor"}}}),
+    "ChronologyMonth": _extension_object("number", "days", properties={"number": {"$ref": "#/components/schemas/ChronologyDecimalI64"}, "days": {"$ref": "#/components/schemas/ChronologyDecimalI64"}, "label": _STRING}),
+    "ChronologyIntercalaryMonth": _extension_object("number", "days", properties={"number": {"$ref": "#/components/schemas/ChronologyDecimalI64"}, "days": {"$ref": "#/components/schemas/ChronologyDecimalI64"}, "label": _STRING}),
+    "ChronologyCycleTargetOverride": _extension_object("residue", "targetMonth", "deltaDays", properties={"residue": {"$ref": "#/components/schemas/ChronologyDecimalI64"}, "targetMonth": {"$ref": "#/components/schemas/ChronologyDecimalI64"}, "deltaDays": {"$ref": "#/components/schemas/ChronologyDecimalI64"}}),
+    "ChronologyCycleIntercalaryOverride": _extension_object("residue", "intercalaryMonth", properties={"residue": {"$ref": "#/components/schemas/ChronologyDecimalI64"}, "intercalaryMonth": {"$ref": "#/components/schemas/ChronologyIntercalaryMonth"}}),
+    "ChronologyTableTargetOverride": _extension_object("targetMonth", "deltaDays", properties={"targetMonth": {"$ref": "#/components/schemas/ChronologyDecimalI64"}, "deltaDays": {"$ref": "#/components/schemas/ChronologyDecimalI64"}}),
+    "ChronologyTableIntercalaryOverride": _extension_object("intercalaryMonth", properties={"intercalaryMonth": {"$ref": "#/components/schemas/ChronologyIntercalaryMonth"}}),
+    "ChronologyCycleRule": _extension_object("kind", "period", "overrides", properties={"kind": {"const": "cycle"}, "period": {"$ref": "#/components/schemas/ChronologyDecimalI64"}, "overrides": {"type": "array", "items": {"oneOf": [{"$ref": "#/components/schemas/ChronologyCycleTargetOverride"}, {"$ref": "#/components/schemas/ChronologyCycleIntercalaryOverride"}]}}}),
+    "ChronologyTableYear": _extension_object("year", "overrides", properties={"year": {"$ref": "#/components/schemas/ChronologyDecimalI64"}, "overrides": {"type": "array", "items": {"oneOf": [{"$ref": "#/components/schemas/ChronologyTableTargetOverride"}, {"$ref": "#/components/schemas/ChronologyTableIntercalaryOverride"}]}}}),
+    "ChronologyTableRule": _extension_object("kind", "years", properties={"kind": {"const": "table"}, "years": {"type": "array", "items": {"$ref": "#/components/schemas/ChronologyTableYear"}}}),
+    "ChronologyCalendarEpochCivil": _extension_object("year", "month", "day", properties={"year": {"$ref": "#/components/schemas/ChronologyDecimalI64"}, "month": {"$ref": "#/components/schemas/ChronologyDecimalI64"}, "day": {"$ref": "#/components/schemas/ChronologyDecimalI64"}}),
+    "ChronologyCalendarEpoch": _extension_object("civil", "axisDay", properties={"civil": {"$ref": "#/components/schemas/ChronologyCalendarEpochCivil"}, "axisDay": {"$ref": "#/components/schemas/ChronologyDecimalI64"}}),
+    "ChronologyCalendar": _extension_object("id", "label", "months", "rule", "epoch", "basisId", "hasEpoch", properties={"id": _CHRONOLOGY_NONBLANK_STRING, "label": _STRING, "months": {"type": "array", "items": {"$ref": "#/components/schemas/ChronologyMonth"}}, "rule": {"oneOf": [{"$ref": "#/components/schemas/ChronologyCycleRule"}, {"$ref": "#/components/schemas/ChronologyTableRule"}]}, "epoch": {"anyOf": [{"$ref": "#/components/schemas/ChronologyCalendarEpoch"}, {"type": "null"}]}, "basisId": _CHRONOLOGY_NONBLANK_STRING, "hasEpoch": _BOOLEAN}),
+    "ChronologyEraEndpoint": _extension_object("year", "month", "day", properties={"year": {"$ref": "#/components/schemas/ChronologyDecimalI64"}, "month": {"$ref": "#/components/schemas/ChronologyDecimalI64"}, "day": {"$ref": "#/components/schemas/ChronologyDecimalI64"}}),
+    "ChronologyEraBounds": _extension_object("lower", "upper", properties={"lower": {"$ref": "#/components/schemas/ChronologyEraEndpoint"}, "upper": {"$ref": "#/components/schemas/ChronologyEraEndpoint"}}),
+    "ChronologyEraDisplayEpoch": _extension_object("displayYear", "machineYear", properties={"displayYear": {"$ref": "#/components/schemas/ChronologyDecimalI64"}, "machineYear": {"$ref": "#/components/schemas/ChronologyDecimalI64"}}),
+    "ChronologyEra": _extension_object("id", "calendarId", "label", "aliases", "displayYearZero", "displayEpoch", "provenance", "basisId", properties={"id": _CHRONOLOGY_NONBLANK_STRING, "calendarId": _CHRONOLOGY_NONBLANK_STRING, "label": _STRING, "aliases": {"type": "array", "items": _STRING}, "displayYearZero": _BOOLEAN, "displayEpoch": {"$ref": "#/components/schemas/ChronologyEraDisplayEpoch"}, "bounds": {"$ref": "#/components/schemas/ChronologyEraBounds"}, "provenance": {"type": "array", "items": _NONBLANK_STRING}, "basisId": _CHRONOLOGY_NONBLANK_STRING}),
+    "ChronologyAnchor": _extension_object("id", "axisDay", "storyTime", "provenance", properties={"id": _CHRONOLOGY_NONBLANK_STRING, "axisDay": {"$ref": "#/components/schemas/ChronologyDecimalI64"}, "storyTime": _extension_object("timeline", "tick", "order", properties={"timeline": _CHRONOLOGY_NONBLANK_STRING, "tick": {"$ref": "#/components/schemas/ChronologyDecimalI64"}, "order": {"$ref": "#/components/schemas/ChronologyDecimalI32"}}), "provenance": {"type": "array", "items": _NONBLANK_STRING}}),
+    "ChronologyAdvisory": _strict_object("code", "message", "count", properties={"code": {"enum": ["approximate-overlap-included", "approximate-relation-excluded", "noncomparable-excluded", "result-limit"]}, "message": _STRING, "count": _INTEGER}),
+    "ChronologyHit": _strict_object("recordId", "annotationId", "sourceOrdinal", "role", "display", "provenance", "valueKind", "precision", "basisId", "lowerDay", "upperDay", "relation", "value", properties={"recordId": _STRING, "annotationId": _STRING, "sourceOrdinal": _INTEGER, "role": {"type": ["string", "null"]}, "display": {"type": ["string", "null"]}, "provenance": {"type": "array", "items": _STRING}, "valueKind": _STRING, "precision": _STRING, "basisId": {"type": ["string", "null"]}, "lowerDay": {"anyOf": [{"$ref": "#/components/schemas/ChronologyDecimalI64"}, {"type": "null"}]}, "upperDay": {"anyOf": [{"$ref": "#/components/schemas/ChronologyDecimalI64"}, {"type": "null"}]}, "relation": _STRING, "value": {"$ref": "#/components/schemas/ChronologyAuthorValue"}}),
+    "ChronologyFormatResult": _strict_object("value", "formatted", properties={"value": {"$ref": "#/components/schemas/ChronologyDateValue"}, "formatted": _STRING}),
+    "ChronologyConversionResult": _strict_object("source", "target", "formatted", "axisDay", properties={"source": {"$ref": "#/components/schemas/ChronologyDateValue"}, "target": {"$ref": "#/components/schemas/ChronologyDateValue"}, "formatted": _STRING, "axisDay": {"$ref": "#/components/schemas/ChronologyDecimalI64"}}),
+    "ChronologySearchResult": _strict_object("request", "matches", properties={"request": _strict_object("predicate", "limit", properties={"predicate": {"enum": ["on_date", "overlaps", "before", "after", "between"]}, "limit": {"type": "integer", "minimum": 1, "maximum": 10000}}), "matches": {"type": "array", "items": {"$ref": "#/components/schemas/ChronologyHit"}}}),
+    "ChronologyStoryTimeMapping": {"oneOf": [_strict_object("mapping", "storyTimes", properties={"mapping": {"const": "none"}, "storyTimes": {"type": "array", "maxItems": 0}}), _strict_object("mapping", "storyTimes", properties={"mapping": {"const": "unique"}, "storyTimes": {"type": "array", "minItems": 1, "maxItems": 1, "items": {"$ref": "#/components/schemas/ChronologyAnchor/properties/storyTime"}}}), _strict_object("mapping", "storyTimes", properties={"mapping": {"const": "ambiguous"}, "storyTimes": {"type": "array", "minItems": 2, "items": {"$ref": "#/components/schemas/ChronologyAnchor/properties/storyTime"}}})]},
+    "ChronologyOutcome": _object("protocol", "operation", "revision", "outcome", "advisories", properties={"protocol": {"const": "wedl-chronology/v1"}, "operation": _STRING, "revision": _STRING, "outcome": {"enum": ["ok", "invalid", "unavailable"]}, "advisories": {"type": "array", "items": {"$ref": "#/components/schemas/ChronologyAdvisory"}}}),
+    "ChronologyFormatOutcome": _chronology_outcome("format", "ChronologyFormatResult"),
+    "ChronologyConvertOutcome": _chronology_outcome("convert", "ChronologyConversionResult"),
+    "ChronologySearchOutcome": _chronology_outcome("search", "ChronologySearchResult"),
+    "ChronologyStoryTimesOutcome": _chronology_outcome("story-times", "ChronologyStoryTimeMapping"),
+    "ChronologyRelativeValue": {"allOf": [_extension_object("kind", "relation", properties={"kind": {"const": "relative"}, "relation": _NONBLANK_STRING, "beforeId": _CHRONOLOGY_NONBLANK_STRING, "afterId": _CHRONOLOGY_NONBLANK_STRING, "tagExtensions": {"$ref": "#/components/schemas/ChronologyTagExtensions"}}), {"anyOf": [{"required": ["beforeId"]}, {"required": ["afterId"]}]}]},
+    "ChronologyDurationValue": _extension_object("kind", "unit", "value", properties={"kind": {"const": "duration"}, "unit": {"enum": ["year", "month", "day"]}, "value": {"$ref": "#/components/schemas/ChronologyDecimalI64"}, "tagExtensions": {"$ref": "#/components/schemas/ChronologyTagExtensions"}}),
+    "ChronologyAuthorCivilDate": {"allOf": [_extension_object("kind", "calendarId", "year", properties={"kind": {"const": "civil"}, "calendarId": _CHRONOLOGY_NONBLANK_STRING, "year": {"$ref": "#/components/schemas/ChronologyDecimalI64"}, "month": {"$ref": "#/components/schemas/ChronologyDecimalI64"}, "day": {"$ref": "#/components/schemas/ChronologyDecimalI64"}, "tagExtensions": {"$ref": "#/components/schemas/ChronologyTagExtensions"}}), {"if": {"required": ["day"]}, "then": {"required": ["month"]}}]},
+    "ChronologyAuthorEraDate": {"allOf": [_extension_object("kind", "eraId", "year", properties={"kind": {"const": "era"}, "eraId": _CHRONOLOGY_NONBLANK_STRING, "year": {"$ref": "#/components/schemas/ChronologyDecimalI64"}, "month": {"$ref": "#/components/schemas/ChronologyDecimalI64"}, "day": {"$ref": "#/components/schemas/ChronologyDecimalI64"}, "tagExtensions": {"$ref": "#/components/schemas/ChronologyTagExtensions"}}), {"if": {"required": ["day"]}, "then": {"required": ["month"]}}]},
+    "ChronologyAuthorCivilEndpoint": {"allOf": [_extension_object("year", properties={"calendarId": _CHRONOLOGY_NONBLANK_STRING, "year": {"$ref": "#/components/schemas/ChronologyDecimalI64"}, "month": {"$ref": "#/components/schemas/ChronologyDecimalI64"}, "day": {"$ref": "#/components/schemas/ChronologyDecimalI64"}}), {"if": {"required": ["day"]}, "then": {"required": ["month"]}}]},
+    "ChronologyAuthorRange": _extension_object("kind", "calendarId", "lower", "upper", properties={"kind": {"const": "range"}, "calendarId": _CHRONOLOGY_NONBLANK_STRING, "lower": {"anyOf": [{"$ref": "#/components/schemas/ChronologyAuthorCivilEndpoint"}, {"type": "null"}]}, "upper": {"anyOf": [{"$ref": "#/components/schemas/ChronologyAuthorCivilEndpoint"}, {"type": "null"}]}, "tagExtensions": {"$ref": "#/components/schemas/ChronologyTagExtensions"}}),
+    "ChronologyAuthorApproximateBounds": {"oneOf": [
+        {"allOf": [
+            _extension_object("calendarId", "lower", "upper", properties={"calendarId": _CHRONOLOGY_NONBLANK_STRING, "lower": {"anyOf": [{"$ref": "#/components/schemas/ChronologyAuthorCivilEndpoint"}, {"type": "null"}]}, "upper": {"anyOf": [{"$ref": "#/components/schemas/ChronologyAuthorCivilEndpoint"}, {"type": "null"}]}}),
+            {"anyOf": [{"properties": {"lower": {"$ref": "#/components/schemas/ChronologyAuthorCivilEndpoint"}}}, {"properties": {"upper": {"$ref": "#/components/schemas/ChronologyAuthorCivilEndpoint"}}}]},
+        ]},
+        _extension_object("lower", "upper", properties={"lower": {"type": "null"}, "upper": {"type": "null"}}),
+    ]},
+    "ChronologyAuthorApproximate": _extension_object("kind", "displayValue", "bounds", properties={"kind": {"const": "approximate"}, "displayValue": _STRING, "bounds": {"$ref": "#/components/schemas/ChronologyAuthorApproximateBounds"}, "tagExtensions": {"$ref": "#/components/schemas/ChronologyTagExtensions"}}),
+    "ChronologyAuthorNonConflictValue": {"oneOf": [{"$ref": "#/components/schemas/ChronologyAuthorCivilDate"}, {"$ref": "#/components/schemas/ChronologyAuthorEraDate"}, {"$ref": "#/components/schemas/ChronologyAuthorRange"}, {"$ref": "#/components/schemas/ChronologyAuthorApproximate"}, {"$ref": "#/components/schemas/ChronologyRelativeValue"}, {"$ref": "#/components/schemas/ChronologyDurationValue"}]},
+    "ChronologyAuthorConflict": _extension_object("kind", "claims", properties={"kind": {"const": "conflict"}, "claims": {"type": "array", "minItems": 2, "maxItems": 64, "items": {"$ref": "#/components/schemas/ChronologyAuthorValueDepth1"}}, "tagExtensions": {"$ref": "#/components/schemas/ChronologyTagExtensions"}}),
+    "ChronologyAuthorValue": {"oneOf": [{"$ref": "#/components/schemas/ChronologyAuthorNonConflictValue"}, {"$ref": "#/components/schemas/ChronologyAuthorConflict"}]},
+    "ChronologyAnnotation": _identified_author_item("chronology", "provenance", "value", properties={"role": _STRING, "display": _STRING, "provenance": {"type": "array", "items": _STRING}, "value": {"$ref": "#/components/schemas/ChronologyAuthorValue"}}),
+    "ChronologyRecordReplacement": _strict_object("record", "annotations", properties={"record": _CHRONOLOGY_NONBLANK_STRING, "annotations": {"type": "array", "items": {"$ref": "#/components/schemas/ChronologyAnnotation"}}}),
+    "ChronologyAuthorCalendar": _identified_author_item("calendar", "label", "months", "rule", "epoch", properties={"label": _STRING, "months": {"type": "array", "items": {"$ref": "#/components/schemas/ChronologyMonth"}}, "rule": {"oneOf": [{"$ref": "#/components/schemas/ChronologyCycleRule"}, {"$ref": "#/components/schemas/ChronologyTableRule"}]}, "epoch": {"anyOf": [{"$ref": "#/components/schemas/ChronologyCalendarEpoch"}, {"type": "null"}]}}),
+    "ChronologyAuthorEra": _identified_author_item("era", "calendarId", "label", "aliases", "displayYearZero", "displayEpoch", "provenance", properties={"calendarId": _CHRONOLOGY_NONBLANK_STRING, "label": _STRING, "aliases": {"type": "array", "items": _STRING}, "displayYearZero": _BOOLEAN, "displayEpoch": {"$ref": "#/components/schemas/ChronologyEraDisplayEpoch"}, "bounds": {"$ref": "#/components/schemas/ChronologyEraBounds"}, "provenance": {"type": "array", "items": _NONBLANK_STRING}}),
+    "ChronologyAuthorAnchor": _identified_author_item("chronology", "axisDay", "storyTime", "provenance", properties={"axisDay": {"$ref": "#/components/schemas/ChronologyDecimalI64"}, "storyTime": {"$ref": "#/components/schemas/ChronologyAnchor/properties/storyTime"}, "provenance": {"type": "array", "items": _NONBLANK_STRING}}),
+    "ChronologyCatalogReplacement": _strict_object("calendars", "eras", "anchors", properties={"calendars": {"type": "array", "maxItems": 500, "items": {"$ref": "#/components/schemas/ChronologyAuthorCalendar"}}, "eras": {"type": "array", "maxItems": 500, "items": {"$ref": "#/components/schemas/ChronologyAuthorEra"}}, "anchors": {"type": "array", "maxItems": 500, "items": {"$ref": "#/components/schemas/ChronologyAuthorAnchor"}}}),
+    "ChronologyChange": {"allOf": [_strict_object(properties={"catalog": {"$ref": "#/components/schemas/ChronologyCatalogReplacement"}, "records": {"type": "array", "minItems": 1, "items": {"$ref": "#/components/schemas/ChronologyRecordReplacement"}}}), {"anyOf": [{"required": ["catalog"]}, {"required": ["records"]}]}]},
+    "ChronologyAuthoringRequest": _strict_object("action", "expectedHead", "change", properties={"action": {"const": "chronology.replace"}, "expectedHead": {"type": "string", "pattern": "^[0-9a-f]{40}$"}, "change": {"$ref": "#/components/schemas/ChronologyChange"}, "summary": _STRING, "idempotencyKey": _STRING}),
     "ChangesetRequest": _CHANGESET_REQUEST,
     "AuthoringRequest": _AUTHORING_REQUEST,
     "AuthorImpact": _AUTHOR_IMPACT,
     "AuthoringPreviewResponse": _object("protocol", "intent", "changeset", "preview", "authorImpact", properties={"protocol": {"const": "wedl-author-preview/v1"}, "intent": {"$ref": "#/components/schemas/AuthoringRequest"}, "changeset": {"$ref": "#/components/schemas/ChangesetRequest"}, "preview": {"$ref": "#/components/schemas/ChangesetPreviewResponse"}, "authorImpact": {"$ref": "#/components/schemas/AuthorImpact"}}),
     "WedlEntity": _object("id", "kind", "title", properties={"id": _STRING, "kind": {"enum": ["world", "character", "knowledge", "event", "object", "environment", "location", "relationship", "story-point", "scene", "conversation"]}, "title": _STRING}),
-    "StatusResponse": _object("repositoryRoot", "revision", "recordCount", "counts", "activeSceneId", "activeScenes", "currentTime", "cacheReadiness", properties={"repositoryRoot": _STRING, "revision": _STRING, "treeOid": _STRING, "recordCount": _INTEGER, "counts": _OBJECT, "activeSceneId": {"type": ["string", "null"]}, "activeScenes": {"type": "array", "items": _object("id", "title", properties={"id": _STRING, "title": _STRING})}, "currentTime": {"anyOf": [_STORY_TIME, {"type": "null"}]}, "cacheReadiness": _OBJECT}),
+    "StatusResponse": _object("repositoryRoot", "revision", "recordCount", "counts", "activeSceneId", "activeScenes", "currentTime", "cacheReadiness", "chronologyCapability", properties={"repositoryRoot": _STRING, "revision": _STRING, "treeOid": _STRING, "recordCount": _INTEGER, "counts": _OBJECT, "activeSceneId": {"type": ["string", "null"]}, "activeScenes": {"type": "array", "items": _object("id", "title", properties={"id": _STRING, "title": _STRING})}, "currentTime": {"anyOf": [_STORY_TIME, {"type": "null"}]}, "cacheReadiness": _OBJECT, "chronologyCapability": {"$ref": "#/components/schemas/ChronologyCapability"}}),
     "ValidationReportResponse": _object("valid", "revision", "recordCount", "diagnostics", properties={"valid": _BOOLEAN, "revision": _STRING, "recordCount": _INTEGER, "diagnostics": {"type": "array", "items": _OBJECT}}),
     "CompileResponse": _object("status", "revision", properties={"status": _STRING, "revision": _STRING, "treeOid": _STRING, "recordCount": _INTEGER, "timingsMs": _OBJECT}),
     "EntityListResponse": {"type": "array", "items": {"$ref": "#/components/schemas/WedlEntity"}},
-    "EntityResponse": _object("id", "kind", "title", properties={"id": _STRING, "kind": _STRING, "title": _STRING, "frontmatter": _OBJECT, "locationContext": _LOCATION_CONTEXT}),
+    "EntityResponse": _strict_object("id", "kind", "title", "chronologyAnnotations", properties={"id": _STRING, "kind": _STRING, "title": _STRING, "domain": _STRING, "status": _STRING, "source_path": _STRING, "blob_oid": {"type": ["string", "null"]}, "bodyMarkdown": _STRING, "frontmatter": _OBJECT, "locationContext": _LOCATION_CONTEXT, "inboundReferences": {"type": "array", "items": _TIMELINE_REFERENCE}, "chronologyAnnotations": {"type": "array", "items": {"$ref": "#/components/schemas/ChronologyAnnotation"}}}),
     "StateResponse": _object("revision", "entityId", "at", "state", "citations", "locationHistory", properties={"revision": _STRING, "entityId": _STRING, "at": _OBJECT, "state": _OBJECT, "citations": _OBJECT, "locationHistory": {"type": "array", "items": _LOCATION_HISTORY_ITEM}}),
     "WhereaboutsJourney": _WHEREABOUTS_JOURNEY,
     "ImportanceBreakdown": _IMPORTANCE_BREAKDOWN,
@@ -315,6 +447,46 @@ SCHEMAS: dict[str, dict[str, Any]] = {
 }
 
 
+# JSON Schema recursive references cannot express a maximum nesting depth on
+# their own.  Materialize the source grammar's 64 conflict levels so clients
+# get the same bounded contract before the runtime decoder is involved.
+SCHEMAS["ChronologyConflict"]["description"] = "A conflict may nest through at most 64 conflict objects."
+SCHEMAS["ChronologyConflict"]["x-wedl-max-conflict-depth"] = 64
+for _depth in range(64, 0, -1):
+    _branches: list[dict[str, Any]] = [{"$ref": "#/components/schemas/ChronologyNonConflictDateValue"}]
+    if _depth < 64:
+        _conflict_name = f"ChronologyConflictDepth{_depth}"
+        SCHEMAS[_conflict_name] = _strict_object(
+            "kind", "claims",
+            properties={
+                "kind": {"const": "conflict"},
+                "claims": {"type": "array", "minItems": 2, "maxItems": 64, "items": {"$ref": f"#/components/schemas/ChronologyDateValueDepth{_depth + 1}"}},
+                "tagExtensions": {"$ref": "#/components/schemas/ChronologyTagExtensions"},
+            },
+        )
+        SCHEMAS[_conflict_name]["description"] = "Bounded nested conflict value."
+        _branches.append({"$ref": f"#/components/schemas/{_conflict_name}"})
+    SCHEMAS[f"ChronologyDateValueDepth{_depth}"] = {"oneOf": _branches}
+
+SCHEMAS["ChronologyAuthorConflict"]["description"] = "A conflict may nest through at most 64 conflict objects."
+SCHEMAS["ChronologyAuthorConflict"]["x-wedl-max-conflict-depth"] = 64
+for _depth in range(64, 0, -1):
+    _branches = [{"$ref": "#/components/schemas/ChronologyAuthorNonConflictValue"}]
+    if _depth < 64:
+        _conflict_name = f"ChronologyAuthorConflictDepth{_depth}"
+        SCHEMAS[_conflict_name] = _extension_object(
+            "kind", "claims",
+            properties={
+                "kind": {"const": "conflict"},
+                "claims": {"type": "array", "minItems": 2, "maxItems": 64, "items": {"$ref": f"#/components/schemas/ChronologyAuthorValueDepth{_depth + 1}"}},
+                "tagExtensions": {"$ref": "#/components/schemas/ChronologyTagExtensions"},
+            },
+        )
+        SCHEMAS[_conflict_name]["description"] = "Bounded nested authoring conflict value."
+        _branches.append({"$ref": f"#/components/schemas/{_conflict_name}"})
+    SCHEMAS[f"ChronologyAuthorValueDepth{_depth}"] = {"oneOf": _branches}
+
+
 _CHANGESET = {
     "protocol": "wedl-changeset/v1",
     "expectedHead": "0123456789abcdef0123456789abcdef01234567",
@@ -325,11 +497,11 @@ _CHANGESET = {
 
 
 _OPERATIONS: dict[str, tuple[str, dict[str, Any]]] = {
-    "status": ("StatusResponse", {"repositoryRoot": "/world", "revision": "0123456789abcdef", "recordCount": 4, "counts": {"character": 2}, "activeSceneId": "scene-market-day", "activeScenes": [{"id": "scene-market-day", "title": "Market day"}], "currentTime": {"timeline": "main", "tick": 12, "order": 0}, "cacheReadiness": {"state": "ready"}}),
+    "status": ("StatusResponse", {"repositoryRoot": "/world", "revision": "0123456789abcdef", "recordCount": 4, "counts": {"character": 2}, "activeSceneId": "scene-market-day", "activeScenes": [{"id": "scene-market-day", "title": "Market day"}], "currentTime": {"timeline": "main", "tick": 12, "order": 0}, "cacheReadiness": {"state": "ready"}, "chronologyCapability": {"protocol": "wedl-chronology/v1", "sourceSchema": "wedl/v0.6", "mode": "chronology-enabled", "publicReads": True, "authoring": True, "upgradeRequired": False, "upgradeAvailable": False, "durationSemantics": "none"}}),
     "validate": ("ValidationReportResponse", {"valid": True, "revision": "0123456789abcdef", "recordCount": 4, "diagnostics": []}),
     "compile": ("CompileResponse", {"status": "compiled", "revision": "0123456789abcdef", "recordCount": 4, "timingsMs": {"total": 12.4}}),
     "entity list": ("EntityListResponse", [{"id": "character-mara-vale", "kind": "character", "title": "Mara Vale"}]),
-    "entity show": ("EntityResponse", {"id": "character-mara-vale", "kind": "character", "title": "Mara Vale"}),
+    "entity show": ("EntityResponse", {"id": "character-mara-vale", "kind": "character", "title": "Mara Vale", "chronologyAnnotations": []}),
     "state": ("StateResponse", {"revision": "0123456789abcdef", "entityId": "character-mara-vale", "at": {"tick": 12}, "state": {}, "citations": {}, "locationHistory": []}),
     "whereabouts": ("WhereaboutsResponse", {"protocol": "wedl-whereabouts/v2", "revision": "0123456789abcdef", "effectiveTime": {"timeline": "main", "tick": "12", "order": "0"}, "timeScope": {"mode": "as-of", "at": {"timeline": "main", "tick": "12", "order": "0"}}, "characterPolicy": {"includedStatuses": ["canonical", "retired"], "excludedStatuses": ["draft"], "locationEvidence": "initial state and canonical location effects only", "inference": "none"}, "importancePolicy": {"algorithm": "wedl-character-importance/v1", "calculated": True, "nonCanonical": True, "cohort": "all canonical and retired characters before filtering", "normalization": "per-signal log1p(raw) / log1p(cohort maximum); zero maximum contributes zero", "weights": {"scenes": 40, "pointOfViewScenes": 25, "events": 20, "relationshipNeighbors": 15}, "evidence": "scene appearances and POV subset; canonical event participants/effect targets deduplicated per event; distinct reciprocal relationship neighbors", "exclusions": "No prose, tags, inferred travel, co-presence, knowledge, or manual overrides are used."}, "characters": [], "locations": [], "activeScenes": [], "offstageCharacters": [], "unlocatedCharacters": []}),
     "hypotheses": ("HypothesesResponse", {"protocol": "wedl-hypotheses/v1", "revision": "0123456789abcdef", "nonCanonical": True, "hypotheses": []}),

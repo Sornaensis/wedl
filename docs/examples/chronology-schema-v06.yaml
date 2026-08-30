@@ -1,0 +1,175 @@
+schema: wedl/v0.6
+valid:
+  records: [{id: char_0123456789ABCDEFGHJKMNPQRS}]
+  world:
+    timelines: [main]
+    chronology:
+      calendars:
+        - id: calendar_0123456789abcdefghjkmnpqrs
+          label: Solar
+          rule:
+            kind: cycle
+            period: 4
+            overrides: [{residue: 0, target_month: 2, delta_days: 1}]
+          months: [{number: 1, label: First, days: 31}, {number: 2, label: Second, days: 28}]
+          epoch: {civil: {year: 0, month: 1, day: 1}, axis_day: 0}
+        - id: calendar_1123456789abcdefghjkmnpqrs
+          label: Regnal
+          rule:
+            kind: table
+            years: [{year: 0, overrides: [{intercalary_month: {number: 13, label: Feast, days: 5}}]}]
+          months: [{number: 1, days: 30}]
+          epoch: null
+      eras:
+        - id: era_0123456789abcdefghjkmnpqrs
+          calendar_id: calendar_0123456789abcdefghjkmnpqrs
+          label: Common
+          aliases: [C]
+          display_year_zero: true
+          display_epoch: {display_year: 0, machine_year: 0}
+          bounds: {lower: {year: 0, month: 1, day: 1}, upper: {year: 99, month: 1, day: 1}}
+          provenance: [era-ledger]
+        - id: era_1123456789abcdefghjkmnpqrs
+          calendar_id: calendar_0123456789abcdefghjkmnpqrs
+          label: Before-and-after
+          aliases: [B]
+          display_year_zero: false
+          display_epoch: {display_year: -1, machine_year: 0}
+          provenance: [era-ledger]
+      anchors:
+        - id: chronology_0123456789abcdefghjkmnpqrs
+          axis_day: 0
+          story_time: {timeline: main, tick: 0, order: 0}
+          provenance: [ledger-a]
+  nonworld:
+    kind: hypothesis
+    chronology:
+      - {id: chronology_1123456789abcdefghjkmnpqrs, provenance: [a], value: {civil: {calendar_id: calendar_0123456789abcdefghjkmnpqrs, year: 0, month: 1, day: 1}}}
+      - {id: chronology_2123456789abcdefghjkmnpqrs, provenance: [a], value: {era: {era_id: era_0123456789abcdefghjkmnpqrs, year: 0}}}
+      - {id: chronology_3123456789abcdefghjkmnpqrs, provenance: [a], value: {range: {calendar_id: calendar_0123456789abcdefghjkmnpqrs, lower: null, upper: {calendar_id: calendar_0123456789abcdefghjkmnpqrs, year: 1}}}}
+      - {id: chronology_4123456789abcdefghjkmnpqrs, provenance: [a], value: {approx: {display_value: around, bounds: {lower: null, upper: null}}}}
+      - {id: chronology_5123456789abcdefghjkmnpqrs, provenance: [a], value: {conflict: {claims: [{civil: {calendar_id: calendar_0123456789abcdefghjkmnpqrs, year: 0}}, {civil: {calendar_id: calendar_0123456789abcdefghjkmnpqrs, year: 1}}]}}}
+      - {id: chronology_6123456789abcdefghjkmnpqrs, provenance: [a], value: {relative: {relation: before, before_id: char_0123456789ABCDEFGHJKMNPQRS}}}
+      - {id: chronology_7123456789abcdefghjkmnpqrs, provenance: [a], value: {duration: {unit: month, value: 2}}}
+positive_anchor_alias:
+  anchors:
+    - {id: chronology_0123456789abcdefghjkmnpqrs, axis_day: 0, story_time: {timeline: main, tick: 0, order: 0}, provenance: [a]}
+    - {id: chronology_8123456789abcdefghjkmnpqrs, axis_day: 0, story_time: {timeline: main, tick: 0, order: 0}, provenance: [b]}
+positive_anchor_boundaries:
+  anchors:
+    - {id: chronology_0123456789abcdefghjkmnpqrs, axis_day: -9223372036854775808, story_time: {order: -2147483648, timeline: main, tick: -9223372036854775808}, provenance: [a]}
+    - {id: chronology_8123456789abcdefghjkmnpqrs, axis_day: 9223372036854775807, story_time: {order: 2147483647, timeline: main, tick: 9223372036854775807}, provenance: [b]}
+positive_anchor_id_order_not_axis_order:
+  anchors:
+    - {id: chronology_0123456789abcdefghjkmnpqrs, axis_day: 1, story_time: {timeline: main, tick: 1, order: 0}, provenance: [later]}
+    - {id: chronology_8123456789abcdefghjkmnpqrs, axis_day: 0, story_time: {timeline: main, tick: 0, order: 0}, provenance: [earlier]}
+positive_document_mutations:
+  - {path: [valid, world, chronology, calendars, 0, x-calendar-note], value: retained}
+  - {path: [valid, world, chronology, calendars, 0, rule, x-rule-note], value: retained}
+  - {path: [valid, world, chronology, calendars, 0, rule, overrides, 0, x-override-note], value: retained}
+  - {path: [valid, world, chronology, calendars, 0, epoch, x-epoch-note], value: retained}
+  - {path: [valid, world, chronology, eras, 0, bounds, x-bounds-note], value: retained}
+  - {path: [valid, nonworld, chronology, 3, value, approx, bounds, x-bounds-note], value: retained}
+  - {path: [valid, nonworld, chronology, 0, value, civil, x-civil-note], value: retained}
+positive_effective_epoch_mutations:
+  - {path: [valid, world, chronology, calendars, 0, rule, overrides], value: [{residue: 0, intercalary_month: {number: 3, days: 5}}]}
+  - {path: [valid, world, chronology, calendars, 0, epoch, civil], value: {year: 0, month: 3, day: 5}}
+positive_table_delta_epoch_mutations:
+  - {path: [valid, world, chronology, calendars, 1, rule, years], value: [{year: 0, overrides: [{target_month: 1, delta_days: 1}]}]}
+  - {path: [valid, world, chronology, calendars, 1, epoch], value: {civil: {year: 0, month: 1, day: 31}, axis_day: 0}}
+positive_effective_order_mutations:
+  - {path: [valid, world, chronology, calendars, 0, months], value: [{number: 1, days: 31}, {number: 4, days: 28}]}
+  - {path: [valid, world, chronology, calendars, 0, rule, overrides], value: [{residue: 0, intercalary_month: {number: 3, days: 5}}, {residue: 0, target_month: 4, delta_days: 1}]}
+positive_annotation_order_mutations:
+  - {path: [valid, nonworld, chronology], reverse: true}
+display_ordinal_cases:
+  zero_skipping: {era_id: era_1123456789abcdefghjkmnpqrs, display_to_machine: {-1: 0, 1: 1}, reject: 0}
+  zero_enabled: {era_id: era_0123456789abcdefghjkmnpqrs, display_to_machine: {0: 0, 1: 1}}
+  overflow: {subtraction: {left: 9223372036854775807, right: -9223372036854775808}, addition: {left: 9223372036854775807, right: 1}}
+negative_documents:
+  - {category: unsupported_schema, path: [schema], value: wedl/v0.5}
+  - {category: cycle_period, path: [valid, world, chronology, calendars, 0, rule, period], value: 501}
+  - {category: cycle_residue, path: [valid, world, chronology, calendars, 0, rule, overrides, 0, residue], value: 4}
+  - {category: cycle_unknown_nested_key, path: [valid, world, chronology, calendars, 0, rule, overrides, 0, expression], value: evil}
+  - {category: table_residue_forbidden, path: [valid, world, chronology, calendars, 1, rule, years, 0, overrides, 0, residue], value: 0}
+  - {category: table_year_boolean, path: [valid, world, chronology, calendars, 1, rule, years, 0, year], value: true}
+  - {category: table_empty, path: [valid, world, chronology, calendars, 1, rule, years], value: []}
+  - {category: table_duplicate_year, path: [valid, world, chronology, calendars, 1, rule, years], append: {year: 0, overrides: []}}
+  - {category: table_max_rows, path: [valid, world, chronology, calendars, 1, rule, years], append_repeat: {year: 1, overrides: []}, count: 500}
+  - {category: aggregate_mechanics_cap, path: [valid, world, chronology, calendars, 1, rule, years], append_year_rows: 498}
+  - {category: base_month_order, path: [valid, world, chronology, calendars, 0, months], value: [{number: 2, days: 30}, {number: 1, days: 30}]}
+  - {category: base_month_duplicate, path: [valid, world, chronology, calendars, 0, months, 1, number], value: 1}
+  - {category: effective_month_length, path: [valid, world, chronology, calendars, 0, months, 1, days], value: 4097}
+  - {category: target_missing, path: [valid, world, chronology, calendars, 0, rule, overrides, 0, target_month], value: 13}
+  - {category: result_length, path: [valid, world, chronology, calendars, 0, rule, overrides, 0, delta_days], value: 4096}
+  - {category: epoch_incomplete, path: [valid, world, chronology, calendars, 0, epoch, civil, day], delete: true}
+  - {category: epoch_cross_calendar, path: [valid, world, chronology, calendars, 0, epoch, civil, calendar_id], value: calendar_1123456789abcdefghjkmnpqrs}
+  - {category: epoch_wrong_owning_calendar_month, path: [valid, world, chronology, calendars, 0, epoch, civil, month], value: 13}
+  - {category: epoch_overlong_day, path: [valid, world, chronology, calendars, 0, epoch, civil, day], value: 32}
+  - category: epoch_removed_effective_day
+    mutations:
+      - {path: [valid, world, chronology, calendars, 0, epoch, civil], value: {year: 0, month: 2, day: 29}}
+      - {path: [valid, world, chronology, calendars, 0, rule, overrides], value: []}
+  - category: effective_override_order
+    mutations:
+      - {path: [valid, world, chronology, calendars, 0, months], value: [{number: 1, days: 31}, {number: 4, days: 28}]}
+      - {path: [valid, world, chronology, calendars, 0, rule, overrides], value: [{residue: 0, target_month: 4, delta_days: 1}, {residue: 0, intercalary_month: {number: 3, days: 5}}]}
+  - {category: override_collision, path: [valid, world, chronology, calendars, 0, rule, overrides], append: {residue: 0, target_month: 2, delta_days: 0}}
+  - {category: intercalary_collision, path: [valid, world, chronology, calendars, 1, rule, years, 0, overrides], append: {intercalary_month: {number: 1, days: 5}}}
+  - {category: malformed_month_key, path: [valid, world, chronology, calendars, 0, months, 0, unexpected], value: no}
+  - {category: era_unknown_calendar, path: [valid, world, chronology, eras, 0, calendar_id], value: calendar_zzzzzzzzzzzzzzzzzzzzzzzzzz}
+  - {category: era_missing_provenance, path: [valid, world, chronology, eras, 0, provenance], delete: true}
+  - {category: era_unknown_reference, path: [valid, nonworld, chronology, 1, value, era, era_id], value: era_zzzzzzzzzzzzzzzzzzzzzzzzzz}
+  - {category: era_legacy_civil_form, path: [valid, nonworld, chronology, 1, value, era, civil], value: {calendar_id: calendar_0123456789abcdefghjkmnpqrs, year: 0}}
+  - category: era_zero_skipping_rejects_zero
+    mutations:
+      - {path: [valid, nonworld, chronology, 1, value, era, era_id], value: era_1123456789abcdefghjkmnpqrs}
+      - {path: [valid, nonworld, chronology, 1, value, era, year], value: 0}
+  - category: era_display_ordinal_subtraction_overflow
+    mutations:
+      - {path: [valid, world, chronology, eras, 1, display_epoch, display_year], value: -9223372036854775808}
+      - {path: [valid, nonworld, chronology, 1, value, era, era_id], value: era_1123456789abcdefghjkmnpqrs}
+      - {path: [valid, nonworld, chronology, 1, value, era, year], value: 9223372036854775807}
+  - category: era_display_ordinal_addition_overflow
+    mutations:
+      - {path: [valid, world, chronology, eras, 1, display_epoch, machine_year], value: 9223372036854775807}
+      - {path: [valid, nonworld, chronology, 1, value, era, era_id], value: era_1123456789abcdefghjkmnpqrs}
+      - {path: [valid, nonworld, chronology, 1, value, era, year], value: 1}
+  - {category: era_bounds_missing_day, path: [valid, world, chronology, eras, 0, bounds, lower, day], delete: true}
+  - {category: era_bounds_nonowning_calendar, path: [valid, world, chronology, eras, 0, bounds, lower, calendar_id], value: calendar_1123456789abcdefghjkmnpqrs}
+  - {category: era_partial_year_outside_inclusive_bounds, path: [valid, nonworld, chronology, 1, value, era, year], value: 100}
+  - category: era_partial_month_crosses_inclusive_upper_bound
+    mutations:
+      - {path: [valid, nonworld, chronology, 1, value, era, year], value: 99}
+      - {path: [valid, nonworld, chronology, 1, value, era, month], value: 1}
+  - {category: table_gap_unavailable, path: [valid, nonworld, chronology, 0, value, civil], value: {calendar_id: calendar_1123456789abcdefghjkmnpqrs, year: 1}}
+  - {category: range_cross_calendar, path: [valid, nonworld, chronology, 2, value, range, upper, calendar_id], value: calendar_1123456789abcdefghjkmnpqrs}
+  - {category: range_lower_after_upper, path: [valid, nonworld, chronology, 2, value, range, lower], value: {calendar_id: calendar_0123456789abcdefghjkmnpqrs, year: 2}}
+  - {category: civil_boolean, path: [valid, nonworld, chronology, 0, value, civil, year], value: true}
+  - {category: approx_malformed_bound, path: [valid, nonworld, chronology, 3, value, approx, bounds, lower], value: true}
+  - category: approx_lower_after_upper
+    mutations:
+      - {path: [valid, nonworld, chronology, 3, value, approx, bounds, lower], value: {calendar_id: calendar_0123456789abcdefghjkmnpqrs, year: 2}}
+      - {path: [valid, nonworld, chronology, 3, value, approx, bounds, upper], value: {calendar_id: calendar_0123456789abcdefghjkmnpqrs, year: 1}}
+  - {category: relative_annotation_target, path: [valid, nonworld, chronology, 5, value, relative, before_id], value: chronology_1123456789abcdefghjkmnpqrs}
+  - {category: relative_unknown, path: [valid, nonworld, chronology, 5, value, relative, before_id], value: char_0123456789ABCDEFGHJKMNPQRT}
+  - {category: relative_malformed, path: [valid, nonworld, chronology, 5, value, relative, relation], delete: true}
+  - {category: annotation_duplicate, path: [valid, nonworld, chronology, 0, id], value: chronology_2123456789abcdefghjkmnpqrs}
+  - {category: annotation_unknown_value_key, path: [valid, nonworld, chronology, 0, value, civil, invented], value: no}
+  - {category: nested_forbidden, path: [valid, nonworld, chronology, 0, effect], value: {chronology: []}}
+  - {category: axis_boolean, path: [valid, world, chronology, anchors, 0, axis_day], value: true}
+  - {category: axis_overflow, path: [valid, world, chronology, anchors, 0, axis_day], value: 9223372036854775808}
+  - {category: anchor_missing_key, path: [valid, world, chronology, anchors, 0, axis_day], delete: true}
+  - {category: anchor_missing_timeline, path: [valid, world, chronology, anchors, 0, story_time, timeline], delete: true}
+  - {category: anchor_unknown_timeline, path: [valid, world, chronology, anchors, 0, story_time, timeline], value: absent}
+  - {category: anchor_story_time_unknown_key, path: [valid, world, chronology, anchors, 0, story_time, invented], value: no}
+  - {category: tick_overflow, path: [valid, world, chronology, anchors, 0, story_time, tick], value: 9223372036854775808}
+  - {category: order_overflow, path: [valid, world, chronology, anchors, 0, story_time, order], value: 2147483648}
+  - {category: anchor_tie_axis, path: [valid, world, chronology, anchors], value: [{id: chronology_0123456789abcdefghjkmnpqrs, axis_day: 0, story_time: {timeline: main, tick: 0, order: 0}, provenance: [a]}, {id: chronology_8123456789abcdefghjkmnpqrs, axis_day: 0, story_time: {timeline: main, tick: 1, order: 0}, provenance: [b]}]}
+  - {category: anchor_tie_storytime, path: [valid, world, chronology, anchors], value: [{id: chronology_0123456789abcdefghjkmnpqrs, axis_day: 0, story_time: {timeline: main, tick: 0, order: 0}, provenance: [a]}, {id: chronology_8123456789abcdefghjkmnpqrs, axis_day: 1, story_time: {timeline: main, tick: 0, order: 0}, provenance: [b]}]}
+  - {category: anchor_crossing, path: [valid, world, chronology, anchors], value: [{id: chronology_0123456789abcdefghjkmnpqrs, axis_day: 2, story_time: {timeline: main, tick: 0, order: 0}, provenance: [a]}, {id: chronology_8123456789abcdefghjkmnpqrs, axis_day: 1, story_time: {timeline: main, tick: 1, order: 0}, provenance: [b]}]}
+compatibility_expectations:
+  wedl/v0.3: unchanged
+  wedl/v0.5: unchanged
+  wedl/v0.4: quarantine
+  wedl/v0.6: loader-reject-no-migration

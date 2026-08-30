@@ -51,7 +51,7 @@ def _parser_leaves() -> set[tuple[str, ...]]:
 
 def test_command_contract_covers_each_parser_leaf_once() -> None:
     contracts = command_contracts()
-    assert len(contracts) == 39
+    assert len(contracts) == 45
     assert {contract.command for contract in contracts} == _parser_leaves()
     assert {contract.command for contract in contracts if contract.api_class == ApiClass.LOCAL_ONLY} == {
         ("completion",), ("init",), ("serve",), ("migrate", "preview"), ("migrate", "apply"),
@@ -60,7 +60,7 @@ def test_command_contract_covers_each_parser_leaf_once() -> None:
         ("author", "move"), ("author", "conversation", "create"),
         ("author", "conversation", "append"),
         ("author", "hypothesis", "create"), ("author", "hypothesis", "adopt"),
-        ("author", "hypothesis", "reject"),
+        ("author", "hypothesis", "reject"), ("author", "chronology", "replace"),
     }
     assert all(contract.binding is not None for contract in contracts if contract.availability == "mounted")
     assert all(argument.transport_reason for contract in contracts for argument in contract.arguments)
@@ -141,7 +141,7 @@ def _production_contract_schema() -> dict:
 
 def test_every_mounted_behavior_has_one_contract_owned_discovery_descriptor() -> None:
     routes = route_contracts()
-    assert len(routes) == 24
+    assert len(routes) == 29
     assert all(contract.discovery is not None and contract.binding is not None for contract in routes)
     assert all(contract.discovery.examples for contract in routes if contract.discovery is not None)
     assert {contract.command for contract in routes} == {
@@ -150,6 +150,8 @@ def test_every_mounted_behavior_has_one_contract_owned_discovery_descriptor() ->
         ("context",), ("conversation", "show"), ("changeset", "scaffold"),
         ("changeset", "schema"), ("changeset", "preview"), ("changeset", "apply"),
         ("author", "request", "preview"), ("author", "request", "apply"),
+        ("chronology", "catalog"), ("chronology", "format"), ("chronology", "convert"),
+        ("chronology", "search"), ("chronology", "story-times"),
     }
     assert {(endpoint.method, endpoint.path) for endpoint in (control_endpoint("GET", "/api/session"), control_endpoint("GET", "/"))} == {
         ("GET", "/api/session"), ("GET", "/"),
@@ -264,6 +266,11 @@ def test_read_route_contracts_have_full_cli_parameter_parity() -> None:
         ("search",): ("GET", "/api/search", {"q", "perspective", "character", "scene", "mode", "limit", "includeText", "includeHypotheses", "threadId", "timeline", "tick", "order", "allTime", "requireCompiled"}),
         ("context",): ("GET", "/api/context", {"character", "scene", "perspective", "q", "mode", "maxCharacters", "maxItems", "recallThreadId", "timeline", "tick", "order", "requireCompiled"}),
         ("conversation", "show"): ("GET", "/api/conversations/{conversation_id}", {"perspective", "character", "timeline", "tick", "order", "allTime", "requireCompiled"}),
+        ("chronology", "catalog"): ("GET", "/api/chronology", {"requireCompiled"}),
+        ("chronology", "format"): ("POST", "/api/chronology/format", {"requireCompiled"}),
+        ("chronology", "convert"): ("POST", "/api/chronology/convert", {"requireCompiled"}),
+        ("chronology", "search"): ("POST", "/api/chronology/search", {"requireCompiled"}),
+        ("chronology", "story-times"): ("POST", "/api/chronology/story-times", {"requireCompiled"}),
     }
 
     actual = {
@@ -322,7 +329,7 @@ def test_production_openapi_contract_comparator_is_two_way() -> None:
         for method in item
         if method in {"get", "post", "put", "patch", "delete", "head", "options", "trace"}
     }
-    assert len(operations) == 26  # 24 parser contracts, session, and root.
+    assert len(operations) == 31  # 29 parser contracts, session, and root.
 
     status_example = schema["paths"]["/api/status"]["get"]["responses"]["200"]["content"]["application/json"]["examples"]["success"]["value"]
     assert status_example["activeScenes"] == [{"id": "scene-market-day", "title": "Market day"}]

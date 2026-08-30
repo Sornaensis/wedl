@@ -19,6 +19,11 @@ class UsageError(WedlError):
     code = "usage_error"
 
 
+class ChronologyUpgradeRequired(UsageError):
+    """A legacy source must be upgraded before chronology writes are allowed."""
+    code = "upgrade_required"
+
+
 class CompileRequired(WedlError):
     """A read was explicitly configured not to compile an unavailable cache."""
 

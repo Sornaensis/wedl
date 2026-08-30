@@ -2,7 +2,7 @@
 // stay in history state, never in the URL, labels, or accessibility tree.
 export function navigationSnapshot(state, { listScroll = 0 } = {}) {
   const view = state.view || "index";
-  const mobilePane = view === "article" || view === "timeline" || view === "whereabouts" || view === "possibilities" ? "article" : (state.mobilePane === "nav" ? "nav" : "index");
+  const mobilePane = view === "article" || view === "timeline" || view === "whereabouts" || view === "possibilities" || view === "chronology" ? "article" : (state.mobilePane === "nav" ? "nav" : "index");
   return {
     view,
     mobilePane,
@@ -26,8 +26,8 @@ export function navigationSnapshot(state, { listScroll = 0 } = {}) {
 export function restoreNavigation(snapshot, fallback = {}) {
   const value = snapshot && typeof snapshot === "object" ? snapshot : {};
   const horizon = value.horizon && typeof value.horizon === "object" ? value.horizon : null;
-  const view = ["index", "article", "timeline", "whereabouts", "possibilities"].includes(value.view) ? value.view : (fallback.view || "index");
-  const mobilePane = view === "article" || view === "timeline" || view === "whereabouts" || view === "possibilities" ? "article" : (value.mobilePane === "nav" ? "nav" : "index");
+  const view = ["index", "article", "timeline", "whereabouts", "possibilities", "chronology"].includes(value.view) ? value.view : (fallback.view || "index");
+  const mobilePane = view === "article" || view === "timeline" || view === "whereabouts" || view === "possibilities" || view === "chronology" ? "article" : (value.mobilePane === "nav" ? "nav" : "index");
   return {
     view,
     mobilePane,
@@ -55,6 +55,7 @@ export function historyAction(state, action) {
   if (action.type === "open-timeline") return { ...current, view: "timeline", mobilePane: "article", activeTimelineId: action.timelineId || current.activeTimelineId || "" };
   if (action.type === "open-whereabouts") return { ...current, view: "whereabouts", mobilePane: "article", selectedEntityId: "" };
   if (action.type === "open-possibilities") return { ...current, view: "possibilities", mobilePane: "article", selectedEntityId: "", horizon: null };
+  if (action.type === "open-chronology") return { ...current, view: "chronology", mobilePane: "article", selectedEntityId: "" };
   if (action.type === "set-horizon") return { ...current, horizon: action.horizon || null };
   if (action.type === "back-to-list") return { ...current, view: "index", mobilePane: "index" };
   if (action.type === "open-navigation") return { ...current, mobilePane: "nav" };

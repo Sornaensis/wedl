@@ -27,6 +27,7 @@ from .profiles import PROFILE_NAMES, VECTOR_PROVIDERS
 from .model import Record
 from .migration import PROTOCOL as MIGRATION_PROTOCOL, apply as apply_migration, preview as preview_migration
 from .query import causality, conversation_view, entity_state, hypotheses, interactions_between, knowledge, list_entities, search_world, show_entity, status, story_points, thread_catalog, thread_memberships, timeline, validation_report, whereabouts
+from .chronology_api import catalog as chronology_catalog, convert_date as chronology_convert_date, format_date as chronology_format_date, search_annotations as chronology_search_annotations, story_times as chronology_story_times
 from .repository import Repository
 from .server import local_server_url, open_local_browser, preflight_local_server, run_local_server
 from .source import serialize_record
@@ -216,6 +217,17 @@ def dispatch(args: argparse.Namespace) -> Any:
     elif args.command == "interactions": value = interactions_between(repository, args.first, args.second, require_compiled=args.require_compiled)
     elif args.command == "story-points": value = story_points(repository, args.scene, args.tick, args.timeline, args.order, require_compiled=args.require_compiled)
     elif args.command == "timeline": value = timeline(repository, args.timeline, require_compiled=args.require_compiled)
+    elif args.command == "chronology":
+        if args.chronology_command == "catalog":
+            value = chronology_catalog(repository, require_compiled=args.require_compiled)
+        else:
+            request = _json_file(args.file)
+            value = {
+                "format": chronology_format_date,
+                "convert": chronology_convert_date,
+                "search": chronology_search_annotations,
+                "story-times": chronology_story_times,
+            }[args.chronology_command](repository, request, require_compiled=args.require_compiled)
     elif args.command == "threads": value = thread_catalog(repository, require_compiled=args.require_compiled)
     elif args.command == "thread-memberships": value = thread_memberships(repository, tuple(args.record_ids), tuple(args.thread_ids), require_compiled=args.require_compiled)
     elif args.command == "whereabouts": value = whereabouts(repository, args.character, args.tick, args.timeline, args.order, require_compiled=args.require_compiled)
@@ -242,9 +254,19 @@ def dispatch(args: argparse.Namespace) -> Any:
             ("hypothesis", "create"): "hypothesis.create",
             ("hypothesis", "adopt"): "hypothesis.adopt",
             ("hypothesis", "reject"): "hypothesis.reject",
+            ("chronology", "replace"): "chronology.replace",
         }.get((args.author_command, getattr(args, "author_subject_command", None)))
         if action is None:
             raise UsageError("unsupported authoring command")
+        if action == "chronology.replace":
+            change = _json_file(args.file)
+            intent = {"action": action, "expectedHead": args.expected_head, "change": change}
+            if args.summary is not None:
+                intent["summary"] = args.summary
+            if args.idempotency_key is not None:
+                intent["idempotencyKey"] = args.idempotency_key
+            value = apply_intent(repository, intent, confirmation_token_value=args.confirm, allow_unconfirmed=args.yes) if (args.confirm or args.yes) else preview_intent(repository, intent)
+            return value
         is_hypothesis_action = action.startswith("hypothesis.")
         if not is_hypothesis_action and getattr(args, "tick", None) is None and (getattr(args, "timeline", None) is not None or getattr(args, "order", None) is not None):
             raise UsageError("--timeline and --order require --tick for authoring commands")

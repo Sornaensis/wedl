@@ -10,6 +10,7 @@ dist/
 .wedl/
 
 # Root-level generated workspace cleanup
+/.hmem.workspace
 /.authoring-*/
 /.pytest-*/
 /pytest-*/

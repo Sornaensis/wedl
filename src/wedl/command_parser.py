@@ -263,7 +263,7 @@ inclusive, and ticks do not convert to elapsed duration.""",
         action = "inspect its source-only diff without writes or cache activity" if name == "preview" else "write the exact confirmed source-only preview as one forward Git commit and rebuild the disposable cache"
         command = migrate_sub.add_parser(name, help=f"{name} a local source migration", description=f"{action}.")
         _add_repo_argument(command)
-        command.add_argument("--mode", required=True, choices=("upgrade-v03", "recover-v04", "rollback"), help="explicit migration mode")
+        command.add_argument("--mode", required=True, choices=("upgrade-v03", "upgrade-v06", "recover-v04", "rollback"), help="explicit migration mode")
         command.add_argument("--expected-head", required=True, metavar="HEAD", help="exact current Git HEAD audited by this request")
         command.add_argument("--source-snapshot-hash", metavar="SHA256", required=name == "apply", help="exact sourceSnapshotHash from preview; required to bind an apply")
         command.add_argument("--idempotency-key", required=True, metavar="KEY", help="stable key for this exact local migration request")
@@ -287,6 +287,14 @@ inclusive, and ticks do not convert to elapsed duration.""",
     _add_repo_argument(sp); _add_require_compiled_argument(sp); sp.add_argument("--scene", metavar="SCENE", help="scene ID, title, alias, or slug whose cursor supplies the time"); sp.add_argument("--tick", metavar="TICK", type=int, help="explicit signed ordinal tick"); sp.add_argument("--timeline", metavar="TIMELINE", help="timeline ID; requires --tick (otherwise the selected scene cursor is used)"); sp.add_argument("--order", metavar="ORDER", type=int, default=2_147_483_647, help="same-tick ordering coordinate (default: latest)")
     timeline = commands.add_parser("timeline", help="read one declared ordinal story timeline", description="Return the complete author-facing chronology for one declared timeline. Story beats are ordered by signed tick and same-tick order only; gaps never represent elapsed duration, and span endpoints are inclusive.")
     _add_repo_argument(timeline); _add_require_compiled_argument(timeline); timeline.add_argument("--timeline", metavar="TIMELINE", help="declared timeline ID (defaults to the world's default timeline)")
+    chronology = commands.add_parser("chronology", help="read the public calendar chronology protocol", description="Read calendar dates, conversions, annotation relations, and explicit anchor mappings. Story ticks remain unitless ordinals and are never accepted here.")
+    chronology_sub = chronology.add_subparsers(dest="chronology_command", required=True, metavar="ACTION", title="chronology actions", parser_class=WedlArgumentParser)
+    catalog = chronology_sub.add_parser("catalog", help="read the chronology catalogue", description="Return the public calendar catalogue and chronology capability.")
+    _add_repo_argument(catalog); _add_require_compiled_argument(catalog)
+    for name, help_text in (("format", "format one civil or era date"), ("convert", "convert one exact civil or era date"), ("search", "search chronology annotations"), ("story-times", "map a chronology date through explicit anchors")):
+        command = chronology_sub.add_parser(name, help=help_text, description=help_text.capitalize() + ".")
+        command.add_argument("file", metavar="FILE", help="raw wedl-chronology/v1 JSON file, or - for stdin")
+        _add_repo_argument(command); _add_require_compiled_argument(command)
     threads = commands.add_parser("threads", help="list optional narrative thread labels", description="List declared narrative grouping labels for the one shared world. Thread labels never create alternate canon, time, state, or search corpora.")
     _add_repo_argument(threads); _add_require_compiled_argument(threads)
     thread_memberships = commands.add_parser("thread-memberships", help="project selected narrative membership for supplied records", description="Return only the selected narrative-group membership intersection for supplied canonical records. Narrative grouping never changes the shared world, time, state, or retrieval ranking.")
@@ -334,6 +342,13 @@ inclusive, and ticks do not convert to elapsed duration.""",
         command.add_argument("--tick", metavar="TICK", type=int, required=required, help="signed ordinal tick" if required else "signed ordinal tick (uses the relevant current cursor when omitted)")
         command.add_argument("--timeline", metavar="TIMELINE", help="timeline ID (defaults to the world default)")
         command.add_argument("--order", metavar="ORDER", type=int, default=None, help="same-tick ordering coordinate (current-time set defaults to exact 0; newly authored beats use the next unused order)")
+
+    chronology_author = author_sub.add_parser("chronology", help="replace chronology catalogue and/or record annotations", description="Preview or atomically replace complete chronology catalogue and record annotation sections.")
+    chronology_author_sub = chronology_author.add_subparsers(dest="author_subject_command", required=True, parser_class=WedlArgumentParser)
+    chronology_replace = chronology_author_sub.add_parser("replace", help="preview or replace complete chronology sections", description="Preview or confirm a full chronology catalogue and/or record-annotation replacement.")
+    chronology_replace.add_argument("file", metavar="FILE", help="raw chronology replacement JSON file, or - for stdin")
+    author_common(chronology_replace)
+    chronology_replace.add_argument("--expected-head", required=True, metavar="HEAD", help="exact Git HEAD audited by this replacement")
 
     cursor = author_sub.add_parser("current-time", help="set the shared world cursor and advance all active fronts", description="Set the shared world cursor at an exact signed ordinal coordinate and advance every active front to it.")
     cursor_sub = cursor.add_subparsers(dest="author_subject_command", required=True, parser_class=WedlArgumentParser)

@@ -1,0 +1,155 @@
+adr: ../0003-calendar-and-historical-chronology-semantics.md
+status: accepted-semantic-only
+semantic_fixture:
+  i64: {min: -9223372036854775808, max: 9223372036854775807}
+  years: {first: -249, last: 250, count: 500}
+  generator:
+    formula: "n=0..9999: year=-249+(n//20), month=(n%20)//2+1, day=n%2+1"
+    expected_events: 10000
+    yearly_claims: 20
+    membership_sequence: [thread-a, thread-b, thread-a, thread-b]
+  calendars:
+    solar:
+      epoch: {civil: {year: 0, month: 1, day: 1}, axis_day: 0}
+      months: [31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31]
+      leap: {cycle: 4, residues: [0], month: 2, extra_days: 1}
+    regnal:
+      epoch: {civil: {year: 0, month: 1, day: 1}, axis_day: 700}
+      months: [30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30, 30]
+      intercalary: {cycle: 5, residues: [0], month: 13, length: 5}
+    isolated:
+      epoch: null
+      months: [30]
+  eras:
+    - {id: before, display_year: 1, machine_year: 0}
+    - {id: reign, display_year: 1, machine_year: 0}
+  anchors:
+    formula: "n=0..99: axis_day=-20000+n*400, story_time=[main,n,0]"
+    expected_count: 100
+    alias:
+      input: {axis_day: -20000, story_time: [main, 0, 0], provenance: copied-ledger}
+      outcome: {kind: alias-coalesced, retained_provenance: [generated, copied-ledger]}
+  work_bounds:
+    definition_prep:
+      solar_cells: 52
+      regnal_cells: 66
+      isolated_cells: 2
+      total_cells: 120
+    per_date_normalization:
+      quotient_remainder: 1
+      year_prefix_lookup: 1
+      month_prefix_lookup: 1
+      month_length_validation: 1
+semantics:
+  CAL-SEM-001: "CivilDay and AxisDay are signed i64; prepared finite-cycle prefixes make conversion one floor quotient/remainder plus bounded lookups and checked arithmetic; fixed-day difference is checked i64 subtraction of two exact AxisDays only."
+  CAL-SEM-002: "Year/month precision and explicit ranges are inclusive; omitted endpoints are unbounded; approximation is overlap-only and qualitative approximation has no exact order."
+  CAL-SEM-003: "Anchors require exact monotone one-to-one pairs; exact aliases coalesce and ties/crossings reject; ambiguity comes from valid mapping candidates sorted tuple-lexicographically."
+  CAL-SEM-004: "Calendar conversion requires an explicit shared axis and epoch; mapping outcomes are invalid, unavailable, unique, or ordered ambiguous."
+cases:
+  fixed_difference:
+    input: {left_axis_day: 7, right_axis_day: -3}
+    outcome: {kind: exact, days: 10}
+  fixed_difference_refused:
+    input: {left_axis_day: null, right_axis_day: 1}
+    outcome: {kind: unavailable}
+  fixed_difference_overflow:
+    input: {left_axis_day: 9223372036854775807, right_axis_day: -9223372036854775808}
+    outcome: {kind: invalid, reason: i64-overflow}
+  fixed_difference_lower_boundary:
+    input: {left_axis_day: -9223372036854775808, right_axis_day: 0}
+    outcome: {kind: exact, days: -9223372036854775808}
+  precision_year:
+    input: {year: 0, month: null, day: null}
+    outcome: {kind: interval, start: [0, 1, 1], end: [0, 12, 31]}
+  precision_month:
+    input: {year: 0, month: 2, day: null}
+    outcome: {kind: interval, start: [0, 2, 1], end: [0, 2, 29]}
+  precision_regnal_year_zero:
+    input: {calendar: regnal, year: 0, month: null, day: null}
+    outcome: {kind: interval, start: [0, 1, 1], end: [0, 13, 5]}
+  precision_regnal_negative_cycle:
+    input: {calendar: regnal, year: -5, month: null, day: null}
+    outcome: {kind: interval, start: [-5, 1, 1], end: [-5, 13, 5]}
+  explicit_range:
+    input: {start_axis_day: 0, end_axis_day: 30}
+    outcome: {kind: interval, start: 0, end: 30, inclusive: true}
+  omitted_range:
+    input: {start_axis_day: null, end_axis_day: 30}
+    outcome: {kind: interval, start: null, end: 30, unbounded_start: true}
+  qualitative_approximate:
+    input: {range: [null, null], approximate: true}
+    outcome: {kind: display-valid, exact_order: unavailable}
+  bounded_approximate_overlap:
+    input: {left: [0, 10], right: [10, 20], approximate: true}
+    outcome: {kind: overlap-only, overlaps: true}
+  conflict:
+    input:
+      claims:
+        - {value: 1, provenance: ledger-a}
+        - {value: 2, provenance: ledger-b}
+    outcome: {kind: ordered-conflict, values: [1, 2]}
+  isolated_calendar:
+    input: {calendar: isolated, civil: {year: 0, month: 1, day: 1}}
+    outcome: {kind: unavailable}
+  solar_leap_negative:
+    input: {calendar: solar, civil: {year: -4, month: 2, day: 29}}
+    outcome: {kind: valid}
+  solar_year_zero:
+    input: {calendar: solar, civil: {year: 0, month: 2, day: 29}}
+    outcome: {kind: valid}
+  regnal_intercalary:
+    input: {calendar: regnal, civil: {year: 0, month: 13, day: 5}}
+    outcome: {kind: valid}
+  era_overlap:
+    input: {machine_year: 0}
+    outcome: {kind: display-ambiguous, eras: [before, reign]}
+  overflow:
+    input: {axis_day: 9223372036854775808}
+    outcome: {kind: invalid}
+  calendar_conversion:
+    input: {calendar: solar, civil: {year: 0, month: 1, day: 1}}
+    outcome: {kind: unique, axis_day: 0}
+  calendar_conversion_solar_negative:
+    input: {calendar: solar, civil: {year: -4, month: 2, day: 29}}
+    outcome: {kind: unique, axis_day: -1402}
+  calendar_conversion_regnal_epoch:
+    input: {calendar: regnal, civil: {year: 0, month: 1, day: 1}}
+    outcome: {kind: unique, axis_day: 700}
+  calendar_conversion_regnal_intercalary:
+    input: {calendar: regnal, civil: {year: 0, month: 13, day: 5}}
+    outcome: {kind: unique, axis_day: 1064}
+  calendar_conversion_regnal_cycle:
+    input: {calendar: regnal, civil: {year: 5, month: 1, day: 1}}
+    outcome: {kind: unique, axis_day: 2505}
+  calendar_conversion_invalid:
+    input: {calendar: solar, civil: {year: 0, month: 2, day: 30}}
+    outcome: {kind: invalid}
+  anchor_unique:
+    input: {axis_day: -20000, anchors: [[-20000, [main, 0, 0]]]}
+    outcome: {kind: unique, story_times: [[main, 0, 0]]}
+  mapping_ambiguous:
+    input:
+      query: {axis_interval: [1, 1]}
+      candidates: [[main, 2, 0], [main, 1, 9]]
+    outcome: {kind: ambiguous, story_times: [[main, 1, 9], [main, 2, 0]]}
+  anchor_alias:
+    input: {anchors: [[-20000, [main, 0, 0], generated], [-20000, [main, 0, 0], copied-ledger]]}
+    outcome: {kind: alias-coalesced, count: 1}
+  anchor_duplicate_axis:
+    input: {anchors: [[1, [main, 0, 0]], [1, [main, 1, 0]]]}
+    outcome: {kind: invalid}
+  anchor_duplicate_story_time:
+    input: {anchors: [[1, [main, 0, 0]], [2, [main, 0, 0]]]}
+    outcome: {kind: invalid}
+  anchor_decreasing:
+    input: {anchors: [[1, [main, 1, 0]], [2, [main, 0, 0]]]}
+    outcome: {kind: invalid}
+  anchor_crossed:
+    input: {anchors: [[2, [main, 0, 0]], [1, [main, 1, 0]]]}
+    outcome: {kind: invalid}
+thread_invariance:
+  records:
+    - {id: event-a, axis_day: 0, story_time: [main, 0, 0], memberships: [thread-a]}
+    - {id: event-b, axis_day: 1, story_time: [main, 1, 0], memberships: [thread-b]}
+    - {id: event-c, axis_day: 2, story_time: [main, 2, 0], memberships: [thread-a, thread-b]}
+  outcome: {shared_axis_days: [0, 1, 2], shared_story_times: [[main, 0, 0], [main, 1, 0], [main, 2, 0]]}

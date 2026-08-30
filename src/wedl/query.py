@@ -2,10 +2,11 @@ from __future__ import annotations
 
 import json
 import math
+from contextlib import closing
 from pathlib import Path
 from typing import Any
 
-from . import THREAD_SOURCE_SCHEMA
+from . import CHRONOLOGY_SOURCE_SCHEMA, THREAD_SOURCE_SCHEMA
 from .compiler import cache_readiness, connect, require_database
 from .context import accessible_entities, build_context
 from .conversation import beat_kind, character_scene_allowed, conversation_context_time, current_recollection, remembered_quotes, scene_contains_time, scene_context_time, turn_time, visible_beats, visible_turns
@@ -17,6 +18,10 @@ from .semantics import canonical_events, current_knowledge, evaluate_all_story_p
 from .thread_filter import project_thread_memberships, resolve_membership_record_ids, resolve_thread_filter
 from .util import slugify
 from .validation import validate_world
+from .chronology_index import build_chronology_projection
+from .chronology_query import (AnnotationQuery, ConversionRequest, SQLiteChronologyStore,
+    SourceChronologyStore, query_annotations, convert_chronology_date, format_chronology_date,
+    map_chronology_date_to_story_time)
 
 
 def _implicit_active_scene(world: World, character_id: str | None = None) -> Any:
@@ -95,6 +100,10 @@ def status(repository: Repository) -> dict[str, Any]:
         "timeModel": time_model(world),
         "cacheReadiness": readiness,
     }
+    # The legacy ordinal timeline remains unchanged.  This additive capability
+    # tells callers whether the separate public chronology protocol is usable.
+    from .chronology_api import chronology_capability
+    result["chronologyCapability"] = chronology_capability(world)
     if readiness["state"] == "ready":
         with connect(database, True) as connection:
             row = connection.execute("SELECT * FROM revision LIMIT 1").fetchone()
@@ -126,7 +135,7 @@ def thread_catalog(repository: Repository, *, require_compiled: bool = False) ->
     """
 
     world, _database = require_database(repository, require_compiled=require_compiled)
-    grouping_available = world.schema == THREAD_SOURCE_SCHEMA
+    grouping_available = world.schema in {THREAD_SOURCE_SCHEMA, CHRONOLOGY_SOURCE_SCHEMA}
     threads = (
         [
             {"id": thread.id, "label": thread.label}
@@ -268,6 +277,17 @@ def show_entity(repository: Repository, entity_id: str, *, require_compiled: boo
     # endpoint's decimal-string transport for every authored time coordinate.
     value["frontmatter"] = _browser_safe_frontmatter(
         json.loads(value.pop("frontmatter_json")), world.default_timeline
+    )
+    # This separate, authoring-shaped field lets clients replace the complete
+    # annotation list without reverse engineering raw source frontmatter.  It
+    # deliberately shares the chronology API's source-to-public codec so all
+    # calendar coordinates and opaque extensions retain their exact wire form.
+    from .chronology_api import source_annotation_to_public
+    annotations = record.frontmatter.get("chronology")
+    value["chronologyAnnotations"] = (
+        [source_annotation_to_public(item) for item in annotations]
+        if isinstance(annotations, list)
+        else []
     )
     value["bodyMarkdown"] = value.pop("body_markdown")
     if record.kind == "location":
@@ -802,7 +822,10 @@ def search_world(repository: Repository, query: str, *, perspective: str = "auth
         canonical_character_id = character.id
         accessible = accessible_entities(world, character.id, scene, at)
         knowledge_ids = {item["knowledgeId"] for item in current_knowledge(world, character.id, at)}
-    with connect(database, True) as connection:
+    # sqlite3's connection context manager commits/rolls back but does not
+    # close the handle.  This read must release its Windows file lock before a
+    # following forced compilation atomically replaces the cache database.
+    with closing(connect(database, True)) as connection:
         thread_filter = resolve_thread_filter(connection, thread_ids)
         results = search(connection, query, perspective=perspective, character_id=canonical_character_id, scene_id=scene.id if scene else None, at=at, accessible_entities=accessible, active_knowledge=knowledge_ids, mode=mode, limit=limit, _thread_filter=thread_filter)
         state = search_state(connection)
@@ -1281,3 +1304,41 @@ def interactions_between(repository: Repository, first: str, second: str, *, req
     world, _database = require_database(repository, require_compiled=require_compiled)
     a = world.find(first, "character"); b = world.find(second, "character")
     return {"revision": world.revision, "firstCharacterId": a.id, "secondCharacterId": b.id, "interactions": [{key: value for key, value in item.items() if key != "record"} for item in interactions(world, a.id, b.id)]}
+
+
+def _chronology_store(repository: Repository, *, require_compiled: bool) -> SQLiteChronologyStore:
+    world, database = require_database(repository, require_compiled=require_compiled)
+    with connect(database, True) as connection:
+        return SQLiteChronologyStore(connection, world.revision)
+
+
+def _source_chronology_store(repository: Repository) -> SourceChronologyStore:
+    """Use the same evaluator as SQLite without forcing a disposable rebuild."""
+    world = repository.load_world()
+    return SourceChronologyStore(build_chronology_projection(world), world.revision)
+
+
+def chronology_annotations(repository: Repository, request: AnnotationQuery, *, require_compiled: bool = False) -> Any:
+    # Chronology reads follow the established disposable-cache contract: strict
+    # callers fail stale, ordinary callers may atomically rebuild.
+    world, database = require_database(repository, require_compiled=require_compiled)
+    with connect(database, True) as connection:
+        return query_annotations(SQLiteChronologyStore(connection, world.revision), request)
+
+
+def chronology_format(repository: Repository, value: Any, *, require_compiled: bool = False) -> Any:
+    return format_chronology_date(_chronology_store(repository, require_compiled=require_compiled), value)
+
+
+def chronology_convert(repository: Repository, request: ConversionRequest, *, require_compiled: bool = False) -> Any:
+    return convert_chronology_date(_chronology_store(repository, require_compiled=require_compiled), request)
+
+
+def chronology_story_times(repository: Repository, value: Any, *, require_compiled: bool = False) -> Any:
+    return map_chronology_date_to_story_time(_chronology_store(repository, require_compiled=require_compiled), value)
+
+
+def chronology_catalog(repository: Repository, *, require_compiled: bool = False) -> dict[str, Any]:
+    """Public catalogue wrapper retained beside the existing query helpers."""
+    from .chronology_api import catalog
+    return catalog(repository, require_compiled=require_compiled)

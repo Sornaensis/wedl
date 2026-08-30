@@ -1,5 +1,9 @@
 # HTTP API
 
+Chronology read and confirmed-replacement authoring APIs advertise capability
+for v0.6 source. Schema migration is deliberately local-only (`wedl migrate`):
+there is no HTTP upgrade, rollback, or cache-copy endpoint.
+
 `wedl serve` exposes a loopback-only JSON API and generated OpenAPI document at
 `/openapi.json` (interactive documentation: `/api/docs`). The CLI parser is
 the parameter source of truth; the server generates its API bindings and
@@ -27,12 +31,17 @@ call.
 | GET | `/api/validate` | no | Source validation report. |
 | POST | `/api/compile` | yes | Compile using CLI-equivalent query options. |
 | GET | `/api/entities` | no | List entities. |
-| GET | `/api/entities/{entity_id}` | no | Show one entity. |
+| GET | `/api/entities/{entity_id}` | no | Show one entity, including complete public chronology annotations. |
 | GET | `/api/entities/{entity_id}/state` | no | Resolve state at required `tick`. |
 | GET | `/api/entities/{character_id}/knowledge` | no | Resolve character knowledge at required `tick`. |
 | GET | `/api/interactions` | no | Interactions for required `first` and `second`. |
 | GET | `/api/story-points` | no | Story points at a scene or time. |
 | GET | `/api/timeline` | no | Complete ordinal chronology for one declared timeline. |
+| GET | `/api/chronology` | no | Public calendar chronology catalogue and capability. |
+| POST | `/api/chronology/format` | no | Format an unwrapped `wedl-chronology/v1` date request. |
+| POST | `/api/chronology/convert` | no | Convert an unwrapped `wedl-chronology/v1` date request. |
+| POST | `/api/chronology/search` | no | Search an unwrapped `wedl-chronology/v1` annotation request. |
+| POST | `/api/chronology/story-times` | no | Map an unwrapped `wedl-chronology/v1` date request through anchors. |
 | GET | `/api/threads` | no | Declared optional narrative grouping labels only. |
 | GET | `/api/thread-memberships` | no | Selected grouping membership projection for supplied records. |
 | GET | `/api/whereabouts` | no | Horizon-bounded character locations and explicit journeys. |
@@ -52,6 +61,23 @@ Query names preserve the established aliases where applicable: `q`,
 `requireCompiled`, `includeText`, `includeHypotheses`, `allTime`, `maxCharacters`, and `maxItems`.
 Use `/openapi.json` for the full current parameter list, parser defaults,
 enums, numeric bounds, and descriptions.
+
+## Entity-detail chronology annotations
+
+Every `GET /api/entities/{entity_id}` response includes
+`chronologyAnnotations`, even for legacy or empty records (`[]`). It is a
+complete, public `chronology.replace` annotation array: IDs, role, display,
+provenance, every annotation value kind, and allowed nested `x-*` data are
+preserved. Core chronology coordinates use canonical decimal strings; opaque
+`x-*` payloads retain their original JSON values. A qualitative approximate
+claim has `bounds:{lower:null,upper:null}` and omits `calendarId`; any
+approximation with a bound includes the shared `calendarId`. This additive
+field does not change `frontmatter` or the existing entity-detail fields. The
+closed entity response enumerates those established fields and rejects unknown
+members. On every chronology value, `tagExtensions` is the separate opaque
+`x-*` channel for source extensions beside the discriminator tag; direct
+`x-*` members remain payload extensions, so same-name values in both channels
+round-trip independently.
 
 ## Narrative thread catalog
 
@@ -147,7 +173,7 @@ responses (not FastAPI `422`). The complete semantic error inventory is:
 
 | HTTP status | Codes |
 | --- | --- |
-| 400 | `usage_error`, `validation_failed`, `confirmation_required`, `confirmation_mismatch`, `not_found`, `compile_required`, `repository_error`, `parse_error`, `protocol_error`, `v04_superseded` |
+| 400 | `usage_error`, `validation_failed`, `confirmation_required`, `confirmation_mismatch`, `not_found`, `compile_required`, `repository_error`, `parse_error`, `protocol_error`, `v04_superseded`, `upgrade_required` |
 | 401 | `authentication_required` |
 | 409 | `conflict`, `stale_revision`, `dirty_managed_tree` |
 
@@ -219,7 +245,10 @@ normal changeset preview and apply requires that preview token in
 `X-Wedl-Confirmation`. Supported `action` values are `current-time.set`,
 `scene.create`, `scene.advance`, `scene.close`, `character.move`,
 `conversation.create`, `conversation.append`, `hypothesis.create`,
-`hypothesis.adopt`, and `hypothesis.reject`. A hypothesis create takes a
+`hypothesis.adopt`, `hypothesis.reject`, and `chronology.replace`.
+`chronology.replace` requires the exact audited `expectedHead`, replaces each
+supplied catalogue or record annotation array completely, previews before any
+write, and applies through the ordinary confirmed changeset workflow. A hypothesis create takes a
 name, statement, named subjects, alternatives, and placement context. Adoption
 accepts only records that are already canonical and explicitly reports that
 canon is unchanged. A conversation creation takes a
@@ -260,7 +289,8 @@ local-only inventory; use the CLI for each of these instead.
 | `FILE` | Is the CLI positional local changeset file path; HTTP sends raw JSON instead. |
 | `--yes` | Is an unsafe CLI-only confirmation bypass. |
 | `--use-current-head` | Is a CLI-only expected-HEAD escape hatch. |
-| `--expected-head`, `--source-snapshot-hash`, `--rollback-backup-ref` | Bind the local-only migration preview/apply and forward rollback flow. |
+| `--expected-head` | Binds every local optimistic-concurrency authoring or migration preview/apply to its audited source head. |
+| `--source-snapshot-hash`, `--rollback-backup-ref` | Bind the local-only migration preview/apply and forward rollback flow. |
 | `--host`, `--port`, `--open` | Configure local server binding/browser launch. |
 
 The API also does not accept a confirmation token in a JSON body. It uses only

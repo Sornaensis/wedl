@@ -1,0 +1,194 @@
+{
+  "budgets": {
+    "compileSeconds": 120.0,
+    "compileWithinBudget": true,
+    "sqliteQuerySeconds": 5.0,
+    "sqliteQueryWithinBudget": true
+  },
+  "cache": {
+    "cacheHit": "cache-hit",
+    "cacheHitSourceLoad": {
+      "blobReads": 0,
+      "cacheHits": 0,
+      "mode": "not-required",
+      "parsed": 0
+    },
+    "first": "compiled",
+    "initial": "missing",
+    "ready": "ready",
+    "strict": "ready"
+  },
+  "command": "uv run python tools/benchmark_chronology_index.py",
+  "compilation": {
+    "chronology": {
+      "anchorCount": 1,
+      "annotationCount": 10000,
+      "calendarCount": 3,
+      "eraCount": 1,
+      "insertBatches": 23,
+      "maxInsertBatch": 1000,
+      "timingMs": 302.766
+    },
+    "databaseBytes": 19673088,
+    "recordCount": 10001,
+    "sourceLoad": {
+      "blobReads": 0,
+      "cacheHits": 10001,
+      "mode": "parsed-source-cache",
+      "parsed": 0,
+      "records": 10001
+    }
+  },
+  "conversion": {
+    "equal": true,
+    "formatted": "calendar_1123456789abcdefghjkmnpqrs:0-1-1",
+    "kind": "ok"
+  },
+  "corpus": {
+    "claims": 10000,
+    "generatorConfig": {
+      "calendars": [
+        "calendar_0123456789abcdefghjkmnpqrs",
+        "calendar_1123456789abcdefghjkmnpqrs",
+        "calendar_2123456789abcdefghjkmnpqrs"
+      ],
+      "claims": 10000,
+      "recordsPerYear": 20,
+      "years": [
+        -249,
+        250
+      ]
+    },
+    "generatorConfigSha256": "6c420d57d189e9c86d5edef02d82acbd8eeb7afaa4d6faecbca95bdeecfea4fe",
+    "records": 10001,
+    "treeOid": "03f31af97154f45d776fd5ef8149a700f2466efa56d7000c03e25248aa2b71b3",
+    "years": [
+      -249,
+      250
+    ]
+  },
+  "environment": {
+    "platform": "Windows-11-10.0.26200-SP0",
+    "python": "3.13.15 (tags/v3.13.15:4061bc4, Aug  5 2026, 13:05:39) [MSC v.1944 64 bit (AMD64)]",
+    "sqlite": "3.50.4"
+  },
+  "implementation": {
+    "files": [
+      "src/wedl/compiler.py",
+      "src/wedl/chronology_index.py",
+      "src/wedl/chronology_query.py",
+      "tools/benchmark_chronology_index.py"
+    ],
+    "fingerprintSha256": "5128fbe844be29c6640de534108e8170b0c86849a906617963c47470cc3417f2"
+  },
+  "mode": "full",
+  "queries": {
+    "broad": {
+      "candidateStats": {
+        "advisoryQueryPlan": [
+          "SEARCH a USING INDEX chronology_annotation_exclusion_idx (comparison_kind=?)",
+          "CORRELATED SCALAR SUBQUERY 1",
+          "SEARCH bs USING COVERING INDEX sqlite_autoindex_chronology_annotation_basis_scope_1 (record_id=? AND annotation_id=? AND basis_id=?)"
+        ],
+        "basis": "axis",
+        "batchSize": 256,
+        "batches": 38,
+        "candidates": 9500,
+        "continuationQueryPlan": [
+          "SEARCH chronology_annotation USING INDEX chronology_annotation_basis_upper_idx (basis_id=?)",
+          "USE TEMP B-TREE FOR ORDER BY"
+        ],
+        "maxReturnedBatch": 256,
+        "pages": 38,
+        "predicate": "between",
+        "queryPlan": [
+          "SEARCH chronology_annotation USING INDEX chronology_annotation_basis_upper_idx (basis_id=?)",
+          "USE TEMP B-TREE FOR ORDER BY"
+        ],
+        "retainedMatches": 9500,
+        "totalRelationHits": 9500
+      },
+      "equal": true,
+      "matches": 9500,
+      "sourceSeconds": 0.0326324999332428,
+      "sqliteSeconds": 0.14231630018912256
+    },
+    "exact": {
+      "candidateStats": {
+        "advisoryQueryPlan": [
+          "SEARCH a USING INDEX chronology_annotation_exclusion_idx (comparison_kind=?)",
+          "CORRELATED SCALAR SUBQUERY 1",
+          "SEARCH bs USING COVERING INDEX sqlite_autoindex_chronology_annotation_basis_scope_1 (record_id=? AND annotation_id=? AND basis_id=?)"
+        ],
+        "basis": "axis",
+        "batchSize": 256,
+        "batches": 1,
+        "candidates": 1,
+        "continuationQueryPlan": [],
+        "maxReturnedBatch": 1,
+        "pages": 1,
+        "predicate": "on_date",
+        "queryPlan": [
+          "SEARCH chronology_annotation USING INDEX chronology_annotation_basis_upper_idx (basis_id=?)",
+          "USE TEMP B-TREE FOR ORDER BY"
+        ],
+        "retainedMatches": 1,
+        "totalRelationHits": 1
+      },
+      "equal": true,
+      "matches": 1,
+      "sourceSeconds": 0.0021297000348567963,
+      "sqliteSeconds": 0.0036151998210698366
+    },
+    "input": {
+      "calendarId": "calendar_0123456789abcdefghjkmnpqrs",
+      "day": 3,
+      "month": 1,
+      "year": 0
+    },
+    "overlap": {
+      "candidateStats": {
+        "advisoryQueryPlan": [
+          "SEARCH a USING INDEX chronology_annotation_exclusion_idx (comparison_kind=?)",
+          "CORRELATED SCALAR SUBQUERY 1",
+          "SEARCH bs USING COVERING INDEX sqlite_autoindex_chronology_annotation_basis_scope_1 (record_id=? AND annotation_id=? AND basis_id=?)"
+        ],
+        "basis": "axis",
+        "batchSize": 256,
+        "batches": 1,
+        "candidates": 1,
+        "continuationQueryPlan": [],
+        "maxReturnedBatch": 1,
+        "pages": 1,
+        "predicate": "overlaps",
+        "queryPlan": [
+          "SEARCH chronology_annotation USING INDEX chronology_annotation_basis_upper_idx (basis_id=?)",
+          "USE TEMP B-TREE FOR ORDER BY"
+        ],
+        "retainedMatches": 1,
+        "totalRelationHits": 1
+      },
+      "equal": true,
+      "matches": 1,
+      "sourceSeconds": 0.0020343998912721872,
+      "sqliteSeconds": 0.002512499922886491
+    }
+  },
+  "schemaVersion": 1,
+  "timingsSeconds": {
+    "cacheHit": 0.5582471999805421,
+    "compile": 5.021200700197369,
+    "projection": 0.25046299980022013,
+    "sourceBroad": 0.0326324999332428,
+    "sourceConversion": 8.759996853768826e-05,
+    "sourceExact": 0.0021297000348567963,
+    "sourceLoad": 2.1173302000388503,
+    "sourceOverlap": 0.0020343998912721872,
+    "sqliteBroad": 0.14231630018912256,
+    "sqliteConversion": 2.5399960577487946e-05,
+    "sqliteExact": 0.0036151998210698366,
+    "sqliteOverlap": 0.002512499922886491,
+    "strictRead": 0.6803361000493169,
+    "validation": 2.3519923000130802
+  }
+}

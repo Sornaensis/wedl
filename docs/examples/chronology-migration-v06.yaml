@@ -1,0 +1,283 @@
+protocol: wedl-migration/v1
+mode: upgrade-v06
+world_chronology:
+  calendars: []
+  eras: []
+  anchors: []
+compatibility_matrix:
+  wedl/v0.3:
+    reader: pinned_legacy
+    chronology_write: upgrade_required
+    upgrade: v03_to_v06
+  wedl/v0.5:
+    reader: pinned_legacy
+    chronology_write: upgrade_required
+    upgrade: v05_to_v06
+  wedl/v0.2:
+    reader: too_old
+    chronology_write: unavailable
+    upgrade: reject_too_old
+  wedl/v0.4:
+    reader: quarantined
+    chronology_write: unavailable
+    upgrade: recover_v04_to_v05_first
+  wedl/v0.6:
+    reader: validator_and_compiler_required
+    chronology_write: supported_after_release
+    upgrade: no_op
+  wedl/v0.7:
+    reader: too_new
+    chronology_write: unavailable
+    upgrade: reject_too_new
+goldens:
+  v03:
+    input:
+      - path: story/world.md
+        frontmatter:
+          schema: wedl/v0.3
+          kind: world
+          id: world_0123456789ABCDEFGHJKMNPQRS
+          title: Golden World
+          domain: world
+          status: canonical
+          tags: []
+          aliases: []
+          default_timeline: main
+          timelines:
+            - id: main
+              label: Main
+      - path: story/characters/mara.md
+        frontmatter:
+          schema: wedl/v0.3
+          kind: character
+          id: char_0123456789ABCDEFGHJKMNPQRS
+          title: Mara
+          domain: cast
+          status: canonical
+          tags: []
+          aliases: []
+    output:
+      - path: story/world.md
+        frontmatter:
+          schema: wedl/v0.6
+          kind: world
+          id: world_0123456789ABCDEFGHJKMNPQRS
+          title: Golden World
+          domain: world
+          status: canonical
+          tags: []
+          aliases: []
+          default_timeline: main
+          timelines:
+            - id: main
+              label: Main
+          threads: []
+          chronology:
+            calendars: []
+            eras: []
+            anchors: []
+      - path: story/characters/mara.md
+        frontmatter:
+          schema: wedl/v0.6
+          kind: character
+          id: char_0123456789ABCDEFGHJKMNPQRS
+          title: Mara
+          domain: cast
+          status: canonical
+          tags: []
+          aliases: []
+  v05:
+    input:
+      - path: story/world.md
+        frontmatter:
+          schema: wedl/v0.5
+          kind: world
+          id: world_0123456789ABCDEFGHJKMNPQRS
+          title: Golden World
+          domain: world
+          status: canonical
+          tags: []
+          aliases: []
+          default_timeline: main
+          timelines:
+            - id: main
+              label: Main
+          threads:
+            - id: thread_0123456789ABCDEFGHJKMNPQRS
+              label: Archive
+      - path: story/characters/mara.md
+        frontmatter:
+          schema: wedl/v0.5
+          kind: character
+          id: char_0123456789ABCDEFGHJKMNPQRS
+          title: Mara
+          domain: cast
+          status: canonical
+          tags: []
+          aliases: []
+          threads:
+            - thread_0123456789ABCDEFGHJKMNPQRS
+    output:
+      - path: story/world.md
+        frontmatter:
+          schema: wedl/v0.6
+          kind: world
+          id: world_0123456789ABCDEFGHJKMNPQRS
+          title: Golden World
+          domain: world
+          status: canonical
+          tags: []
+          aliases: []
+          default_timeline: main
+          timelines:
+            - id: main
+              label: Main
+          threads:
+            - id: thread_0123456789ABCDEFGHJKMNPQRS
+              label: Archive
+          chronology:
+            calendars: []
+            eras: []
+            anchors: []
+      - path: story/characters/mara.md
+        frontmatter:
+          schema: wedl/v0.6
+          kind: character
+          id: char_0123456789ABCDEFGHJKMNPQRS
+          title: Mara
+          domain: cast
+          status: canonical
+          tags: []
+          aliases: []
+          threads:
+            - thread_0123456789ABCDEFGHJKMNPQRS
+  v06:
+    input:
+      - path: story/world.md
+        frontmatter:
+          schema: wedl/v0.6
+          kind: world
+          id: world_0123456789ABCDEFGHJKMNPQRS
+          title: Golden World
+          domain: world
+          status: canonical
+          tags: []
+          aliases: []
+          default_timeline: main
+          timelines:
+            - id: main
+              label: Main
+          threads: []
+          chronology:
+            calendars: []
+            eras: []
+            anchors: []
+    output: same_input
+rejections:
+  v03_multiple_timelines: WDL-MIG-V06-001
+  mixed_source_schema: WDL-MIG-V06-002
+  v04_direct: WDL-MIG-V06-003
+  chronology_write_on_legacy: WDL-MIG-V06-004
+  dirty_managed_tree: WDL-MIG-V06-005
+  too_new: WDL-MIG-V06-006
+  too_old: WDL-MIG-V06-007
+  legacy_chronology_present: WDL-MIG-V06-008
+  v06_candidate_invalid: WDL-MIG-V06-009
+  pinned_legacy_invalid: WDL-MIG-V06-010
+legacy_chronology_negatives:
+  world:
+    path: [0, frontmatter, chronology]
+    value:
+      calendars: []
+      eras: []
+      anchors: []
+  nonworld:
+    path: [1, frontmatter, chronology]
+    value: []
+legacy_invalid_negative:
+  path: [1, frontmatter, title]
+  value: ""
+candidate_invalid_negative:
+  path: [0, frontmatter, chronology, calendars]
+  value: not-an-array
+wire_parity:
+  request:
+    protocol: wedl-migration/v1
+    mode: upgrade-v06
+    expectedHead: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+    idempotencyKey: chronology-upgrade
+  sourceSnapshotHash: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+  base_request:
+    protocol: wedl-migration/v1
+    mode: upgrade-v06
+    expectedHead: bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+    sourceSnapshotHash: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa
+    idempotencyKey: chronology-upgrade
+  baseRequestHash: a0ab814e71a9f499d78c394f744bb9587ba07f1f95a2f554a50d8cca744c5afb
+  backupRef: refs/wedl/backups/migration/a0ab814e71a9f499d78c394f744bb9587ba07f1f95a2f554a50d8cca744c5afb
+  requestHash: c159814eb13a952811f04c37616ee16ae862e768539a0b7f4c13c8162d9adaf8
+  preview_fields:
+    - protocol
+    - phase
+    - mode
+    - valid
+    - noOp
+    - expectedHead
+    - sourceSnapshotHash
+    - idempotencyKey
+    - backupRef
+    - requestHash
+    - confirmationToken
+    - diagnostics
+    - files
+    - diff
+  preview_phase: preview
+  apply_fields:
+    - protocol
+    - phase
+    - status
+    - mode
+    - previousHead
+    - newHead
+    - sourceSnapshotHash
+    - idempotencyKey
+    - backupRef
+    - requestHash
+    - compile
+    - compileSkipped
+    - idempotentReplay
+  apply_phase: apply
+  noop_fields:
+    - protocol
+    - phase
+    - mode
+    - valid
+    - noOp
+    - expectedHead
+    - sourceSnapshotHash
+    - idempotencyKey
+    - backupRef
+    - requestHash
+    - confirmationToken
+    - diagnostics
+    - status
+    - idempotentReplay
+  noop_omits:
+    - diff
+    - files
+  receipt_value_fields:
+    - request
+    - confirmationToken
+    - result
+  replay_identity_fields:
+    - protocol
+    - mode
+    - expectedHead
+    - sourceSnapshotHash
+    - idempotencyKey
+    - rollbackBackupRef
+    - backupRef
+receipt_required_fields:
+  - request
+  - confirmationToken
+  - result

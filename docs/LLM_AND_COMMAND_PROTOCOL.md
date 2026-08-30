@@ -73,8 +73,10 @@ wedl context CHARACTER [--repo PATH] [--require-compiled] [--scene SCENE]
   [--max-characters N] [--max-items N] [--mode fts|vector|hybrid]
   [--tick N] [--timeline NAME] [--order N]
 wedl conversation show CONVERSATION [--repo PATH] [--require-compiled]
-  [--perspective author|character] [--character CHARACTER]
-  [--tick N] [--timeline NAME] [--order N] [--all-time]
+  [--perspective author|character] [--character CHARACTER] [--tick N]
+  [--timeline NAME] [--order N] [--all-time]
+wedl chronology catalog [--repo PATH] [--require-compiled]
+wedl chronology format|convert|search|story-times FILE [--repo PATH] [--require-compiled]
 wedl serve [--repo PATH] [--host LOOPBACK] [--port N]
 ```
 
@@ -125,9 +127,17 @@ valid for pre-origin history. `order` is a signed 32-bit coordinate that
 orders facts occurring at the same tick. `durationSemantics` is `none`: never
 infer hours, days, dates, or elapsed time from the numeric difference between
 ticks. Timeline origins are descriptive display anchors, not lower bounds.
-All bounded temporal intervals are inclusive at both endpoints. Keep external
-calendar and duration language in authored prose; do not invent date or
-duration fields in source records or changesets.
+All bounded temporal intervals are inclusive at both endpoints.
+
+WEDL v0.6 also supports an independent validated chronology model: calendar,
+era, and explicit anchor declarations on the world record, plus chronology
+annotations on records. Civil, era, range, approximate, conflict, relative,
+and display-only duration values belong to that model—not to StoryTime tick
+arithmetic. Only explicit anchors can map a chronology date to a StoryTime;
+there is no interpolation or tick-to-duration conversion. Use the public
+`wedl chronology` read commands or the documented chronology authoring flow;
+the precise wire and replacement contract is
+[CHRONOLOGY_API_CONTRACT.md](CHRONOLOGY_API_CONTRACT.md).
 
 ## Context and conversation boundaries
 
@@ -159,6 +169,8 @@ accepts the same changeset object directly as documented below:
 ```text
 wedl changeset preview FILE [--repo PATH] [--use-current-head]
 wedl changeset apply FILE [--repo PATH] [--use-current-head] --confirm TOKEN
+wedl author chronology replace FILE --repo PATH --expected-head HEAD
+  [--summary TEXT] [--idempotency-key KEY] [--confirm TOKEN | --yes]
 ```
 
 `preview` validates a candidate change and reports the resulting effects without
@@ -176,6 +188,15 @@ uses the current `wedl-changeset/v1` input document version. The older
 by the 0.6 CLI. Use `--use-current-head` only when the changeset deliberately
 omits an expected head: it weakens the normal expected-HEAD protection against
 applying a change to an unintended revision.
+
+`wedl author chronology replace` is a complete catalog and/or per-record
+annotation replacement, not granular chronology CRUD. It previews by default,
+requires the exact audited `--expected-head`, and accepts the normal
+`--confirm TOKEN` replay of that preview (or CLI-only `--yes`). The resulting
+candidate uses the same validation, atomic commit, compilation, and receipt
+replay guarantees as other authoring actions. See
+[CHRONOLOGY_API_CONTRACT.md](CHRONOLOGY_API_CONTRACT.md) for accepted values,
+temporary IDs, legacy upgrade behavior, and HTTP parity.
 
 Automation must preserve the exact previewed JSON and pass the token out of
 band, without an interactive prompt. For example:

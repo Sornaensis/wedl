@@ -31,6 +31,12 @@ supported local-only v0.3/v0.4 paths, inspect a confirmed `wedl migrate`
 preview before applying it; the compiled database remains disposable. See
 [Migration and recovery](MIGRATION_AND_RECOVERY.md).
 
+`wedl/v0.6` chronology source is loaded and validated, then compiled into the
+disposable internal chronology read model. The public `wedl-chronology/v1`
+read and confirmed full-replacement authoring interfaces use that source model;
+they do not alter ordinal timeline semantics or provide an upgrade workflow.
+See [Chronology schema contract](CHRONOLOGY_SCHEMA_CONTRACT.md).
+
 ## 2. File envelope
 
 Every record is a UTF-8 Markdown file with one YAML frontmatter document:
@@ -111,8 +117,8 @@ The CLI may accept a unique title or short ID interactively, but serialized sour
   This origin is descriptive only, not the first permitted tick. A record may
   still use `tick: -20` for pre-origin history. Ticks are unitless ordering
   coordinates, so do not add date, duration, or conversion configuration to
-  this declaration. Put external calendar references and elapsed-time prose in
-  Markdown bodies instead.
+  this declaration. Put external calendar references in the validated
+  chronology declaration; narrative prose remains in Markdown bodies instead.
 - Allowed state keys by entity kind.
 - Relationship metric names and ranges.
 - Default domains.

@@ -1,5 +1,10 @@
 # Historical Architecture Proposal (Archived)
 
+> **Current chronology release boundary:** v0.6 chronology is active; a
+> homogeneous v0.3/v0.5 repository uses local confirmed `upgrade-v06` and
+> SQLite is disposable/rebuilt. API and UI clients discover capability only;
+> they never migrate source. StoryTime remains ordering, never elapsed time.
+
 > **Status:** This is a pre-0.6 Haskell/Elm design proposal, retained only for
 > historical context. It does not describe the implemented Python CLI, server,
 > or supported mutation protocol. In particular, its `wedld`, Elm, `--json`,
@@ -132,6 +137,12 @@ Turns a Git tree into a validated SQLite snapshot:
 ### 4.5 `wedl-db`
 
 Owns the disposable SQLite schema, query primitives, and materialized read models. Source migrations are explicit local Git transactions; incompatible derived databases are never migrated in place and are rebuilt from Git source. Callers use typed query functions rather than depending on ad hoc SQL.
+
+Validated `wedl/v0.6` chronology sources compile into disposable SQLite calendar,
+era, anchor, and annotation indexes used by internal typed reads and the
+public `wedl-chronology/v1` surface. Confirmed full-replacement authoring is
+available through the ordinary changeset workflow; `upgrade-v06` remains
+active and local-only. v0.3/v0.5 readers remain pinned and v0.4 is recovery-only.
 
 ### 4.6 `wedl-query`
 
@@ -285,7 +296,7 @@ The initial fictional-time key is:
 
 A tick is narrative order, not necessarily a real duration. An optional label or ISO timestamp may be displayed, but ordering uses the numeric key. This provides deterministic “as of scene” queries without confusing Git commit time with story time.
 
-Events occur at one time key in v0.1. Scenes have a start key and an optional end key. Rich calendars, uncertain dates, and partially ordered timelines are deferred.
+Events occur at one time key in v0.1. Scenes have a start key and an optional end key. Active v0.6 adds explicit calendars and uncertainty without changing StoryTime ordering.
 
 ## 9. Knowledge and state flow
 
@@ -349,7 +360,7 @@ migration or exposes a server endpoint.
 
 `wedl serve` may launch the server implementation in-process or delegate to `wedld`. Windows, Linux, and macOS packages should contain no separate Node runtime in normal use. Node/Elm tooling is needed only for frontend development.
 
-## 14. Deferred capabilities
+## 14. Out-of-scope capabilities
 
 The initial architecture intentionally does not promise:
 

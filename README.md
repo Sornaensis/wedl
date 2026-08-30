@@ -39,6 +39,10 @@ interface.
 - A local-only, preview-confirmed source migration/recovery kernel for the
   narrow v0.3-to-v0.5 and quarantined v0.4 cases; see
   [Migration and recovery](docs/MIGRATION_AND_RECOVERY.md).
+- Calendar and historical chronology with explicit conversion anchors,
+  qualitative uncertainty, and a 500-year packaged conformance fixture. Ticks
+  order replay and never imply elapsed calendar time; see
+  [Chronology rollout](docs/CHRONOLOGY_ROLLOUT.md).
 
 ## Install
 

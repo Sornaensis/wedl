@@ -42,3 +42,15 @@ h2 { font-size: 1.45rem; } h3 { font-size: 1.12rem; } h4 { font-size: 1rem; }
 @media (max-width: 719px) { .compendium-shell:not(.detail-open) .lore-article { display: none; } }
 @media (max-width: 719px) { .compendium-shell.mobile-nav .compendium-index, .compendium-shell.mobile-nav .lore-article, .compendium-shell.mobile-index .compendium-nav, .compendium-shell.mobile-index .lore-article { display: none; }.mobile-navigation-button { display: inline-flex; margin-bottom: .8rem; } }
 @media (min-width: 720px) { .mobile-navigation-button { display: none; } }
+.chronology-annotations { background: #132937; border: 1px solid #31566d; border-radius: .65rem; padding: .95rem; }
+.chronology-format-button, .chronology-edit-button { margin-left: .45rem; min-height: 2rem; padding: .3rem .55rem; }
+.chronology-request, .chronology-editor { display: grid; gap: .6rem; grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); margin-top: 1rem; }
+.chronology-request label, .chronology-editor label { color: #c8dbe9; font-size: .85rem; font-weight: 700; }
+.chronology-actions { display: flex; flex-wrap: wrap; gap: .55rem; margin-top: .8rem; }
+.chronology-unavailable { background: #173044; border-left: 3px solid #77bce5; line-height: 1.6; padding: 1rem; }
+.chronology-editor textarea { background: #101b25; border: 1px solid #52677b; border-radius: .45rem; color: inherit; font: .85rem ui-monospace, Consolas, monospace; grid-column: 1 / -1; min-height: 16rem; padding: .7rem; resize: vertical; width: 100%; }
+.chronology-editor .section-status { grid-column: 1 / -1; }
+.chronology-editor-outline { border: 1px solid #3d5665; border-radius: .55rem; margin-top: 1rem; padding: .8rem; }
+.chronology-editor-outline h3 { margin-bottom: .6rem; }.chronology-editor-outline ol { display: grid; gap: .5rem; margin: 0; padding-left: 1.25rem; }.chronology-editor-outline summary { color: #bce6ff; cursor: pointer; font-weight: 700; }.chronology-editor-fields { display: grid; gap: .3rem; margin: .6rem 0 0; }.chronology-editor-fields div { display: grid; gap: .25rem; grid-template-columns: minmax(7rem, .35fr) 1fr; }.chronology-editor-fields dt { color: #abc4d5; font-weight: 700; }.chronology-editor-fields dd { margin: 0; overflow-wrap: anywhere; }
+@media (forced-colors: active) { .chronology-annotations, .chronology-unavailable { border-color: CanvasText; } }
+@media (max-width: 719px) { .chronology-request, .chronology-editor { grid-template-columns: 1fr; } .chronology-actions button { width: 100%; } }

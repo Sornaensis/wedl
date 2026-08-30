@@ -20,11 +20,14 @@ _ROUTES = {
     ("GET", "/api/changesets/schema"), ("POST", "/api/changesets/scaffold"),
     ("POST", "/api/changesets/preview"), ("POST", "/api/changesets/apply"),
     ("POST", "/api/authoring/preview"), ("POST", "/api/authoring/apply"),
+    ("GET", "/api/chronology"), ("POST", "/api/chronology/format"),
+    ("POST", "/api/chronology/convert"), ("POST", "/api/chronology/search"),
+    ("POST", "/api/chronology/story-times"),
 }
 _ERRORS = {
     "usage_error", "validation_failed", "confirmation_required", "confirmation_mismatch", "not_found",
     "compile_required", "authentication_required", "conflict", "stale_revision", "dirty_managed_tree",
-    "repository_error", "parse_error", "protocol_error", "v04_superseded",
+    "repository_error", "parse_error", "protocol_error", "v04_superseded", "upgrade_required",
 }
 _LOCAL_ONLY = {
     "completion", "init", "serve", "migrate", "--repo", "--compact", "--output", "--yes", "--use-current-head",
@@ -75,7 +78,7 @@ def _validate(document: dict[str, Any], schema: dict[str, Any], value: object) -
 def test_http_api_documentation_has_the_exact_public_route_error_and_local_only_inventory() -> None:
     markdown = (_ROOT / "docs" / "HTTP_API.md").read_text(encoding="utf-8")
     assert _route_table(markdown) == _ROUTES
-    assert len(_route_table(markdown)) == 26
+    assert len(_route_table(markdown)) == 31
     assert all(f"`{error}`" in markdown for error in _ERRORS)
     assert all(f"`{item}`" in markdown for item in _LOCAL_ONLY)
 

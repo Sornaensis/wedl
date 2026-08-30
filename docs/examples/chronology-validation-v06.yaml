@@ -1,0 +1,176 @@
+schema: wedl/v0.6
+# The public machine-readable mirror of the complete diagnostic registry.
+# `test_chronology_validation.py` parses this list and the Markdown table; it
+# checks raw row counts and duplicates before comparing the exact registry.
+# The negative corpus below also pins selected-year table/cycle leaf paths.
+diagnostics:
+  - [WDL-ANCHOR-001, error, anchor IDs must be unique and ascending]
+  - [WDL-ANCHOR-001, error, anchors must be an array of at most 500]
+  - [WDL-ANCHOR-001, error, invalid anchor definition]
+  - [WDL-ANCHOR-002, error, axis day must be signed i64]
+  - [WDL-ANCHOR-003, error, anchor StoryTime must be closed and use a declared timeline]
+  - [WDL-ANCHOR-004, error, anchor provenance must be an array of strings]
+  - [WDL-ANCHOR-007, error, anchors must map monotonically between StoryTime and axis day]
+  - [WDL-CAL-001, error, calendar IDs must be unique and ascending]
+  - [WDL-CAL-001, error, calendar must have a valid closed definition]
+  - [WDL-CAL-002, error, calendar months must contain 1..64 rows]
+  - [WDL-CAL-002, error, invalid calendar month]
+  - [WDL-CAL-002, error, month numbers must be unique and ascending]
+  - [WDL-CAL-003, error, calendar rule kind must be cycle or table]
+  - [WDL-CAL-004, error, invalid cycle rule]
+  - [WDL-CAL-005, error, invalid cycle override]
+  - [WDL-CAL-006, error, overrides must be unique and ordered]
+  - [WDL-CAL-007, error, invalid table year row]
+  - [WDL-CAL-007, error, table years must be unique and ascending]
+  - [WDL-CAL-007, error, table years must contain 1..500 rows]
+  - [WDL-CAL-008, error, invalid table override]
+  - [WDL-CAL-008, error, table overrides must be unique and ordered]
+  - [WDL-CAL-009, error, calendar mechanics exceed 500 rows]
+  - [WDL-CAL-010, error, invalid calendar epoch]
+  - [WDL-CAL-011, error, calendar definition is semantically invalid]
+  - [WDL-CHRON-001, error, chronology calendars must be an array of at most 500]
+  - [WDL-CHRON-001, error, world chronology must be a closed declaration]
+  - [WDL-CHRON-002, error, non-world chronology must be an array of at most 500]
+  - [WDL-CHRON-003, error, chronology is forbidden in nested operational objects]
+  - [WDL-CHRON-004, error, invalid chronology annotation envelope]
+  - [WDL-CHRON-005, error, annotation IDs must be unique per record]
+  - [WDL-CHRON-007, error, annotation value must contain exactly one tag]
+  - [WDL-CHRON-007, error, unknown annotation value tag]
+  - [WDL-DATE-001, error, civil date must have a known calendar and valid precision]
+  - [WDL-DATE-001, error, civil endpoint must be exact]
+  - [WDL-DATE-001, error, invalid civil precision]
+  - [WDL-DATE-002, error, calendar date is unavailable for the declared year]
+  - [WDL-DATE-003, error, civil date is semantically invalid]
+  - [WDL-DATE-003, error, invalid civil range]
+  - [WDL-DATE-003, error, range endpoint calendar differs]
+  - [WDL-DATE-003, error, range is reversed]
+  - [WDL-DATE-004, error, approximation bounds must share an ordered calendar]
+  - [WDL-DATE-004, error, invalid approximation]
+  - [WDL-DATE-005, error, conflict requires 2..64 claims within depth 64]
+  - [WDL-DATE-006, error, relative date must use declared source-record references]
+  - [WDL-DATE-007, error, invalid display-only duration]
+  - [WDL-ERA-001, error, era IDs must be unique and ascending]
+  - [WDL-ERA-001, error, era must have a valid closed definition]
+  - [WDL-ERA-001, error, eras must be an array of at most 500]
+  - [WDL-ERA-002, error, era calendar is unknown]
+  - [WDL-ERA-003, error, invalid era display metadata]
+  - [WDL-ERA-004, error, invalid era display epoch]
+  - [WDL-ERA-005, error, era bounds must be exact civil endpoints]
+  - [WDL-ERA-005, error, era definition is semantically invalid]
+  - [WDL-ERA-005, error, invalid era bounds]
+  - [WDL-ERA-006, error, invalid era annotation]
+  - [WDL-ERA-006, error, invalid era precision]
+  - [WDL-ERA-008, error, era date is semantically invalid]
+  - [WDL-SRC-001, error, v0.6 candidate must be homogeneous]
+  - [WDL-SRC-008, error, v0.6 candidate must be homogeneous]
+  - [WDL-WORLD-001, error, world must contain exactly one world record]
+endpoint_precedence_examples:
+  # Endpoint semantic errors are emitted before relation/order errors.
+  range_invalid_lower_month_reversed:
+    [WDL-DATE-003, error, civil date is semantically invalid, 'chronology[0].value.range.lower.month']
+  approximation_invalid_lower_month_reversed:
+    [WDL-DATE-003, error, civil date is semantically invalid, 'chronology[0].value.approx.bounds.lower.month']
+  era_bounds_invalid_lower_month_reversed:
+    [WDL-ERA-005, error, invalid era bounds, 'chronology.eras[0].bounds.lower.month']
+endpoint_normalization_examples:
+  # Civil endpoint replay includes the final shared-axis offset when present.
+  exact_axis_offset_overflow:
+    [WDL-DATE-003, error, civil date is semantically invalid, 'chronology[0].value.civil.day']
+  partial_month_axis_offset_overflow:
+    [WDL-DATE-003, error, civil date is semantically invalid, 'chronology[0].value.civil.month']
+  partial_year_axis_offset_overflow:
+    [WDL-DATE-003, error, civil date is semantically invalid, 'chronology[0].value.civil.year']
+  range_lower_offset_overflow_precedes_order:
+    [WDL-DATE-003, error, civil date is semantically invalid, 'chronology[0].value.range.lower.month']
+  approximation_lower_offset_overflow_precedes_order:
+    [WDL-DATE-003, error, civil date is semantically invalid, 'chronology[0].value.approx.bounds.lower.month']
+  era_machine_overflow_precedes_month_day:
+    [WDL-ERA-008, error, era date is semantically invalid, 'chronology[0].value.era.year']
+  era_civil_offset_overflow:
+    [WDL-ERA-008, error, era date is semantically invalid, 'chronology[0].value.era.day']
+  era_bounds_are_local_but_conflict_claims_normalize:
+    [WDL-ERA-008, error, era date is semantically invalid, 'chronology[0].value.conflict.claims[0].value.era.day']
+checked_arithmetic_examples:
+  calendar_epoch_final_ordinal_overflow:
+    [WDL-CAL-011, error, calendar definition is semantically invalid, 'chronology.calendars[0].epoch.civil.day']
+  calendar_epoch_offset_overflow:
+    [WDL-CAL-011, error, calendar definition is semantically invalid, 'chronology.calendars[0].epoch.axis_day']
+  exact_civil_final_ordinal_overflow:
+    [WDL-DATE-003, error, civil date is semantically invalid, 'chronology[0].value.civil.day']
+  era_machine_conversion_overflow:
+    [WDL-ERA-008, error, era date is semantically invalid, 'chronology[0].value.era.year']
+  upper_era_bound_final_ordinal_overflow:
+    [WDL-ERA-005, error, invalid era bounds, 'chronology.eras[0].bounds.upper.day']
+kernel_parity_examples:
+  # Prepared calendar arithmetic follows kernel divmod, cycle-prefix, month,
+  # then day stages. Calendar preparation gates era endpoint inspection.
+  cycle_prefix_overflow:
+    [WDL-DATE-003, error, civil date is semantically invalid, char_0123456789ABCDEFGHJKMNPQRS, story/c.md, 'chronology[0].value.civil.year']
+  calendar_precedes_era_endpoint:
+    [WDL-CAL-011, error, calendar definition is semantically invalid, world_0123456789ABCDEFGHJKMNPQRS, story/world.md, 'chronology.calendars[0].rule.years[0].overrides[0].target_month']
+  era_conversion_subtraction_overflow:
+    [WDL-ERA-008, error, era date is semantically invalid, char_0123456789ABCDEFGHJKMNPQRS, story/c.md, 'chronology[0].value.era.year']
+  era_conversion_addition_overflow:
+    [WDL-ERA-008, error, era date is semantically invalid, char_0123456789ABCDEFGHJKMNPQRS, story/c.md, 'chronology[0].value.era.year']
+negative_diagnostic_expectations:
+  # Ordered wire diagnostics: [code, severity, message, entityId, path, field].
+  unsupported_schema: []
+  cycle_period: [[WDL-CAL-004, error, invalid cycle rule, world_0123456789ABCDEFGHJKMNPQRS, story/world.md, 'chronology.calendars[0].rule.period']]
+  cycle_residue: [[WDL-CAL-005, error, invalid cycle override, world_0123456789ABCDEFGHJKMNPQRS, story/world.md, 'chronology.calendars[0].rule.overrides[0].residue']]
+  cycle_unknown_nested_key: [[WDL-CAL-005, error, invalid cycle override, world_0123456789ABCDEFGHJKMNPQRS, story/world.md, 'chronology.calendars[0].rule.overrides[0]']]
+  table_residue_forbidden: [[WDL-CAL-008, error, invalid table override, world_0123456789ABCDEFGHJKMNPQRS, story/world.md, 'chronology.calendars[1].rule.years[0].overrides[0]']]
+  table_year_boolean: [[WDL-CAL-007, error, invalid table year row, world_0123456789ABCDEFGHJKMNPQRS, story/world.md, 'chronology.calendars[1].rule.years[0].year']]
+  table_empty: [[WDL-CAL-007, error, table years must contain 1..500 rows, world_0123456789ABCDEFGHJKMNPQRS, story/world.md, 'chronology.calendars[1].rule.years']]
+  table_duplicate_year: [[WDL-CAL-007, error, table years must be unique and ascending, world_0123456789ABCDEFGHJKMNPQRS, story/world.md, 'chronology.calendars[1].rule.years[1].year']]
+  table_max_rows: [[WDL-CAL-007, error, table years must contain 1..500 rows, world_0123456789ABCDEFGHJKMNPQRS, story/world.md, 'chronology.calendars[1].rule.years']]
+  aggregate_mechanics_cap: [[WDL-CAL-009, error, calendar mechanics exceed 500 rows, world_0123456789ABCDEFGHJKMNPQRS, story/world.md, 'chronology.calendars[1].rule']]
+  base_month_order: [[WDL-CAL-002, error, month numbers must be unique and ascending, world_0123456789ABCDEFGHJKMNPQRS, story/world.md, 'chronology.calendars[0].months']]
+  base_month_duplicate: [[WDL-CAL-002, error, month numbers must be unique and ascending, world_0123456789ABCDEFGHJKMNPQRS, story/world.md, 'chronology.calendars[0].months']]
+  effective_month_length: [[WDL-CAL-002, error, invalid calendar month, world_0123456789ABCDEFGHJKMNPQRS, story/world.md, 'chronology.calendars[0].months[1].days']]
+  target_missing: [[WDL-CAL-011, error, calendar definition is semantically invalid, world_0123456789ABCDEFGHJKMNPQRS, story/world.md, 'chronology.calendars[0].rule.overrides[0].target_month']]
+  result_length: [[WDL-CAL-011, error, calendar definition is semantically invalid, world_0123456789ABCDEFGHJKMNPQRS, story/world.md, 'chronology.calendars[0].rule.overrides[0].delta_days']]
+  epoch_incomplete: [[WDL-CAL-010, error, invalid calendar epoch, world_0123456789ABCDEFGHJKMNPQRS, story/world.md, 'chronology.calendars[0].epoch.civil.day']]
+  epoch_cross_calendar: [[WDL-CAL-010, error, invalid calendar epoch, world_0123456789ABCDEFGHJKMNPQRS, story/world.md, 'chronology.calendars[0].epoch.civil.calendar_id']]
+  epoch_wrong_owning_calendar_month: [[WDL-CAL-011, error, calendar definition is semantically invalid, world_0123456789ABCDEFGHJKMNPQRS, story/world.md, 'chronology.calendars[0].epoch.civil.month']]
+  epoch_overlong_day: [[WDL-CAL-011, error, calendar definition is semantically invalid, world_0123456789ABCDEFGHJKMNPQRS, story/world.md, 'chronology.calendars[0].epoch.civil.day']]
+  epoch_removed_effective_day: [[WDL-CAL-011, error, calendar definition is semantically invalid, world_0123456789ABCDEFGHJKMNPQRS, story/world.md, 'chronology.calendars[0].epoch.civil.day']]
+  effective_override_order: [[WDL-CAL-006, error, overrides must be unique and ordered, world_0123456789ABCDEFGHJKMNPQRS, story/world.md, 'chronology.calendars[0].rule.overrides']]
+  override_collision: [[WDL-CAL-006, error, overrides must be unique and ordered, world_0123456789ABCDEFGHJKMNPQRS, story/world.md, 'chronology.calendars[0].rule.overrides']]
+  intercalary_collision: [[WDL-CAL-008, error, table overrides must be unique and ordered, world_0123456789ABCDEFGHJKMNPQRS, story/world.md, 'chronology.calendars[1].rule.years[0].overrides']]
+  malformed_month_key: [[WDL-CAL-002, error, invalid calendar month, world_0123456789ABCDEFGHJKMNPQRS, story/world.md, 'chronology.calendars[0].months[0]']]
+  era_unknown_calendar: [[WDL-ERA-002, error, era calendar is unknown, world_0123456789ABCDEFGHJKMNPQRS, story/world.md, 'chronology.eras[0].calendar_id']]
+  era_missing_provenance: [[WDL-ERA-001, error, era must have a valid closed definition, world_0123456789ABCDEFGHJKMNPQRS, story/world.md, 'chronology.eras[0]']]
+  era_unknown_reference: [[WDL-ERA-006, error, invalid era annotation, char_0123456789ABCDEFGHJKMNPQRS, story/c.md, 'chronology[1].value.era.era_id']]
+  era_legacy_civil_form: [[WDL-ERA-006, error, invalid era annotation, char_0123456789ABCDEFGHJKMNPQRS, story/c.md, 'chronology[1].value.era']]
+  era_zero_skipping_rejects_zero: [[WDL-ERA-008, error, era date is semantically invalid, char_0123456789ABCDEFGHJKMNPQRS, story/c.md, 'chronology[1].value.era.year']]
+  era_display_ordinal_subtraction_overflow: [[WDL-ERA-008, error, era date is semantically invalid, char_0123456789ABCDEFGHJKMNPQRS, story/c.md, 'chronology[1].value.era.year']]
+  era_display_ordinal_addition_overflow: [[WDL-ERA-008, error, era date is semantically invalid, char_0123456789ABCDEFGHJKMNPQRS, story/c.md, 'chronology[1].value.era.year']]
+  era_bounds_missing_day: [[WDL-ERA-005, error, era bounds must be exact civil endpoints, world_0123456789ABCDEFGHJKMNPQRS, story/world.md, 'chronology.eras[0].bounds.lower.day']]
+  era_bounds_nonowning_calendar: [[WDL-ERA-005, error, era bounds must be exact civil endpoints, world_0123456789ABCDEFGHJKMNPQRS, story/world.md, 'chronology.eras[0].bounds.lower.calendar_id']]
+  era_partial_year_outside_inclusive_bounds: [[WDL-ERA-008, error, era date is semantically invalid, char_0123456789ABCDEFGHJKMNPQRS, story/c.md, 'chronology[1].value.era.year']]
+  era_partial_month_crosses_inclusive_upper_bound: [[WDL-ERA-008, error, era date is semantically invalid, char_0123456789ABCDEFGHJKMNPQRS, story/c.md, 'chronology[1].value.era.month']]
+  table_gap_unavailable: [[WDL-DATE-002, error, calendar date is unavailable for the declared year, char_0123456789ABCDEFGHJKMNPQRS, story/c.md, 'chronology[0].value.civil.year']]
+  range_cross_calendar: [[WDL-DATE-003, error, range endpoint calendar differs, char_0123456789ABCDEFGHJKMNPQRS, story/c.md, 'chronology[2].value.range.upper.calendar_id']]
+  range_lower_after_upper: [[WDL-DATE-003, error, range is reversed, char_0123456789ABCDEFGHJKMNPQRS, story/c.md, 'chronology[2].value.range.lower.year']]
+  civil_boolean: [[WDL-DATE-001, error, civil date must have a known calendar and valid precision, char_0123456789ABCDEFGHJKMNPQRS, story/c.md, 'chronology[0].value.civil.year']]
+  approx_malformed_bound: [[WDL-DATE-001, error, civil date must have a known calendar and valid precision, char_0123456789ABCDEFGHJKMNPQRS, story/c.md, 'chronology[3].value.approx.bounds.lower']]
+  approx_lower_after_upper: [[WDL-DATE-004, error, approximation bounds must share an ordered calendar, char_0123456789ABCDEFGHJKMNPQRS, story/c.md, 'chronology[3].value.approx.bounds.lower.year']]
+  relative_annotation_target: [[WDL-DATE-006, error, relative date must use declared source-record references, char_0123456789ABCDEFGHJKMNPQRS, story/c.md, 'chronology[5].value.relative.before_id']]
+  relative_unknown: [[WDL-DATE-006, error, relative date must use declared source-record references, char_0123456789ABCDEFGHJKMNPQRS, story/c.md, 'chronology[5].value.relative.before_id']]
+  relative_malformed: [[WDL-DATE-006, error, relative date must use declared source-record references, char_0123456789ABCDEFGHJKMNPQRS, story/c.md, 'chronology[5].value.relative.relation']]
+  annotation_duplicate: [[WDL-CHRON-005, error, annotation IDs must be unique per record, char_0123456789ABCDEFGHJKMNPQRS, story/c.md, 'chronology[1].id']]
+  annotation_unknown_value_key: [[WDL-DATE-001, error, civil date must have a known calendar and valid precision, char_0123456789ABCDEFGHJKMNPQRS, story/c.md, 'chronology[0].value.civil']]
+  nested_forbidden:
+    - [WDL-CHRON-004, error, invalid chronology annotation envelope, char_0123456789ABCDEFGHJKMNPQRS, story/c.md, 'chronology[0]']
+    - [WDL-CHRON-003, error, chronology is forbidden in nested operational objects, char_0123456789ABCDEFGHJKMNPQRS, story/c.md, 'chronology[0].effect.chronology']
+  axis_boolean: [[WDL-ANCHOR-002, error, axis day must be signed i64, world_0123456789ABCDEFGHJKMNPQRS, story/world.md, 'chronology.anchors[0].axis_day']]
+  axis_overflow: [[WDL-ANCHOR-002, error, axis day must be signed i64, world_0123456789ABCDEFGHJKMNPQRS, story/world.md, 'chronology.anchors[0].axis_day']]
+  anchor_missing_key: [[WDL-ANCHOR-001, error, invalid anchor definition, world_0123456789ABCDEFGHJKMNPQRS, story/world.md, 'chronology.anchors[0]']]
+  anchor_missing_timeline: [[WDL-ANCHOR-003, error, anchor StoryTime must be closed and use a declared timeline, world_0123456789ABCDEFGHJKMNPQRS, story/world.md, 'chronology.anchors[0].story_time']]
+  anchor_unknown_timeline: [[WDL-ANCHOR-003, error, anchor StoryTime must be closed and use a declared timeline, world_0123456789ABCDEFGHJKMNPQRS, story/world.md, 'chronology.anchors[0].story_time']]
+  anchor_story_time_unknown_key: [[WDL-ANCHOR-003, error, anchor StoryTime must be closed and use a declared timeline, world_0123456789ABCDEFGHJKMNPQRS, story/world.md, 'chronology.anchors[0].story_time']]
+  tick_overflow: [[WDL-ANCHOR-003, error, anchor StoryTime must be closed and use a declared timeline, world_0123456789ABCDEFGHJKMNPQRS, story/world.md, 'chronology.anchors[0].story_time']]
+  order_overflow: [[WDL-ANCHOR-003, error, anchor StoryTime must be closed and use a declared timeline, world_0123456789ABCDEFGHJKMNPQRS, story/world.md, 'chronology.anchors[0].story_time']]
+  anchor_tie_axis: [[WDL-ANCHOR-007, error, anchors must map monotonically between StoryTime and axis day, world_0123456789ABCDEFGHJKMNPQRS, story/world.md, 'chronology.anchors[1].story_time']]
+  anchor_tie_storytime: [[WDL-ANCHOR-007, error, anchors must map monotonically between StoryTime and axis day, world_0123456789ABCDEFGHJKMNPQRS, story/world.md, 'chronology.anchors[1].axis_day']]
+  anchor_crossing: [[WDL-ANCHOR-007, error, anchors must map monotonically between StoryTime and axis day, world_0123456789ABCDEFGHJKMNPQRS, story/world.md, 'chronology.anchors[1].story_time']]

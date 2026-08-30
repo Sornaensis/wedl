@@ -5,12 +5,19 @@ has no HTTP endpoint and no browser workflow. Markdown and Git remain the
 authoritative source; SQLite is rebuilt after a successful write and is never
 migrated in place.
 
+`wedl/v0.6` source loading, validation, compilation, internal typed reads,
+public chronology CLI/HTTP reads, and confirmed complete-replacement authoring
+are active. `upgrade-v06` preview/apply is the active local-only route; the UI
+reports capability but never migrates source. Its version policy, recovery
+rules, and runtime coupling inventory are in the
+[Chronology migration contract](CHRONOLOGY_MIGRATION_CONTRACT.md).
+
 ## Preview first
 
 Run a dry run against the exact current commit in a clean managed tree:
 
 ```bash
-wedl migrate preview --repo . --mode upgrade-v03 --expected-head <HEAD> --idempotency-key upgrade-2026-08
+wedl migrate preview --repo . --mode upgrade-v06 --expected-head <HEAD> --idempotency-key upgrade-2026-08
 ```
 
 The `wedl-migration/v1` response includes `sourceSnapshotHash`, `backupRef`, a
@@ -48,7 +55,7 @@ forward commit:
 
 ```bash
 wedl migrate preview --repo . --mode rollback --expected-head <HEAD> \
-  --rollback-backup-ref refs/wedl/backups/migration/<REQUEST_HASH> \
+  --rollback-backup-ref <BACKUP_REF_FROM_PREVIEW> \
   --idempotency-key rollback-2026-08
 ```
 

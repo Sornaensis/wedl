@@ -35,6 +35,11 @@ tick: 120
 order: 10
 ```
 
+The active v0.6 chronology source contract adds public `wedl-chronology/v1`
+calendar reads and confirmed full-replacement authoring while leaving the
+ordinal story-time model unchanged.
+See [Chronology schema contract](CHRONOLOGY_SCHEMA_CONTRACT.md).
+
 Only `(timeline, tick, order)` controls ordering. `tick` is a signed 64-bit
 integer and may be negative; `order` is a signed 32-bit integer that
 deterministically orders multiple facts at the same tick. Git timestamps and
@@ -60,8 +65,8 @@ Intervals with both endpoints—such as scene, participant, observation,
 conversation, and environment intervals—are inclusive at both ends. A
 participant present from `main:-20:0` through `main:5:0` is present at both
 of those moments. WEDL defines no tick-to-duration or tick-to-date conversion;
-keep calendar dates, uncertain chronology, and elapsed-time narration in
-authored prose.
+use the separate public chronology model for calendar dates and uncertainty;
+StoryTime remains the sole replay and ordering coordinate.
 
 ### Current scenes and the shared cursor
 

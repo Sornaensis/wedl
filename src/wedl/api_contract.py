@@ -75,6 +75,7 @@ class DiscoveryDescriptor:
     success_schema: str | None = None
     success_examples: tuple[dict[str, Any], ...] = ()
     success_media_type: str = "application/json"
+    request_schema: str | None = None
 
 
 @dataclass(frozen=True)
@@ -156,6 +157,11 @@ _POLICY: dict[tuple[str, ...], tuple[ApiClass, str, str, RouteBinding | None, st
     ("interactions",): (ApiClass.QUERY, "read", "mounted", RouteBinding("GET", "/api/interactions", (("first", "first"), ("second", "second"), ("require_compiled", "requireCompiled"))), None),
     ("story-points",): (ApiClass.QUERY, "read", "mounted", RouteBinding("GET", "/api/story-points", (("scene", "scene"), ("tick", "tick"), ("timeline", "timeline"), ("order", "order"), ("require_compiled", "requireCompiled"))), None),
     ("timeline",): (ApiClass.QUERY, "read", "mounted", RouteBinding("GET", "/api/timeline", (("timeline", "timeline"), ("require_compiled", "requireCompiled"))), None),
+    ("chronology", "catalog"): (ApiClass.QUERY, "read", "mounted", RouteBinding("GET", "/api/chronology", (("require_compiled", "requireCompiled"),)), None),
+    ("chronology", "format"): (ApiClass.QUERY, "read", "mounted", RouteBinding("POST", "/api/chronology/format", (("require_compiled", "requireCompiled"),)), None),
+    ("chronology", "convert"): (ApiClass.QUERY, "read", "mounted", RouteBinding("POST", "/api/chronology/convert", (("require_compiled", "requireCompiled"),)), None),
+    ("chronology", "search"): (ApiClass.QUERY, "read", "mounted", RouteBinding("POST", "/api/chronology/search", (("require_compiled", "requireCompiled"),)), None),
+    ("chronology", "story-times"): (ApiClass.QUERY, "read", "mounted", RouteBinding("POST", "/api/chronology/story-times", (("require_compiled", "requireCompiled"),)), None),
     ("threads",): (ApiClass.QUERY, "read", "mounted", RouteBinding("GET", "/api/threads", (("require_compiled", "requireCompiled"),)), None),
     ("thread-memberships",): (ApiClass.QUERY, "read", "mounted", RouteBinding("GET", "/api/thread-memberships", (("record_ids", "recordId"), ("thread_ids", "threadId"), ("require_compiled", "requireCompiled"))), None),
     ("whereabouts",): (ApiClass.QUERY, "read", "mounted", RouteBinding("GET", "/api/whereabouts", (("character", "character"), ("tick", "tick"), ("timeline", "timeline"), ("order", "order"), ("require_compiled", "requireCompiled"))), None),
@@ -174,6 +180,7 @@ _POLICY: dict[tuple[str, ...], tuple[ApiClass, str, str, RouteBinding | None, st
     ("author", "hypothesis", "create"): (ApiClass.LOCAL_ONLY, "write", "local_only", None, "the CLI's ergonomic flags compile to the semantic authoring API request"),
     ("author", "hypothesis", "adopt"): (ApiClass.LOCAL_ONLY, "write", "local_only", None, "the CLI's ergonomic flags compile to the semantic authoring API request"),
     ("author", "hypothesis", "reject"): (ApiClass.LOCAL_ONLY, "write", "local_only", None, "the CLI's ergonomic flags compile to the semantic authoring API request"),
+    ("author", "chronology", "replace"): (ApiClass.LOCAL_ONLY, "write", "local_only", None, "the CLI's chronology replacement compiles to the semantic authoring API request"),
     ("author", "request", "preview"): (ApiClass.ACTION, "write", "mounted", RouteBinding("POST", "/api/authoring/preview", auth=AuthPolicy.SESSION), None),
     ("author", "request", "apply"): (ApiClass.MUTATION, "write", "mounted", RouteBinding("POST", "/api/authoring/apply", auth=AuthPolicy.SESSION, headers=(HeaderContract("confirm", "X-Wedl-Confirmation"),)), None),
     ("changeset", "scaffold"): (ApiClass.ACTION, "write", "mounted", RouteBinding("POST", "/api/changesets/scaffold", auth=AuthPolicy.SESSION), None),
@@ -200,6 +207,11 @@ _DISCOVERY: dict[tuple[str, ...], DiscoveryDescriptor] = {
     ("interactions",): DiscoveryDescriptor("Read interactions", "Resolve interactions between the two required entity references.", ("Queries",), "Interactions.", ("usage_error", "not_found", "compile_required", "validation_failed", "parse_error", "repository_error")),
     ("story-points",): DiscoveryDescriptor("List story points", "List story points scoped by an optional scene and timeline position.", ("Queries",), "Story points.", ("usage_error", "compile_required", "validation_failed", "parse_error", "repository_error")),
     ("timeline",): DiscoveryDescriptor("Read an ordinal story timeline", "Return all chronology points and inclusive spans for one declared timeline. Tick gaps are ordinal sequence only and do not represent elapsed duration.", ("Queries",), "Timeline chronology.", ("usage_error", "compile_required", "validation_failed", "parse_error", "repository_error")),
+    ("chronology", "catalog"): DiscoveryDescriptor("Read chronology catalogue", "Return the public calendar catalogue and capability without exposing kernel identifiers.", ("Chronology",), "Chronology catalogue.", ("usage_error", "compile_required", "validation_failed", "parse_error", "repository_error"), success_schema="ChronologyCatalogResponse", success_examples=({"summary": "Catalogue", "value": {"protocol": "wedl-chronology/v1", "operation": "catalog", "revision": "0" * 40, "capability": {"protocol": "wedl-chronology/v1", "sourceSchema": "wedl/v0.6", "mode": "chronology-enabled", "publicReads": True, "authoring": True, "upgradeRequired": False, "upgradeAvailable": False, "durationSemantics": "none"}, "calendars": [], "eras": [], "anchors": []}},)),
+    ("chronology", "format"): DiscoveryDescriptor("Format chronology date", "Format one non-conflicting chronology value from an unwrapped wedl-chronology/v1 request.", ("Chronology",), "Chronology outcome.", ("usage_error", "compile_required", "validation_failed", "parse_error", "repository_error"), examples=({"summary": "Format", "value": {"method": "POST", "path": "/api/chronology/format", "body": {"protocol": "wedl-chronology/v1", "value": {"kind": "civil", "calendarId": "calendar_X", "year": "0"}}}},), success_schema="ChronologyFormatOutcome", success_examples=({"summary": "Formatted", "value": {"protocol": "wedl-chronology/v1", "operation": "format", "revision": "0" * 40, "outcome": "ok", "advisories": [], "result": {"value": {"kind": "civil", "calendarId": "calendar_X", "year": "0"}, "formatted": "0"}}},), request_schema="ChronologyFormatRequest"),
+    ("chronology", "convert"): DiscoveryDescriptor("Convert chronology date", "Convert one non-conflicting chronology value from an unwrapped wedl-chronology/v1 request.", ("Chronology",), "Chronology outcome.", ("usage_error", "compile_required", "validation_failed", "parse_error", "repository_error"), examples=({"summary": "Convert", "value": {"method": "POST", "path": "/api/chronology/convert", "body": {"protocol": "wedl-chronology/v1", "value": {"kind": "civil", "calendarId": "calendar_X", "year": "0"}, "target": {"calendarId": "calendar_X"}}}},), success_schema="ChronologyConvertOutcome", success_examples=({"summary": "Converted", "value": {"protocol": "wedl-chronology/v1", "operation": "convert", "revision": "0" * 40, "outcome": "ok", "advisories": [], "result": {"source": {"kind": "civil", "calendarId": "calendar_X", "year": "0"}, "target": {"kind": "civil", "calendarId": "calendar_X", "year": "0"}, "formatted": "0", "axisDay": "0"}}},), request_schema="ChronologyConvertRequest"),
+    ("chronology", "search"): DiscoveryDescriptor("Search chronology annotations", "Search annotations from an unwrapped wedl-chronology/v1 request.", ("Chronology",), "Chronology outcome.", ("usage_error", "compile_required", "validation_failed", "parse_error", "repository_error"), examples=({"summary": "Search", "value": {"method": "POST", "path": "/api/chronology/search", "body": {"protocol": "wedl-chronology/v1", "predicate": "on_date", "value": {"kind": "civil", "calendarId": "calendar_X", "year": "0"}}}},), success_schema="ChronologySearchOutcome", success_examples=({"summary": "Matches", "value": {"protocol": "wedl-chronology/v1", "operation": "search", "revision": "0" * 40, "outcome": "ok", "advisories": [], "result": {"request": {"predicate": "on_date", "limit": 100}, "matches": []}}},), request_schema="ChronologySearchRequest"),
+    ("chronology", "story-times"): DiscoveryDescriptor("Map chronology date to story times", "Map through explicit anchors only from an unwrapped wedl-chronology/v1 request.", ("Chronology",), "Chronology outcome.", ("usage_error", "compile_required", "validation_failed", "parse_error", "repository_error"), examples=({"summary": "Map", "value": {"method": "POST", "path": "/api/chronology/story-times", "body": {"protocol": "wedl-chronology/v1", "value": {"kind": "civil", "calendarId": "calendar_X", "year": "0"}}}},), success_schema="ChronologyStoryTimesOutcome", success_examples=({"summary": "Mapping", "value": {"protocol": "wedl-chronology/v1", "operation": "story-times", "revision": "0" * 40, "outcome": "ok", "advisories": [], "result": {"mapping": "none", "storyTimes": []}}},), request_schema="ChronologyStoryTimesRequest"),
     ("threads",): DiscoveryDescriptor("List narrative thread labels", "Return only declared optional narrative grouping labels for the shared world; memberships, state, time, and retrieval data are not exposed.", ("Queries",), "Narrative thread catalog.", ("compile_required", "validation_failed", "parse_error", "repository_error")),
     ("thread-memberships",): DiscoveryDescriptor("Project selected narrative memberships", "Return the selected narrative-group intersection for supplied canonical records only. It exposes neither unselected membership nor state, time, or retrieval data.", ("Queries",), "Selected narrative membership projection.", ("usage_error", "compile_required", "validation_failed", "parse_error", "repository_error")),
     ("whereabouts",): DiscoveryDescriptor("Read character whereabouts", "Return canonical and retired characters' explicit location state and journey history plus a calculated, noncanonical prominence breakdown at one author horizon. The result does not infer routes, travel, group membership, or knowledge.", ("Queries",), "Character whereabouts.", ("usage_error", "not_found", "compile_required", "validation_failed", "parse_error", "repository_error")),
@@ -208,8 +220,8 @@ _DISCOVERY: dict[tuple[str, ...], DiscoveryDescriptor] = {
     ("search",): DiscoveryDescriptor("Search the world", "Search indexed content with author or character perspective and optional temporal scope. Hypotheses require explicit author opt-in and are never canonical facts.", ("Queries",), "Search results.", ("usage_error", "compile_required", "validation_failed", "parse_error", "repository_error")),
     ("context",): DiscoveryDescriptor("Build context", "Build a bounded retrieval context for the selected character, scene, and query.", ("Queries",), "Context result.", ("usage_error", "compile_required", "validation_failed", "parse_error", "repository_error")),
     ("conversation", "show"): DiscoveryDescriptor("Read a conversation", "Resolve a conversation from an author or character perspective at a timeline position.", ("Queries",), "Conversation.", ("usage_error", "not_found", "compile_required", "validation_failed", "parse_error", "repository_error")),
-    ("author", "request", "preview"): DiscoveryDescriptor("Preview an authoring intent", "Resolve title or alias references and compile a semantic authoring intent to the existing raw changeset protocol without writes.", ("Authoring",), "Authoring preview.", ("authentication_required", "usage_error", "not_found", "protocol_error", "parse_error", "repository_error")),
-    ("author", "request", "apply"): DiscoveryDescriptor("Apply an authoring intent", "Resolve a semantic authoring intent, require a preview confirmation, and apply its compiled raw changeset.", ("Authoring",), "Authoring application result.", ("authentication_required", "usage_error", "not_found", "protocol_error", "validation_failed", "confirmation_required", "confirmation_mismatch", "conflict", "stale_revision", "dirty_managed_tree", "parse_error", "repository_error")),
+    ("author", "request", "preview"): DiscoveryDescriptor("Preview an authoring intent", "Resolve title or alias references and compile a semantic authoring intent to the existing raw changeset protocol without writes.", ("Authoring",), "Authoring preview.", ("authentication_required", "usage_error", "not_found", "protocol_error", "upgrade_required", "parse_error", "repository_error")),
+    ("author", "request", "apply"): DiscoveryDescriptor("Apply an authoring intent", "Resolve a semantic authoring intent, require a preview confirmation, and apply its compiled raw changeset.", ("Authoring",), "Authoring application result.", ("authentication_required", "usage_error", "not_found", "protocol_error", "upgrade_required", "validation_failed", "confirmation_required", "confirmation_mismatch", "conflict", "stale_revision", "dirty_managed_tree", "parse_error", "repository_error")),
     ("changeset", "scaffold"): DiscoveryDescriptor("Scaffold a changeset", "Create a current-HEAD-bound starter changeset; it has no request body.", ("Changesets",), "Changeset scaffold.", ("authentication_required", "protocol_error", "parse_error", "repository_error")),
     ("changeset", "schema"): DiscoveryDescriptor("Get changeset schema", "Return the public schema for raw wedl-changeset/v1 request objects.", ("Changesets",), "Changeset schema.", ()),
     ("changeset", "preview"): DiscoveryDescriptor("Preview a changeset", "Validate a raw changeset object against the current HEAD without writes. Candidate validation is returned as valid=false, not an error response.", ("Changesets",), "Changeset preview.", ("authentication_required", "protocol_error", "parse_error", "repository_error")),
@@ -247,6 +259,11 @@ def _request_example(command: tuple[str, ...], binding: RouteBinding) -> tuple[d
         ("interactions",): {"query": {"first": "character-mara-vale", "second": "character-ilyra-sorn"}},
         ("story-points",): {"query": {"scene": "scene-market-day", "tick": 12}},
         ("timeline",): {"query": {"timeline": "main"}},
+        ("chronology", "catalog"): {},
+        ("chronology", "format"): {"body": {"protocol": "wedl-chronology/v1", "value": {"kind": "civil", "calendarId": "calendar_X", "year": "0"}}},
+        ("chronology", "convert"): {"body": {"protocol": "wedl-chronology/v1", "value": {"kind": "civil", "calendarId": "calendar_X", "year": "0"}, "target": {"calendarId": "calendar_X"}}},
+        ("chronology", "search"): {"body": {"protocol": "wedl-chronology/v1", "predicate": "on_date", "value": {"kind": "civil", "calendarId": "calendar_X", "year": "0"}}},
+        ("chronology", "story-times"): {"body": {"protocol": "wedl-chronology/v1", "value": {"kind": "civil", "calendarId": "calendar_X", "year": "0"}}},
         ("threads",): {},
         ("thread-memberships",): {"query": {"recordId": "event_0123456789ABCDEFGHJKMNPQRS", "threadId": "thread_0123456789ABCDEFGHJKMNPQRS"}},
         ("whereabouts",): {"query": {"character": "Mara Vale", "tick": 12}},
@@ -278,8 +295,10 @@ _DISCOVERY = {
             else descriptor.errors
         ),
         _request_example(command, binding),
-        operation_schema(" ".join(command)),
-        operation_example(" ".join(command)),
+        descriptor.success_schema or operation_schema(" ".join(command)),
+        descriptor.success_examples or operation_example(" ".join(command)),
+        descriptor.success_media_type,
+        descriptor.request_schema,
     )
     for command, descriptor in _DISCOVERY.items()
     for _api_class, _effect, availability, binding, _reason in (_POLICY[command],)
@@ -328,6 +347,7 @@ ERROR_VOCABULARY: Mapping[str, tuple[int, str]] = {
     "parse_error": (400, "WEDL source parsing failed."),
     "protocol_error": (400, "The changeset protocol is structurally invalid for this operation."),
     "v04_superseded": (400, "The withdrawn wedl/v0.4 source schema must be recovered before use."),
+    "upgrade_required": (400, "The source schema must be upgraded before chronology authoring."),
 }
 
 
@@ -588,7 +608,7 @@ def discovery_request_body(
         "required": argument.required,
         "content": {
             "application/json": {
-                "schema": {"$ref": "#/components/schemas/AuthoringRequest" if "Authoring" in descriptor.tags else "#/components/schemas/ChangesetRequest"},
+                "schema": {"$ref": f"#/components/schemas/{descriptor.request_schema or ('AuthoringRequest' if 'Authoring' in descriptor.tags else 'ChangesetRequest')}"},
                 "examples": examples,
             }
         },

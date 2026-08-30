@@ -3,7 +3,7 @@ from __future__ import annotations
 from collections import Counter
 from typing import Any
 
-from . import SOURCE_SCHEMA, SUPPORTED_SOURCE_SCHEMAS, THREAD_SOURCE_SCHEMA, V04_RECOVERY_CONTRACT, V04_SOURCE_SCHEMA
+from . import CHRONOLOGY_SOURCE_SCHEMA, SOURCE_SCHEMA, SUPPORTED_SOURCE_SCHEMAS, THREAD_SOURCE_SCHEMA, V04_RECOVERY_CONTRACT, V04_SOURCE_SCHEMA
 from .conversation import beat_kind, conversation_participant_at, scene_contains_time, participant_at, turn_time, turn_visible_to
 from .errors import SupersededSchemaError
 from .ids import KIND_PREFIX, AUX_PREFIX, valid_id
@@ -326,6 +326,9 @@ def validate_world(world: World) -> list[dict[str, Any]]:
             f"{V04_SOURCE_SCHEMA} is superseded; see {V04_RECOVERY_CONTRACT}",
             details={"schema": V04_SOURCE_SCHEMA, "recoveryContract": V04_RECOVERY_CONTRACT},
         )
+    if any(candidate == CHRONOLOGY_SOURCE_SCHEMA for candidate in schemas):
+        from .chronology_validation import validate_v06_candidate
+        return validate_v06_candidate(world)
     world_records = world.by_kind("world")
     if len(schemas) > 1:
         # Preserve the homogeneous-source invariant, but do not suppress

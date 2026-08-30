@@ -12,7 +12,7 @@ import tempfile
 import time
 from typing import Any
 
-from . import SOURCE_SCHEMA, SQLITE_SCHEMA, SUPPORTED_SOURCE_SCHEMAS, __version__
+from . import COMPILED_SOURCE_SCHEMAS, SOURCE_SCHEMA, SQLITE_SCHEMA, __version__
 from .conversation import turn_time
 from .errors import CompileRequired, ValidationFailed
 from .model import Record, StoryTime, World
@@ -24,12 +24,15 @@ from .semantics import canonical_events, current_knowledge, effective_time, eval
 from .source import extract_entity_refs, markdown_entity_links
 from .util import canonical_json, sha256_bytes
 from .validation import validate_world
+from .chronology_index import build_chronology_projection, insert_chronology_index
 
 
 # Bump when search-document construction changes without a SQLite DDL change.
 # The token is persisted inside compiler_fingerprint and is checked before the
 # early cache hit path as well as require_database's compatibility gate.
 DOCUMENT_GENERATION_TOKEN = "wedl-document-generation/v3"
+CHRONOLOGY_INDEX_GENERATION_TOKEN = "wedl-chronology-index/v3"
+COMPILER_FINGERPRINT_PREFIX = f"{DOCUMENT_GENERATION_TOKEN}:{CHRONOLOGY_INDEX_GENERATION_TOKEN}:"
 
 DDL = r"""
 PRAGMA foreign_keys=ON;
@@ -67,6 +70,13 @@ CREATE TABLE current_knowledge(knowledge_id TEXT PRIMARY KEY,knower_id TEXT,clai
 CREATE TABLE current_relationship(relationship_id TEXT PRIMARY KEY,from_id TEXT,to_id TEXT,status TEXT,metrics_json TEXT,facets_json TEXT,value_json TEXT);
 CREATE TABLE story_point_current(story_point_id TEXT PRIMARY KEY,stored_state TEXT,derived_state TEXT,eligible INTEGER,value_json TEXT);
 CREATE TABLE character_interaction(event_id TEXT,first_character_id TEXT,second_character_id TEXT,timeline TEXT,tick INTEGER,ordering INTEGER,value_json TEXT,PRIMARY KEY(event_id,first_character_id,second_character_id));
+CREATE TABLE chronology_calendar(id TEXT PRIMARY KEY,source_ordinal INTEGER NOT NULL UNIQUE,label TEXT NOT NULL,basis_id TEXT NOT NULL,has_epoch INTEGER NOT NULL,definition_json TEXT NOT NULL);
+CREATE TABLE chronology_capability(available INTEGER NOT NULL CHECK(available IN (0,1)));
+CREATE TABLE chronology_era(id TEXT PRIMARY KEY,source_ordinal INTEGER NOT NULL UNIQUE,calendar_id TEXT NOT NULL REFERENCES chronology_calendar(id),label TEXT NOT NULL,basis_id TEXT NOT NULL,definition_json TEXT NOT NULL);
+CREATE TABLE chronology_anchor(id TEXT PRIMARY KEY,source_ordinal INTEGER NOT NULL UNIQUE,axis_day INTEGER NOT NULL,timeline TEXT NOT NULL,tick INTEGER NOT NULL,ordering INTEGER NOT NULL,provenance_json TEXT NOT NULL);
+CREATE TABLE chronology_annotation(record_id TEXT NOT NULL REFERENCES entity(id),record_ordinal INTEGER NOT NULL,annotation_id TEXT NOT NULL,source_ordinal INTEGER NOT NULL,role TEXT,display TEXT,provenance_json TEXT NOT NULL,value_kind TEXT NOT NULL,calendar_id TEXT REFERENCES chronology_calendar(id),era_id TEXT REFERENCES chronology_era(id),precision TEXT NOT NULL,basis_id TEXT,lower_day INTEGER,upper_day INTEGER,lower_unbounded INTEGER NOT NULL,upper_unbounded INTEGER NOT NULL,comparison_kind TEXT NOT NULL,exclusion_reason TEXT,unknown_basis INTEGER NOT NULL CHECK(unknown_basis IN (0,1)),value_json TEXT NOT NULL,PRIMARY KEY(record_id,annotation_id),UNIQUE(record_id,source_ordinal));
+CREATE TABLE chronology_annotation_basis_scope(record_id TEXT NOT NULL,annotation_id TEXT NOT NULL,basis_id TEXT NOT NULL,PRIMARY KEY(record_id,annotation_id,basis_id),FOREIGN KEY(record_id,annotation_id) REFERENCES chronology_annotation(record_id,annotation_id));
+CREATE TABLE chronology_annotation_era_scope(record_id TEXT NOT NULL,annotation_id TEXT NOT NULL,era_id TEXT NOT NULL,PRIMARY KEY(record_id,annotation_id,era_id),FOREIGN KEY(record_id,annotation_id) REFERENCES chronology_annotation(record_id,annotation_id));
 """
 INDEX_DDL = r"""
 CREATE INDEX entity_kind_idx ON entity(kind,status,title);
@@ -81,6 +91,17 @@ CREATE INDEX recollection_character_idx ON conversation_recollection(character_i
 CREATE INDEX search_access_idx ON search_document(audience_kind,audience_character_id,scene_id,timeline,from_tick,entity_id);
 CREATE INDEX vector_embedding_input_idx ON vector_embedding(model_id,input_hash);
 CREATE INDEX document_vector_idx ON document_vector(vector_id,document_id);
+CREATE INDEX chronology_era_calendar_idx ON chronology_era(calendar_id,id);
+CREATE INDEX chronology_anchor_axis_idx ON chronology_anchor(axis_day,id);
+CREATE INDEX chronology_anchor_story_idx ON chronology_anchor(timeline,tick,ordering,id);
+CREATE INDEX chronology_annotation_record_idx ON chronology_annotation(record_id,source_ordinal);
+CREATE INDEX chronology_annotation_value_idx ON chronology_annotation(value_kind,calendar_id,era_id,record_id,source_ordinal);
+CREATE INDEX chronology_annotation_basis_lower_idx ON chronology_annotation(basis_id,lower_day,record_ordinal,source_ordinal,record_id,annotation_id);
+CREATE INDEX chronology_annotation_basis_upper_idx ON chronology_annotation(basis_id,upper_day,record_ordinal,source_ordinal,record_id,annotation_id);
+CREATE INDEX chronology_annotation_era_basis_order_idx ON chronology_annotation(era_id,basis_id,record_ordinal,source_ordinal,record_id,annotation_id);
+CREATE INDEX chronology_annotation_exclusion_idx ON chronology_annotation(comparison_kind,era_id,calendar_id,record_ordinal,source_ordinal,record_id,annotation_id);
+CREATE INDEX chronology_annotation_basis_scope_idx ON chronology_annotation_basis_scope(basis_id,record_id,annotation_id);
+CREATE INDEX chronology_annotation_era_scope_idx ON chronology_annotation_era_scope(era_id,record_id,annotation_id);
 """
 
 
@@ -156,7 +177,7 @@ def fingerprint(world: World, profile: CompilationProfile) -> str:
             if record.kind not in {"world", "hypothesis"} and record.thread_ids
         ],
     })
-    return DOCUMENT_GENERATION_TOKEN + ":" + hashlib.sha256(material.encode()).hexdigest()
+    return COMPILER_FINGERPRINT_PREFIX + hashlib.sha256(material.encode()).hexdigest()
 
 def database_meta(path: Path) -> dict[str, Any]:
     if not path.exists():
@@ -202,9 +223,9 @@ def cache_readiness(repository: Repository, revision: str = "HEAD") -> dict[str,
             ("sqliteSchema", SQLITE_SCHEMA, meta.get("sqlite_schema")),
             ("compilerVersion", __version__, meta.get("compiler_version")),
         )
-        if (actual not in SUPPORTED_SOURCE_SCHEMAS if field == "sourceSchema" else actual != expected)
+        if (actual not in COMPILED_SOURCE_SCHEMAS if field == "sourceSchema" else actual != expected)
     ]
-    if not str(meta.get("compiler_fingerprint") or "").startswith(DOCUMENT_GENERATION_TOKEN + ":"):
+    if not str(meta.get("compiler_fingerprint") or "").startswith(COMPILER_FINGERPRINT_PREFIX):
         incompatible_fields.append("compilerFingerprint")
     compiled = {
         "revision": meta.get("head_commit"),
@@ -807,10 +828,10 @@ def compile_world(
         and no_profile_override
         and previous.get("head_commit") == resolved
         and previous.get("tree_oid") == tree_oid
-        and previous.get("source_schema") == SOURCE_SCHEMA
+        and previous.get("source_schema") in COMPILED_SOURCE_SCHEMAS
         and previous.get("sqlite_schema") == SQLITE_SCHEMA
         and previous.get("compiler_version") == __version__
-        and str(previous.get("compiler_fingerprint") or "").startswith(DOCUMENT_GENERATION_TOKEN + ":")
+        and str(previous.get("compiler_fingerprint") or "").startswith(COMPILER_FINGERPRINT_PREFIX)
         and previous.get("profile_json")
     ):
         timings["total"] = (time.perf_counter() - started) * 1000
@@ -870,7 +891,7 @@ def compile_world(
         and previous.get("source_schema") == world.schema
         and previous.get("sqlite_schema") == SQLITE_SCHEMA
         and previous.get("compiler_version") == __version__
-        and str(previous.get("compiler_fingerprint") or "").startswith(DOCUMENT_GENERATION_TOKEN + ":")
+        and str(previous.get("compiler_fingerprint") or "").startswith(COMPILER_FINGERPRINT_PREFIX)
         and previous.get("compiler_fingerprint") == compiler_fingerprint
     ):
         timings["total"] = (time.perf_counter() - started) * 1000
@@ -921,10 +942,13 @@ def compile_world(
             _insert_narrative(connection, world)
             timings["narrative"] = (time.perf_counter() - stage) * 1000
             stage = time.perf_counter()
+            stats.update(insert_chronology_index(connection, build_chronology_projection(world, validated=True)))
+            timings["chronology"] = (time.perf_counter() - stage) * 1000
+            stage = time.perf_counter()
             current = _insert_derived(connection, world)
             timings["derived"] = (time.perf_counter() - stage) * 1000
             stage = time.perf_counter()
-            stats = _insert_search(connection, world, repository, profile)
+            stats.update(_insert_search(connection, world, repository, profile))
             timings["search"] = (time.perf_counter() - stage) * 1000
             stage = time.perf_counter()
             connection.executescript(INDEX_DDL)
@@ -993,6 +1017,15 @@ def compile_world(
             "currentTime": current.to_dict(),
             "changedPaths": changed,
             "sourceLoad": dict(repository.last_load_stats),
+            "chronology": {
+                "calendarCount": stats.get("calendarCount", 0),
+                "eraCount": stats.get("eraCount", 0),
+                "anchorCount": stats.get("anchorCount", 0),
+                "annotationCount": stats.get("annotationCount", 0),
+                "insertBatches": stats.get("chronologyInsertBatches", 0),
+                "maxInsertBatch": stats.get("chronologyMaxInsertBatch", 0),
+                "timingMs": round(timings.get("chronology", 0), 3),
+            },
             "timingsMs": {key: round(value, 3) for key, value in timings.items()},
         }
     finally:

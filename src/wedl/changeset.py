@@ -177,7 +177,64 @@ def _allocate(payload: dict[str, Any]) -> dict[str, str]:
             create = value.get("create") if isinstance(value, dict) else None
             if isinstance(create, dict) and (temp := _temporary(create)):
                 generated[str(temp)] = id_from_seed("knowledge", f"{digest}:{index}:{temp}")
+        # Chronology replacement stays an ordinary entity.update.  Allocate
+        # only its explicitly scoped declaration/annotation identifiers; free
+        # prose and provenance are never examined or substituted.
+        patch = operation.get("frontmatterPatch") if isinstance(operation, dict) else None
+        chronology = patch.get("chronology") if isinstance(patch, dict) else None
+        if operation_type == "entity.update" and isinstance(chronology, dict):
+            for collection, kind in (("calendars", "calendar"), ("eras", "era"), ("anchors", "chronology")):
+                for item in chronology.get(collection) or []:
+                    if isinstance(item, dict) and isinstance(item.get("temporaryId"), str):
+                        temporary = item["temporaryId"]
+                        generated[temporary] = id_from_seed(kind, f"{digest}:{index}:{temporary}")
+        elif operation_type == "entity.update" and isinstance(chronology, list):
+            for item in chronology:
+                if isinstance(item, dict) and isinstance(item.get("temporaryId"), str):
+                    temporary = item["temporaryId"]
+                    generated[temporary] = id_from_seed("chronology", f"{digest}:{index}:{temporary}")
     return generated
+
+
+def _replace_chronology_identifiers(value: Any, replacements: dict[str, str], *, declaration: bool = False) -> Any:
+    """Resolve only chronology identifier leaves, never arbitrary strings."""
+    if isinstance(value, list): return [_replace_chronology_identifiers(item, replacements, declaration=declaration) for item in value]
+    if not isinstance(value, dict): return value
+    result: dict[str, Any] = {}
+    temporary = value.get("temporaryId")
+    for key, item in value.items():
+        # Extensions are opaque authored data.  In particular, identifiers and
+        # temporaryId-shaped values inside them are not chronology references.
+        if isinstance(key, str) and key.startswith("x-"):
+            result[key] = deepcopy(item)
+            continue
+        # Only declaration roots consume temporaryId; nested core values retain
+        # it as ordinary data unless a schema-specific reference field applies.
+        if key == "temporaryId":
+            if not declaration: result[key] = deepcopy(item)
+            continue
+        if key in {"calendar_id", "era_id", "before_id", "after_id"} and isinstance(item, str):
+            result[key] = replacements.get(item, item)
+        elif key == "id" and declaration and isinstance(item, str):
+            result[key] = replacements.get(item, item)
+        else:
+            result[key] = _replace_chronology_identifiers(item, replacements)
+    if declaration and isinstance(temporary, str): result["id"] = replacements.get(temporary, temporary)
+    return result
+
+
+def _replace_chronology_patch(value: Any, replacements: dict[str, str]) -> Any:
+    if isinstance(value, list):
+        return [_replace_chronology_identifiers(item, replacements, declaration=True) for item in value]
+    if not isinstance(value, dict): return value
+    result = _replace_chronology_identifiers(value, replacements)
+    for collection in ("calendars", "eras", "anchors"):
+        if isinstance(value.get(collection), list):
+            result[collection] = sorted(
+                (_replace_chronology_identifiers(item, replacements, declaration=True) for item in value[collection]),
+                key=lambda item: str(item.get("id") or ""),
+            )
+    return result
 
 
 def _common(kind: str, entity_id: str, value: dict[str, Any]) -> dict[str, Any]:
@@ -255,11 +312,15 @@ def _replace_operation_references(raw_operation: dict[str, Any], replacements: d
     operation = deepcopy(raw_operation)
     patch = operation.get("frontmatterPatch")
     grouping_values: dict[str, Any] = {}
+    chronology_value: Any = None
     if operation.get("type") == "entity.update" and isinstance(patch, dict):
         grouping_values = {key: patch.pop(key) for key in ("threads", "threadIds") if key in patch}
+        if "chronology" in patch: chronology_value = patch.pop("chronology")
     operation = deep_replace(operation, replacements)
     if grouping_values:
         operation["frontmatterPatch"].update(grouping_values)
+    if chronology_value is not None:
+        operation["frontmatterPatch"]["chronology"] = _replace_chronology_patch(chronology_value, replacements)
     return operation
 
 

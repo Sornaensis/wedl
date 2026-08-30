@@ -1,0 +1,46 @@
+protocol: wedl-chronology/v1
+catalog:
+  method: GET
+  path: /api/chronology
+format:
+  value: {kind: civil, calendarId: calendar_0123456789ABCDEFGHJKMNPQRS, year: '0', month: '1', day: '1'}
+search:
+  predicate: overlaps
+  value: {kind: range, calendarId: calendar_0123456789ABCDEFGHJKMNPQRS, lower: null, upper: {calendarId: calendar_0123456789ABCDEFGHJKMNPQRS, year: '0'}}
+  limit: 100
+convert:
+  value: {kind: civil, calendarId: calendar_0123456789ABCDEFGHJKMNPQRS, year: '-9223372036854775808'}
+  target: {eraId: era_0123456789ABCDEFGHJKMNPQRS}
+storyTimes:
+  value: {kind: civil, calendarId: calendar_0123456789ABCDEFGHJKMNPQRS, year: '0'}
+entityDetail:
+  chronologyAnnotations:
+    - id: chronology_0123456789ABCDEFGHJKMNPQRS
+      provenance: [ledger]
+      value:
+        kind: approximate
+        displayValue: approximately unknown
+        bounds: {lower: null, upper: null}
+    - id: chronology_1123456789ABCDEFGHJKMNPQRS
+      provenance: [ledger]
+      value:
+        kind: approximate
+        displayValue: around epoch
+        x-display-meta: {channel: payload, value: 7}
+        tagExtensions:
+          x-tag-meta: {channel: tag, temporaryId: keep}
+          x-display-meta: {channel: tag, calendar_id: $calendar.keep}
+        bounds:
+          calendarId: calendar_0123456789ABCDEFGHJKMNPQRS
+          lower: {calendarId: calendar_0123456789ABCDEFGHJKMNPQRS, year: '0'}
+          upper: null
+negative:
+  numericCoordinate: {kind: civil, calendarId: calendar_0123456789ABCDEFGHJKMNPQRS, year: 0}
+  positiveOverflow: {kind: civil, calendarId: calendar_0123456789ABCDEFGHJKMNPQRS, year: '9223372036854775808'}
+  negativeOverflow: {kind: civil, calendarId: calendar_0123456789ABCDEFGHJKMNPQRS, year: '-9223372036854775809'}
+  dayWithoutMonth: {kind: civil, calendarId: calendar_0123456789ABCDEFGHJKMNPQRS, year: '0', day: '1'}
+  malformedTarget: {calendarId: ''}
+  ambiguousTarget: {calendarId: calendar_0123456789ABCDEFGHJKMNPQRS, eraId: era_0123456789ABCDEFGHJKMNPQRS}
+  betweenWithoutUpper: {predicate: between, value: {kind: civil, calendarId: calendar_0123456789ABCDEFGHJKMNPQRS, year: '0'}}
+  upperOutsideBetween: {predicate: on_date, value: {kind: civil, calendarId: calendar_0123456789ABCDEFGHJKMNPQRS, year: '0'}, upper: {kind: civil, calendarId: calendar_0123456789ABCDEFGHJKMNPQRS, year: '1'}}
+  extraDateField: {kind: civil, calendarId: calendar_0123456789ABCDEFGHJKMNPQRS, year: '0', extra: true}

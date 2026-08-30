@@ -10,6 +10,7 @@ import pytest
 
 from wedl.query import _browser_safe_frontmatter
 from wedl.query import _location_context, _location_history
+from wedl.query import show_entity
 from wedl.model import StoryTime, TICK_MAX
 from wedl.repository import Repository
 from wedl.server import create_app
@@ -24,6 +25,18 @@ def ui_ash_repo(tmp_path: Path) -> Repository:
     with resources.as_file(source) as source_path:
         shutil.copytree(source_path, root / "story")
     return Repository(root)
+
+
+def test_web_ui_entity_detail_always_exposes_empty_chronology_annotations(ui_ash_repo) -> None:
+    """Legacy entity details retain every old field and add an explicit empty list."""
+
+    record = next(item for item in ui_ash_repo.load_world().records.values() if item.kind != "world")
+    direct = show_entity(ui_ash_repo, record.id)
+    assert direct["chronologyAnnotations"] == []
+    with TestClient(create_app(ui_ash_repo.root)) as client:
+        response = client.get(f"/api/entities/{record.id}")
+    assert response.status_code == 200
+    assert response.json() == direct
 
 
 def test_web_ui_static_root_and_assets_are_served(ui_ash_repo) -> None:

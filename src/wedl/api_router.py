@@ -31,6 +31,7 @@ from .changeset import apply as apply_changeset, preview as preview_changeset, s
 from .authoring import apply_intent, preview_intent
 from .compiler import compile_world
 from .context import build_context
+from .chronology_api import catalog as chronology_catalog, convert_date as chronology_convert, format_date as chronology_format, search_annotations as chronology_search, story_times as chronology_story_times
 from .query import (
     causality,
     conversation_view,
@@ -528,6 +529,21 @@ def create_api_router(runtime: Any, authorize: Authorize) -> APIRouter:
             require_compiled=arguments["require_compiled"],
         )
 
+    async def chronology_catalog_handler(**arguments: Any) -> dict[str, Any]:
+        return await asyncio.to_thread(chronology_catalog, runtime.repository, require_compiled=arguments["require_compiled"])
+
+    async def chronology_format_handler(**arguments: Any) -> dict[str, Any]:
+        return await asyncio.to_thread(chronology_format, runtime.repository, arguments["file"], require_compiled=arguments["require_compiled"])
+
+    async def chronology_convert_handler(**arguments: Any) -> dict[str, Any]:
+        return await asyncio.to_thread(chronology_convert, runtime.repository, arguments["file"], require_compiled=arguments["require_compiled"])
+
+    async def chronology_search_handler(**arguments: Any) -> dict[str, Any]:
+        return await asyncio.to_thread(chronology_search, runtime.repository, arguments["file"], require_compiled=arguments["require_compiled"])
+
+    async def chronology_story_times_handler(**arguments: Any) -> dict[str, Any]:
+        return await asyncio.to_thread(chronology_story_times, runtime.repository, arguments["file"], require_compiled=arguments["require_compiled"])
+
     async def threads_handler(**arguments: Any) -> dict[str, Any]:
         return await asyncio.to_thread(
             thread_catalog,
@@ -632,6 +648,11 @@ def create_api_router(runtime: Any, authorize: Authorize) -> APIRouter:
         ("conversation", "show"): conversation_handler,
         ("story-points",): story_points_handler,
         ("timeline",): timeline_handler,
+        ("chronology", "catalog"): chronology_catalog_handler,
+        ("chronology", "format"): chronology_format_handler,
+        ("chronology", "convert"): chronology_convert_handler,
+        ("chronology", "search"): chronology_search_handler,
+        ("chronology", "story-times"): chronology_story_times_handler,
         ("threads",): threads_handler,
         ("thread-memberships",): thread_memberships_handler,
         ("whereabouts",): whereabouts_handler,

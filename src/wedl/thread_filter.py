@@ -4,7 +4,7 @@ from dataclasses import dataclass
 import sqlite3
 from typing import Any
 
-from . import THREAD_SOURCE_SCHEMA
+from . import CHRONOLOGY_SOURCE_SCHEMA, THREAD_SOURCE_SCHEMA
 from .errors import UsageError
 from .ids import valid_id
 
@@ -26,7 +26,7 @@ def resolve_thread_filter(
     connection: sqlite3.Connection,
     thread_ids: tuple[str, ...] | None,
 ) -> ThreadFilter | None:
-    """Validate a private thread selector against the compiled v0.5 world."""
+    """Validate a private thread selector against a compiled v0.5/v0.6 world."""
 
     if thread_ids is None:
         return None
@@ -42,7 +42,10 @@ def resolve_thread_filter(
         raise UsageError("thread filter thread ids must be sorted")
 
     revision = connection.execute("SELECT source_schema FROM revision LIMIT 1").fetchone()
-    if revision is None or revision[0] != THREAD_SOURCE_SCHEMA:
+    if revision is None or revision[0] not in {THREAD_SOURCE_SCHEMA, CHRONOLOGY_SOURCE_SCHEMA}:
+        # Preserve the established public diagnostic; v0.6 is accepted by the
+        # predicate above even though this legacy wording names the first
+        # thread-capable source contract.
         raise UsageError("thread filtering requires a validated wedl/v0.5 world")
 
     placeholders = ",".join("?" for _ in normalized_ids)

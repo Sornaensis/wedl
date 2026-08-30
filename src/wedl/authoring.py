@@ -10,10 +10,13 @@ from __future__ import annotations
 
 import hashlib
 import json
+import re
 from copy import deepcopy
 from typing import Any
 
 from .errors import ConfirmationMismatch, ConfirmationRequired, ConflictError, UsageError
+from .errors import ChronologyUpgradeRequired
+from . import CHRONOLOGY_SOURCE_SCHEMA
 from .conversation import participant_at
 from .ids import id_from_seed
 from .model import ORDER_MAX, ORDER_MIN, StoryTime, World
@@ -76,7 +79,7 @@ def _intent_hash(intent: dict[str, Any]) -> str:
 def _envelope(repository: Repository, intent: dict[str, Any], operations: list[dict[str, Any]]) -> dict[str, Any]:
     return {
         "protocol": "wedl-changeset/v1",
-        "expectedHead": repository.head(),
+        "expectedHead": str(intent.get("expectedHead") or repository.head()),
         "idempotencyKey": str(intent.get("idempotencyKey") or _stable_key(intent)),
         "summary": str(intent.get("summary") or f"Authoring: {intent['action']}"),
         "operations": operations,
@@ -494,6 +497,13 @@ def author_impact(repository: Repository, intent: dict[str, Any], payload: dict[
     action = str(intent.get("action") or "")
     payload = payload or compile_intent(repository, intent)
     operations = payload.get("operations") or []
+    if action == "chronology.replace":
+        catalog = sum(1 for operation in operations if operation.get("entity") == world.world_record.id)
+        records = [world.get(str(operation["entity"])).title for operation in operations if operation.get("entity") != world.world_record.id]
+        items: list[dict[str, Any]] = []
+        if catalog: items.append({"kind": "chronology-catalog-replaced"})
+        items.extend({"kind": "chronology-annotations-replaced", "record": title} for title in records)
+        return {"summary": "Replaced chronology catalogue and annotations." if catalog and records else "Replaced chronology catalogue." if catalog else "Replaced chronology annotations.", "items": items}
     if action == "hypothesis.create":
         operation = next(operation for operation in operations if operation.get("type") == "entity.create")
         value = operation.get("value") or {}; frontmatter = value.get("frontmatter") or {}
@@ -558,6 +568,262 @@ def preview_intent(repository: Repository, intent: dict[str, Any]) -> dict[str, 
     }
 
 
+_CHRONOLOGY_INT_FIELDS = frozenset({"year", "month", "day", "number", "days", "period", "residue", "target_month", "delta_days", "axis_day", "tick", "order", "value", "display_year", "machine_year"})
+_CHRONOLOGY_CAMEL = {"calendarId": "calendar_id", "eraId": "era_id", "displayYear": "display_year", "machineYear": "machine_year", "displayYearZero": "display_year_zero", "axisDay": "axis_day", "storyTime": "story_time", "displayEpoch": "display_epoch", "displayValue": "display_value", "targetMonth": "target_month", "deltaDays": "delta_days", "intercalaryMonth": "intercalary_month", "beforeId": "before_id", "afterId": "after_id", "temporaryId": "temporaryId"}
+_CHRONOLOGY_EXTENSION = re.compile(r"^x-[A-Za-z0-9_.-]+$")
+_MAX_CONFLICT_DEPTH = 64
+
+
+def _chronology_extensions(value: Any, allowed: set[str], required: set[str], where: str) -> tuple[dict[str, Any], dict[str, Any]]:
+    """Split a closed public object from its explicitly permitted ``x-*`` data."""
+
+    if not isinstance(value, dict) or not required.issubset(value):
+        raise UsageError(f"{where} is malformed")
+    unknown = set(value).difference(allowed)
+    if any(not isinstance(key, str) or not _CHRONOLOGY_EXTENSION.fullmatch(key) for key in unknown):
+        raise UsageError(f"{where} contains unsupported fields")
+    return ({key: item for key, item in value.items() if key in allowed}, {key: deepcopy(item) for key, item in value.items() if key in unknown})
+
+
+def _chronology_tag_extensions(value: Any, where: str) -> dict[str, Any]:
+    """Copy source-tag extensions without interpreting their opaque JSON."""
+
+    if not isinstance(value, dict) or any(
+        not isinstance(key, str) or not _CHRONOLOGY_EXTENSION.fullmatch(key)
+        for key in value
+    ):
+        raise UsageError(f"{where}.tagExtensions must contain only x-* members")
+    return deepcopy(value)
+
+
+def _chronology_value_parts(
+    value: Any, allowed: set[str], required: set[str], where: str,
+) -> tuple[dict[str, Any], dict[str, Any], dict[str, Any]]:
+    """Split public value core, payload extensions, and tag extensions.
+
+    Direct ``x-*`` members belong to the source value payload.  The optional
+    ``tagExtensions`` object reversibly represents only ``x-*`` members beside
+    the source value's discriminator tag, including deliberately colliding
+    names.  Neither channel is traversed or coerced.
+    """
+
+    core, payload_extensions = _chronology_extensions(
+        value, allowed | {"tagExtensions"}, required, where,
+    )
+    tag_extensions = (
+        _chronology_tag_extensions(core.pop("tagExtensions"), where)
+        if "tagExtensions" in core
+        else {}
+    )
+    return core, payload_extensions, tag_extensions
+
+
+def _nonblank_chronology_string(value: Any, where: str) -> str:
+    if not isinstance(value, str) or not value.strip():
+        raise UsageError(f"{where} must be a nonblank string")
+    return value
+
+
+def _chronology_source(value: Any, key: str | None = None) -> Any:
+    """Transcode only public chronology camelCase/decimal leaves to source."""
+    if isinstance(value, list): return [_chronology_source(item) for item in value]
+    if not isinstance(value, dict):
+        if key in _CHRONOLOGY_INT_FIELDS:
+            if not isinstance(value, str) or value == "-0" or not __import__("re").fullmatch(r"-?(0|[1-9][0-9]*)", value):
+                raise UsageError(f"chronology field {key} must be a canonical decimal string")
+            return int(value)
+        return value
+    result: dict[str, Any] = {}
+    for raw_key, raw_value in value.items():
+        if isinstance(raw_key, str) and raw_key.startswith("x-"):
+            # Extensions are opaque source-compatible data.  In particular, an
+            # extension with a member named ``year`` is not a chronology
+            # coordinate and must not be coerced during public transcoding.
+            result[raw_key] = deepcopy(raw_value)
+            continue
+        source_key = _CHRONOLOGY_CAMEL.get(raw_key, raw_key)
+        result[source_key] = _chronology_source(raw_value, source_key)
+    return result
+
+
+def _decode_authoring_chronology_value(value: Any, *, _depth: int = 0) -> dict[str, Any]:
+    """Decode the closed public authoring value union recursively.
+
+    This is intentionally separate from the public read codec: relative and
+    duration values are source-valid annotation values but are not read-query
+    operands.  Recursing here also leaves scoped ``beforeId``/``afterId``
+    leaves intact for the existing narrowly scoped changeset substitution.
+    """
+
+    if not isinstance(value, dict) or not isinstance(value.get("kind"), str):
+        raise UsageError("chronology value is malformed")
+    kind = value["kind"]
+    if kind == "relative":
+        core, extensions, tag_extensions = _chronology_value_parts(value, {"kind", "relation", "beforeId", "afterId"}, {"kind", "relation"}, "relative chronology value")
+        if not isinstance(core["relation"], str) or not any(name in core and isinstance(core[name], str) and core[name].strip() for name in ("beforeId", "afterId")):
+            raise UsageError("relative chronology value is malformed")
+        result = {"relation": core["relation"]}
+        if "beforeId" in core: result["before_id"] = core["beforeId"]
+        if "afterId" in core: result["after_id"] = core["afterId"]
+        return {"relative": {**result, **extensions}, **tag_extensions}
+    if kind == "duration":
+        core, extensions, tag_extensions = _chronology_value_parts(value, {"kind", "unit", "value"}, {"kind", "unit", "value"}, "duration chronology value")
+        if core.get("unit") not in {"year", "month", "day"}:
+            raise UsageError("duration chronology value is malformed")
+        from .chronology_api import _decimal
+        return {"duration": {"unit": core["unit"], "value": _decimal(core["value"], "duration.value"), **extensions}, **tag_extensions}
+    if kind == "conflict":
+        core, extensions, tag_extensions = _chronology_value_parts(value, {"kind", "claims"}, {"kind", "claims"}, "conflict chronology value")
+        claims = core["claims"]
+        if not isinstance(claims, list) or not 2 <= len(claims) <= 64:
+            raise UsageError("conflict chronology value is malformed")
+        if _depth >= _MAX_CONFLICT_DEPTH:
+            raise UsageError(f"conflict nesting exceeds {_MAX_CONFLICT_DEPTH}")
+        return {"conflict": {"claims": [_decode_authoring_chronology_value(claim, _depth=_depth + 1) for claim in claims], **extensions}, **tag_extensions}
+
+    def endpoint(item: Any, calendar_id: str, where: str) -> tuple[Any, dict[str, Any]]:
+        if item is None:
+            return None, {}
+        core, extensions = _chronology_extensions(item, {"calendarId", "year", "month", "day"}, {"year"}, where)
+        if "calendarId" in core and _nonblank_chronology_string(core["calendarId"], f"{where}.calendarId") != calendar_id:
+            raise UsageError(f"{where}.calendarId must match the range calendar")
+        return core, extensions
+
+    extensions: dict[str, Any]
+    tag_extensions: dict[str, Any]
+    endpoint_extensions: tuple[dict[str, Any], dict[str, Any]] | None = None
+    bounds_extensions: dict[str, Any] | None = None
+    if kind in {"civil", "era"}:
+        identifier = "calendarId" if kind == "civil" else "eraId"
+        core, extensions, tag_extensions = _chronology_value_parts(value, {"kind", identifier, "year", "month", "day"}, {"kind", identifier, "year"}, f"{kind} chronology value")
+        _nonblank_chronology_string(core[identifier], identifier)
+    elif kind == "range":
+        core, extensions, tag_extensions = _chronology_value_parts(value, {"kind", "calendarId", "lower", "upper"}, {"kind", "calendarId", "lower", "upper"}, "range chronology value")
+        calendar_id = _nonblank_chronology_string(core["calendarId"], "range.calendarId")
+        lower, lower_extensions = endpoint(core["lower"], calendar_id, "range.lower")
+        upper, upper_extensions = endpoint(core["upper"], calendar_id, "range.upper")
+        core = {**core, "lower": lower, "upper": upper}
+        endpoint_extensions = (lower_extensions, upper_extensions)
+    elif kind == "approximate":
+        core, extensions, tag_extensions = _chronology_value_parts(value, {"kind", "displayValue", "bounds"}, {"kind", "displayValue", "bounds"}, "approximate chronology value")
+        if not isinstance(core["displayValue"], str):
+            raise UsageError("approximate.displayValue must be a string")
+        bounds, bounds_extensions = _chronology_extensions(core["bounds"], {"calendarId", "lower", "upper"}, {"lower", "upper"}, "approximate.bounds")
+        if bounds["lower"] is None and bounds["upper"] is None:
+            if "calendarId" in bounds:
+                raise UsageError("qualitative approximate.bounds must omit calendarId")
+            # A display-only approximation has no source basis.  Preserve its
+            # calendar-free bounds verbatim instead of creating an internal
+            # CivilRange with an invented identifier.
+            return {
+                "approx": {
+                    "display_value": core["displayValue"],
+                    "bounds": {"lower": None, "upper": None, **bounds_extensions},
+                    **extensions,
+                },
+                **tag_extensions,
+            }
+        if "calendarId" not in bounds:
+            raise UsageError("approximate.bounds.calendarId is required when a bound is present")
+        calendar_id = _nonblank_chronology_string(bounds["calendarId"], "approximate.bounds.calendarId")
+        lower, lower_extensions = endpoint(bounds["lower"], calendar_id, "approximate.bounds.lower")
+        upper, upper_extensions = endpoint(bounds["upper"], calendar_id, "approximate.bounds.upper")
+        core = {**core, "bounds": {**bounds, "lower": lower, "upper": upper}}
+        endpoint_extensions = (lower_extensions, upper_extensions)
+    else:
+        raise UsageError("unsupported chronology date kind")
+
+    from .chronology_api import decode_date_value
+    decoded = decode_date_value(core)
+    def date(item: Any) -> dict[str, Any]:
+        from .chronology import ApproximateDate, CivilDate, CivilRange, ConflictingDates, EraDate
+        if isinstance(item, CivilDate):
+            result = {"calendar_id": item.calendar_id, "year": item.year}
+            if item.month is not None: result["month"] = item.month
+            if item.day is not None: result["day"] = item.day
+            return {"civil": result}
+        if isinstance(item, EraDate):
+            result = {"era_id": item.era_id, "year": item.year}
+            if item.month is not None: result["month"] = item.month
+            if item.day is not None: result["day"] = item.day
+            return {"era": result}
+        if isinstance(item, CivilRange):
+            endpoint = lambda bound: None if bound is None else {"calendar_id": bound.calendar_id, "year": bound.year, **({"month": bound.month} if bound.month is not None else {}), **({"day": bound.day} if bound.day is not None else {})}
+            return {"range": {"calendar_id": item.calendar_id, "lower": endpoint(item.lower), "upper": endpoint(item.upper)}}
+        if isinstance(item, ApproximateDate):
+            bounds = date(item.bounds)["range"]
+            # Source ``approx.bounds`` deliberately carries only endpoints;
+            # the range-level calendar is represented by each non-null civil
+            # endpoint, not repeated at this container level.
+            return {"approx": {"display_value": item.display_value, "bounds": {"lower": bounds["lower"], "upper": bounds["upper"]}}}
+        raise UsageError("unsupported chronology value")
+    result = date(decoded)
+    payload = next(iter(result.values()))
+    payload.update(extensions)
+    if endpoint_extensions is not None:
+        lower_extensions, upper_extensions = endpoint_extensions
+        bounds = payload if kind == "range" else payload["bounds"]
+        if bounds["lower"] is not None: bounds["lower"].update(lower_extensions)
+        if bounds["upper"] is not None: bounds["upper"].update(upper_extensions)
+    if bounds_extensions is not None:
+        payload["bounds"].update(bounds_extensions)
+    result.update(tag_extensions)
+    return result
+
+
+def _chronology_date(value: Any) -> dict[str, Any]:
+    """Backward-compatible internal name for the recursive authoring decoder."""
+
+    return _decode_authoring_chronology_value(value)
+
+
+def _identifier(value: dict[str, Any], prefix: str) -> dict[str, Any]:
+    if not isinstance(value, dict) or set(value).difference({"id", "temporaryId"}) or len(value) != 1:
+        raise UsageError(f"chronology {prefix} requires exactly id or temporaryId")
+    field, identifier = next(iter(value.items()))
+    _nonblank_chronology_string(identifier, f"chronology {prefix} identifier")
+    if field == "temporaryId" and not identifier.startswith(f"${prefix}."):
+        raise UsageError(f"chronology temporary ID must use ${prefix}. scope")
+    return {field: identifier}
+
+
+def _chronology_catalog(value: Any) -> dict[str, Any]:
+    if not isinstance(value, dict) or set(value) != {"calendars", "eras", "anchors"}:
+        raise UsageError("chronology catalog must fully replace calendars, eras, and anchors")
+    result: dict[str, Any] = {}
+    fields = {
+        "calendars": {"id", "temporaryId", "label", "months", "rule", "epoch"},
+        "eras": {"id", "temporaryId", "calendarId", "label", "aliases", "displayYearZero", "displayEpoch", "bounds", "provenance"},
+        "anchors": {"id", "temporaryId", "axisDay", "storyTime", "provenance"},
+    }
+    for collection, prefix in (("calendars", "calendar"), ("eras", "era"), ("anchors", "chronology")):
+        values = value[collection]
+        if not isinstance(values, list) or len(values) > 500: raise UsageError(f"chronology catalog {collection} must be an array of at most 500")
+        converted = []
+        for item in values:
+            if not isinstance(item, dict): raise UsageError(f"chronology catalog {collection} entries must be objects")
+            core, extensions = _chronology_extensions(item, fields[collection], {"id"} if "id" in item else {"temporaryId"}, f"chronology catalog {collection} entry")
+            identifier = _identifier({key: core[key] for key in ("id", "temporaryId") if key in core}, prefix)
+            copy = _chronology_source({key: data for key, data in core.items() if key not in {"id", "temporaryId"}})
+            converted.append({**identifier, **copy, **extensions})
+        # Stable permanent IDs have source-required ordering; temporary IDs use
+        # their literal scoped token until changeset allocation canonicalizes.
+        result[collection] = sorted(converted, key=lambda item: str(item.get("id") or item.get("temporaryId")))
+    return result
+
+
+def _chronology_annotation(value: Any) -> dict[str, Any]:
+    core, extensions = _chronology_extensions(value, {"id", "temporaryId", "role", "display", "provenance", "value"}, {"provenance", "value"}, "chronology annotation")
+    result = _identifier({key: core[key] for key in ("id", "temporaryId") if key in core}, "chronology")
+    if not isinstance(core["provenance"], list) or any(not isinstance(item, str) for item in core["provenance"]): raise UsageError("chronology annotation provenance must be strings")
+    if any(key in core and not isinstance(core[key], str) for key in ("role", "display")):
+        raise UsageError("chronology annotation role and display must be strings")
+    result.update({key: deepcopy(core[key]) for key in ("role", "display", "provenance") if key in core})
+    result["value"] = _chronology_date(core["value"])
+    result.update(extensions)
+    return result
+
+
 def compile_intent(repository: Repository, intent: dict[str, Any]) -> dict[str, Any]:
     """Resolve a small author intent into a canonical raw changeset.
 
@@ -570,6 +836,39 @@ def compile_intent(repository: Repository, intent: dict[str, Any]) -> dict[str, 
     _validate_intent_types(intent)
     action = intent["action"]
     world = repository.load_world(repository.head())
+
+    if action == "chronology.replace":
+        if set(intent).difference({"action", "expectedHead", "change", "summary", "idempotencyKey"}):
+            raise UsageError("chronology.replace contains unsupported fields")
+        if any(field in intent and intent[field] is None for field in ("expectedHead", "change", "summary", "idempotencyKey")):
+            raise UsageError("chronology.replace does not accept null fields")
+        if any(field in intent and not isinstance(intent[field], str) for field in ("summary", "idempotencyKey")):
+            raise UsageError("chronology.replace summary and idempotencyKey must be strings")
+        if world.schema != CHRONOLOGY_SOURCE_SCHEMA:
+            raise ChronologyUpgradeRequired("chronology authoring requires wedl/v0.6", details={"code": "WDL-MIG-V06-004", "sourceSchema": world.schema, "upgradeAvailable": False})
+        expected = intent.get("expectedHead")
+        if not isinstance(expected, str) or not __import__("re").fullmatch(r"[0-9a-f]{40}", expected):
+            raise UsageError("chronology.replace requires a 40-character expectedHead")
+        change = intent.get("change")
+        if not isinstance(change, dict) or set(change).difference({"catalog", "records"}) or not change or not any(key in change for key in ("catalog", "records")):
+            raise UsageError("chronology.replace requires a closed change with catalog and/or records")
+        operations: list[dict[str, Any]] = []
+        if "catalog" in change:
+            catalog = _chronology_catalog(change["catalog"])
+            operations.append({"type": "entity.update", "entity": world.world_record.id, "frontmatterPatch": {"chronology": catalog}})
+        if "records" in change:
+            if not isinstance(change["records"], list) or not change["records"]:
+                raise UsageError("chronology.replace records must be a non-empty array")
+            resolved: set[str] = set()
+            for item in change["records"]:
+                if not isinstance(item, dict) or set(item) != {"record", "annotations"} or not isinstance(item["record"], str) or not item["record"].strip() or not isinstance(item["annotations"], list):
+                    raise UsageError("each chronology record replacement requires record and annotations")
+                record = world.find(item["record"])
+                if record.kind == "world" or record.id in resolved:
+                    raise UsageError("chronology record replacements must name distinct non-world records")
+                resolved.add(record.id)
+                operations.append({"type": "entity.update", "entity": record.id, "frontmatterPatch": {"chronology": [_chronology_annotation(value) for value in item["annotations"]]}})
+        return _envelope(repository, intent, operations)
 
     if action == "current-time.set":
         point = _time(world, intent.get("time"))

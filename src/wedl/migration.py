@@ -15,7 +15,7 @@ import json
 import re
 from typing import Any
 
-from . import THREAD_SOURCE_SCHEMA, V04_SOURCE_SCHEMA
+from . import CHRONOLOGY_SOURCE_SCHEMA, THREAD_SOURCE_SCHEMA, V04_SOURCE_SCHEMA
 from .compiler import compile_world
 from .errors import ConfirmationMismatch, ConfirmationRequired, ConflictError, RepositoryError, StaleRevision, ValidationFailed
 from .model import Record, World
@@ -26,7 +26,7 @@ from .validation import validate_world
 
 
 PROTOCOL = "wedl-migration/v1"
-MODES = frozenset(("upgrade-v03", "recover-v04", "rollback"))
+MODES = frozenset(("upgrade-v03", "upgrade-v06", "recover-v04", "rollback"))
 BACKUP_PREFIX = "refs/wedl/backups/migration/"
 _BACKUP_REF_RE = re.compile(r"^refs/wedl/backups/migration/[0-9a-f]{64}$")
 
@@ -67,7 +67,7 @@ def _request_fields(request: dict[str, Any], *, require_source_hash: bool = Fals
         raise RepositoryError(f"migration request protocol must be {PROTOCOL}")
     mode = request.get("mode")
     if mode not in MODES:
-        raise RepositoryError("migration mode must be upgrade-v03, recover-v04, or rollback")
+        raise RepositoryError("migration mode must be upgrade-v03, upgrade-v06, recover-v04, or rollback")
     expected = request.get("expectedHead")
     source_hash = request.get("sourceSnapshotHash")
     key = request.get("idempotencyKey")
@@ -146,6 +146,80 @@ def _v03_candidate(repository: Repository, snapshot: Snapshot, raw: list[tuple[s
         else:
             frontmatter.pop("threads", None)
         candidate.append((path, frontmatter, body))
+    return candidate, [], False
+
+
+_EMPTY_CHRONOLOGY = {"calendars": [], "eras": [], "anchors": []}
+_SCHEMA_VERSION_RE = re.compile(r"^wedl/v(\d+)\.(\d+)$")
+
+
+def _v06_diagnostic(code: str, message: str, *, path: str = "", field: str = "schema") -> dict[str, Any]:
+    return _diagnostic(code, message, path=path, field=field)
+
+
+def _classify_v06_source_schema(schema: Any) -> tuple[str, str]:
+    """Classify schema labels numerically; lexical order misreads ``v0.10``."""
+    if not isinstance(schema, str):
+        return "WDL-MIG-V06-006", "source_schema_too_new"
+    match = _SCHEMA_VERSION_RE.fullmatch(schema)
+    if match is None:
+        return "WDL-MIG-V06-006", "source_schema_too_new"
+    version = (int(match.group(1)), int(match.group(2)))
+    if version < (0, 3):
+        return "WDL-MIG-V06-007", "source_schema_too_old"
+    return "WDL-MIG-V06-006", "source_schema_too_new"
+
+
+def _v06_candidate(repository: Repository, snapshot: Snapshot, raw: list[tuple[str, dict[str, Any], str, bytes]]) -> tuple[list[tuple[str, dict[str, Any], str]], list[dict[str, Any]], bool]:
+    """Build the narrow v0.3/v0.5 -> v0.6 source candidate.
+
+    The existing migration envelope, backup, confirmation, and receipt logic is
+    the transaction authority. This transformation adds no time interpretation.
+    """
+    schemas = {frontmatter.get("schema") for _path, frontmatter, _body, _data in raw}
+    if len(schemas) != 1:
+        return [], [_v06_diagnostic("WDL-MIG-V06-002", "mixed_source_schema")], False
+    schema = next(iter(schemas), None)
+    if schema == V04_SOURCE_SCHEMA:
+        return [], [_v06_diagnostic("WDL-MIG-V06-003", "recover_v04_to_v05_first")], False
+    if schema == CHRONOLOGY_SOURCE_SCHEMA:
+        candidate = [(path, deepcopy(frontmatter), body) for path, frontmatter, body, _data in raw]
+        world = _world_for_candidate(repository, snapshot.revision, snapshot.tree_oid, candidate)
+        if any(item["severity"] == "error" for item in validate_world(world)):
+            return [], [_v06_diagnostic("WDL-MIG-V06-009", "v06_candidate_invalid")], False
+        return [], [], True
+    if schema not in {"wedl/v0.3", THREAD_SOURCE_SCHEMA}:
+        code, message = _classify_v06_source_schema(schema)
+        return [], [_v06_diagnostic(code, message)], False
+    for path, frontmatter, _body, _data in raw:
+        if "chronology" in frontmatter:
+            return [], [_v06_diagnostic("WDL-MIG-V06-008", "legacy_chronology_present", path=path, field="chronology")], False
+    legacy = [(path, deepcopy(frontmatter), body) for path, frontmatter, body, _data in raw]
+    legacy_world = _world_for_candidate(repository, snapshot.revision, snapshot.tree_oid, legacy)
+    if any(item["severity"] == "error" for item in validate_world(legacy_world)):
+        return [], [_v06_diagnostic("WDL-MIG-V06-010", "pinned_legacy_invalid")], False
+    worlds = [(path, frontmatter) for path, frontmatter, _body, _data in raw if frontmatter.get("kind") == "world"]
+    if len(worlds) != 1:
+        return [], [_v06_diagnostic("WDL-MIG-V06-010", "pinned_legacy_invalid")], False
+    world_path, old_world = worlds[0]
+    if schema == "wedl/v0.3":
+        timelines = old_world.get("timelines")
+        if not isinstance(timelines, list) or len(timelines) != 1 or not isinstance(timelines[0], dict) or old_world.get("default_timeline") != timelines[0].get("id"):
+            return [], [_v06_diagnostic("WDL-MIG-V06-001", "v03_requires_one_timeline", path=world_path, field="timelines")], False
+    candidate: list[tuple[str, dict[str, Any], str]] = []
+    for path, original, body, _data in raw:
+        frontmatter = deepcopy(original)
+        frontmatter["schema"] = CHRONOLOGY_SOURCE_SCHEMA
+        if path == world_path:
+            if schema == "wedl/v0.3":
+                frontmatter["threads"] = []
+            frontmatter["chronology"] = deepcopy(_EMPTY_CHRONOLOGY)
+        elif schema == "wedl/v0.3":
+            frontmatter.pop("threads", None)
+        candidate.append((path, frontmatter, body))
+    world = _world_for_candidate(repository, snapshot.revision, snapshot.tree_oid, candidate)
+    if any(item["severity"] == "error" for item in validate_world(world)):
+        return [], [_v06_diagnostic("WDL-MIG-V06-009", "v06_candidate_invalid")], False
     return candidate, [], False
 
 
@@ -269,6 +343,8 @@ def _plan(repository: Repository, request: dict[str, Any], snapshot: Snapshot) -
     mode = request["mode"]
     if mode == "upgrade-v03":
         candidate, diagnostics, no_op = _v03_candidate(repository, snapshot, raw)
+    elif mode == "upgrade-v06":
+        candidate, diagnostics, no_op = _v06_candidate(repository, snapshot, raw)
     elif mode == "recover-v04":
         candidate, diagnostics, no_op = _v04_candidate(repository, snapshot, raw)
     if diagnostics:
