@@ -12,7 +12,7 @@ import json
 import sqlite3
 from typing import Any
 
-from . import CHRONOLOGY_SOURCE_SCHEMA
+from . import CHRONOLOGY_SOURCE_SCHEMA, V07_SOURCE_SCHEMA
 from .chronology import (Anchor, ApproximateDate, AxisDay, CalendarDefinition,
     CalendarEpoch, CivilDate, CivilRange, ConflictingDates, CycleOverride,
     CycleRule, EraBounds, EraDate, EraDefinition, IntercalaryMonth, LocalDay,
@@ -380,10 +380,15 @@ def _annotation(record_id: str, record_ordinal: int, ordinal: int, raw: dict[str
 
 
 def build_chronology_projection(world: World, *, validated: bool = False) -> ChronologyProjection:
-    if world.schema != CHRONOLOGY_SOURCE_SCHEMA:
+    if world.schema not in {CHRONOLOGY_SOURCE_SCHEMA, V07_SOURCE_SCHEMA} or "chronology" not in world.world_record.frontmatter:
         return ChronologyProjection(None, (), (), (), ())
-    if not validated and validate_v06_candidate(world):
-        raise ValueError("chronology projection requires a valid v0.6 world")
+    if not validated:
+        if world.schema == CHRONOLOGY_SOURCE_SCHEMA and validate_v06_candidate(world):
+            raise ValueError("chronology projection requires a valid v0.6 world")
+        if world.schema == V07_SOURCE_SCHEMA:
+            from .validation import validate_world
+            if validate_world(world):
+                raise ValueError("chronology projection requires a valid v0.7 world")
     declaration = world.world_record.frontmatter["chronology"]
     definitions = tuple(_calendar(item) for item in declaration["calendars"])
     calendar_ids = tuple((item["id"], definition.id) for item, definition in zip(declaration["calendars"], definitions, strict=True))

@@ -14,7 +14,7 @@ import pytest
 
 from wedl import THREAD_SOURCE_SCHEMA, V04_SOURCE_SCHEMA
 from wedl.changeset import apply as apply_changeset, preview as preview_changeset
-from wedl.compiler import compile_world, connect, require_database
+from wedl.compiler import cache_readiness, compile_world, connect, require_database
 from wedl.errors import SupersededSchemaError
 from wedl.migration import PROTOCOL, apply, preview
 from wedl.query import causality, entity_state, search_world, thread_catalog, thread_memberships
@@ -116,7 +116,7 @@ def test_real_compile_release_path_and_rollback_boundary(tmp_path, mode, monkeyp
         assert compile_world(Repository(root), force=True, profile_name="hybrid")["searchDocumentCount"] > 0
 
 
-def test_v03_release_preserves_observable_state_causality_and_search_artifacts(ash_repo, monkeypatch, tmp_path) -> None:
+def test_v07_release_preserves_observable_state_causality_and_search_artifacts(ash_repo, monkeypatch, tmp_path) -> None:
     """Use the representative archive to compare real public/data-plane evidence."""
     compile_world(ash_repo, force=True, profile_name="hybrid")
     world = ash_repo.load_world()
@@ -132,19 +132,58 @@ def test_v03_release_preserves_observable_state_causality_and_search_artifacts(a
         before_models = connection.execute("SELECT scope,model_id,provider,model_name,dimensions,normalized,corpus_hash,config_json FROM vector_model ORDER BY scope").fetchall()
         before_links = connection.execute("SELECT document_id,vector_id FROM document_vector ORDER BY document_id").fetchall()
     monkeypatch.setattr("wedl.migration.compile_world", lambda _repo: {"status": "deferred-to-restart"})
-    _apply(ash_repo, _request(ash_repo, "upgrade-v03", "archive-observable"))
+    _apply(ash_repo, _request(ash_repo, "upgrade-v07", "archive-observable"))
     del world, _world, database
     gc.collect()
     clone_root = tmp_path / "migrated-source"
     shutil.copytree(ash_repo.root / "story", clone_root / "story")
     fresh = Repository(clone_root); _real_compile(fresh)
-    assert fresh.load_world().world_record.frontmatter["threads"] == []
-    assert search_world(fresh, "archive", mode="hybrid", all_time=True, require_compiled=True)["results"] == before_search["results"]
-    assert causality(fresh, event.id, require_compiled=True)["edges"] == before_causal["edges"]
-    assert entity_state(fresh, character.id, 0, require_compiled=True)["state"] == before_state["state"]
+    assert fresh.load_world().schema == "wedl/v0.7"
+    assert fresh.load_world().world_record.frontmatter.get("threads", []) == []
     _world, database = require_database(fresh, require_compiled=True)
     with connect(database, True) as connection:
-        assert connection.execute("SELECT document_id,chunk_hash FROM search_document ORDER BY document_id").fetchall() == before_documents
+        documents = connection.execute("SELECT document_id,chunk_hash FROM search_document ORDER BY document_id").fetchall()
+        assert documents == before_documents
         assert connection.execute("SELECT input_hash,dimensions,vector FROM vector_embedding ORDER BY input_hash").fetchall() == before_vectors
         assert connection.execute("SELECT scope,model_id,provider,model_name,dimensions,normalized,corpus_hash,config_json FROM vector_model ORDER BY scope").fetchall() == before_models
         assert connection.execute("SELECT document_id,vector_id FROM document_vector ORDER BY document_id").fetchall() == before_links
+    assert search_world(fresh, "archive", mode="hybrid", all_time=True, require_compiled=True)["results"] == before_search["results"]
+    assert causality(fresh, event.id, require_compiled=True)["edges"] == before_causal["edges"]
+    assert entity_state(fresh, character.id, 0, require_compiled=True)["state"] == before_state["state"]
+
+
+def test_v07_real_cache_rebuild_changes_the_capability_fingerprint_and_rollback_restores_it(ash_repo, monkeypatch, tmp_path) -> None:
+    original = ash_repo.snapshot().files
+    compile_world(ash_repo, force=True, profile_name="hybrid")
+    _world, database = require_database(ash_repo, require_compiled=True)
+    with connect(database, True) as connection:
+        legacy_fingerprint = connection.execute("SELECT compiler_fingerprint FROM revision").fetchone()[0]
+
+    monkeypatch.setattr("wedl.migration.compile_world", lambda _repo: {"status": "deferred-to-restart"})
+    plan, applied = _apply(ash_repo, _request(ash_repo, "upgrade-v07", "v07-real-cache"))
+    assert applied["status"] == "committed"
+    restarted = Repository(ash_repo.root)
+    assert cache_readiness(restarted)["state"] in {"stale", "incompatible"}
+    migrated_root = tmp_path / "migrated-restart"
+    shutil.copytree(ash_repo.root / "story", migrated_root / "story")
+    migrated = Repository(migrated_root)
+    compile_world(migrated, force=True, profile_name="hybrid")
+    _world, database = require_database(migrated, require_compiled=True)
+    with connect(database, True) as connection:
+        schema, v07_fingerprint = connection.execute("SELECT source_schema,compiler_fingerprint FROM revision").fetchone()
+    assert schema == "wedl/v0.7"
+    assert v07_fingerprint != legacy_fingerprint
+
+    _rollback, restored = _apply(restarted, _request(restarted, "rollback", "v07-real-cache-rollback", rollbackBackupRef=plan["backupRef"]))
+    assert restored["status"] == "committed"
+    assert restarted.snapshot().files == original
+    assert cache_readiness(restarted)["state"] in {"stale", "incompatible"}
+    restored_root = tmp_path / "restored-restart"
+    shutil.copytree(ash_repo.root / "story", restored_root / "story")
+    fresh = Repository(restored_root)
+    compile_world(fresh, force=True, profile_name="hybrid")
+    _world, database = require_database(fresh, require_compiled=True)
+    with connect(database, True) as connection:
+        schema, restored_fingerprint = connection.execute("SELECT source_schema,compiler_fingerprint FROM revision").fetchone()
+    assert schema == "wedl/v0.3"
+    assert restored_fingerprint == legacy_fingerprint

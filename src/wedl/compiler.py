@@ -26,12 +26,13 @@ from .util import canonical_json, sha256_bytes
 from .validation import validate_world
 from .chronology_index import build_chronology_projection, insert_chronology_index
 from .v07 import SOURCE_SCHEMA as V07_SOURCE_SCHEMA
+from .spatial_index import build_spatial_projection, insert_spatial_index
 
 
 # Bump when search-document construction changes without a SQLite DDL change.
 # The token is persisted inside compiler_fingerprint and is checked before the
 # early cache hit path as well as require_database's compatibility gate.
-DOCUMENT_GENERATION_TOKEN = "wedl-document-generation/v3"
+DOCUMENT_GENERATION_TOKEN = "wedl-document-generation/v4"
 CHRONOLOGY_INDEX_GENERATION_TOKEN = "wedl-chronology-index/v3"
 # The spatial projection is latent until the explicit v0.7 migration task
 # enables generic compilation.  It still participates in the cache contract:
@@ -223,6 +224,7 @@ def vector_cache(repository: Repository) -> sqlite3.Connection:
 def fingerprint(world: World, profile: CompilationProfile) -> str:
     material = canonical_json({
         "source": world.schema,
+        "capabilities": list(world.world_record.frontmatter.get("capabilities") or ()) if world.schema == V07_SOURCE_SCHEMA else [],
         "sqlite": SQLITE_SCHEMA,
         "version": __version__,
         "profile": profile.as_dict(),
@@ -969,15 +971,10 @@ def compile_world(
             "timingsMs": {key: round(value, 3) for key, value in timings.items()},
         }
 
-    # Load and parse once.  The non-writing path preserves the latent v0.7
-    # boundary: rejecting that component must not create a source or compiled
-    # cache as a side effect.
+    # Load and parse once.  Invalid candidates never create a compiled cache.
     stage = time.perf_counter()
     world = repository.load_world(resolved, cache_write=False)
     timings["loadSource"] = (time.perf_counter() - stage) * 1000
-    if world.schema == V07_SOURCE_SCHEMA:
-        diagnostics = validate_world(world)
-        raise ValidationFailed("generic compilation does not yet accept wedl/v0.7", diagnostics)
     stage = time.perf_counter()
     diagnostics = validate_world(world)
     timings["validate"] = (time.perf_counter() - stage) * 1000
@@ -1073,6 +1070,9 @@ def compile_world(
             stage = time.perf_counter()
             stats.update(insert_chronology_index(connection, build_chronology_projection(world, validated=True)))
             timings["chronology"] = (time.perf_counter() - stage) * 1000
+            stage = time.perf_counter()
+            stats.update(insert_spatial_index(connection, build_spatial_projection(world, validated=True)))
+            timings["spatial"] = (time.perf_counter() - stage) * 1000
             stage = time.perf_counter()
             current = _insert_derived(connection, world)
             timings["derived"] = (time.perf_counter() - stage) * 1000

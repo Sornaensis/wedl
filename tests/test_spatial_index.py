@@ -9,7 +9,7 @@ import yaml
 
 from wedl import SQLITE_SCHEMA
 from wedl.compiler import DDL, INDEX_DDL, cache_readiness, compile_world, require_database
-from wedl.errors import CompileRequired, ValidationFailed
+from wedl.errors import CompileRequired
 from wedl.model import Record, World
 from wedl.repository import Repository
 from wedl.spatial_index import build_spatial_projection, insert_spatial_index, install_optional_spatial_index
@@ -289,24 +289,22 @@ def test_invalid_component_is_refused_and_non_v07_world_is_empty() -> None:
     assert build_spatial_projection(legacy) == build_spatial_projection(legacy).__class__((), (), (), (), (), (), (), (), (), (), (), (), (), (), (), ())
 
 
-def test_cache_schema_changes_and_generic_compiler_remains_latent() -> None:
+def test_cache_schema_changes_and_generic_compiler_accepts_v07() -> None:
     assert SQLITE_SCHEMA == "wedl-sqlite/v7"
     world = _world()
-    # The projection is available to opt-in component callers only.  Generic
-    # world validation remains the migration boundary.
     from wedl.validation import validate_world
-    assert any(item["code"] == "WDL-SRC-001" for item in validate_world(world))
+    assert validate_world(world) == []
 
 
-def test_generic_v07_compile_rejects_without_creating_a_disposable_cache(tmp_path: Path) -> None:
+def test_generic_v07_compile_builds_the_disposable_cache(tmp_path: Path) -> None:
     world = _world()
     story = tmp_path / "story"
     story.mkdir()
     for ordinal, record in enumerate(world.records.values()):
         (story / f"{ordinal}.md").write_bytes(serialize_record(record.frontmatter, ""))
-    with pytest.raises(ValidationFailed):
-        compile_world(Repository(tmp_path), "WORKTREE", profile_name="state")
-    assert not (tmp_path / ".wedl").exists()
+    result = compile_world(Repository(tmp_path), "WORKTREE", profile_name="state")
+    assert result["status"] == "compiled"
+    assert (tmp_path / ".wedl" / "world.sqlite").exists()
 
 
 def test_supported_cache_miss_loads_and_validates_source_once(ash_repo, monkeypatch: pytest.MonkeyPatch) -> None:

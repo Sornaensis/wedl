@@ -513,12 +513,15 @@ browser interface. Always inspect a preview against the exact current commit,
 then apply its exact hash and confirmation token:
 
 ```bash
-wedl migrate preview --mode upgrade-v03 --expected-head "$(git rev-parse HEAD)" --idempotency-key schema-upgrade-1
-wedl migrate apply --mode upgrade-v03 --expected-head <HEAD> --source-snapshot-hash <SHA256> --idempotency-key schema-upgrade-1 --confirm <TOKEN>
+wedl migrate preview --mode upgrade-v07 --expected-head "$(git rev-parse HEAD)" --idempotency-key schema-upgrade-1
+wedl migrate apply --mode upgrade-v07 --expected-head <HEAD> --source-snapshot-hash <SHA256> --idempotency-key schema-upgrade-1 --confirm <TOKEN>
 ```
 
-It supports the narrow documented `upgrade-v03`, quarantined `recover-v04`,
-and forward `rollback` modes only. It never migrates SQLite in place. See the
+`upgrade-v07` is the coordinated, lossless v0.3/v0.5/v0.6-to-v0.7 transition;
+its target capabilities are derived by WEDL and included in the confirmed
+request. The earlier `upgrade-v03`, `upgrade-v06`, quarantined `recover-v04`,
+and forward `rollback` modes remain available for their established routes. It
+never migrates SQLite in place. See the
 [migration and recovery runbook](docs/MIGRATION_AND_RECOVERY.md).
 
 ### Name-oriented authoring

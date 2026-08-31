@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from contextlib import closing
+from contextlib import closing, contextmanager
 import json
 import os
 from pathlib import Path
@@ -28,7 +28,7 @@ class Snapshot:
 
 
 PARSER_FINGERPRINT = (
-    f"wedl-parser:{__version__}:{','.join(sorted(SUPPORTED_SOURCE_SCHEMAS))}:pyyaml-{yaml.__version__}:"
+    f"wedl-parser:{__version__}:{','.join(sorted(SUPPORTED_SOURCE_SCHEMAS))}:capability-envelope-v1:pyyaml-{yaml.__version__}:"
     f"{'libyaml' if getattr(yaml, '__with_libyaml__', False) else 'python'}"
 )
 
@@ -435,6 +435,42 @@ class Repository:
         message = process.stderr.decode("utf-8", "replace").strip()
         raise RepositoryError(message or "migration backup ref already exists for a different revision")
 
+    @contextmanager
+    def _canonical_write_lock(self):
+        """Serialize WEDL's real-index reconciliation without claiming Git locks.
+
+        The alternate index below makes the commit object independent of the
+        worktree index, but the final index reconciliation must still use
+        Git's real index.  A WEDL-owned lock serializes that small critical
+        section across local processes.  ``index.lock`` remains exclusively
+        Git's: an existing lock is an external transaction and is reported,
+        never removed or reused.
+        """
+
+        git_dir = self.root / ".git"
+        lock_path = git_dir / "wedl-canonical-write.lock"
+        try:
+            descriptor = os.open(lock_path, os.O_WRONLY | os.O_CREAT | os.O_EXCL)
+        except FileExistsError as exc:
+            raise RepositoryError("another WEDL canonical write is in progress") from exc
+        try:
+            with os.fdopen(descriptor, "w", encoding="ascii") as lock_file:
+                lock_file.write(f"pid={os.getpid()}\n")
+            if (git_dir / "index.lock").exists():
+                raise RepositoryError("Git index is locked by another process")
+            yield
+        finally:
+            lock_path.unlink(missing_ok=True)
+
+    @staticmethod
+    def _index_info(blob_ids: dict[str, str | None]) -> bytes:
+        """Encode Git index-info records without treating path bytes as lines."""
+
+        return b"".join(
+            (f"0 {'0' * 40}\t{path}\0" if blob is None else f"100644 {blob}\t{path}\0").encode()
+            for path, blob in sorted(blob_ids.items())
+        )
+
     def commit_files(
         self,
         *,
@@ -445,58 +481,87 @@ class Repository:
     ) -> str:
         if not self.is_git:
             raise RepositoryError("Git is required for canonical writes")
-        self.assert_clean_managed()
-        actual = self.head()
-        if actual != expected_head:
-            raise StaleRevision("repository HEAD changed", details={"expected": expected_head, "actual": actual})
-        env = os.environ.copy()
-        index_path = self.root / ".git" / f"wedl-index-{os.getpid()}"
-        env["GIT_INDEX_FILE"] = str(index_path)
-        try:
-            self._git(["read-tree", expected_head], env=env)
-            blob_ids: dict[str, str | None] = {}
-            for path, data in sorted(files.items()):
-                if data is None:
-                    blob_ids[path] = None
-                    self._git(["update-index", "--force-remove", "--", path], env=env, check=False)
-                    continue
-                blob = self._git(["hash-object", "-w", "--stdin"], input_bytes=data).stdout.decode().strip()
-                blob_ids[path] = blob
-                self._git(["update-index", "--add", "--cacheinfo", "100644", blob, path], env=env)
-            tree = self._git(["write-tree"], env=env).stdout.decode().strip()
-            subject = message.strip().splitlines()[0][:72] or "wedl: update story"
-            full_message = subject
-            if trailers:
-                full_message += "\n\n" + "\n".join(f"{key}: {value}" for key, value in sorted(trailers.items()))
-            commit = self._git(["commit-tree", tree, "-p", expected_head], input_bytes=(full_message + "\n").encode()).stdout.decode().strip()
-            ref = self._git(["symbolic-ref", "-q", "HEAD"], check=False).stdout.decode().strip()
-            if not ref:
-                raise RepositoryError("detached HEAD writes are not supported")
-            self._git(["update-ref", ref, commit, expected_head])
-            # Materialize only touched managed paths; unrelated worktree state
-            # stays untouched. Then advance the *real* index for exactly those
-            # paths to the same blobs as the new commit. Without this second
-            # step, newly committed files appear simultaneously staged-deleted
-            # and untracked because the alternate transaction index is removed.
-            for path, data in files.items():
-                target = self.root / path
-                if data is None:
-                    target.unlink(missing_ok=True)
-                else:
-                    target.parent.mkdir(parents=True, exist_ok=True)
-                    target.write_bytes(data)
-            for path, blob in blob_ids.items():
-                if blob is None:
-                    self._git(["update-index", "--force-remove", "--", path], check=False)
-                else:
-                    self._git(["update-index", "--add", "--cacheinfo", "100644", blob, path])
-            # Refresh stat information after materialization. Failures here are
-            # non-fatal because the cache entries already contain the correct
-            # blobs and a subsequent status/refresh will reconcile timestamps.
-            if files:
-                self._git(["update-index", "--refresh", "--", *sorted(files)], check=False)
-            # A new commit invalidates only the HEAD alias. Commit-keyed worlds
-            # remain safe historical snapshots.
-            return commit
-        finally:
-            index_path.unlink(missing_ok=True)
+        with self._canonical_write_lock():
+            self.assert_clean_managed()
+            actual = self.head()
+            if actual != expected_head:
+                raise StaleRevision("repository HEAD changed", details={"expected": expected_head, "actual": actual})
+            env = os.environ.copy()
+            index_path = self.root / ".git" / f"wedl-index-{os.getpid()}"
+            env["GIT_INDEX_FILE"] = str(index_path)
+            try:
+                self._git(["read-tree", expected_head], env=env)
+                blob_ids: dict[str, str | None] = {}
+                for path, data in sorted(files.items()):
+                    if data is None:
+                        blob_ids[path] = None
+                        continue
+                    blob = self._git(["hash-object", "-w", "--stdin"], input_bytes=data).stdout.decode().strip()
+                    blob_ids[path] = blob
+                alternate_index_info = self._index_info(blob_ids)
+                if alternate_index_info:
+                    self._git(["update-index", "-z", "--index-info"], input_bytes=alternate_index_info, env=env)
+                tree = self._git(["write-tree"], env=env).stdout.decode().strip()
+                subject = message.strip().splitlines()[0][:72] or "wedl: update story"
+                full_message = subject
+                if trailers:
+                    full_message += "\n\n" + "\n".join(f"{key}: {value}" for key, value in sorted(trailers.items()))
+                commit = self._git(["commit-tree", tree, "-p", expected_head], input_bytes=(full_message + "\n").encode()).stdout.decode().strip()
+                # Recheck the compare-and-swap preconditions after acquiring
+                # ownership and before advancing the ref or real index.
+                self.assert_clean_managed()
+                actual = self.head()
+                if actual != expected_head:
+                    raise StaleRevision("repository HEAD changed", details={"expected": expected_head, "actual": actual})
+                if (self.root / ".git" / "index.lock").exists():
+                    raise RepositoryError("Git index is locked by another process")
+                ref = self._git(["symbolic-ref", "-q", "HEAD"], check=False).stdout.decode().strip()
+                if not ref:
+                    raise RepositoryError("detached HEAD writes are not supported")
+                originals = {
+                    path: (target.read_bytes() if (target := self.root / path).exists() else None)
+                    for path in files
+                }
+                self._git(["update-ref", ref, commit, expected_head])
+                # Materialize only touched managed paths; unrelated worktree state
+                # stays untouched. Then advance the *real* index for exactly those
+                # paths to the same blobs as the new commit. Without this second
+                # step, newly committed files appear simultaneously staged-deleted
+                # and untracked because the alternate transaction index is removed.
+                try:
+                    for path, data in files.items():
+                        target = self.root / path
+                        if data is None:
+                            target.unlink(missing_ok=True)
+                        else:
+                            target.parent.mkdir(parents=True, exist_ok=True)
+                            target.write_bytes(data)
+                    index_info = self._index_info(blob_ids)
+                    if index_info:
+                        self._git(["update-index", "-z", "--index-info"], input_bytes=index_info)
+                except Exception as failure:
+                    # A source or real-index failure happens after the ref CAS.
+                    # Put both authoritative surfaces back only when the ref is
+                    # still ours; otherwise retain the coherent committed source
+                    # and refuse to overwrite another writer's work.
+                    rollback = self._git(["update-ref", ref, expected_head, commit], check=False)
+                    if rollback.returncode != 0:
+                        raise RepositoryError("canonical write failed after advancing HEAD; manual recovery is required") from failure
+                    for path, original in originals.items():
+                        target = self.root / path
+                        if original is None:
+                            target.unlink(missing_ok=True)
+                        else:
+                            target.parent.mkdir(parents=True, exist_ok=True)
+                            target.write_bytes(original)
+                    raise
+                # Refresh stat information after materialization. Failures here are
+                # non-fatal because the cache entries already contain the correct
+                # blobs and a subsequent status/refresh will reconcile timestamps.
+                if files:
+                    self._git(["update-index", "--refresh", "--", *sorted(files)], check=False)
+                # A new commit invalidates only the HEAD alias. Commit-keyed worlds
+                # remain safe historical snapshots.
+                return commit
+            finally:
+                index_path.unlink(missing_ok=True)

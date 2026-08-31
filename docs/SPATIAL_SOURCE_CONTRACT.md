@@ -46,13 +46,14 @@ duplicate-free `modes` list. Detailed location links keep the established
 text.
 
 The v0.7 world envelope is homogeneous and world-only: it has the exact
-ordered capability list, closed `timelines` declarations of
+ordered capability list and closed `timelines` declarations of
 `{id,label[,origin:{tick,label}]}`, a listed `default_timeline`, and closed
-`chronology: {calendars,eras,anchors}`. The component runs the complete v0.6
+`chronology: {calendars,eras,anchors}` when chronology is declared. The
+component runs the complete v0.6
 closed chronology grammar, including calendar/era/anchor IDs, ordering,
 bounds, and references. It inherits chronology semantics; it
 does not reinterpret calendar labels as spatial time or route duration.
 
-This source component is not generic v0.7 acceptance.  It does not activate
-compiler, query, CLI, HTTP, UI, indexes, ChangeSet mutation, or migration.
-Those require their separately reviewed rollout tasks.
+The local-only `upgrade-v07` migration activates generic source validation and
+compiled-cache projection. It does not add a public spatial query, API, UI, or
+ChangeSet mutation route.

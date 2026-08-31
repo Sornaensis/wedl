@@ -683,8 +683,14 @@ def _sort(errors: list[dict[str, Any]]) -> list[dict[str, Any]]:
     return sorted(errors, key=lambda item: (item["path"] is None, item["path"] or "", item["entityId"] or "", item["field"] or "", item["code"], item["message"]))
 
 
-def validate_v06_candidate(world: World) -> list[dict[str, Any]]:
-    """Validate active v0.6 loading, compilation, and internal typed reads."""
+def validate_v06_candidate(world: World, *, validate_inherited: bool = True) -> list[dict[str, Any]]:
+    """Validate active v0.6 loading, compilation, and internal typed reads.
+
+    ``validate_inherited`` is false only for a newer source envelope that
+    deliberately reuses this module's chronology grammar.  That caller has
+    already validated its own record envelope and must not be rejected for
+    v0.6-only IDs or fields before chronology annotations are checked.
+    """
     records = sorted(list(world), key=lambda record: (record.source_path.casefold(), record.id))
     schemas = [record.frontmatter.get("schema") if isinstance(record.frontmatter, dict) else None for record in records]
     world_records = [record for record in records if record.kind == "world"]
@@ -702,9 +708,10 @@ def validate_v06_candidate(world: World) -> list[dict[str, Any]]:
     if len(world_records) != 1:
         return [_error("WDL-WORLD-001", "world must contain exactly one world record", None, None)]
     owner = world_records[0]; errors: list[dict[str, Any]] = []
-    inherited = _inherited_v05(world, records)
-    if inherited:
-        return _sort(inherited)
+    if validate_inherited:
+        inherited = _inherited_v05(world, records)
+        if inherited:
+            return _sort(inherited)
     chronology = owner.frontmatter.get("chronology")
     if not _keys(chronology, {"calendars", "eras", "anchors"}):
         return [_error("WDL-CHRON-001", "world chronology must be a closed declaration", owner, "chronology")]

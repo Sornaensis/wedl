@@ -131,7 +131,7 @@ def test_feature_gates_legacy_locations_and_total_malformed_yaml_diagnostics() -
     assert validate_spatial_component(malformed) == validate_spatial_component(malformed)
 
 
-def test_component_paths_ordering_and_runtime_rejection_stay_latent() -> None:
+def test_component_paths_ordering_and_runtime_registration_are_canonical() -> None:
     map_record = _candidate()[1].frontmatter
     map_record["provenance"] = [{"revision": "abc", "section": "Maps"}]
     encoded = serialize_record(map_record, "\n\nMap body.  \n")
@@ -139,7 +139,7 @@ def test_component_paths_ordering_and_runtime_rejection_stay_latent() -> None:
     assert parsed.body == "\n\nMap body.  \n"
     assert list(parsed.frontmatter)[-1] == "provenance"
     assert generated_path("story", "map", "Ignored", "map:plain", map_record) == "story/maps/plain.md"
-    assert "wedl/v0.7" not in SUPPORTED_SOURCE_SCHEMAS | COMPILED_SOURCE_SCHEMAS
+    assert "wedl/v0.7" in SUPPORTED_SOURCE_SCHEMAS | COMPILED_SOURCE_SCHEMAS
 
 
 def test_multimap_geodetic_anchor_portal_and_legacy_location_fixture() -> None:
@@ -207,6 +207,12 @@ def test_v07_envelope_legacy_links_and_geometry_variants_are_literal_not_routes(
     assert ("SPATIAL-REF-001", "links[1]") in {(item["code"], item["field"]) for item in errors}
     records[3].frontmatter["links"] = [{"location": "location:town", "label": "Town gate"}]
     records[3].frontmatter["spatial"]["geometry"] = {"kind": "line", "coordinates": [[0, 0], [10, 5]]}
+    assert validate_spatial_component(records) == []
+
+
+def test_v07_location_accepts_inherited_chronology_annotations() -> None:
+    records = _candidate()
+    records[3].frontmatter["chronology"] = []
     assert validate_spatial_component(records) == []
     records[3].frontmatter["spatial"]["geometry"] = {"kind": "polygon", "coordinates": [[0, 0], [1, 0], [1, 1], [0, 0]]}
     assert validate_spatial_component(records) == []
@@ -294,11 +300,44 @@ def test_anchor_conversion_and_detailed_location_link_rules_are_shared_and_canon
     assert b"links:\n- description: Gateward\n  location: location:town\n  summary: A route\n" in encoded
 
 
-def test_generic_validation_stays_rejected_and_component_validation_never_writes() -> None:
+def test_generic_validation_uses_component_envelope_and_never_writes() -> None:
     records = _candidate()
+    # A v0.7 location retains the inherited per-record chronology grammar even
+    # though its colon-form spatial ID is not a v0.6 record envelope ID.
+    records[3].frontmatter["chronology"] = []
     candidate = World("candidate", "tree", {record.id: record for record in records}, ROOT)
     generic = validate_world(candidate)
-    assert any(item["code"] == "WDL-SRC-001" for item in generic)
+    assert generic == []
     before = [(record.source_path, record.raw_bytes) for record in records]
     assert validate_spatial_component(records) == []
     assert [(record.source_path, record.raw_bytes) for record in records] == before
+
+    # The shared chronology pass must still descend into operational objects;
+    # spatial validation owns that envelope error, while chronology owns the
+    # explicit nested-chronology diagnostic.
+    records[3].frontmatter["spatial"]["chronology"] = []
+    nested = {item["code"] for item in validate_world(candidate)}
+    assert "WDL-CHRON-003" in nested
+
+
+def test_generic_v07_validation_composes_core_and_record_time_checks() -> None:
+    records = _candidate()
+    records[2].frontmatter["id"] = "location:con"
+    records.append(
+        _record(
+            {
+                "schema": "wedl/v0.7",
+                "kind": "event",
+                "id": "event_0123456789ABCDEFGHJKMNPQRS",
+                "title": "Undeclared chronology event",
+                "time": {"timeline": "missing", "tick": 1, "order": 0},
+                "chronology": "not-an-array",
+            },
+            "event",
+        )
+    )
+    candidate = World("candidate", "tree", {record.id: record for record in records}, ROOT)
+
+    codes = {item["code"] for item in validate_world(candidate)}
+
+    assert {"WDL-ID-001", "WDL-TIME-003", "WDL-CHRON-002"} <= codes

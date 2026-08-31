@@ -1,12 +1,13 @@
 from __future__ import annotations
 
 from collections import Counter
+from copy import deepcopy
 from typing import Any
 
-from . import CHRONOLOGY_SOURCE_SCHEMA, SOURCE_SCHEMA, SUPPORTED_SOURCE_SCHEMAS, THREAD_SOURCE_SCHEMA, V04_RECOVERY_CONTRACT, V04_SOURCE_SCHEMA
+from . import CHRONOLOGY_SOURCE_SCHEMA, SOURCE_SCHEMA, SUPPORTED_SOURCE_SCHEMAS, THREAD_SOURCE_SCHEMA, V04_RECOVERY_CONTRACT, V04_SOURCE_SCHEMA, V07_SOURCE_SCHEMA
 from .conversation import beat_kind, conversation_participant_at, scene_contains_time, participant_at, turn_time, turn_visible_to
 from .errors import SupersededSchemaError
-from .ids import KIND_PREFIX, AUX_PREFIX, valid_id
+from .ids import KIND_PREFIX, AUX_PREFIX, valid_id, valid_spatial_id
 from .model import Record, StoryTime, World
 from .source import extract_entity_refs, markdown_entity_links
 from .semantics import canonical_events, effective_time, event_time, resolve_state
@@ -314,6 +315,25 @@ def _validate_threads(world: World) -> list[dict[str, Any]]:
     return result
 
 
+def _validate_v07_inherited_chronology(world: World) -> list[dict[str, Any]]:
+    """Apply the complete v0.6 chronology grammar to v0.7's inherited records."""
+    from .chronology_validation import validate_v06_candidate
+
+    records: dict[str, Record] = {}
+    for record in world:
+        data = deepcopy(record.frontmatter)
+        data["schema"] = CHRONOLOGY_SOURCE_SCHEMA
+        if record.kind == "world":
+            data.pop("capabilities", None)
+            # v0.7 allows a coordinate/time-only world.  Supply an inert
+            # declaration solely to run the inherited annotation/nesting
+            # checks; it is never written back or treated as an authored fact.
+            data.setdefault("chronology", {"calendars": [], "eras": [], "anchors": []})
+        records[record.id] = Record(data, record.body, record.source_path, record.raw_bytes, record.blob_oid, record.revision)
+    candidate = World(world.revision, world.tree_oid, records, world.root, world.source_root, world.is_worktree)
+    return validate_v06_candidate(candidate, validate_inherited=False)
+
+
 def validate_world(world: World) -> list[dict[str, Any]]:
     result: list[dict[str, Any]] = []
     schemas: list[Any] = []
@@ -329,6 +349,17 @@ def validate_world(world: World) -> list[dict[str, Any]]:
     if any(candidate == CHRONOLOGY_SOURCE_SCHEMA for candidate in schemas):
         from .chronology_validation import validate_v06_candidate
         return validate_v06_candidate(world)
+    if any(candidate == V07_SOURCE_SCHEMA for candidate in schemas):
+        from .spatial_validation import validate_spatial_world
+        if len(schemas) != 1:
+            world_records = world.by_kind("world")
+            return [diagnostic("WDL-SRC-008", "source records must use one homogeneous schema", world_records[0] if world_records else None, "schema")]
+        # v0.7's closed capability envelope is additive: its component
+        # diagnostics must not bypass the generic record, chronology, time,
+        # reference, and state validation that still governs its inherited
+        # records.  Spatial-only kinds remain owned by the component pass.
+        result.extend(validate_spatial_world(world))
+        result.extend(_validate_v07_inherited_chronology(world))
     world_records = world.by_kind("world")
     if len(schemas) > 1:
         # Preserve the homogeneous-source invariant, but do not suppress
@@ -349,14 +380,18 @@ def validate_world(world: World) -> list[dict[str, Any]]:
             result.append(diagnostic("WDL-SRC-009", "member is incompatible with this source schema", record, field))
         if "importance" in data:
             result.append(diagnostic("WDL-SRC-007", "importance is calculated read-model output and is never canonical frontmatter", record, "importance"))
+        if schema == V07_SOURCE_SCHEMA and record.kind in {"map", "anchor", "portal", "route", "overlay"}:
+            continue
         if record.kind not in KINDS:
             result.append(diagnostic("WDL-SRC-002", f"unsupported entity kind {record.kind!r}", record, "kind"))
             continue
-        if not valid_id(record.id, record.kind):
+        if not valid_id(record.id, record.kind) and not (schema == V07_SOURCE_SCHEMA and valid_spatial_id(record.id, record.kind)):
             result.append(diagnostic("WDL-ID-001", f"invalid ID {record.id!r} for {record.kind}", record, "id"))
         if record.status not in VALID_STATUS[record.kind]:
             result.append(diagnostic("WDL-STATUS-001", f"invalid status {record.status!r} for {record.kind}", record, "status"))
         for key in ("title", "domain"):
+            if schema == V07_SOURCE_SCHEMA and key == "domain":
+                continue
             if not isinstance(data.get(key), str) or not data.get(key).strip():
                 result.append(diagnostic("WDL-SRC-003", f"{key} must be non-empty", record, key))
         for key in ("tags", "aliases"):
@@ -383,7 +418,7 @@ def validate_world(world: World) -> list[dict[str, Any]]:
     if any(item["severity"] == "error" and item["code"].startswith(("WDL-TIME-", "WDL-TIMELINE-")) for item in result):
         return result
 
-    if schema == THREAD_SOURCE_SCHEMA:
+    if schema == THREAD_SOURCE_SCHEMA or (schema == V07_SOURCE_SCHEMA and "threads" in world.world_record.frontmatter):
         result.extend(_validate_threads(world))
 
     result.extend(_validate_current_active_scenes(world))

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from copy import deepcopy
 from importlib import resources
 from pathlib import Path
 import subprocess
@@ -14,7 +15,7 @@ from wedl.cli import main
 from wedl.errors import ConfirmationMismatch, ConfirmationRequired, DirtyManagedTree, RepositoryError, StaleRevision, SupersededSchemaError
 from wedl.migration import BACKUP_PREFIX, PROTOCOL, apply, preview
 from wedl.repository import Repository
-from wedl.source import serialize_record
+from wedl.source import serialize_record, split_envelope
 
 
 @pytest.fixture(autouse=True)
@@ -48,6 +49,26 @@ def _apply(repository, request):
     assert planned["valid"], planned["diagnostics"]
     applied_request = {**request, "sourceSnapshotHash": planned["sourceSnapshotHash"]}
     return planned, apply(repository, applied_request, confirmation_token_value=planned["confirmationToken"])
+
+
+def _v07_projection(snapshot):
+    """The only authored source changes permitted by upgrade-v07."""
+
+    projected = {}
+    for path, data in snapshot.files.items():
+        frontmatter, body = split_envelope(data, path)
+        expected = deepcopy(frontmatter)
+        expected["schema"] = "wedl/v0.7"
+        if expected.get("kind") == "world":
+            expected["capabilities"] = ["generational-core-v1", "spatial-core-v1"]
+        else:
+            expected.pop("capabilities", None)
+        # v0.7 has one canonical containment spelling. This preserves the
+        # authored hierarchy; it does not create a location edge.
+        if expected.get("kind") == "location" and "parent" in expected:
+            expected["parent_id"] = expected.pop("parent")
+        projected[path] = (expected, body)
+    return projected
 
 
 def _commit_raw(repository, mutate) -> None:
@@ -138,6 +159,121 @@ def test_commit_failure_keeps_source_atomic_and_preserves_its_backup(tiny_repo, 
         apply(tiny_repo, {**request, "sourceSnapshotHash": planned["sourceSnapshotHash"]}, confirmation_token_value=planned["confirmationToken"])
     assert tiny_repo.snapshot().files == source
     assert tiny_repo.ref(planned["backupRef"]) == planned["expectedHead"]
+
+
+def test_upgrade_v07_refuses_an_external_index_lock_without_removing_it_and_retries(tiny_repo) -> None:
+    source = tiny_repo.snapshot().files
+    request = _request(tiny_repo, "upgrade-v07", "external-index-lock")
+    planned = preview(tiny_repo, request)
+    index_lock = tiny_repo.root / ".git" / "index.lock"
+    index_lock.write_text("external Git transaction\n", encoding="utf-8")
+
+    with pytest.raises(RepositoryError, match="Git index is locked by another process"):
+        apply(tiny_repo, {**request, "sourceSnapshotHash": planned["sourceSnapshotHash"]}, confirmation_token_value=planned["confirmationToken"])
+
+    assert index_lock.read_text(encoding="utf-8") == "external Git transaction\n"
+    assert tiny_repo.head() == planned["expectedHead"]
+    assert tiny_repo.snapshot().files == source
+    assert tiny_repo.ref(planned["backupRef"]) == planned["expectedHead"]
+    index_lock.unlink()
+
+    applied = apply(tiny_repo, {**request, "sourceSnapshotHash": planned["sourceSnapshotHash"]}, confirmation_token_value=planned["confirmationToken"])
+    assert applied["status"] == "committed"
+
+
+def test_upgrade_v07_rolls_back_source_and_head_when_real_index_publication_fails(tiny_repo, monkeypatch) -> None:
+    source = tiny_repo.snapshot().files
+    request = _request(tiny_repo, "upgrade-v07", "late-index-lock")
+    planned = preview(tiny_repo, request)
+    index_lock = tiny_repo.root / ".git" / "index.lock"
+    actual_git = tiny_repo._git
+
+    def interrupted_git(args, **kwargs):
+        if list(args) == ["update-index", "-z", "--index-info"] and kwargs.get("env") is None:
+            index_lock.write_text("external Git transaction\n", encoding="utf-8")
+        return actual_git(args, **kwargs)
+
+    monkeypatch.setattr(tiny_repo, "_git", interrupted_git)
+    with pytest.raises(RepositoryError, match="index.lock"):
+        apply(tiny_repo, {**request, "sourceSnapshotHash": planned["sourceSnapshotHash"]}, confirmation_token_value=planned["confirmationToken"])
+
+    assert tiny_repo.head() == planned["expectedHead"]
+    assert tiny_repo.snapshot().files == source
+    assert index_lock.read_text(encoding="utf-8") == "external Git transaction\n"
+    index_lock.unlink()
+    monkeypatch.setattr(tiny_repo, "_git", actual_git)
+
+    applied = apply(tiny_repo, {**request, "sourceSnapshotHash": planned["sourceSnapshotHash"]}, confirmation_token_value=planned["confirmationToken"])
+    assert applied["status"] == "committed"
+
+
+def test_commit_files_captures_rollback_bytes_before_the_ref_compare_and_swap(tiny_repo, monkeypatch) -> None:
+    source = tiny_repo.snapshot().files
+    expected = tiny_repo.head()
+    target = tiny_repo.root / "story" / "world.md"
+    actual_read_bytes = Path.read_bytes
+
+    def interrupted_read_bytes(path):
+        if path == target:
+            raise OSError("capture failed")
+        return actual_read_bytes(path)
+
+    monkeypatch.setattr(Path, "read_bytes", interrupted_read_bytes)
+    with pytest.raises(OSError, match="capture failed"):
+        tiny_repo.commit_files(expected_head=expected, files={"story/world.md": b"# never written\n"}, message="capture failure")
+    monkeypatch.setattr(Path, "read_bytes", actual_read_bytes)
+
+    assert tiny_repo.head() == expected
+    assert tiny_repo.snapshot().files == source
+    assert tiny_repo.status() == []
+    assert tiny_repo._git(["diff", "--cached", "--quiet"], check=False).returncode == 0
+
+
+def test_commit_files_handles_hostile_paths_with_nul_delimited_index_records(tiny_repo, monkeypatch) -> None:
+    path = "story/portable-index-path.md"
+    payloads = []
+    actual_git = tiny_repo._git
+
+    def observed_git(args, **kwargs):
+        if list(args) == ["update-index", "-z", "--index-info"]:
+            payloads.append(kwargs["input_bytes"])
+        return actual_git(args, **kwargs)
+
+    monkeypatch.setattr(tiny_repo, "_git", observed_git)
+    commit = tiny_repo.commit_files(expected_head=tiny_repo.head(), files={path: b"# hostile path\n"}, message="hostile index path")
+
+    assert tiny_repo.head() == commit
+    assert tiny_repo.snapshot().files[path] == b"# hostile path\n"
+    assert tiny_repo.status() == []
+    assert tiny_repo._git(["diff", "--cached", "--quiet"], check=False).returncode == 0
+    assert len(payloads) == 2 and all(payload.endswith(path.encode() + b"\0") for payload in payloads)
+    assert Repository._index_info({"story/hostile\tpath\nname.md": "f" * 40}) == b"100644 " + b"f" * 40 + b"\tstory/hostile\tpath\nname.md\0"
+
+
+def test_canonical_write_lock_is_never_auto_removed_without_operator_confirmation(tiny_repo) -> None:
+    lock = tiny_repo.root / ".git" / "wedl-canonical-write.lock"
+    lock.write_text("pid=999999\n", encoding="ascii")
+
+    with pytest.raises(RepositoryError, match="another WEDL canonical write is in progress"):
+        tiny_repo.commit_files(expected_head=tiny_repo.head(), files={"story/blocked.md": b"# blocked\n"}, message="blocked")
+
+    assert lock.read_text(encoding="ascii") == "pid=999999\n"
+    assert tiny_repo.status() == []
+    lock.unlink()
+
+
+def test_commit_files_rechecks_head_after_entering_the_canonical_write_boundary(tiny_repo, monkeypatch) -> None:
+    expected = tiny_repo.head()
+    actual = "f" * 40
+    heads = iter((expected, actual))
+    monkeypatch.setattr(tiny_repo, "head", lambda: next(heads))
+
+    with pytest.raises(StaleRevision) as failure:
+        tiny_repo.commit_files(expected_head=expected, files={"story/recheck.md": b"# never written\n"}, message="recheck")
+
+    assert failure.value.details == {"expected": expected, "actual": actual}
+    assert not (tiny_repo.root / "story" / "recheck.md").exists()
+    assert Repository(tiny_repo.root).head() == expected
 
 
 def test_compile_failure_leaves_one_valid_forward_source_commit_and_backup(tiny_repo, monkeypatch) -> None:
@@ -286,3 +422,81 @@ def test_cli_preview_and_apply_use_the_same_local_protocol(tiny_repo, capsys) ->
     assert planned["protocol"] == PROTOCOL
     assert main(["--compact", "migrate", "apply", "--repo", str(tiny_repo.root), "--mode", "upgrade-v03", "--expected-head", head, "--source-snapshot-hash", planned["sourceSnapshotHash"], "--idempotency-key", "cli-one", "--confirm", planned["confirmationToken"]]) == 0
     assert json.loads(capsys.readouterr().out)["status"] == "committed"
+
+
+def test_upgrade_v07_is_lossless_capability_bound_and_idempotent(tiny_repo) -> None:
+    original = tiny_repo.snapshot().files
+    request = _request(tiny_repo, "upgrade-v07", "v07-one")
+    planned, applied = _apply(tiny_repo, request)
+
+    assert planned["targetCapabilities"] == ["generational-core-v1", "spatial-core-v1"]
+    assert applied["targetCapabilities"] == planned["targetCapabilities"]
+    migrated = tiny_repo.snapshot().files
+    assert set(migrated) == set(original)
+    for path in original:
+        _before_frontmatter, before_body = split_envelope(original[path], path)
+        after_frontmatter, after_body = split_envelope(migrated[path], path)
+        assert after_body == before_body
+        assert after_frontmatter["schema"] == "wedl/v0.7"
+    assert tiny_repo.load_world().schema == "wedl/v0.7"
+    replay = apply(tiny_repo, {**request, "sourceSnapshotHash": planned["sourceSnapshotHash"]}, confirmation_token_value=planned["confirmationToken"])
+    assert replay["idempotentReplay"] is True
+    no_op = preview(tiny_repo, _request(tiny_repo, "upgrade-v07", "v07-noop"))
+    assert no_op["valid"] and no_op["noOp"]
+
+
+@pytest.mark.parametrize("predecessor", ("upgrade-v03", "upgrade-v06"))
+def test_upgrade_v07_accepts_each_pinned_legacy_release(tiny_repo, predecessor) -> None:
+    # The staged modes remain available, but each homogeneous legacy release
+    # reaches the one coordinated v0.7 source envelope.
+    _apply(tiny_repo, _request(tiny_repo, predecessor, f"prepare-{predecessor}"))
+    planned, applied = _apply(tiny_repo, _request(tiny_repo, "upgrade-v07", f"from-{predecessor}"))
+    assert planned["valid"] and applied["status"] == "committed"
+    assert tiny_repo.load_world().schema == "wedl/v0.7"
+
+
+@pytest.mark.parametrize("predecessor", (None, "upgrade-v03", "upgrade-v06"))
+def test_upgrade_v07_golden_projection_preserves_every_legacy_source_semantic(ash_repo, predecessor) -> None:
+    """v0.3, v0.5, and v0.6 converge without rewriting authored content."""
+
+    if predecessor is not None:
+        _apply(ash_repo, _request(ash_repo, predecessor, f"prepare-golden-{predecessor}"))
+    before = ash_repo.snapshot()
+    expected = _v07_projection(before)
+
+    planned, applied = _apply(ash_repo, _request(ash_repo, "upgrade-v07", f"golden-{predecessor or 'v03'}"))
+
+    assert planned["valid"] and applied["status"] == "committed"
+    after = ash_repo.snapshot()
+    assert set(after.files) == set(expected)
+    assert {path: split_envelope(data, path) for path, data in after.files.items()} == expected
+    # The complete comparison includes paths/IDs, Markdown bodies and links,
+    # provenance, thread declarations/memberships, and v0.6 chronology. The
+    # archive's location parent graph is compared through parent_id above.
+
+
+def test_upgrade_v07_keeps_an_existing_canonical_capability_list_on_noop(tiny_repo) -> None:
+    _planned, _applied = _apply(tiny_repo, _request(tiny_repo, "upgrade-v07", "first-v07"))
+    snapshot = tiny_repo.snapshot()
+    files = {}
+    for path, data in snapshot.files.items():
+        frontmatter, body = split_envelope(data, path)
+        if frontmatter.get("kind") == "world":
+            frontmatter["capabilities"] = ["generational-core-v1"]
+        files[path] = serialize_record(frontmatter, body)
+    tiny_repo.commit_files(expected_head=tiny_repo.head(), files=files, message="fixture: canonical v07 subset")
+    planned = preview(tiny_repo, _request(tiny_repo, "upgrade-v07", "v07-subset"))
+    assert planned["valid"] and planned["noOp"]
+    assert planned["targetCapabilities"] == ["generational-core-v1"]
+
+
+def test_upgrade_v07_rejects_mixed_versions_before_writing(tiny_repo) -> None:
+    snapshot = tiny_repo.snapshot()
+    path = next(path for path in snapshot.files if path != "story/world.md")
+    frontmatter, body = split_envelope(snapshot.files[path], path)
+    frontmatter["schema"] = "wedl/v0.6"
+    tiny_repo.commit_files(expected_head=tiny_repo.head(), files={path: serialize_record(frontmatter, body)}, message="fixture: mixed source")
+    planned = preview(tiny_repo, _request(tiny_repo, "upgrade-v07", "mixed-v07"))
+    assert planned["valid"] is False
+    assert planned["diagnostics"][0]["code"] == "GEN-VERSION-001"
+    assert tiny_repo.ref(planned["backupRef"]) is None

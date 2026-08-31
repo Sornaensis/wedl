@@ -15,7 +15,7 @@ import json
 import re
 from typing import Any
 
-from . import CHRONOLOGY_SOURCE_SCHEMA, THREAD_SOURCE_SCHEMA, V04_SOURCE_SCHEMA
+from . import CHRONOLOGY_SOURCE_SCHEMA, THREAD_SOURCE_SCHEMA, V04_SOURCE_SCHEMA, V07_SOURCE_SCHEMA
 from .compiler import compile_world
 from .errors import ConfirmationMismatch, ConfirmationRequired, ConflictError, RepositoryError, StaleRevision, ValidationFailed
 from .model import Record, World
@@ -23,10 +23,12 @@ from .repository import Repository, Snapshot
 from .source import serialize_record, split_envelope
 from .util import atomic_write, canonical_json
 from .validation import validate_world
+from .v07 import canonical_capabilities
 
 
 PROTOCOL = "wedl-migration/v1"
-MODES = frozenset(("upgrade-v03", "upgrade-v06", "recover-v04", "rollback"))
+MODES = frozenset(("upgrade-v03", "upgrade-v06", "upgrade-v07", "recover-v04", "rollback"))
+V07_DEFAULT_CAPABILITIES = ("generational-core-v1", "spatial-core-v1")
 BACKUP_PREFIX = "refs/wedl/backups/migration/"
 _BACKUP_REF_RE = re.compile(r"^refs/wedl/backups/migration/[0-9a-f]{64}$")
 
@@ -67,7 +69,7 @@ def _request_fields(request: dict[str, Any], *, require_source_hash: bool = Fals
         raise RepositoryError(f"migration request protocol must be {PROTOCOL}")
     mode = request.get("mode")
     if mode not in MODES:
-        raise RepositoryError("migration mode must be upgrade-v03, upgrade-v06, recover-v04, or rollback")
+        raise RepositoryError("migration mode must be upgrade-v03, upgrade-v06, upgrade-v07, recover-v04, or rollback")
     expected = request.get("expectedHead")
     source_hash = request.get("sourceSnapshotHash")
     key = request.get("idempotencyKey")
@@ -104,6 +106,14 @@ def _normalized_request(repository: Repository, request: dict[str, Any], snapsho
     if supplied_hash is not None and supplied_hash != source_hash:
         raise StaleRevision("migration source snapshot changed", details={"expected": supplied_hash, "actual": source_hash})
     base = {"protocol": PROTOCOL, "mode": mode, "expectedHead": expected, "sourceSnapshotHash": source_hash, "idempotencyKey": key}
+    if mode == "upgrade-v07":
+        source_worlds = [frontmatter for _path, frontmatter, _body, _data in _raw_records(snapshot) if frontmatter.get("kind") == "world"]
+        existing = canonical_capabilities(source_worlds[0].get("capabilities")) if len(source_worlds) == 1 and source_worlds[0].get("schema") == V07_SOURCE_SCHEMA else None
+        target_capabilities = list(existing or V07_DEFAULT_CAPABILITIES)
+        requested_capabilities = request.get("targetCapabilities")
+        if requested_capabilities is not None and requested_capabilities != target_capabilities:
+            raise RepositoryError("migration targetCapabilities are server-derived")
+        base["targetCapabilities"] = target_capabilities
     if rollback_ref is not None:
         base["rollbackBackupRef"] = rollback_ref
         oid, rollback_hash = _rollback_identity(repository, rollback_ref)
@@ -112,6 +122,8 @@ def _normalized_request(repository: Repository, request: dict[str, Any], snapsho
     default_backup = BACKUP_PREFIX + hashlib.sha256(canonical_json(base).encode("utf-8")).hexdigest()
     if requested_backup is not None and requested_backup != default_backup:
         raise RepositoryError("migration backupRef does not match the deterministic request backup")
+    if mode != "upgrade-v07" and request.get("targetCapabilities") is not None:
+        raise RepositoryError("targetCapabilities is only valid for upgrade-v07")
     return {**base, "backupRef": default_backup}
 
 
@@ -220,6 +232,41 @@ def _v06_candidate(repository: Repository, snapshot: Snapshot, raw: list[tuple[s
     world = _world_for_candidate(repository, snapshot.revision, snapshot.tree_oid, candidate)
     if any(item["severity"] == "error" for item in validate_world(world)):
         return [], [_v06_diagnostic("WDL-MIG-V06-009", "v06_candidate_invalid")], False
+    return candidate, [], False
+
+
+def _v07_candidate(repository: Repository, snapshot: Snapshot, raw: list[tuple[str, dict[str, Any], str, bytes]]) -> tuple[list[tuple[str, dict[str, Any], str]], list[dict[str, Any]], bool]:
+    """Create the one lossless v0.7 envelope from a homogeneous legacy tree."""
+
+    schemas = {frontmatter.get("schema") for _path, frontmatter, _body, _data in raw}
+    if len(schemas) != 1:
+        return [], [_diagnostic("GEN-VERSION-001", "upgrade-v07 requires one homogeneous source version", field="schema")], False
+    schema = next(iter(schemas), None)
+    if schema == V07_SOURCE_SCHEMA:
+        candidate = [(path, deepcopy(frontmatter), body) for path, frontmatter, body, _data in raw]
+        world = _world_for_candidate(repository, snapshot.revision, snapshot.tree_oid, candidate)
+        diagnostics = validate_world(world)
+        return [], diagnostics, not any(item["severity"] == "error" for item in diagnostics)
+    if schema not in {"wedl/v0.3", THREAD_SOURCE_SCHEMA, CHRONOLOGY_SOURCE_SCHEMA}:
+        return [], [_diagnostic("GEN-VERSION-001", "upgrade-v07 requires homogeneous wedl/v0.3, wedl/v0.5, wedl/v0.6, or wedl/v0.7 source", field="schema")], False
+    legacy = [(path, deepcopy(frontmatter), body) for path, frontmatter, body, _data in raw]
+    legacy_world = _world_for_candidate(repository, snapshot.revision, snapshot.tree_oid, legacy)
+    legacy_diagnostics = validate_world(legacy_world)
+    if any(item["severity"] == "error" for item in legacy_diagnostics):
+        return [], legacy_diagnostics, False
+    worlds = [(path, frontmatter) for path, frontmatter, _body, _data in raw if frontmatter.get("kind") == "world"]
+    if len(worlds) != 1:
+        return [], [_diagnostic("GEN-VERSION-001", "upgrade-v07 requires exactly one world record", field="kind")], False
+    world_path, _world = worlds[0]
+    candidate: list[tuple[str, dict[str, Any], str]] = []
+    for path, original, body, _data in raw:
+        frontmatter = deepcopy(original)
+        frontmatter["schema"] = V07_SOURCE_SCHEMA
+        if path == world_path:
+            frontmatter["capabilities"] = list(V07_DEFAULT_CAPABILITIES)
+        else:
+            frontmatter.pop("capabilities", None)
+        candidate.append((path, frontmatter, body))
     return candidate, [], False
 
 
@@ -345,6 +392,8 @@ def _plan(repository: Repository, request: dict[str, Any], snapshot: Snapshot) -
         candidate, diagnostics, no_op = _v03_candidate(repository, snapshot, raw)
     elif mode == "upgrade-v06":
         candidate, diagnostics, no_op = _v06_candidate(repository, snapshot, raw)
+    elif mode == "upgrade-v07":
+        candidate, diagnostics, no_op = _v07_candidate(repository, snapshot, raw)
     elif mode == "recover-v04":
         candidate, diagnostics, no_op = _v04_candidate(repository, snapshot, raw)
     if diagnostics:
@@ -373,6 +422,7 @@ def preview(repository: Repository, request: dict[str, Any]) -> dict[str, Any]:
     return {
         "protocol": PROTOCOL, "phase": "preview", "mode": normalized["mode"], "valid": plan["valid"], "noOp": plan["noOp"],
         "expectedHead": normalized["expectedHead"], "sourceSnapshotHash": normalized["sourceSnapshotHash"], "idempotencyKey": normalized["idempotencyKey"],
+        **({"targetCapabilities": normalized["targetCapabilities"]} if "targetCapabilities" in normalized else {}),
         "backupRef": normalized["backupRef"], **({"rollbackBackupRef": normalized["rollbackBackupRef"], "rollbackBackupOid": normalized["rollbackBackupOid"], "rollbackBackupSourceSnapshotHash": normalized["rollbackBackupSourceSnapshotHash"]} if "rollbackBackupRef" in normalized else {}),
         "requestHash": request_hash, "confirmationToken": _confirmation_token(normalized, request_hash), "diagnostics": plan["diagnostics"],
         "files": sorted(plan["changes"]), "diff": plan["diff"], "_changes": plan["changes"], "_request": normalized,
@@ -393,7 +443,9 @@ def apply(repository: Repository, request: dict[str, Any], *, confirmation_token
             # Normalize against the stored source identity without requiring
             # the old HEAD to remain current; rollback still resolves its ref.
             stored = receipt["request"]
-            supplied = {field: request.get(field) for field in ("protocol", "mode", "expectedHead", "sourceSnapshotHash", "idempotencyKey", "rollbackBackupRef")}
+            supplied = {field: request.get(field) for field in ("protocol", "mode", "expectedHead", "sourceSnapshotHash", "idempotencyKey", "rollbackBackupRef", "targetCapabilities")}
+            if stored.get("mode") == "upgrade-v07" and supplied["targetCapabilities"] is None:
+                supplied["targetCapabilities"] = stored.get("targetCapabilities")
             expected_identity = {field: stored.get(field) for field in supplied}
             if supplied != expected_identity:
                 raise ConflictError("migration idempotency key was used for a different request")
@@ -431,7 +483,7 @@ def apply(repository: Repository, request: dict[str, Any], *, confirmation_token
     response = {
         "protocol": PROTOCOL, "phase": "apply", "status": "committed", "mode": normalized["mode"], "previousHead": normalized["expectedHead"],
         "newHead": commit, "sourceSnapshotHash": normalized["sourceSnapshotHash"], "idempotencyKey": normalized["idempotencyKey"],
-        "backupRef": normalized["backupRef"], **({"rollbackBackupRef": normalized["rollbackBackupRef"], "rollbackBackupOid": normalized["rollbackBackupOid"], "rollbackBackupSourceSnapshotHash": normalized["rollbackBackupSourceSnapshotHash"]} if "rollbackBackupRef" in normalized else {}),
+        "backupRef": normalized["backupRef"], **({"targetCapabilities": normalized["targetCapabilities"]} if "targetCapabilities" in normalized else {}), **({"rollbackBackupRef": normalized["rollbackBackupRef"], "rollbackBackupOid": normalized["rollbackBackupOid"], "rollbackBackupSourceSnapshotHash": normalized["rollbackBackupSourceSnapshotHash"]} if "rollbackBackupRef" in normalized else {}),
         "requestHash": result["requestHash"], "compile": compile_report, "compileSkipped": skip_compile, "idempotentReplay": False,
     }
     receipts = json.loads(receipt_path.read_text(encoding="utf-8")) if receipt_path.exists() else {}
@@ -440,4 +492,4 @@ def apply(repository: Repository, request: dict[str, Any], *, confirmation_token
     return response
 
 
-__all__ = ["BACKUP_PREFIX", "MODES", "PROTOCOL", "apply", "preview"]
+__all__ = ["BACKUP_PREFIX", "MODES", "PROTOCOL", "V07_DEFAULT_CAPABILITIES", "apply", "preview"]

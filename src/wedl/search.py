@@ -334,7 +334,9 @@ def build_documents(world: World) -> list[SearchDocument]:
             detail = "\n".join(
                 value for value in (
                     record.title,
-                    "Conditions: " + "; ".join(f"{key}: {value}" for key, value in conditions.items()) if isinstance(conditions, dict) and conditions else "",
+                    "Conditions: " + "; ".join(
+                        f"{key}: {conditions[key]}" for key in sorted(conditions)
+                    ) if isinstance(conditions, dict) and conditions else "",
                     "Sensory: " + " ".join(str(value) for value in sensory) if isinstance(sensory, list) and sensory else "",
                 ) if value
             )
@@ -349,7 +351,9 @@ def build_documents(world: World) -> list[SearchDocument]:
                 value for value in (
                     record.title,
                     f"Transition: {transition.get('state') or transition.get('relationship_status') or transition.get('key') or transition.get('id') or 'state change'}",
-                    "Metrics: " + ", ".join(f"{key}={value}" for key, value in (transition.get("metrics") or {}).items()) if isinstance(transition.get("metrics"), dict) else "",
+                    "Metrics: " + ", ".join(
+                        f"{key}={transition['metrics'][key]}" for key in sorted(transition["metrics"])
+                    ) if isinstance(transition.get("metrics"), dict) else "",
                     "Facets: " + ", ".join(str(value) for value in (transition.get("facets") or [])) if isinstance(transition.get("facets"), list) else "",
                     str(transition.get("note") or transition.get("statement") or ""),
                 ) if value

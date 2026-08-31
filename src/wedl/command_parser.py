@@ -263,7 +263,7 @@ inclusive, and ticks do not convert to elapsed duration.""",
         action = "inspect its source-only diff without writes or cache activity" if name == "preview" else "write the exact confirmed source-only preview as one forward Git commit and rebuild the disposable cache"
         command = migrate_sub.add_parser(name, help=f"{name} a local source migration", description=f"{action}.")
         _add_repo_argument(command)
-        command.add_argument("--mode", required=True, choices=("upgrade-v03", "upgrade-v06", "recover-v04", "rollback"), help="explicit migration mode")
+        command.add_argument("--mode", required=True, choices=("upgrade-v03", "upgrade-v06", "upgrade-v07", "recover-v04", "rollback"), help="explicit migration mode")
         command.add_argument("--expected-head", required=True, metavar="HEAD", help="exact current Git HEAD audited by this request")
         command.add_argument("--source-snapshot-hash", metavar="SHA256", required=name == "apply", help="exact sourceSnapshotHash from preview; required to bind an apply")
         command.add_argument("--idempotency-key", required=True, metavar="KEY", help="stable key for this exact local migration request")

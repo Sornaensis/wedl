@@ -217,15 +217,16 @@ def _chronology_errors(world: Record) -> list[str]:
 
 def _world(world: Record, errors: list[dict[str, Any]]) -> tuple[set[str], list[str]]:
     data = _front(world)
-    req = {"schema", "kind", "id", "title", "capabilities", "default_timeline", "timelines", "chronology"}
-    opt = {"domain", "status", "tags", "aliases", "threads", "current_time", "section_audiences", "provenance"}
+    req = {"schema", "kind", "id", "title", "capabilities", "default_timeline", "timelines"}
+    opt = {"chronology", "domain", "status", "tags", "aliases", "threads", "current_time", "section_audiences", "provenance", "state_keys", "relationship_metrics", "embedding_policy", "context_policy", "compilation_policy"}
     envelope_leaf = _closed_leaf(data, req, opt)
     if envelope_leaf is not None: errors.append(_diag("SPATIAL-REQUEST-001", world, envelope_leaf or "schema"))
     elif data.get("schema") != SPATIAL_SCHEMA: errors.append(_diag("SPATIAL-REQUEST-001", world, "schema"))
     elif data.get("kind") != "world": errors.append(_diag("SPATIAL-REQUEST-001", world, "kind"))
     elif not valid_id(data.get("id"), "world"): errors.append(_diag("SPATIAL-REQUEST-001", world, "id"))
     elif not isinstance(data.get("title"), str) or not data["title"].strip(): errors.append(_diag("SPATIAL-REQUEST-001", world, "title"))
-    for field in _chronology_errors(world): errors.append(_diag("SPATIAL-REQUEST-001", world, field))
+    if "chronology" in data:
+        for field in _chronology_errors(world): errors.append(_diag("SPATIAL-REQUEST-001", world, field))
     raw, ids = data.get("timelines"), []
     if not isinstance(raw, list) or not raw: errors.append(_diag("SPATIAL-REQUEST-001", world, "timelines"))
     else:
@@ -284,7 +285,11 @@ def validate_spatial_component(records: Iterable[Record], *, world_record: Recor
     parents: dict[str, str] = {}
     for record in locations.values():
         data, spatial = _front(record), _front(record).get("spatial")
-        optional = {"parent_id", "parent", "links", "spatial", "domain", "status", "tags", "aliases", "threads", "section_audiences", "provenance"}
+        # Keep the v0.7 component envelope closed while retaining the pinned
+        # legacy location classification verbatim.  ``parent`` is normalized
+        # to ``parent_id`` during serialization, so both spellings remain
+        # permitted without inferring spatial placement.
+        optional = {"parent_id", "parent", "links", "spatial", "location_type", "chronology", "domain", "status", "tags", "aliases", "threads", "section_audiences", "provenance"}
         envelope_leaf = _closed_leaf(data, {"schema", "kind", "id", "title"}, optional)
         if envelope_leaf is not None: errors.append(_diag("SPATIAL-REQUEST-001", record, envelope_leaf or "schema"))
         elif data.get("schema") != SPATIAL_SCHEMA: errors.append(_diag("SPATIAL-REQUEST-001", record, "schema"))
