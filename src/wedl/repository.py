@@ -675,6 +675,44 @@ class Repository:
         completed.append(journal)
         self._completed_transactions = completed
 
+    def _reconcile_recorded_real_index(self, journal: TransactionJournal, *, roll_forward: bool) -> None:
+        """Install only an exact durable index image recorded by the journal.
+
+        The ref CAS precedes public-surface and real-index publication.  A
+        downstream surface failure in that interval therefore legitimately
+        leaves the real index at ``indexBefore`` even though the ref was briefly
+        advanced.  The sole ambiguous interval is a crash during index
+        replacement after ``sources_published``.  Never treat a third image as
+        ours.
+        """
+        before = journal.record["indexBefore"]
+        after = journal.record["indexAfter"]
+        if not isinstance(before, dict) or not isinstance(after, dict):
+            raise RepositoryError("invalid WEDL transaction journal")
+        phase = journal.phase
+        if phase not in {"prepared", "ref_committed", "sources_published", "index_published", "surfaces_published", "completed"}:
+            raise RepositoryError("invalid WEDL transaction journal")
+        if phase in {"prepared", "ref_committed"}:
+            permitted = (before,)
+        elif phase == "sources_published":
+            # The real-index replacement starts after this durable phase and
+            # can complete immediately before ``index_published`` is recorded.
+            permitted = (before, after)
+        elif phase in {"index_published", "surfaces_published", "completed"}:
+            # With the committed ref, durable index publication proves after.
+            # With the previous ref, its successful CAS rollback is the durable
+            # proof that an interrupted rollback may already have restored
+            # before; it may also still be poised to restore it from after.
+            permitted = (after,) if roll_forward else (before, after)
+        else:
+            raise RepositoryError("invalid WEDL transaction journal")
+        desired = after if roll_forward else before
+        current = self._real_index_entries(before)
+        if current not in permitted:
+            raise RepositoryError("transaction recovery lost real-index ownership")
+        if current != desired:
+            self._publish_real_index(journal, expected=current, desired=desired)
+
     def _reconcile_authoring_transactions_locked(self) -> None:
         """Complete interrupted canonical writes before exposing a new one.
 
@@ -695,21 +733,12 @@ class Repository:
             actual = self.ref(ref)
             if actual == previous:
                 journal.restore_surfaces()
-                desired_index = journal.record["indexBefore"]
-                other_index = journal.record["indexAfter"]
+                self._reconcile_recorded_real_index(journal, roll_forward=False)
             elif actual == committed:
                 journal.publish_surfaces()
-                desired_index = journal.record["indexAfter"]
-                other_index = journal.record["indexBefore"]
+                self._reconcile_recorded_real_index(journal, roll_forward=True)
             else:
                 raise RepositoryError("transaction recovery lost ref ownership")
-            if not isinstance(desired_index, dict) or not isinstance(other_index, dict):
-                raise RepositoryError("invalid WEDL transaction journal")
-            current_index = self._real_index_entries(desired_index)
-            if current_index != desired_index:
-                if current_index != other_index:
-                    raise RepositoryError("transaction recovery lost real-index ownership")
-                self._publish_real_index(journal, expected=other_index, desired=desired_index)
             self._complete_transaction(journal)
 
     def _adopt_owned_index_lock(self, journals: tuple[TransactionJournal, ...]) -> None:
@@ -909,9 +938,7 @@ class Repository:
                         raise RepositoryError("canonical write failed after advancing HEAD; manual recovery is required") from failure
                     try:
                         journal.restore_surfaces()
-                        if self._real_index_entries(files) != journal.record["indexAfter"]:
-                            raise RepositoryError("canonical write recovery lost real-index ownership")
-                        self._publish_real_index(journal, expected=journal.record["indexAfter"], desired=journal.record["indexBefore"])
+                        self._reconcile_recorded_real_index(journal, roll_forward=False)
                         self._complete_transaction(journal)
                     except Exception as recovery:
                         raise RepositoryError("canonical write recovery lost transaction ownership") from recovery

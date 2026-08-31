@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from pathlib import Path
 import os
+import stat
 import subprocess
 import sys
 import time
@@ -60,6 +61,8 @@ def test_recovery_rolls_forward_only_when_committed_ref_is_still_owned(tmp_path:
     # happened.  The journal contains the only safe after image.
     (repository.root / "story/world.md").write_bytes(b"before\n")
     old_index = {"story/world.md": {"mode": "100644", "stage": 0, "blob": repository._blob_at(old, "story/world.md")}}
+    after_index = repository._real_index_entries(["story/world.md"])
+    repository._git(["update-index", "-z", "--index-info"], input_bytes=repository._index_info(old_index))
     journal = TransactionJournal.create(
         repository.root,
         ref="refs/heads/master",
@@ -67,7 +70,7 @@ def test_recovery_rolls_forward_only_when_committed_ref_is_still_owned(tmp_path:
         committed_head=new,
         surfaces=[Surface("story/world.md", b"before\n", b"after\n")],
         index_before=old_index,
-        index_after=repository._real_index_entries(["story/world.md"]),
+        index_after=after_index,
     )
     repository.recover_authoring_transactions()
     assert repository.head() == new
@@ -155,6 +158,123 @@ def test_pre_ref_enrollment_survives_commit_for_downstream_publication(tmp_path:
     repository.recover_authoring_transactions()
     assert (repository.root / ".wedl/receipt.json").read_bytes() == b"receipt"
     assert not captured[0].path.exists()
+
+
+@pytest.mark.parametrize("source_kind", ("update", "delete", "create"))
+@pytest.mark.parametrize("existing_cache", (True, False))
+def test_downstream_enrollment_failure_before_index_restores_exact_before_images(
+        tmp_path: Path, monkeypatch, source_kind: str, existing_cache: bool) -> None:
+    """Task-92-shaped enrollment cannot make pre-index rollback require after."""
+    repository = _repository(tmp_path)
+    old = repository.head()
+    if source_kind == "create":
+        source_path, files = "story/new.md", {"story/new.md": b"created\n"}
+        source_before, source_mode = None, None
+    else:
+        source_path = "story/world.md"
+        source_before = (repository.root / source_path).read_bytes()
+        source_mode = stat.S_IMODE((repository.root / source_path).stat().st_mode)
+        files = {source_path: None if source_kind == "delete" else b"after\n"}
+    index_before = repository._real_index_entries(files)
+    cache = repository.root / ".wedl/cache.sqlite"
+    receipt = repository.root / ".wedl/receipt.json"
+    if existing_cache:
+        cache.parent.mkdir(); cache.write_bytes(b"old cache")
+        failing, existing = ".wedl/cache.sqlite", cache
+    else:
+        receipt.parent.mkdir(); receipt.write_bytes(b"old receipt")
+        failing, existing = ".wedl/receipt.json", receipt
+    captured: list[TransactionJournal] = []
+
+    def enroll(journal: TransactionJournal) -> None:
+        journal.register_surface(".wedl/cache.sqlite", capture_before=True, after=b"new cache", role="cache")
+        journal.register_surface(".wedl/receipt.json", capture_before=True, after=b"new receipt", role="receipt")
+        captured.append(journal)
+
+    actual_publish = TransactionJournal._publish_claimed_surface
+
+    def fail_downstream(root, relative, claim, target, expected, *, mutation):
+        if relative == failing and mutation == "surface-publish-create":
+            raise OSError("downstream publication failed")
+        return actual_publish(root, relative, claim, target, expected, mutation=mutation)
+
+    monkeypatch.setattr(TransactionJournal, "_publish_claimed_surface", staticmethod(fail_downstream))
+    with pytest.raises(OSError, match="downstream publication failed"):
+        repository.commit_files(expected_head=old, files=files, message="downstream failure",
+                                transaction_enroll=enroll, retain_transaction=True)
+
+    assert repository.head() == old
+    assert repository._real_index_entries(files) == index_before
+    target = repository.root / source_path
+    if source_before is None:
+        assert not target.exists()
+    else:
+        assert target.read_bytes() == source_before
+        if os.name != "nt":
+            assert stat.S_IMODE(target.stat().st_mode) == source_mode
+    assert existing.read_bytes() == (b"old cache" if existing_cache else b"old receipt")
+    assert not (receipt if existing_cache else cache).exists()
+    assert captured and not captured[0].path.exists()
+    repository.recover_authoring_transactions()
+    assert repository.head() == old and repository._real_index_entries(files) == index_before
+
+
+def test_preindex_recovery_rejects_external_index_then_retries(tmp_path: Path) -> None:
+    repository = _repository(tmp_path)
+    path = "story/world.md"; old = repository.head(); before = repository._real_index_entries([path])
+    new = repository.commit_files(expected_head=old, files={path: b"after\n"}, message="candidate")
+    after = repository._real_index_entries([path])
+    repository._git(["update-ref", "refs/heads/master", old, new])
+    (repository.root / path).write_bytes(b"before\n")
+    journal = TransactionJournal.create(repository.root, ref="refs/heads/master", previous_head=old, committed_head=new,
+                                        surfaces=[Surface(path, b"before\n", b"after\n", "source")],
+                                        index_before=before, index_after=after)
+    journal.advance("ref_committed")
+    # A durable pre-index phase cannot claim the after image merely because a
+    # ref CAS happened; retain it for operator-visible recovery.
+    with pytest.raises(RepositoryError, match="real-index ownership"):
+        repository.recover_authoring_transactions()
+    assert repository._real_index_entries([path]) == after and journal.path.exists()
+    journal.advance("sources_published")
+    external = repository._git(["hash-object", "-w", "--stdin"], input_bytes=b"external\n").stdout.decode().strip()
+    repository._git(["update-index", "-z", "--index-info"], input_bytes=repository._index_info(
+        {path: {"mode": "100644", "stage": 0, "blob": external}}))
+    with pytest.raises(RepositoryError, match="real-index ownership"):
+        repository.recover_authoring_transactions()
+    assert repository._real_index_entries([path])[path]["blob"] == external and journal.path.exists()
+    repository._git(["update-index", "-z", "--index-info"], input_bytes=repository._index_info(before))
+    repository.recover_authoring_transactions(); repository.recover_authoring_transactions()
+    assert repository.head() == old and repository._real_index_entries([path]) == before and not journal.path.exists()
+
+
+def test_sources_published_phase_rolls_back_exact_index_after_image(tmp_path: Path) -> None:
+    repository = _repository(tmp_path)
+    path = "story/world.md"; old = repository.head(); before = repository._real_index_entries([path])
+    new = repository.commit_files(expected_head=old, files={path: b"after\n"}, message="candidate")
+    after = repository._real_index_entries([path])
+    repository._git(["update-ref", "refs/heads/master", old, new])
+    journal = TransactionJournal.create(repository.root, ref="refs/heads/master", previous_head=old, committed_head=new,
+                                        surfaces=[Surface(path, b"before\n", b"after\n", "source")],
+                                        index_before=before, index_after=after)
+    journal.advance("ref_committed"); journal.advance("sources_published")
+    repository.recover_authoring_transactions()
+    assert repository.head() == old and (repository.root / path).read_bytes() == b"before\n"
+    assert repository._real_index_entries([path]) == before and not journal.path.exists()
+
+
+def test_index_published_phase_rejects_preindex_image_while_committed_ref_is_owned(tmp_path: Path) -> None:
+    repository = _repository(tmp_path)
+    path = "story/world.md"; old = repository.head(); before = repository._real_index_entries([path])
+    new = repository.commit_files(expected_head=old, files={path: b"after\n"}, message="candidate")
+    after = repository._real_index_entries([path])
+    journal = TransactionJournal.create(repository.root, ref="refs/heads/master", previous_head=old, committed_head=new,
+                                        surfaces=[Surface(path, b"before\n", b"after\n", "source")],
+                                        index_before=before, index_after=after)
+    journal.advance("ref_committed"); journal.advance("sources_published"); journal.advance("index_published")
+    repository._git(["update-index", "-z", "--index-info"], input_bytes=repository._index_info(before))
+    with pytest.raises(RepositoryError, match="real-index ownership"):
+        repository.recover_authoring_transactions()
+    assert repository.head() == new and repository._real_index_entries([path]) == before and journal.path.exists()
 
 
 def test_source_interleaving_before_no_clobber_publish_fails_closed(tmp_path: Path) -> None:
@@ -248,7 +368,9 @@ def test_real_restart_after_surface_backup_checkpoint_converges_update_and_delet
     # new ref may be authoritative (roll forward) or have been CAS-rolled back
     # (roll back), but the old public bytes remain until the sealed claim exists.
     target.write_bytes(b"before\n")
-    if not roll_forward:
+    if roll_forward:
+        repository._git(["update-index", "-z", "--index-info"], input_bytes=repository._index_info(before_index))
+    else:
         repository._git(["update-ref", "refs/heads/master", old, new])
         repository._git(["update-index", "-z", "--index-info"], input_bytes=repository._index_info(before_index))
     journal = TransactionJournal.create(
@@ -566,6 +688,7 @@ def test_private_index_build_crash_adopts_only_sealed_install(tmp_path: Path) ->
     blob = repository._git(["hash-object", "-w", "--stdin"], input_bytes=b"third\n").stdout.decode().strip()
     after = {path: {"mode": "100644", "stage": 0, "blob": blob}}
     journal = TransactionJournal.create(repository.root, ref="refs/heads/master", previous_head=old, committed_head=new, index_before=before, index_after=after)
+    journal.advance("ref_committed"); journal.advance("sources_published")
     lock = repository.root / ".git" / "index.lock"
     observed_private_build = False
 
@@ -643,6 +766,8 @@ def test_restart_rolls_forward_every_durable_phase_with_registered_cache_and_rec
             journal.advance(name)
             if name == phase:
                 break
+    if phase in {"prepared", "ref_committed"}:
+        repository._git(["update-index", "-z", "--index-info"], input_bytes=repository._index_info(before_index))
     repository.recover_authoring_transactions()
     assert (repository.root / "story/world.md").read_bytes() == b"after\n"
     assert receipt.read_bytes() == b"new"

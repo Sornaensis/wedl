@@ -16,6 +16,7 @@ from wedl.errors import ConfirmationMismatch, ConfirmationRequired, DirtyManaged
 from wedl.migration import BACKUP_PREFIX, PROTOCOL, apply, preview
 from wedl.repository import Repository
 from wedl.source import serialize_record, split_envelope
+from wedl.transaction_recovery import Surface, TransactionJournal
 
 
 @pytest.fixture(autouse=True)
@@ -204,6 +205,24 @@ def test_upgrade_v07_rolls_back_source_and_head_when_real_index_publication_fail
 
     applied = apply(tiny_repo, {**request, "sourceSnapshotHash": planned["sourceSnapshotHash"]}, confirmation_token_value=planned["confirmationToken"])
     assert applied["status"] == "committed"
+
+
+def test_migration_fixture_recovery_accepts_preindex_before_image_after_ref_rollback(tiny_repo) -> None:
+    """Repository recovery remains compatible with migration's source fixture."""
+    path = "story/world.md"; old = tiny_repo.head(); before = tiny_repo._real_index_entries([path])
+    source_before = (tiny_repo.root / path).read_bytes()
+    new = tiny_repo.commit_files(expected_head=old, files={path: source_before + b"\n"}, message="preindex fixture")
+    after = tiny_repo._real_index_entries([path])
+    tiny_repo._git(["update-ref", "refs/heads/master", old, new])
+    tiny_repo._git(["update-index", "-z", "--index-info"], input_bytes=tiny_repo._index_info(before))
+    (tiny_repo.root / path).write_bytes(source_before)
+    journal = TransactionJournal.create(tiny_repo.root, ref="refs/heads/master", previous_head=old, committed_head=new,
+                                        surfaces=[Surface(path, source_before, source_before + b"\n", "source")],
+                                        index_before=before, index_after=after)
+    journal.advance("ref_committed")
+    tiny_repo.recover_authoring_transactions()
+    assert tiny_repo.head() == old and (tiny_repo.root / path).read_bytes() == source_before
+    assert tiny_repo._real_index_entries([path]) == before and not journal.path.exists()
 
 
 def test_commit_files_captures_rollback_bytes_before_the_ref_compare_and_swap(tiny_repo, monkeypatch) -> None:
