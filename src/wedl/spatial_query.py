@@ -709,6 +709,31 @@ class SpatialStore:
         page = self._page_cursor(kind="overlay-as-of", request=request, cursor=cursor)
         if isinstance(page, SpatialOutcome): return page
         binding, last = page
+        # The two forms are deliberately closed modes.  The catalogue form
+        # only sees authorized memberships; it never probes an overlay ID.
+        # An explicit ID first proves authorization without consulting
+        # applicability.  That makes an absent ID and an unauthorized ID the
+        # same stable forbidden outcome, while an authorized but inapplicable
+        # overlay remains a valid empty result below.
+        if overlay_id is not None:
+            authorized = self.connection.execute(
+                """SELECT 1
+                     FROM spatial_overlay_audience AS audience
+                     JOIN spatial_overlay_perspective AS perspective
+                       ON perspective.overlay_id=audience.overlay_id
+                    WHERE audience.overlay_id=?
+                      AND audience.audience=?
+                      AND perspective.perspective=?""",
+                (overlay_id, audience, perspective),
+            ).fetchone()
+            if authorized is None:
+                return SpatialOutcome(
+                    SpatialOutcomeKind.FORBIDDEN,
+                    self.revision,
+                    reason=SpatialReason.OVERLAY,
+                    detail="explicit overlay is not authorized in this scope",
+                )
+
         # Authorization is inside the candidate query and therefore precedes
         # the 2k budget, ordering, pagination, and all serialization. Catalogue
         # callers never see a forbidden result for hidden records.
@@ -726,11 +751,6 @@ class SpatialStore:
         if len(candidates) > MAX_OVERLAY_CANDIDATES:
             return SpatialOutcome(SpatialOutcomeKind.LIMIT, self.revision, reason=SpatialReason.LIMIT, detail="overlay candidate budget exceeded")
         visible = candidates
-        if overlay_id is not None and not visible:
-            authorized = self.connection.execute("SELECT 1 FROM spatial_overlay_audience AS audience JOIN spatial_overlay_perspective AS perspective ON perspective.overlay_id=audience.overlay_id WHERE audience.overlay_id=? AND audience.audience=? AND perspective.perspective=?", (overlay_id, audience, perspective)).fetchone()
-            exists = self.connection.execute("SELECT 1 FROM spatial_overlay WHERE id=?", (overlay_id,)).fetchone()
-            if exists and not authorized:
-                return SpatialOutcome(SpatialOutcomeKind.FORBIDDEN, self.revision, reason=SpatialReason.OVERLAY, detail="explicit overlay is not authorized in this scope")
         if last is not None:
             visible = [item for item in visible if (item[1], item[0]) > last]
         page_rows = visible[:limit]

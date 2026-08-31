@@ -172,15 +172,42 @@ def test_path_reports_downstream_closed_and_restricted_edges() -> None:
     assert restricted.subreason is SpatialSubreason.UNAVAILABLE_EDGE
 
 
-def test_overlay_filters_time_audience_perspective_before_visibility_and_denies_named_hidden() -> None:
+def test_overlay_filters_time_audience_perspective_before_visibility_and_closes_explicit_ids() -> None:
     store = _store()
     at = StoryTime("main", 0, 0)
     hidden = store.overlay_as_of("location:gate", at, audience="public", perspective="ordinary")
     assert hidden.kind is SpatialOutcomeKind.OK and hidden.value.ids == ()
-    denied = store.overlay_as_of("location:gate", at, audience="public", perspective="ordinary", overlay_id="overlay:ward")
-    assert denied.kind is SpatialOutcomeKind.FORBIDDEN and denied.reason is SpatialReason.OVERLAY
+    unauthorized = store.overlay_as_of("location:gate", at, audience="public", perspective="ordinary", overlay_id="overlay:ward")
+    missing = store.overlay_as_of("location:gate", at, audience="public", perspective="ordinary", overlay_id="overlay:missing")
+    # The complete outcomes, including every transport-consumed stable field,
+    # must be identical: explicit IDs cannot be enumerated by authorization.
+    assert unauthorized == missing
+    assert unauthorized.kind is SpatialOutcomeKind.FORBIDDEN
+    assert unauthorized.reason is SpatialReason.OVERLAY
+    assert unauthorized.subreason is None
+    assert unauthorized.detail == "explicit overlay is not authorized in this scope"
+
+    # Authorization is separate from applicability.  A caller allowed to name
+    # the overlay gets a normal empty result when the location or horizon does
+    # not apply, rather than a forbidden or unavailable answer.
+    out_of_location = store.overlay_as_of(ROOT_LOCATION, at, audience="author", perspective="author", overlay_id="overlay:ward")
+    out_of_horizon = store.overlay_as_of(GATE_LOCATION, StoryTime("main", 2, 0), audience="author", perspective="author", overlay_id="overlay:ward")
+    assert out_of_location.kind is SpatialOutcomeKind.OK and out_of_location.value.ids == ()
+    assert out_of_horizon.kind is SpatialOutcomeKind.OK and out_of_horizon.value.ids == ()
+
+    # Catalogue reads do not perform a separate record lookup that could turn
+    # hidden membership into an identifier oracle.
+    statements: list[str] = []
+    store.connection.set_trace_callback(statements.append)
+    catalogue_empty = store.overlay_as_of(ROOT_LOCATION, at, audience="public", perspective="ordinary")
+    store.connection.set_trace_callback(None)
+    assert catalogue_empty.kind is SpatialOutcomeKind.OK and catalogue_empty.value.ids == ()
+    assert not any("FROM spatial_overlay WHERE id=" in statement for statement in statements)
+
     allowed = store.overlay_as_of("location:gate", at, audience="author", perspective="author")
     assert allowed.kind is SpatialOutcomeKind.OK and allowed.value.ids == ("overlay:ward",)
+    explicit_allowed = store.overlay_as_of("location:gate", at, audience="author", perspective="author", overlay_id="overlay:ward")
+    assert explicit_allowed.kind is SpatialOutcomeKind.OK and explicit_allowed.value.ids == ("overlay:ward",)
 
 
 def test_overlay_story_time_never_crosses_timelines_or_converts_duration() -> None:
