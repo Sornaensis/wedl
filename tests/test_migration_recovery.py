@@ -186,14 +186,13 @@ def test_upgrade_v07_rolls_back_source_and_head_when_real_index_publication_fail
     request = _request(tiny_repo, "upgrade-v07", "late-index-lock")
     planned = preview(tiny_repo, request)
     index_lock = tiny_repo.root / ".git" / "index.lock"
-    actual_git = tiny_repo._git
+    actual_publish = tiny_repo._publish_real_index
 
-    def interrupted_git(args, **kwargs):
-        if list(args) == ["update-index", "-z", "--index-info"] and kwargs.get("env") is None:
-            index_lock.write_text("external Git transaction\n", encoding="utf-8")
-        return actual_git(args, **kwargs)
+    def interrupted_publish(*args, **kwargs):
+        index_lock.write_text("external Git transaction\n", encoding="utf-8")
+        return actual_publish(*args, **kwargs)
 
-    monkeypatch.setattr(tiny_repo, "_git", interrupted_git)
+    monkeypatch.setattr(tiny_repo, "_publish_real_index", interrupted_publish)
     with pytest.raises(RepositoryError, match="index.lock"):
         apply(tiny_repo, {**request, "sourceSnapshotHash": planned["sourceSnapshotHash"]}, confirmation_token_value=planned["confirmationToken"])
 
@@ -201,7 +200,7 @@ def test_upgrade_v07_rolls_back_source_and_head_when_real_index_publication_fail
     assert tiny_repo.snapshot().files == source
     assert index_lock.read_text(encoding="utf-8") == "external Git transaction\n"
     index_lock.unlink()
-    monkeypatch.setattr(tiny_repo, "_git", actual_git)
+    monkeypatch.setattr(tiny_repo, "_publish_real_index", actual_publish)
 
     applied = apply(tiny_repo, {**request, "sourceSnapshotHash": planned["sourceSnapshotHash"]}, confirmation_token_value=planned["confirmationToken"])
     assert applied["status"] == "committed"

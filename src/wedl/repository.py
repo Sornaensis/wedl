@@ -6,8 +6,9 @@ import json
 import os
 from pathlib import Path
 import sqlite3
+import stat
 import subprocess
-from typing import Any, Iterable
+from typing import Any, Callable, Iterable
 
 import yaml
 
@@ -15,6 +16,7 @@ from . import SUPPORTED_SOURCE_SCHEMAS, __version__
 from .errors import DirtyManagedTree, RepositoryError, StaleRevision, SupersededSchemaError
 from .model import Record, World
 from .source import parse_record, quarantine_superseded_schema
+from .transaction_recovery import Surface, TransactionJournal, mutation_checkpoint
 from .util import sha256_bytes
 
 
@@ -449,27 +451,335 @@ class Repository:
 
         git_dir = self.root / ".git"
         lock_path = git_dir / "wedl-canonical-write.lock"
-        try:
-            descriptor = os.open(lock_path, os.O_WRONLY | os.O_CREAT | os.O_EXCL)
-        except FileExistsError as exc:
-            raise RepositoryError("another WEDL canonical write is in progress") from exc
+        token = None
+        for attempt in range(2):
+            try:
+                mutation_checkpoint("canonical-lock-create")
+                descriptor = os.open(lock_path, os.O_WRONLY | os.O_CREAT | os.O_EXCL)
+                break
+            except FileExistsError as exc:
+                # Never steal an ordinary WEDL lock.  The sole reclaimable case
+                # is a dead process whose on-disk lock is cryptographically
+                # linked to a still-pending, validated transaction journal.
+                if attempt or not TransactionJournal.reclaim_owned_stale_lock(self.root, lock_path):
+                    raise RepositoryError("another WEDL canonical write is in progress") from exc
+        else:  # pragma: no cover - loop either acquires or raises
+            raise RepositoryError("another WEDL canonical write is in progress")
+        token = __import__("uuid").uuid4().hex
         try:
             with os.fdopen(descriptor, "w", encoding="ascii") as lock_file:
-                lock_file.write(f"pid={os.getpid()}\n")
-            if (git_dir / "index.lock").exists():
-                raise RepositoryError("Git index is locked by another process")
+                lock_file.write(f"pid={os.getpid()}\ntoken={token}\n")
+                lock_file.flush()
+                os.fsync(lock_file.fileno())
+            status = os.stat(lock_path)
+            self._canonical_lock = (lock_path, token, None, f"{status.st_dev:x}:{status.st_ino:x}:{status.st_size:x}", sha256_bytes(lock_path.read_bytes()))
             yield
         finally:
-            lock_path.unlink(missing_ok=True)
+            try:
+                fields = dict(line.split("=", 1) for line in lock_path.read_text(encoding="ascii").splitlines() if "=" in line)
+            except OSError:
+                fields = {}
+            bound = getattr(self, "_canonical_lock", None)
+            journal = bound[2] if bound else None
+            ephemeral_owned = False
+            if bound and journal is None:
+                try:
+                    status = os.stat(lock_path)
+                    ephemeral_owned = (f"{status.st_dev:x}:{status.st_ino:x}:{status.st_size:x}" == bound[3] and sha256_bytes(lock_path.read_bytes()) == bound[4])
+                except OSError:
+                    pass
+            if (isinstance(journal, TransactionJournal) and journal.owns_canonical_lock(lock_path, pid=os.getpid(), token=token)) or ephemeral_owned:
+                # Never release a pathname based only on a prior read: claim the
+                # exact inode first so an identical-byte replacement cannot be
+                # removed at the final checkpoint.
+                claim = git_dir / f".wedl-canonical-release-{os.getpid()}-{token}"
+                try:
+                    if isinstance(journal, TransactionJournal):
+                        durable = journal.record.get("canonicalLock")
+                        if not isinstance(durable, dict):
+                            raise RepositoryError("canonical write lock ownership changed")
+                        expected_identity, expected_digest = durable.get("identity"), durable.get("sha256")
+                    else:
+                        expected_identity, expected_digest = bound[3], bound[4]
+                    if not isinstance(expected_identity, str) or not isinstance(expected_digest, str):
+                        raise RepositoryError("canonical write lock ownership changed")
+                    os.link(lock_path, claim)
+                    claim_status = os.stat(claim)
+                    claimed = (claim_status.st_dev, claim_status.st_ino, claim_status.st_size)
+                    current = os.stat(lock_path)
+                    claim_identity = f"{claim_status.st_dev:x}:{claim_status.st_ino:x}:{claim_status.st_size:x}"
+                    current_identity = f"{current.st_dev:x}:{current.st_ino:x}:{current.st_size:x}"
+                    if (current.st_dev, current.st_ino, current.st_size) != claimed or claim_identity != expected_identity or current_identity != expected_identity or sha256_bytes(claim.read_bytes()) != expected_digest or sha256_bytes(lock_path.read_bytes()) != expected_digest:
+                        raise RepositoryError("canonical write lock ownership changed")
+                    mutation_checkpoint("canonical-lock-release")
+                    current = os.stat(lock_path)
+                    current_identity = f"{current.st_dev:x}:{current.st_ino:x}:{current.st_size:x}"
+                    if (current.st_dev, current.st_ino, current.st_size) != claimed or current_identity != expected_identity or not (f"{claim_status.st_dev:x}:{claim_status.st_ino:x}:{claim_status.st_size:x}" == expected_identity) or sha256_bytes(claim.read_bytes()) != expected_digest or sha256_bytes(lock_path.read_bytes()) != expected_digest:
+                        raise RepositoryError("canonical write lock ownership changed")
+                    lock_path.unlink()
+                except OSError as exc:
+                    raise RepositoryError("canonical write lock ownership changed") from exc
+                finally:
+                    try:
+                        claim.unlink()
+                    except OSError:
+                        pass
+            self._canonical_lock = None
+            for journal in getattr(self, "_completed_transactions", []):
+                journal.cleanup()
+            self._completed_transactions = []
 
     @staticmethod
-    def _index_info(blob_ids: dict[str, str | None]) -> bytes:
+    def _index_info(entries: dict[str, dict[str, object] | str | None]) -> bytes:
         """Encode Git index-info records without treating path bytes as lines."""
 
         return b"".join(
-            (f"0 {'0' * 40}\t{path}\0" if blob is None else f"100644 {blob}\t{path}\0").encode()
-            for path, blob in sorted(blob_ids.items())
+            (
+                f"0 {'0' * 40}\t{path}\0"
+                if entry is None
+                else f"{entry['mode'] if isinstance(entry, dict) else '100644'} {entry['blob'] if isinstance(entry, dict) else entry}\t{path}\0"
+            ).encode()
+            for path, entry in sorted(entries.items())
         )
+
+    def _real_index_entries(self, paths: Iterable[str]) -> dict[str, dict[str, object] | None]:
+        """Read exact real-index mode/stage/blob records for the owned paths."""
+        selected = tuple(sorted(set(paths)))
+        found: dict[str, dict[str, object] | None] = {path: None for path in selected}
+        if not selected:
+            return found
+        output = self._git(["ls-files", "--stage", "-z", "--", *selected]).stdout
+        for record in output.split(b"\0"):
+            if not record:
+                continue
+            header, separator, path_bytes = record.partition(b"\t")
+            fields = header.split()
+            if not separator or len(fields) != 3:
+                raise RepositoryError("invalid real Git index record")
+            path = path_bytes.decode("utf-8", "surrogateescape")
+            mode, blob, stage = (field.decode("ascii") for field in fields)
+            if path not in found or stage != "0":
+                raise RepositoryError("real Git index has an unowned conflict entry")
+            found[path] = {"mode": mode, "stage": 0, "blob": blob}
+        return found
+
+    def _publish_real_index(
+        self,
+        journal: TransactionJournal,
+        *,
+        expected: dict[str, dict[str, object] | None],
+        desired: dict[str, dict[str, object] | None],
+    ) -> None:
+        """Install a sealed private index through Git's final lock protocol.
+
+        The mutable build never lives at ``.git/index.lock``.  We first retain
+        both the old index and the complete new index in the transaction's
+        private staging directory, seal and journal their identities, and only
+        then hard-link the immutable install image to Git's conventional lock
+        name for the one final replacement.  A crash before that point has no
+        public index mutation; a crash after it has an authenticated artifact
+        for restart adoption.
+        """
+        git_dir = self.root / ".git"
+        index_path = git_dir / "index"
+        lock_path = git_dir / "index.lock"
+        if lock_path.exists():
+            raise RepositoryError("Git index is locked by another process (index.lock)")
+        artifacts = journal.record.get("indexArtifacts")
+        if artifacts is None:
+            if self._real_index_entries(expected) != expected:
+                raise RepositoryError("canonical write lost real-index ownership")
+            original = index_path.read_bytes() if index_path.exists() else b""
+            backup = journal.write_staging_artifact("real-index-before", original)
+            journal.seal_staging_artifact("real-index-before")
+            install = journal.write_staging_artifact("real-index-install", original)
+            env = os.environ.copy(); env["GIT_INDEX_FILE"] = str(install)
+            index_info = self._index_info(desired)
+            if index_info:
+                mutation_checkpoint("real-index-update-private")
+                self._git(["update-index", "-z", "--index-info"], input_bytes=index_info, env=env)
+            with install.open("r+b") as handle:
+                handle.flush(); os.fsync(handle.fileno())
+            journal.seal_staging_artifact("real-index-install")
+            journal.bind_index_artifacts(backup="real-index-before", install="real-index-install")
+        else:
+            if not isinstance(artifacts, dict) or not isinstance(artifacts.get("install"), str):
+                raise RepositoryError("invalid WEDL transaction journal index artifact")
+            install = journal.staging_path(artifacts["install"])
+            journal.seal_staging_artifact(artifacts["install"])
+        if self._real_index_entries(expected) != expected:
+            raise RepositoryError("canonical write lost real-index ownership")
+        # The final lock is an immutable hard link to a sealed private artifact.
+        # If any other Git writer wins, O_EXCL-equivalent link creation leaves it
+        # untouched and our durable artifact remains available for retry.
+        try:
+            mutation_checkpoint("real-index-lock-link")
+            os.link(install, lock_path)
+        except FileExistsError as exc:
+            raise RepositoryError("Git index is locked by another process (index.lock)") from exc
+        except OSError as exc:
+            raise RepositoryError("could not claim Git index lock from private transaction artifact") from exc
+        token = __import__("uuid").uuid4().hex
+        status = os.stat(lock_path)
+        identity = f"{status.st_dev:x}:{status.st_ino:x}:{status.st_size:x}"
+        digest = sha256_bytes(lock_path.read_bytes())
+        journal.claim_index_lock(token=token, identity=identity, digest=digest)
+        # A hard link must still be the sealed install image immediately before
+        # the final namespace replacement.
+        sealed = journal.record["sealedArtifacts"].get(journal.record["indexArtifacts"]["install"])
+        try:
+            current = os.stat(lock_path)
+            current_identity = f"{current.st_dev:x}:{current.st_ino:x}:{current.st_size:x}"
+            current_digest = sha256_bytes(lock_path.read_bytes())
+        except OSError as exc:
+            raise RepositoryError("canonical write lost real-index lock ownership") from exc
+        if not isinstance(sealed, dict) or current_identity != identity or current_digest != digest or sealed.get("identity") != identity or sealed.get("sha256") != digest:
+            raise RepositoryError("canonical write lost real-index lock ownership")
+        if self._real_index_entries(expected) != expected:
+            raise RepositoryError("canonical write lost real-index ownership")
+        mutation_checkpoint("real-index-publish")
+        # Revalidate *after* the injectable final checkpoint.  Digest alone is
+        # insufficient: a hostile same-byte rename has a different inode and
+        # must remain an external Git lock rather than be installed as ours.
+        try:
+            final = os.stat(lock_path)
+            final_identity = f"{final.st_dev:x}:{final.st_ino:x}:{final.st_size:x}"
+            final_digest = sha256_bytes(lock_path.read_bytes())
+        except OSError as exc:
+            raise RepositoryError("canonical write lost real-index lock ownership") from exc
+        if final_identity != identity or final_digest != digest or self._real_index_entries(expected) != expected:
+            raise RepositoryError("canonical write lost real-index lock ownership")
+        os.replace(lock_path, index_path)
+        # Windows can retain the source directory entry of a hard-linked file
+        # after replacement.  Remove only that exact sealed inode; any other
+        # post-replace lock is external state and remains fail-closed.
+        if lock_path.exists():
+            leftover = os.stat(lock_path)
+            leftover_identity = f"{leftover.st_dev:x}:{leftover.st_ino:x}:{leftover.st_size:x}"
+            if leftover_identity != identity or sha256_bytes(lock_path.read_bytes()) != digest:
+                raise RepositoryError("canonical write lost real-index lock ownership")
+            lock_path.unlink()
+        if self._real_index_entries(desired) != desired:
+            raise RepositoryError("canonical write lost real-index ownership")
+
+    def _bind_transaction_lock(self, journal: TransactionJournal) -> None:
+        lock = getattr(self, "_canonical_lock", None)
+        if lock is None:
+            raise RepositoryError("canonical transaction lock is not held")
+        journal.bind_lock(lock[0], pid=os.getpid(), token=lock[1])
+        self._canonical_lock = (lock[0], lock[1], journal, lock[3], lock[4])
+
+    def _complete_transaction(self, journal: TransactionJournal) -> None:
+        journal.finish()
+        completed = getattr(self, "_completed_transactions", [])
+        completed.append(journal)
+        self._completed_transactions = completed
+
+    def _reconcile_authoring_transactions_locked(self) -> None:
+        """Complete interrupted canonical writes before exposing a new one.
+
+        A journal whose ref CAS completed deterministically rolls forward; one
+        whose ref is still old deterministically rolls back.  Any third ref or
+        filesystem state belongs to another writer and remains untouched.
+        """
+
+        journals = TransactionJournal.pending(self.root)
+        self._adopt_owned_index_lock(journals)
+        for journal in journals:
+            if journal.phase == "completed":
+                self._complete_transaction(journal)
+                continue
+            previous = str(journal.record["previousHead"])
+            committed = str(journal.record["committedHead"])
+            ref = str(journal.record["ref"])
+            actual = self.ref(ref)
+            if actual == previous:
+                journal.restore_surfaces()
+                desired_index = journal.record["indexBefore"]
+                other_index = journal.record["indexAfter"]
+            elif actual == committed:
+                journal.publish_surfaces()
+                desired_index = journal.record["indexAfter"]
+                other_index = journal.record["indexBefore"]
+            else:
+                raise RepositoryError("transaction recovery lost ref ownership")
+            if not isinstance(desired_index, dict) or not isinstance(other_index, dict):
+                raise RepositoryError("invalid WEDL transaction journal")
+            current_index = self._real_index_entries(desired_index)
+            if current_index != desired_index:
+                if current_index != other_index:
+                    raise RepositoryError("transaction recovery lost real-index ownership")
+                self._publish_real_index(journal, expected=other_index, desired=desired_index)
+            self._complete_transaction(journal)
+
+    def _adopt_owned_index_lock(self, journals: tuple[TransactionJournal, ...]) -> None:
+        """Finish only a journal-authenticated crashed real-index publication."""
+        lock_path = self.root / ".git" / "index.lock"
+        if not lock_path.exists():
+            return
+        owners = [journal for journal in journals if isinstance(journal.record.get("indexLock"), dict)]
+        for journal in owners:
+            record = journal.record["indexLock"]
+            artifacts = journal.record.get("indexArtifacts")
+            if not isinstance(artifacts, dict) or not isinstance(artifacts.get("install"), str):
+                continue
+            install_name = artifacts["install"]
+            try:
+                install = journal.staging_path(install_name)
+                journal.seal_staging_artifact(install_name)
+            except RepositoryError:
+                continue
+            sealed_install = journal.record["sealedArtifacts"].get(install_name)
+            if not isinstance(sealed_install, dict):
+                continue
+            if sha256_bytes(lock_path.read_bytes()) != record.get("sha256"):
+                continue
+            status = os.stat(lock_path)
+            identity = f"{status.st_dev:x}:{status.st_ino:x}:{status.st_size:x}"
+            if identity != record.get("identity") or identity != sealed_install.get("identity") or sha256_bytes(install.read_bytes()) != sealed_install.get("sha256"):
+                continue
+            expected = journal.record["indexBefore"]
+            desired = journal.record["indexAfter"]
+            if self._real_index_entries(expected) != expected:
+                raise RepositoryError("canonical write lost real-index ownership")
+            # Hard-link claim binds the name's identity before replacement; its
+            # own sealing is durable evidence should a process die between the
+            # claim and install. A substituted external lock is retained.
+            claim = journal.staging_path("index-lock-claim")
+            try:
+                if claim.exists():
+                    claimed = os.stat(claim)
+                    if (claimed.st_dev, claimed.st_ino, claimed.st_size) != (status.st_dev, status.st_ino, status.st_size):
+                        raise RepositoryError("canonical write lost real-index lock ownership")
+                else:
+                    os.link(lock_path, claim)
+                journal.seal_staging_artifact("index-lock-claim")
+                if sha256_bytes(lock_path.read_bytes()) != record.get("sha256") or sha256_bytes(claim.read_bytes()) != record.get("sha256"):
+                    raise RepositoryError("canonical write lost real-index lock ownership")
+                mutation_checkpoint("real-index-crash-adopt")
+                final = os.stat(lock_path)
+                if (final.st_dev, final.st_ino, final.st_size) != (status.st_dev, status.st_ino, status.st_size) or sha256_bytes(lock_path.read_bytes()) != record.get("sha256"):
+                    raise RepositoryError("canonical write lost real-index lock ownership")
+                os.replace(lock_path, self.root / ".git" / "index")
+                if lock_path.exists():
+                    leftover = os.stat(lock_path)
+                    if (leftover.st_dev, leftover.st_ino, leftover.st_size) != (status.st_dev, status.st_ino, status.st_size) or sha256_bytes(lock_path.read_bytes()) != record.get("sha256"):
+                        raise RepositoryError("canonical write lost real-index lock ownership")
+                    lock_path.unlink()
+            except OSError as exc:
+                raise RepositoryError("canonical write lost real-index lock ownership") from exc
+            if self._real_index_entries(desired) != desired:
+                raise RepositoryError("canonical write lost real-index ownership")
+            return
+        raise RepositoryError("Git index is locked by another process (index.lock)")
+
+    def recover_authoring_transactions(self) -> None:
+        """Recover owned journal entries under canonical-write serialization."""
+
+        if not self.is_git:
+            raise RepositoryError("Git is required for canonical writes")
+        with self._canonical_write_lock():
+            self._reconcile_authoring_transactions_locked()
 
     def commit_files(
         self,
@@ -478,10 +788,13 @@ class Repository:
         files: dict[str, bytes | None],
         message: str,
         trailers: dict[str, str] | None = None,
+        transaction_enroll: Callable[[TransactionJournal], None] | None = None,
+        retain_transaction: bool = False,
     ) -> str:
         if not self.is_git:
             raise RepositoryError("Git is required for canonical writes")
         with self._canonical_write_lock():
+            self._reconcile_authoring_transactions_locked()
             self.assert_clean_managed()
             actual = self.head()
             if actual != expected_head:
@@ -491,6 +804,7 @@ class Repository:
             env["GIT_INDEX_FILE"] = str(index_path)
             try:
                 self._git(["read-tree", expected_head], env=env)
+                real_index_before = self._real_index_entries(files)
                 blob_ids: dict[str, str | None] = {}
                 for path, data in sorted(files.items()):
                     if data is None:
@@ -498,7 +812,15 @@ class Repository:
                         continue
                     blob = self._git(["hash-object", "-w", "--stdin"], input_bytes=data).stdout.decode().strip()
                     blob_ids[path] = blob
-                alternate_index_info = self._index_info(blob_ids)
+                index_after = {
+                    path: None if blob is None else {
+                        "mode": str((real_index_before[path] or {"mode": "100644"})["mode"]),
+                        "stage": 0,
+                        "blob": blob,
+                    }
+                    for path, blob in blob_ids.items()
+                }
+                alternate_index_info = self._index_info(index_after)
                 if alternate_index_info:
                     self._git(["update-index", "-z", "--index-info"], input_bytes=alternate_index_info, env=env)
                 tree = self._git(["write-tree"], env=env).stdout.decode().strip()
@@ -518,50 +840,160 @@ class Repository:
                 ref = self._git(["symbolic-ref", "-q", "HEAD"], check=False).stdout.decode().strip()
                 if not ref:
                     raise RepositoryError("detached HEAD writes are not supported")
-                originals = {
-                    path: (target.read_bytes() if (target := self.root / path).exists() else None)
-                    for path in files
-                }
+                originals = {}
+                original_modes: dict[str, int | None] = {}
+                for path in files:
+                    target = self.root / path
+                    if target.exists() and not target.is_file():
+                        raise RepositoryError("canonical write target is not a regular file")
+                    originals[path] = target.read_bytes() if target.exists() else None
+                    original_modes[path] = stat.S_IMODE(target.stat().st_mode) if target.exists() else None
+                journal = TransactionJournal.create(
+                    self.root,
+                    ref=ref,
+                    previous_head=expected_head,
+                    committed_head=commit,
+                    surfaces=[Surface(
+                        path, originals[path], data, "source", original_modes[path],
+                        None if data is None else int(str(index_after[path]["mode"]), 8) & 0o777,
+                    ) for path, data in sorted(files.items())],
+                    index_before=real_index_before,
+                    index_after=index_after,
+                )
+                self._bind_transaction_lock(journal)
+                # Downstream compiler/cache/receipt owners enroll every private
+                # surface before the ref CAS.  The immutable record then stays
+                # available for their publication/recovery phase.
+                if transaction_enroll is not None:
+                    transaction_enroll(journal)
+                mutation_checkpoint("ref-cas-commit")
                 self._git(["update-ref", ref, commit, expected_head])
+                journal.advance("ref_committed")
                 # Materialize only touched managed paths; unrelated worktree state
                 # stays untouched. Then advance the *real* index for exactly those
                 # paths to the same blobs as the new commit. Without this second
                 # step, newly committed files appear simultaneously staged-deleted
                 # and untracked because the alternate transaction index is removed.
                 try:
-                    for path, data in files.items():
-                        target = self.root / path
-                        if data is None:
-                            target.unlink(missing_ok=True)
-                        else:
-                            target.parent.mkdir(parents=True, exist_ok=True)
-                            target.write_bytes(data)
-                    index_info = self._index_info(blob_ids)
-                    if index_info:
-                        self._git(["update-index", "-z", "--index-info"], input_bytes=index_info)
+                    journal.publish_surfaces()
+                    journal.advance("sources_published")
+                    if self._real_index_entries(files) != real_index_before:
+                        raise RepositoryError("canonical write lost real-index ownership")
+                    self._publish_real_index(journal, expected=real_index_before, desired=journal.record["indexAfter"])
+                    journal.advance("index_published")
                 except Exception as failure:
                     # A source or real-index failure happens after the ref CAS.
                     # Put both authoritative surfaces back only when the ref is
                     # still ours; otherwise retain the coherent committed source
                     # and refuse to overwrite another writer's work.
+                    if (self.root / ".git" / "index.lock").exists():
+                        # Git owns this lock.  We may still roll back only when
+                        # its failed publication demonstrably left every owned
+                        # real-index entry at the recorded before image.
+                        current_index = self._real_index_entries(files)
+                        if current_index != journal.record["indexBefore"]:
+                            raise RepositoryError("Git index is locked by another process (index.lock)") from failure
+                        mutation_checkpoint("ref-cas-rollback")
+                        rollback = self._git(["update-ref", ref, expected_head, commit], check=False)
+                        if rollback.returncode:
+                            raise RepositoryError("canonical write failed after advancing HEAD; manual recovery is required") from failure
+                        try:
+                            journal.restore_surfaces()
+                            self._complete_transaction(journal)
+                        except Exception as recovery:
+                            raise RepositoryError("canonical write recovery lost transaction ownership") from recovery
+                        raise RepositoryError("Git index is locked by another process (index.lock)") from failure
+                    mutation_checkpoint("ref-cas-rollback")
                     rollback = self._git(["update-ref", ref, expected_head, commit], check=False)
                     if rollback.returncode != 0:
                         raise RepositoryError("canonical write failed after advancing HEAD; manual recovery is required") from failure
-                    for path, original in originals.items():
-                        target = self.root / path
-                        if original is None:
-                            target.unlink(missing_ok=True)
-                        else:
-                            target.parent.mkdir(parents=True, exist_ok=True)
-                            target.write_bytes(original)
+                    try:
+                        journal.restore_surfaces()
+                        if self._real_index_entries(files) != journal.record["indexAfter"]:
+                            raise RepositoryError("canonical write recovery lost real-index ownership")
+                        self._publish_real_index(journal, expected=journal.record["indexAfter"], desired=journal.record["indexBefore"])
+                        self._complete_transaction(journal)
+                    except Exception as recovery:
+                        raise RepositoryError("canonical write recovery lost transaction ownership") from recovery
                     raise
                 # Refresh stat information after materialization. Failures here are
                 # non-fatal because the cache entries already contain the correct
                 # blobs and a subsequent status/refresh will reconcile timestamps.
                 if files:
                     self._git(["update-index", "--refresh", "--", *sorted(files)], check=False)
+                journal.advance("surfaces_published")
+                if not retain_transaction:
+                    self._complete_transaction(journal)
                 # A new commit invalidates only the HEAD alias. Commit-keyed worlds
                 # remain safe historical snapshots.
                 return commit
             finally:
                 index_path.unlink(missing_ok=True)
+
+    def _blob_at(self, revision: str, path: str) -> str | None:
+        result = self._git(["rev-parse", f"{revision}:{path}"], check=False)
+        return result.stdout.decode().strip() if result.returncode == 0 else None
+
+    def rollback_committed_files(
+        self,
+        *,
+        previous_head: str,
+        committed_head: str,
+        paths: Iterable[str],
+    ) -> None:
+        """Enroll a post-commit failure in the same durable recovery protocol."""
+        if not self.is_git:
+            raise RepositoryError("Git is required for canonical writes")
+        selected = tuple(sorted(set(paths)))
+        with self._canonical_write_lock():
+            if self.head() != committed_head:
+                raise RepositoryError("changeset post-commit recovery lost its HEAD compare-and-swap")
+            ref = self._git(["symbolic-ref", "-q", "HEAD"], check=False).stdout.decode().strip()
+            if not ref:
+                raise RepositoryError("detached HEAD writes are not supported")
+            previous_blob_ids: dict[str, str | None] = {}
+            committed_blob_ids: dict[str, str | None] = {}
+            surfaces: list[Surface] = []
+            for path in selected:
+                previous = self._git(["rev-parse", f"{previous_head}:{path}"], check=False)
+                committed = self._git(["rev-parse", f"{committed_head}:{path}"], check=False)
+                previous_blob_ids[path] = previous.stdout.decode().strip() if not previous.returncode else None
+                committed_blob_ids[path] = committed.stdout.decode().strip() if not committed.returncode else None
+                before = self._git(["cat-file", "-p", previous_blob_ids[path]]).stdout if previous_blob_ids[path] else None
+                after = self._git(["cat-file", "-p", committed_blob_ids[path]]).stdout if committed_blob_ids[path] else None
+                previous_mode = None
+                committed_mode = None
+                for revision, destination in ((previous_head, "previous"), (committed_head, "committed")):
+                    listing = self._git(["ls-tree", revision, "--", path], check=False).stdout.decode().strip()
+                    mode = int(listing.split()[0], 8) & 0o777 if listing else None
+                    if destination == "previous":
+                        previous_mode = mode
+                    else:
+                        committed_mode = mode
+                surfaces.append(Surface(path, before, after, "source", previous_mode, committed_mode))
+            index_after = self._real_index_entries(selected)
+            expected_after = {
+                path: None if blob is None else {"mode": str((index_after[path] or {"mode": "100644"})["mode"]), "stage": 0, "blob": blob}
+                for path, blob in committed_blob_ids.items()
+            }
+            if index_after != expected_after:
+                raise RepositoryError("changeset post-commit recovery lost real-index ownership")
+            journal = TransactionJournal.create(
+                self.root, ref=ref, previous_head=previous_head, committed_head=committed_head,
+                surfaces=surfaces, index_before={
+                    path: None if blob is None else {"mode": str((index_after[path] or {"mode": "100644"})["mode"]), "stage": 0, "blob": blob}
+                    for path, blob in previous_blob_ids.items()
+                }, index_after=expected_after,
+            )
+            self._bind_transaction_lock(journal)
+            mutation_checkpoint("ref-cas-rollback")
+            rollback = self._git(["update-ref", ref, previous_head, committed_head], check=False)
+            if rollback.returncode:
+                raise RepositoryError("changeset post-commit recovery lost its HEAD compare-and-swap")
+            try:
+                self._reconcile_authoring_transactions_locked()
+            except Exception as failure:
+                # Keep the newer revision authoritative when the durable record
+                # cannot prove ownership of every restoration surface.
+                self._git(["update-ref", ref, committed_head, previous_head], check=False)
+                raise RepositoryError("changeset post-commit recovery failed; manual recovery is required") from failure
