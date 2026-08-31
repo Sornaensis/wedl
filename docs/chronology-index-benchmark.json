@@ -27,7 +27,7 @@
       "eraCount": 1,
       "insertBatches": 23,
       "maxInsertBatch": 1000,
-      "timingMs": 278.324
+      "timingMs": 270.02
     },
     "databaseBytes": 19935232,
     "recordCount": 10001,
@@ -79,7 +79,7 @@
       "src/wedl/chronology_query.py",
       "tools/benchmark_chronology_index.py"
     ],
-    "fingerprintSha256": "8430ce8792f1ca3730fe25834abdd5a31abecfa21b2afe3afa9e5bc26863384c"
+    "fingerprintSha256": "8aee1ea66e11f9e020951392f6221a55814be5c35bd3db7df02c4e68fa2a716d"
   },
   "mode": "full",
   "queries": {
@@ -110,8 +110,8 @@
       },
       "equal": true,
       "matches": 9500,
-      "sourceSeconds": 0.032370599918067455,
-      "sqliteSeconds": 0.14594259997829795
+      "sourceSeconds": 0.03774100006558001,
+      "sqliteSeconds": 0.16011580009944737
     },
     "exact": {
       "candidateStats": {
@@ -137,8 +137,8 @@
       },
       "equal": true,
       "matches": 1,
-      "sourceSeconds": 0.002070399932563305,
-      "sqliteSeconds": 0.003930200124159455
+      "sourceSeconds": 0.0021424998994916677,
+      "sqliteSeconds": 0.003468399867415428
     },
     "input": {
       "calendarId": "calendar_0123456789abcdefghjkmnpqrs",
@@ -170,25 +170,25 @@
       },
       "equal": true,
       "matches": 1,
-      "sourceSeconds": 0.002059499965980649,
-      "sqliteSeconds": 0.002948800101876259
+      "sourceSeconds": 0.0020464002154767513,
+      "sqliteSeconds": 0.0027573001570999622
     }
   },
   "schemaVersion": 1,
   "timingsSeconds": {
-    "cacheHit": 1.45076739997603,
-    "compile": 5.820729200029746,
-    "projection": 0.20479179988615215,
-    "sourceBroad": 0.032370599918067455,
-    "sourceConversion": 8.199992589652538e-05,
-    "sourceExact": 0.002070399932563305,
-    "sourceLoad": 2.5715399999171495,
-    "sourceOverlap": 0.002059499965980649,
-    "sqliteBroad": 0.14594259997829795,
-    "sqliteConversion": 2.54001934081316e-05,
-    "sqliteExact": 0.003930200124159455,
-    "sqliteOverlap": 0.002948800101876259,
-    "strictRead": 1.0901281998958439,
-    "validation": 2.121096500195563
+    "cacheHit": 0.9643888999707997,
+    "compile": 5.87897860002704,
+    "projection": 0.21563449990935624,
+    "sourceBroad": 0.03774100006558001,
+    "sourceConversion": 7.6299998909235e-05,
+    "sourceExact": 0.0021424998994916677,
+    "sourceLoad": 3.061212900094688,
+    "sourceOverlap": 0.0020464002154767513,
+    "sqliteBroad": 0.16011580009944737,
+    "sqliteConversion": 2.4300068616867065e-05,
+    "sqliteExact": 0.003468399867415428,
+    "sqliteOverlap": 0.0027573001570999622,
+    "strictRead": 1.1297359000891447,
+    "validation": 2.0978141999803483
   }
 }
