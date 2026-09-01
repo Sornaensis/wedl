@@ -288,6 +288,21 @@ def test_bounded_surface_identity_and_cap_survive_journal_reload(tmp_path: Path)
     assert surface.before_identity is not None
 
 
+def test_bounded_matcher_uses_legacy_windows_mode_semantics(tmp_path: Path, monkeypatch) -> None:
+    target = tmp_path / "created.txt"
+    target.write_bytes(b"created")
+    os.chmod(target, 0o666)
+
+    if os.name != "nt":
+        assert not transaction_recovery._bounded_path_matches_image(
+            target, b"created", len(b"created"), mode=0o644,
+        )
+    monkeypatch.setattr(transaction_recovery.os, "name", "nt")
+    assert transaction_recovery._bounded_path_matches_image(
+        target, b"created", len(b"created"), mode=0o644,
+    )
+
+
 def test_real_v6_six_key_pending_journal_restarts_and_recovers(tmp_path: Path) -> None:
     """The immediately preceding wire format has no capture identity fields."""
     root = tmp_path / "world"; (root / "story").mkdir(parents=True)

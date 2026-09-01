@@ -1783,7 +1783,10 @@ def _bounded_path_matches_image(path: Path, expected: bytes | None, maximum: int
             raise RepositoryError("transaction-owned image is unstable")
         if identity is not None and _identity(initial) != identity:
             return False
-        if mode is not None and stat.S_IMODE(initial.st_mode) != mode:
+        # Windows exposes synthetic permission bits for created files.  Match
+        # the legacy recovery path: exact bytes and identity remain ownership
+        # authority there, while POSIX keeps its mode-bit check.
+        if mode is not None and os.name != "nt" and stat.S_IMODE(initial.st_mode) != mode:
             return False
         size = initial.st_size
         if size > maximum:
