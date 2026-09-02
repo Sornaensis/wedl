@@ -725,6 +725,12 @@ class Repository:
         self._adopt_owned_index_lock(journals)
         for journal in journals:
             if journal.phase == "completed":
+                # Recovery acquires a fresh canonical lock after the crashed
+                # writer's lock has been reclaimed. Bind that replacement at
+                # finalization so a crash after ``finish`` leaves an exact
+                # journal-authenticated lock, without mutating a journal whose
+                # earlier recovery checks must still fail closed.
+                self._bind_transaction_lock(journal)
                 self._complete_transaction(journal)
                 continue
             previous = str(journal.record["previousHead"])
@@ -739,6 +745,7 @@ class Repository:
                 self._reconcile_recorded_real_index(journal, roll_forward=True)
             else:
                 raise RepositoryError("transaction recovery lost ref ownership")
+            self._bind_transaction_lock(journal)
             self._complete_transaction(journal)
 
     def _adopt_owned_index_lock(self, journals: tuple[TransactionJournal, ...]) -> None:

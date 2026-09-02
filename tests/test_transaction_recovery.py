@@ -1737,6 +1737,35 @@ def test_real_os_exit_dead_pid_reclaims_exact_journal_bound_lock_after_restart(t
     assert not journal_dir.exists() or not tuple(journal_dir.glob("*.json"))
 
 
+def test_real_os_exit_after_finish_reclaims_exact_journal_bound_lock_after_restart(tmp_path: Path) -> None:
+    repository = _repository(tmp_path)
+    journal = TransactionJournal.create(
+        repository.root, ref="refs/heads/master",
+        previous_head=repository.head(), committed_head=repository.head(),
+    )
+    journal.register_surfaces(
+        [SurfaceEnrollment(".wedl/recovery", after=b"x", role="cache")],
+        live_budget=JournalLiveByteBudget(65_536, 0),
+    )
+    journal.finish()
+    script = (
+        "import os,sys; from pathlib import Path; from wedl.repository import Repository; "
+        "from wedl.transaction_recovery import TransactionJournal; root=Path(sys.argv[1]); "
+        "original=TransactionJournal.finish; "
+        "TransactionJournal.finish=lambda self:(original(self),os._exit(92))[1]; "
+        "Repository(root).recover_authoring_transactions()"
+    )
+    child = subprocess.run([sys.executable, "-c", script, str(repository.root)],
+                           check=False, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    assert child.returncode == 92, child.stderr.decode("utf-8", "replace")
+    lock = repository.root / ".git" / "wedl-canonical-write.lock"
+    assert lock.exists()
+    repository.recover_authoring_transactions()
+    assert not lock.exists()
+    journal_dir = repository.root / ".wedl" / "transactions"
+    assert not journal_dir.exists() or not tuple(journal_dir.glob("*.json"))
+
+
 @pytest.mark.parametrize("same_bytes", [True, False])
 def test_stale_lock_reclaim_keeps_same_and_different_byte_substitutions(tmp_path: Path, monkeypatch, same_bytes: bool) -> None:
     repository = _repository(tmp_path)
