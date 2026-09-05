@@ -19,6 +19,14 @@ KIND_PREFIX = {
     "scene": "scene",
     "conversation": "conv",
     "hypothesis": "hyp",
+    "organization": "organization",
+    "parentage": "kinship",
+    "union": "union",
+    "affiliation": "affiliation",
+    "legacy": "legacy",
+    "tenure": "tenure",
+    "claim": "claim",
+    "vital-history": "vital",
 }
 AUX_PREFIX = {
     "thread": "thread",
@@ -30,6 +38,7 @@ AUX_PREFIX = {
     "conversation-turn": "turn",
     "conversation-recollection": "recol",
     "observation": "obs",
+    "generational-transition": "transition",
 }
 ID_RE = re.compile(r"^(?P<prefix>[a-z][a-z0-9-]*)_(?P<body>[0-9A-HJKMNP-TV-Z]{26})$")
 # A component suffix is a portable relative path, not a filename.  Keeping

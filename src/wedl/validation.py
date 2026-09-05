@@ -29,6 +29,14 @@ VALID_STATUS = {
     # an operational draft.  Its lifecycle is deliberately distinct from the
     # ordinary record lifecycle.
     "hypothesis": {"open", "adopted", "rejected"},
+    "organization": {"canonical", "draft", "retired"},
+    "parentage": {"canonical", "draft", "retired"},
+    "union": {"canonical", "draft", "retired"},
+    "affiliation": {"canonical", "draft", "retired"},
+    "legacy": {"canonical", "draft", "retired"},
+    "tenure": {"canonical", "draft", "retired"},
+    "claim": {"canonical", "draft", "retired"},
+    "vital-history": {"canonical", "draft", "retired"},
 }
 
 _V05_WITHDRAWN_MEMBERS = (
@@ -336,6 +344,9 @@ def _validate_v07_inherited_chronology(world: World) -> list[dict[str, Any]]:
 
 def validate_world(world: World) -> list[dict[str, Any]]:
     result: list[dict[str, Any]] = []
+    early_worlds = world.by_kind("world")
+    if len(early_worlds) != 1:
+        return [diagnostic("WDL-WORLD-001", "world must contain exactly one world record")]
     schemas: list[Any] = []
     for record in world:
         candidate = record.frontmatter.get("schema")
@@ -351,6 +362,7 @@ def validate_world(world: World) -> list[dict[str, Any]]:
         return validate_v06_candidate(world)
     if any(candidate == V07_SOURCE_SCHEMA for candidate in schemas):
         from .spatial_validation import validate_spatial_world
+        from .generational_validation import validate_generational_world
         if len(schemas) != 1:
             world_records = world.by_kind("world")
             return [diagnostic("WDL-SRC-008", "source records must use one homogeneous schema", world_records[0] if world_records else None, "schema")]
@@ -358,7 +370,19 @@ def validate_world(world: World) -> list[dict[str, Any]]:
         # diagnostics must not bypass the generic record, chronology, time,
         # reference, and state validation that still governs its inherited
         # records.  Spatial-only kinds remain owned by the component pass.
-        result.extend(validate_spatial_world(world))
+        component_diagnostics = [*validate_spatial_world(world), *validate_generational_world(world)]
+        # Both optional v0.7 component validators inspect the one shared
+        # world-only capability envelope.  Report a malformed declaration once
+        # at its exact leaf, while retaining all record-specific capability
+        # gates and every non-capability diagnostic.
+        seen_capability_leaves: set[tuple[Any, Any, Any, Any]] = set()
+        for item in component_diagnostics:
+            if item.get("code") == "GEN-CAPABILITY-001":
+                leaf = (item.get("code"), item.get("entityId"), item.get("path"), item.get("field"))
+                if leaf in seen_capability_leaves:
+                    continue
+                seen_capability_leaves.add(leaf)
+            result.append(item)
         result.extend(_validate_v07_inherited_chronology(world))
     world_records = world.by_kind("world")
     if len(schemas) > 1:

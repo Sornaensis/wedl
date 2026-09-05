@@ -63,6 +63,14 @@ KIND_DIR = {
     "scene": "scenes",
     "conversation": "conversations",
     "hypothesis": "hypotheses",
+    "organization": "organizations",
+    "parentage": "kinships",
+    "union": "unions",
+    "affiliation": "affiliations",
+    "legacy": "legacies",
+    "tenure": "tenures",
+    "claim": "claims",
+    "vital-history": "vitals",
     # Latent v0.7 component paths. Generic readers still reject v0.7; these
     # mappings only make component-authoring serialization portable.
     "map": "maps",
@@ -87,6 +95,23 @@ SPATIAL_NESTED_ORDER = {
     "geometry": ["kind", "coordinates"], "from": ["map_id", "coordinates"], "to": ["map_id", "coordinates"],
     "membership": ["location_ids"], "valid": ["start", "end"], "start": ["timeline", "tick", "order"], "end": ["timeline", "tick", "order"],
     "route_distance": ["value", "unit"], "travel_cost": ["value", "unit"], "duration": ["value", "unit"], "scale": ["value", "unit"],
+}
+GENERATIONAL_NESTED_ORDER = {"initialization": ["transition_id", "transition_kind", "applicability", "payload"], "transitions": ["transition_id", "transition_kind", "applicability", "payload", "cause_event_id", "replaces_transition_id"], "applicability": ["applicability_kind", "point", "first", "last"], "point": ["timeline", "tick", "order"], "first": ["timeline", "tick", "order"], "last": ["timeline", "tick", "order"]}
+GENERATIONAL_PAYLOAD_ORDER = {
+    "organization-initialize": ["title", "aliases"], "organization-rename": ["title", "aliases"], "organization-reparent": ["parent_id"],
+    "parentage-initialize": ["basis"], "parentage-confirm": ["basis"], "union-initialize": ["participant_ids"], "union-form": ["participant_ids"], "union-reconcile": ["participant_ids"],
+    "affiliation-initialize": ["role"], "affiliation-role": ["role"], "tenure-initialize": ["holder_id", "basis"], "tenure-designate": ["holder_id", "basis"], "tenure-hold": ["holder_id", "basis"], "tenure-vacate": ["holder_id"], "tenure-transfer": ["from_tenure_id", "to_tenure_id"],
+    "claim-initialize": ["competes_with"], "claim-dispute": ["competes_with"],
+}
+GENERATIONAL_ORDER = {
+    "organization": ["schema", "kind", "id", "title", "domain", "status", "tags", "aliases", "threads", "audience", "perspectives", "organization_kind", "parent_id", "location_id", "initialization", "transitions"],
+    "parentage": ["schema", "kind", "id", "title", "domain", "status", "tags", "aliases", "threads", "audience", "perspectives", "child_id", "parent_id", "initialization", "transitions"],
+    "union": ["schema", "kind", "id", "title", "domain", "status", "tags", "aliases", "threads", "audience", "perspectives", "participant_ids", "initialization", "transitions"],
+    "affiliation": ["schema", "kind", "id", "title", "domain", "status", "tags", "aliases", "threads", "audience", "perspectives", "character_id", "organization_id", "initialization", "transitions"],
+    "legacy": ["schema", "kind", "id", "title", "domain", "status", "tags", "aliases", "threads", "audience", "perspectives", "legacy_kind", "organization_id", "initialization", "transitions"],
+    "tenure": ["schema", "kind", "id", "title", "domain", "status", "tags", "aliases", "threads", "audience", "perspectives", "legacy_id", "predecessor_tenure_id", "successor_tenure_id", "initialization", "transitions"],
+    "claim": ["schema", "kind", "id", "title", "domain", "status", "tags", "aliases", "threads", "audience", "perspectives", "legacy_id", "claimant_id", "initialization", "transitions"],
+    "vital-history": ["schema", "kind", "id", "title", "domain", "status", "tags", "aliases", "threads", "audience", "perspectives", "character_id", "disclosure", "initialization", "transitions"],
 }
 
 
@@ -238,16 +263,20 @@ def _ordered(frontmatter: dict[str, Any]) -> dict[str, Any]:
 def _ordered_spatial(value: Any, context: str | None = None) -> Any:
     """Canonical component ordering without changing opaque x-* extension data."""
     if isinstance(value, list):
-        return [_ordered_spatial(item) for item in value]
+        # A transition array's members use the transition order, not the
+        # alphabetic fallback used for arbitrary list-member mappings.
+        return [_ordered_spatial(item, context) for item in value]
     if not isinstance(value, dict):
         return value
-    order = SPATIAL_ORDER.get(str(value.get("kind"))) if context is None else SPATIAL_NESTED_ORDER.get(context)
+    order = (GENERATIONAL_ORDER.get(str(value.get("kind"))) or SPATIAL_ORDER.get(str(value.get("kind")))) if context is None else (GENERATIONAL_PAYLOAD_ORDER.get(context.removeprefix("payload:")) if context.startswith("payload:") else (GENERATIONAL_NESTED_ORDER.get(context) or SPATIAL_NESTED_ORDER.get(context)))
     result: dict[Any, Any] = {}
     for key in order or []:
         if key in value:
-            result[key] = _ordered_spatial(value[key], key)
+            child_context = f"payload:{value.get('transition_kind')}" if context in {"initialization", "transitions"} and key == "payload" else key
+            result[key] = _ordered_spatial(value[key], child_context)
     for key in sorted((key for key in value if key not in result and key != "provenance"), key=_member_sort_key):
-        result[key] = _ordered_spatial(value[key], str(key))
+        child_context = f"payload:{value.get('transition_kind')}" if context in {"initialization", "transitions"} and key == "payload" else str(key)
+        result[key] = _ordered_spatial(value[key], child_context)
     if "provenance" in value:
         result["provenance"] = _ordered_spatial(value["provenance"], "provenance")
     return result
@@ -289,6 +318,10 @@ def generated_path(source_root: str, kind: str, title: str, entity_id: str, fron
         time_value = frontmatter.get("time")
         timeline = str(time_value.get("timeline", "main")) if isinstance(time_value, dict) else "main"
         base = f"events/{slugify(timeline)}"
+    if frontmatter.get("schema") == "wedl/v0.7" and kind in GENERATIONAL_ORDER:
+        if not valid_id(entity_id, kind):
+            raise ParseError(f"invalid generational entity ID {entity_id}")
+        return f"{source_root}/{base}/{entity_id}.md"
     if frontmatter.get("schema") == "wedl/v0.7" and kind in {"map", "location", "anchor", "portal", "route", "overlay"}:
         # v0.7 retains existing ``loc_`` identifiers verbatim; only new
         # colon IDs use the portable path codec.
