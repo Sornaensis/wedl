@@ -470,11 +470,21 @@ def apply(repository: Repository, request: dict[str, Any], *, confirmation_token
     if result["noOp"]:
         return {key: value for key, value in result.items() if key not in {"_changes", "_request", "diff", "files"}} | {"phase": "apply", "status": "noop", "idempotentReplay": False}
     normalized = result["_request"]
+    # Admission is deliberately after preview/confirmation, but before the
+    # backup ref.  The same private cell continues through commit_files.
+    external_lock_deadline: list[float | None] = [None]
+    waited = repository._await_external_index_lock_release(deadline=external_lock_deadline)
+    if waited:
+        repository.assert_clean_managed()
+        actual = repository.head()
+        if actual != normalized["expectedHead"]:
+            raise StaleRevision("migration expected a different HEAD", details={"expected": normalized["expectedHead"], "actual": actual})
     repository.ensure_backup_ref(normalized["backupRef"], normalized["expectedHead"])
     commit = repository.commit_files(
         expected_head=normalized["expectedHead"], files=result["_changes"],
         message=f"wedl: {normalized['mode']} source migration",
         trailers={"Wedl-Migration": result["requestHash"], "Wedl-Backup": normalized["backupRef"]},
+        _external_lock_deadline=external_lock_deadline,
     )
     skip_compile = normalized["mode"] == "rollback" and {
         frontmatter.get("schema") for _path, frontmatter, _body, _data in _raw_records(repository.snapshot(normalized["rollbackBackupOid"]))

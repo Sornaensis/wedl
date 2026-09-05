@@ -8,6 +8,7 @@ from pathlib import Path
 import sqlite3
 import stat
 import subprocess
+import time
 from typing import Any, Callable, Iterable
 
 import yaml
@@ -36,6 +37,14 @@ PARSER_FINGERPRINT = (
 
 
 class Repository:
+    # Git's lock is external state.  This deliberately small private window is
+    # only for a transaction which has not yet bound a durable install image.
+    # Tests may replace the private clock/sleeper or window without exposing a
+    # caller-controlled retry policy.
+    _external_index_lock_wait_seconds = 1.0
+    _external_index_lock_initial_backoff_seconds = 0.01
+    _external_index_lock_max_backoff_seconds = 0.05
+
     def __init__(self, path: str | Path = ".", source_root: str = "story") -> None:
         self.root = self._discover(Path(path))
         self.source_root = source_root
@@ -563,12 +572,128 @@ class Repository:
             found[path] = {"mode": mode, "stage": 0, "blob": blob}
         return found
 
+    def _external_index_lock_identity(self) -> str | None:
+        """Return the current external lock identity without inspecting its data.
+
+        Do not read or classify the lock: its owner and contents are external.
+        A stat error other than absence is ambiguous and must remain fail-closed.
+        """
+
+        try:
+            status = os.lstat(self.root / ".git" / "index.lock")
+        except FileNotFoundError:
+            return None
+        except OSError as exc:
+            raise RepositoryError("could not verify Git index lock state") from exc
+        return f"{status.st_dev:x}:{status.st_ino:x}"
+
+    def _external_index_lock_exists(self) -> bool:
+        """Return whether Git currently owns its conventional index lock."""
+
+        return self._external_index_lock_identity() is not None
+
+    def _external_index_lock_deadline(self) -> float:
+        """Start the one private, monotonic wait window for a canonical write."""
+
+        clock = getattr(self, "_external_index_lock_clock", time.monotonic)
+        window = float(getattr(self, "_external_index_lock_wait_seconds", 1.0))
+        initial_backoff = float(getattr(self, "_external_index_lock_initial_backoff_seconds", 0.01))
+        max_backoff = float(getattr(self, "_external_index_lock_max_backoff_seconds", 0.05))
+        if window < 0 or initial_backoff <= 0 or max_backoff <= 0:
+            raise RepositoryError("invalid private Git index-lock wait policy")
+        return clock() + window
+
+    def _await_external_index_lock_release(self, *, deadline: list[float | None] | None = None) -> bool:
+        """Boundedly wait for one observed external Git lock without touching it."""
+
+        observed = self._external_index_lock_identity()
+        if observed is None:
+            return False
+        clock = getattr(self, "_external_index_lock_clock", time.monotonic)
+        sleeper = getattr(self, "_external_index_lock_sleep", time.sleep)
+        initial_backoff = float(getattr(self, "_external_index_lock_initial_backoff_seconds", 0.01))
+        max_backoff = float(getattr(self, "_external_index_lock_max_backoff_seconds", 0.05))
+        # A canonical write passes one request-scoped, initially inactive cell
+        # through every eligible seam.  Starting it only after observing a
+        # lock preserves the complete bounded window for the first external
+        # Git transaction, even if ordinary private work took longer first.
+        if deadline is None:
+            deadline = [None]
+        if deadline[0] is None:
+            deadline[0] = self._external_index_lock_deadline()
+        backoff = min(initial_backoff, max_backoff)
+        while True:
+            current = self._external_index_lock_identity()
+            if current is None:
+                return True
+            if current != observed:
+                raise RepositoryError("Git index lock changed during bounded wait")
+            remaining = deadline[0] - clock()
+            if remaining <= 0:
+                raise RepositoryError("Git index is locked by another process (index.lock)")
+            sleeper(min(backoff, remaining))
+            backoff = min(backoff * 2, max_backoff)
+
+    @staticmethod
+    def _capture_real_index_image(index_path: Path) -> tuple[bytes, tuple[str | None, str]]:
+        """Read one complete real-index image with a stable identity binding."""
+
+        try:
+            before = os.stat(index_path)
+        except FileNotFoundError:
+            return b"", (None, sha256_bytes(b""))
+        except OSError as exc:
+            raise RepositoryError("could not capture real Git index") from exc
+        try:
+            data = index_path.read_bytes()
+            after = os.stat(index_path)
+        except OSError as exc:
+            raise RepositoryError("could not capture real Git index") from exc
+        before_identity = f"{before.st_dev:x}:{before.st_ino:x}:{before.st_size:x}"
+        after_identity = f"{after.st_dev:x}:{after.st_ino:x}:{after.st_size:x}"
+        if before_identity != after_identity or before.st_mtime_ns != after.st_mtime_ns:
+            raise RepositoryError("real Git index changed during capture")
+        return data, (before_identity, sha256_bytes(data))
+
+    def _real_index_still_matches_capture(self, index_path: Path, capture: tuple[str | None, str]) -> bool:
+        """Require the full real index to remain the exact captured image."""
+
+        data, current = self._capture_real_index_image(index_path)
+        expected_identity, expected_digest = capture
+        return current[1] == expected_digest and (expected_identity is None or current[0] == expected_identity)
+
+    def _capture_recorded_real_index_artifact(
+        self, journal: TransactionJournal, *, artifact: str,
+    ) -> tuple[str | None, str] | None:
+        """Capture recovery's complete real index only when it matches its sealed image.
+
+        ``indexBefore`` and ``indexAfter`` describe only WEDL-touched paths.
+        Once a private full-index image is bound, recovery must additionally
+        prove that the real index is that exact image before it can install the
+        counterpart.  Otherwise a completed external Git transaction could
+        have staged an unrelated path while the process was down.
+        """
+
+        artifacts = journal.record.get("indexArtifacts")
+        if artifacts is None:
+            return None
+        if not isinstance(artifacts, dict) or not isinstance(artifacts.get(artifact), str):
+            raise RepositoryError("invalid WEDL transaction journal index artifact")
+        sealed = journal.seal_staging_artifact(artifacts[artifact])
+        image, capture = self._capture_real_index_image(self.root / ".git" / "index")
+        if sha256_bytes(image) != sealed["sha256"]:
+            raise RepositoryError("transaction recovery lost complete real-index ownership")
+        return capture
+
     def _publish_real_index(
         self,
         journal: TransactionJournal,
         *,
         expected: dict[str, dict[str, object] | None],
         desired: dict[str, dict[str, object] | None],
+        external_lock_deadline: list[float | None] | None = None,
+        real_index_capture: tuple[str | None, str] | None = None,
+        bound_artifact: str | None = None,
     ) -> None:
         """Install a sealed private index through Git's final lock protocol.
 
@@ -583,13 +708,22 @@ class Repository:
         git_dir = self.root / ".git"
         index_path = git_dir / "index"
         lock_path = git_dir / "index.lock"
-        if lock_path.exists():
-            raise RepositoryError("Git index is locked by another process (index.lock)")
         artifacts = journal.record.get("indexArtifacts")
+        capture = real_index_capture
         if artifacts is None:
+            waited = self._await_external_index_lock_release(deadline=external_lock_deadline)
+            if waited:
+                # This seam follows ref/source publication. A released external
+                # writer may have changed managed state or HEAD while our
+                # request waited, so establish both facts before capturing the
+                # full real-index image used for publication.
+                self.assert_clean_managed()
+                expected_head = journal.record.get("committedHead")
+                if not isinstance(expected_head, str) or self.head() != expected_head:
+                    raise RepositoryError("canonical write lost HEAD ownership")
             if self._real_index_entries(expected) != expected:
                 raise RepositoryError("canonical write lost real-index ownership")
-            original = index_path.read_bytes() if index_path.exists() else b""
+            original, capture = self._capture_real_index_image(index_path)
             backup = journal.write_staging_artifact("real-index-before", original)
             journal.seal_staging_artifact("real-index-before")
             install = journal.write_staging_artifact("real-index-install", original)
@@ -602,17 +736,27 @@ class Repository:
                 handle.flush(); os.fsync(handle.fileno())
             journal.seal_staging_artifact("real-index-install")
             journal.bind_index_artifacts(backup="real-index-before", install="real-index-install")
+            journal._real_index_capture = capture
         else:
-            if not isinstance(artifacts, dict) or not isinstance(artifacts.get("install"), str):
+            artifact = bound_artifact or "install"
+            if not isinstance(artifacts, dict) or not isinstance(artifacts.get(artifact), str):
                 raise RepositoryError("invalid WEDL transaction journal index artifact")
-            install = journal.staging_path(artifacts["install"])
-            journal.seal_staging_artifact(artifacts["install"])
-        if self._real_index_entries(expected) != expected:
+            if self._external_index_lock_exists():
+                raise RepositoryError("Git index is locked by another process (index.lock)")
+            install = journal.staging_path(artifacts[artifact])
+            journal.seal_staging_artifact(artifacts[artifact])
+        # The unbound path has already compared the touched entries before
+        # capturing the complete image.  Do not invoke Git again before its
+        # full-image CAS: even a read-only-looking Git command can refresh its
+        # index metadata.  A previously bound private artifact keeps the
+        # established touched-entry CAS protocol instead.
+        if artifacts is not None and self._real_index_entries(expected) != expected:
             raise RepositoryError("canonical write lost real-index ownership")
         # The final lock is an immutable hard link to a sealed private artifact.
         # If any other Git writer wins, O_EXCL-equivalent link creation leaves it
         # untouched and our durable artifact remains available for retry.
         try:
+            mutation_checkpoint("real-index-capture-bound")
             mutation_checkpoint("real-index-lock-link")
             os.link(install, lock_path)
         except FileExistsError as exc:
@@ -623,10 +767,31 @@ class Repository:
         status = os.stat(lock_path)
         identity = f"{status.st_dev:x}:{status.st_ino:x}:{status.st_size:x}"
         digest = sha256_bytes(lock_path.read_bytes())
+        # A complete external Git transaction can finish after our capture but
+        # before this hard-link claim.  Never replace that newer full index with
+        # the stale private image, even when none of WEDL's touched paths moved.
+        if capture is not None and not self._real_index_still_matches_capture(index_path, capture):
+            try:
+                current = os.stat(lock_path)
+                current_identity = f"{current.st_dev:x}:{current.st_ino:x}:{current.st_size:x}"
+                if current_identity != identity or sha256_bytes(lock_path.read_bytes()) != digest:
+                    raise RepositoryError("canonical write lost real-index lock ownership")
+                lock_path.unlink()
+            except OSError as exc:
+                raise RepositoryError("canonical write lost real-index lock ownership") from exc
+            raise RepositoryError("canonical write lost complete real-index ownership")
+        # A recovery rollback can publish the sealed backup after a prior
+        # successful install left its completed claim in the journal.  The new
+        # hard link above proves that prior lock is gone; replace only that
+        # obsolete journal claim with the identity of this freshly owned lock.
+        if journal.record.get("indexLock") is not None:
+            record = journal._detached_record()
+            record["indexLock"] = None
+            journal._persist_detached_record(record)
         journal.claim_index_lock(token=token, identity=identity, digest=digest)
         # A hard link must still be the sealed install image immediately before
         # the final namespace replacement.
-        sealed = journal.record["sealedArtifacts"].get(journal.record["indexArtifacts"]["install"])
+        sealed = journal.record["sealedArtifacts"].get(install.name)
         try:
             current = os.stat(lock_path)
             current_identity = f"{current.st_dev:x}:{current.st_ino:x}:{current.st_size:x}"
@@ -635,7 +800,7 @@ class Repository:
             raise RepositoryError("canonical write lost real-index lock ownership") from exc
         if not isinstance(sealed, dict) or current_identity != identity or current_digest != digest or sealed.get("identity") != identity or sealed.get("sha256") != digest:
             raise RepositoryError("canonical write lost real-index lock ownership")
-        if self._real_index_entries(expected) != expected:
+        if capture is None and self._real_index_entries(expected) != expected:
             raise RepositoryError("canonical write lost real-index ownership")
         mutation_checkpoint("real-index-publish")
         # Revalidate *after* the injectable final checkpoint.  Digest alone is
@@ -647,7 +812,12 @@ class Repository:
             final_digest = sha256_bytes(lock_path.read_bytes())
         except OSError as exc:
             raise RepositoryError("canonical write lost real-index lock ownership") from exc
-        if final_identity != identity or final_digest != digest or self._real_index_entries(expected) != expected:
+        if final_identity != identity or final_digest != digest:
+            raise RepositoryError("canonical write lost real-index lock ownership")
+        if capture is not None:
+            if not self._real_index_still_matches_capture(index_path, capture):
+                raise RepositoryError("canonical write lost real-index lock ownership")
+        elif self._real_index_entries(expected) != expected:
             raise RepositoryError("canonical write lost real-index lock ownership")
         os.replace(lock_path, index_path)
         # Windows can retain the source directory entry of a hard-linked file
@@ -710,8 +880,23 @@ class Repository:
         current = self._real_index_entries(before)
         if current not in permitted:
             raise RepositoryError("transaction recovery lost real-index ownership")
+        # The touched-entry comparison above cannot distinguish a captured
+        # image from one where external Git staged an unrelated path after an
+        # interruption.  Bound artifacts are complete sealed images, so use
+        # the one corresponding to the observed touched state as recovery's
+        # full-index CAS and leave any third image untouched.
         if current != desired:
-            self._publish_real_index(journal, expected=current, desired=desired)
+            observed_artifact = "install" if current == after else "backup"
+            desired_artifact = "install" if desired == after else "backup"
+            capture = self._capture_recorded_real_index_artifact(journal, artifact=observed_artifact)
+            self._publish_real_index(
+                journal, expected=current, desired=desired, real_index_capture=capture,
+                bound_artifact=desired_artifact,
+                # Recovery owns sealed journal artifacts, never a fresh
+                # external-lock wait window.  Keep a spent deadline explicit
+                # if this path later gains an eligible seam.
+                external_lock_deadline=[0.0],
+            )
 
     def _reconcile_authoring_transactions_locked(self) -> None:
         """Complete interrupted canonical writes before exposing a new one.
@@ -826,10 +1011,20 @@ class Repository:
         trailers: dict[str, str] | None = None,
         transaction_enroll: Callable[[TransactionJournal], None] | None = None,
         retain_transaction: bool = False,
+        _external_lock_deadline: list[float | None] | None = None,
     ) -> str:
         if not self.is_git:
             raise RepositoryError("Git is required for canonical writes")
         with self._canonical_write_lock():
+            # This request-scoped private deadline remains inactive until an
+            # eligible seam actually observes an external Git index lock.
+            external_lock_deadline = _external_lock_deadline if _external_lock_deadline is not None else [None]
+            # Recovery can adopt only a journal-authenticated WEDL lock.  With
+            # no pending journal, an observed Git lock is instead a transient
+            # external transaction and is allowed its one bounded window before
+            # any new transaction captures real-index state.
+            if not TransactionJournal.pending(self.root):
+                self._await_external_index_lock_release(deadline=external_lock_deadline)
             self._reconcile_authoring_transactions_locked()
             self.assert_clean_managed()
             actual = self.head()
@@ -871,8 +1066,16 @@ class Repository:
                 actual = self.head()
                 if actual != expected_head:
                     raise StaleRevision("repository HEAD changed", details={"expected": expected_head, "actual": actual})
-                if (self.root / ".git" / "index.lock").exists():
-                    raise RepositoryError("Git index is locked by another process")
+                if self._await_external_index_lock_release(deadline=external_lock_deadline):
+                    # An external Git transaction may have changed managed state
+                    # or the touched real-index entries while it held the lock;
+                    # never advance our ref based on those pre-wait observations.
+                    self.assert_clean_managed()
+                    actual = self.head()
+                    if actual != expected_head:
+                        raise StaleRevision("repository HEAD changed", details={"expected": expected_head, "actual": actual})
+                    if self._real_index_entries(files) != real_index_before:
+                        raise RepositoryError("canonical write lost real-index ownership")
                 ref = self._git(["symbolic-ref", "-q", "HEAD"], check=False).stdout.decode().strip()
                 if not ref:
                     raise RepositoryError("detached HEAD writes are not supported")
@@ -915,7 +1118,12 @@ class Repository:
                     journal.advance("sources_published")
                     if self._real_index_entries(files) != real_index_before:
                         raise RepositoryError("canonical write lost real-index ownership")
-                    self._publish_real_index(journal, expected=real_index_before, desired=journal.record["indexAfter"])
+                    self._publish_real_index(
+                        journal,
+                        expected=real_index_before,
+                        desired=journal.record["indexAfter"],
+                        external_lock_deadline=external_lock_deadline,
+                    )
                     journal.advance("index_published")
                 except Exception as failure:
                     # A source or real-index failure happens after the ref CAS.
