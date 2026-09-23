@@ -2,10 +2,13 @@ from __future__ import annotations
 
 from pathlib import Path
 import subprocess
+import os
+import stat
 
 import pytest
 
 from wedl.repository import DirtyManagedTree, Repository, RepositoryError
+from wedl import repository as repository_module
 
 
 def _git(root: Path, *args: str) -> subprocess.CompletedProcess[str]:
@@ -13,6 +16,110 @@ def _git(root: Path, *args: str) -> subprocess.CompletedProcess[str]:
         ["git", "-C", str(root), *args], check=True, text=True,
         stdout=subprocess.PIPE, stderr=subprocess.PIPE,
     )
+
+
+def test_bounded_commit_before_exact_limit_and_growth(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    target = tmp_path / "before.md"
+    assert repository_module._bounded_commit_before(target, 3) == (None, None, None)
+    target.write_bytes(b"123")
+    before, mode, identity = repository_module._bounded_commit_before(target, 3)
+    assert before == b"123" and mode is not None and identity is not None
+    with pytest.raises(RepositoryError, match="exceeds byte limit"):
+        repository_module._bounded_commit_before(target, 2)
+
+    original_read = os.read
+    grown = [False]
+
+    def grow_during_read(descriptor: int, count: int) -> bytes:
+        chunk = original_read(descriptor, count)
+        if not grown[0]:
+            grown[0] = True
+            with target.open("ab") as output:
+                output.write(b"4")
+        return chunk
+
+    monkeypatch.setattr(repository_module.os, "read", grow_during_read)
+    with pytest.raises(RepositoryError, match="changed during bounded capture"):
+        repository_module._bounded_commit_before(target, 4)
+
+
+def test_bounded_commit_before_rejects_nonregular_path(tmp_path: Path) -> None:
+    directory = tmp_path / "before.md"
+    directory.mkdir()
+    with pytest.raises(RepositoryError, match="exceeds byte limit"):
+        repository_module._bounded_commit_before(directory, 64)
+
+
+def test_bounded_commit_before_revalidates_named_path(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    target = tmp_path / "before.md"
+    replacement = tmp_path / "replacement.md"
+    target.write_bytes(b"original")
+    replacement.write_bytes(b"replacement")
+    original_lstat = os.lstat
+    calls = [0]
+
+    def substituted_lstat(path):
+        if Path(path) == target:
+            calls[0] += 1
+            if calls[0] >= 2:
+                return original_lstat(replacement)
+        return original_lstat(path)
+
+    monkeypatch.setattr(repository_module.os, "lstat", substituted_lstat)
+    with pytest.raises(RepositoryError, match="changed during bounded capture"):
+        repository_module._bounded_commit_before(target, 64)
+
+
+def test_bounded_capture_rejects_restored_mtime_content_change(tmp_path: Path) -> None:
+    target = tmp_path / "before.md"
+    target.write_bytes(b"original")
+    before, _, identity = repository_module._bounded_commit_before(target, 64)
+    parents = repository_module._source_parent_identities(target, tmp_path)
+    original = target.stat()
+    target.write_bytes(b"modified")
+    os.utime(target, ns=(original.st_atime_ns, original.st_mtime_ns))
+    with pytest.raises(RepositoryError, match="changed during bounded capture"):
+        repository_module._verify_source_identity(target, identity, before=before, parents=parents)
+
+
+def test_bounded_capture_rejects_parent_reparse_substitution(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> None:
+    parent = tmp_path / "story"
+    parent.mkdir()
+    target = parent / "before.md"
+    target.write_bytes(b"original")
+    before, _, identity = repository_module._bounded_commit_before(target, 64, root=tmp_path)
+    parents = repository_module._source_parent_identities(target, tmp_path)
+    original_lstat = os.lstat
+
+    class ReparsedParent:
+        def __init__(self, original):
+            self.__dict__.update((name, getattr(original, name)) for name in (
+                "st_dev", "st_ino", "st_size", "st_mtime_ns", "st_nlink", "st_mode",
+            ))
+            self.st_file_attributes = getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0x400)
+
+    def substituted_lstat(path):
+        metadata = original_lstat(path)
+        return ReparsedParent(metadata) if Path(path) == parent else metadata
+
+    monkeypatch.setattr(repository_module.os, "lstat", substituted_lstat)
+    with pytest.raises(RepositoryError, match="parent changed during bounded capture"):
+        repository_module._verify_source_identity(target, identity, before=before, parents=parents)
+
+
+def test_commit_before_limit_preserves_ref_index_and_source(task91_repo: Repository) -> None:
+    target = task91_repo.root / "story" / "world.md"
+    original = target.read_bytes()
+    index = (task91_repo.root / ".git" / "index").read_bytes()
+    head = task91_repo.head()
+    with pytest.raises(RepositoryError, match="exceeds byte limit"):
+        task91_repo.commit_files(
+            expected_head=head, files={"story/world.md": b"replacement\n"},
+            message="bounded capture", max_before_bytes=len(original) - 1,
+        )
+    assert task91_repo.head() == head
+    assert target.read_bytes() == original
+    assert (task91_repo.root / ".git" / "index").read_bytes() == index
 
 
 def _fake_wait(repo: Repository, monkeypatch: pytest.MonkeyPatch, release) -> list[float]:

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from contextlib import closing
+from dataclasses import dataclass
 from itertools import combinations
 import hashlib
 import json
@@ -8,13 +9,14 @@ import os
 from pathlib import Path
 import shutil
 import sqlite3
+import subprocess
 import tempfile
 import time
 from typing import Any
 
 from . import COMPILED_SOURCE_SCHEMAS, SOURCE_SCHEMA, SQLITE_SCHEMA, __version__
 from .conversation import turn_time
-from .errors import CompileRequired, ValidationFailed
+from .errors import CompileRequired, UsageError, ValidationFailed
 from .model import Record, StoryTime, World
 from .repository import Repository
 from .profiles import CompilationProfile, resolve_profile
@@ -180,14 +182,343 @@ def connect(path: Path, read_only: bool = False) -> sqlite3.Connection:
     return connection
 
 
+def _bootstrap_compiled_connection(connection: sqlite3.Connection) -> None:
+    """Initialize a supplied compiled-database connection without a filesystem path."""
+    connection.execute("PRAGMA journal_mode=OFF")
+    connection.execute("PRAGMA synchronous=OFF")
+    connection.execute("PRAGMA temp_store=MEMORY")
+    connection.execute("PRAGMA cache_size=-65536")
+    connection.executescript(DDL)
+
+
+def _verify_compiled_connection(connection: sqlite3.Connection) -> None:
+    if connection.execute("PRAGMA integrity_check").fetchone()[0] != "ok":
+        raise RuntimeError("SQLite integrity check failed")
+    if connection.execute("PRAGMA foreign_key_check").fetchone() is not None:
+        raise RuntimeError("SQLite foreign-key check failed")
+
+
+@dataclass(frozen=True)
+class AuthoringByteResult:
+    """Bounded, file-free compiled cache material for authoring transactions."""
+
+    status: str
+    report: dict[str, Any]
+    world_bytes: bytes | None = None
+    revision_bytes: bytes | None = None
+    vector_bytes: bytes | None = None
+
+
+_MIB = 1024 * 1024
+_AUTHORING_DATABASE_LIMIT = 64 * _MIB
+_AUTHORING_AGGREGATE_LIMIT = 96 * _MIB
+_AUTHORING_PROCESS_LIMIT = 512 * _MIB
+# At vector serialization, both capped SQLite page stores and the completed
+# world image remain live alongside vector serialization and its verification
+# connection. Allow three 64 MiB image/probe generations plus 64 MiB for
+# projection rows and connection machinery; caller graphs are added separately.
+_AUTHORING_PRECONSTRUCTION_FIXED = (2 * 64 + 3 * 64 + 64) * _MIB
+_AUTHORING_SOURCE_GRAPH_COPIES = 4
+_AUTHORING_TREE_ENTRY_LIMIT = 4096
+_AUTHORING_TREE_COUNT_LIMIT = 131072
+_AUTHORING_TREE_OUTPUT_LIMIT = 8 * _MIB
+
+
+def _authoring_source_metadata_bytes(repository: Repository, resolved: str) -> int | None:
+    """Estimate source bytes from metadata without constructing source records."""
+    try:
+        if repository.is_git and resolved != "WORKTREE":
+            total = 0
+            count = 0
+            output_bytes = 0
+            buffer = bytearray()
+            process = subprocess.Popen(
+                ["git", "-C", str(repository.root), "ls-tree", "-r", "-l", "-z", resolved, "--", repository.source_root],
+                stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
+            )
+            try:
+                assert process.stdout is not None
+                while chunk := process.stdout.read(65536):
+                    output_bytes += len(chunk)
+                    if output_bytes > _AUTHORING_TREE_OUTPUT_LIMIT:
+                        return None
+                    buffer.extend(chunk)
+                    while (separator := buffer.find(0)) >= 0:
+                        if separator > _AUTHORING_TREE_ENTRY_LIMIT:
+                            return None
+                        entry = bytes(buffer[:separator])
+                        del buffer[:separator + 1]
+                        count += 1
+                        if count > _AUTHORING_TREE_COUNT_LIMIT:
+                            return None
+                        metadata, raw_path = entry.split(b"\t", 1)
+                        fields = metadata.split()
+                        if len(fields) != 4:
+                            return None
+                        if fields[1] == b"blob" and raw_path.endswith(b".md"):
+                            total += int(fields[3]) + len(raw_path)
+                            if total > _AUTHORING_PROCESS_LIMIT:
+                                return total
+                    if len(buffer) > _AUTHORING_TREE_ENTRY_LIMIT:
+                        return None
+                if buffer or process.wait() != 0:
+                    return None
+                # Repository._tree_entries retains stdout and split entries.
+                # Price that representation as well as the source graph.
+                return total + 8 * output_bytes
+            finally:
+                if process.poll() is None:
+                    process.kill()
+                    process.wait()
+                if process.stdout is not None:
+                    process.stdout.close()
+        root = repository.root / repository.source_root
+        total = 0
+        for path in root.rglob("*.md"):
+            total += path.stat().st_size + len(path.relative_to(repository.root).as_posix().encode())
+            if total > _AUTHORING_PROCESS_LIMIT:
+                return total
+        return total
+    except (OSError, ValueError, UnicodeError):
+        # If the source listing cannot prove the bound, defer before allocation.
+        return None
+
+
+def _authoring_preconstruction_bytes(repository: Repository, resolved: str) -> int | None:
+    """Price source, profile metadata and projection work before SQLite setup."""
+    source_bytes = _authoring_source_metadata_bytes(repository, resolved)
+    if source_bytes is None:
+        return None
+    metadata_bytes = 0
+    try:
+        for path in (
+            repository.root / ".wedl" / "world.sqlite",
+            repository.root / ".wedl" / "vector-cache-v2.sqlite",
+        ):
+            if path.is_file():
+                size = path.stat().st_size
+                if size > _AUTHORING_DATABASE_LIMIT:
+                    return None
+                metadata_bytes += size
+    except OSError:
+        return None
+    # Existing profile/vector metadata may be parsed while a new world and its
+    # projection rows coexist, so account for both graph and transfer copies.
+    return (
+        _AUTHORING_PRECONSTRUCTION_FIXED
+        + _AUTHORING_SOURCE_GRAPH_COPIES * source_bytes
+        + 2 * metadata_bytes
+    )
+
+
+def _authoring_preconstruction_admitted(required_bytes: int | None) -> bool:
+    """Require headroom for allocator bookkeeping at the hard process limit."""
+    return required_bytes is not None and required_bytes < _AUTHORING_PROCESS_LIMIT
+
+
+def _serialize_authoring_connection(connection: sqlite3.Connection) -> bytes | None:
+    """Return verified SQLite bytes only when both memory APIs are available."""
+    serialize = getattr(connection, "serialize", None)
+    support_probe = sqlite3.connect(":memory:")
+    try:
+        deserialize = getattr(support_probe, "deserialize", None)
+    finally:
+        support_probe.close()
+    if not callable(serialize) or not callable(deserialize):
+        return None
+    try:
+        data = serialize()
+        probe = sqlite3.connect(":memory:")
+        try:
+            probe.deserialize(data)
+            if probe.execute("PRAGMA integrity_check").fetchone()[0] != "ok":
+                return None
+            if probe.execute("PRAGMA foreign_key_check").fetchone() is not None:
+                return None
+        finally:
+            probe.close()
+        return data
+    except (sqlite3.Error, MemoryError, OverflowError):
+        return None
+
+
+def compile_world_bytes(repository: Repository, revision: str = "HEAD", *, caller_live_bytes: int = 0) -> AuthoringByteResult:
+    """Compile the state projection in memory, or defer when SQLite cannot serialize."""
+    # Resolve and price all inputs before constructing either in-memory SQLite
+    # database. An exact 512 MiB estimate has no allocator headroom.
+    try:
+        resolved = repository.resolve(revision)
+        required_bytes = _authoring_preconstruction_bytes(repository, resolved)
+    except (MemoryError, OverflowError, OSError, sqlite3.Error) as exc:
+        return AuthoringByteResult(
+            "deferred-to-restart",
+            {
+                "status": "deferred-to-restart",
+                "reason": "authoring-preconstruction-memory-limit",
+                "diagnostic": f"{type(exc).__name__}: {exc}",
+            },
+        )
+    if not isinstance(caller_live_bytes, int) or caller_live_bytes < 0 or not _authoring_preconstruction_admitted(
+        required_bytes + caller_live_bytes if required_bytes is not None else None
+    ):
+        return AuthoringByteResult(
+            "deferred-to-restart",
+            {
+                "status": "deferred-to-restart",
+                "reason": "authoring-preconstruction-memory-limit",
+            },
+        )
+    connection: sqlite3.Connection | None = None
+    try:
+        connection = sqlite3.connect(":memory:")
+        started = time.perf_counter()
+        if not callable(getattr(connection, "serialize", None)) or not callable(getattr(connection, "deserialize", None)):
+            return AuthoringByteResult("deferred-to-restart", {"status": "deferred-to-restart", "reason": "sqlite-serialize-unavailable"})
+        timings: dict[str, float] = {}
+        stage = time.perf_counter()
+        page_size = int(connection.execute("PRAGMA page_size").fetchone()[0])
+        connection.execute(f"PRAGMA max_page_count={_AUTHORING_DATABASE_LIMIT // page_size}")
+        timings["resolveRevision"] = (time.perf_counter() - stage) * 1000
+        stage = time.perf_counter()
+        world = repository.load_world(resolved, cache_write=False)
+        timings["loadSource"] = (time.perf_counter() - stage) * 1000
+        stage = time.perf_counter()
+        diagnostics = validate_world(world)
+        timings["validate"] = (time.perf_counter() - stage) * 1000
+        errors = [item for item in diagnostics if item["severity"] == "error"]
+        if errors:
+            raise ValidationFailed(f"world validation failed with {len(errors)} error(s)", diagnostics)
+        # Authoring applies are ordinary commits from the compiler's point of
+        # view: retain the selected shared-cache profile just as compile_world
+        # does.  The existing database is read only; the new database remains
+        # entirely in memory until its final surfaces are enrolled.
+        previous = database_meta(repository.root / ".wedl" / "world.sqlite")
+        if previous.get("profile_json"):
+            try:
+                previous_profile = json.loads(str(previous["profile_json"]))
+                if not isinstance(previous_profile, dict):
+                    raise ValueError("invalid cached compilation profile")
+                profile = resolve_profile(
+                    world,
+                    profile_name=str(previous_profile.get("name") or "hybrid"),
+                    vector_provider=previous_profile.get("vectorProvider"),
+                    vector_model=previous_profile.get("vectorModel"),
+                    vector_dimensions=previous_profile.get("vectorDimensions"),
+                    vector_max_features=previous_profile.get("vectorMaxFeatures"),
+                )
+            except (ValueError, TypeError, AttributeError, RecursionError, UsageError):
+                return AuthoringByteResult(
+                    "deferred-to-restart",
+                    {"status": "deferred-to-restart", "reason": "authoring-cache-profile-invalid"},
+                )
+        else:
+            profile = resolve_profile(world)
+        build_mode = "full"
+        changed: list[str] = []
+        if previous.get("head_commit") and repository.is_ancestor(
+            str(previous["head_commit"]), world.revision
+        ):
+            build_mode = "fast-forward-rebuild"
+            changed = repository.changed_paths(str(previous["head_commit"]), world.revision)
+        stage = time.perf_counter()
+        _bootstrap_compiled_connection(connection)
+        timings["schema"] = (time.perf_counter() - stage) * 1000
+        connection.execute("BEGIN IMMEDIATE")
+        vector_connection = sqlite3.connect(":memory:")
+        vector_page_size = int(vector_connection.execute("PRAGMA page_size").fetchone()[0])
+        vector_connection.execute(f"PRAGMA max_page_count={_AUTHORING_DATABASE_LIMIT // vector_page_size}")
+        if not _load_authoring_vector_cache(repository, vector_connection):
+            return AuthoringByteResult(
+                "deferred-to-restart",
+                {"status": "deferred-to-restart", "reason": "authoring-vector-cache-size-limit"},
+            )
+        current, stats = _populate_full_compiled_connection(
+            connection, world, repository, profile, fingerprint(world, profile), build_mode, timings,
+            vector_cache_connection=vector_connection,
+        )
+        connection.commit()
+        _verify_compiled_connection(connection)
+        pages = int(connection.execute("PRAGMA page_count").fetchone()[0])
+        if pages * page_size > _AUTHORING_DATABASE_LIMIT:
+            return AuthoringByteResult("deferred-to-restart", {"status": "deferred-to-restart", "reason": "authoring-cache-size-limit"})
+        data = _serialize_authoring_connection(connection)
+        if data is None:
+            return AuthoringByteResult("deferred-to-restart", {"status": "deferred-to-restart", "reason": "sqlite-serialize-unavailable"})
+        if len(data) > _AUTHORING_DATABASE_LIMIT:
+            return AuthoringByteResult("deferred-to-restart", {"status": "deferred-to-restart", "reason": "authoring-cache-size-limit"})
+        vector_connection.commit()
+        vector_data = _serialize_authoring_connection(vector_connection) if profile.vector_enabled else None
+        if profile.vector_enabled and vector_data is None:
+            return AuthoringByteResult("deferred-to-restart", {"status": "deferred-to-restart", "reason": "sqlite-serialize-unavailable"})
+        vector_pages = int(vector_connection.execute("PRAGMA page_count").fetchone()[0])
+        if vector_pages * vector_page_size > _AUTHORING_DATABASE_LIMIT:
+            return AuthoringByteResult("deferred-to-restart", {"status": "deferred-to-restart", "reason": "authoring-cache-size-limit"})
+        if vector_data is not None and len(vector_data) > _AUTHORING_DATABASE_LIMIT:
+            return AuthoringByteResult("deferred-to-restart", {"status": "deferred-to-restart", "reason": "authoring-cache-size-limit"})
+        final_buffers = {id(value): value for value in (data, vector_data) if value is not None}
+        if sum(len(value) for value in final_buffers.values()) > _AUTHORING_AGGREGATE_LIMIT:
+            return AuthoringByteResult("deferred-to-restart", {"status": "deferred-to-restart", "reason": "authoring-cache-aggregate-size-limit"})
+        timings["total"] = (time.perf_counter() - started) * 1000
+        report = _compiled_report(
+            world=world,
+            database=repository.root / ".wedl" / "world.sqlite",
+            database_bytes=len(data),
+            build_mode=build_mode,
+            changed=changed,
+            profile=profile,
+            current=current,
+            stats=stats,
+            timings=timings,
+            source_load=dict(repository.last_load_stats),
+        )
+        return AuthoringByteResult("compiled", report, data, data, vector_data)
+    except (MemoryError, OverflowError, sqlite3.Error) as exc:
+        # Cache products are optional during authoring. SQLite's capacity
+        # failures must deterministically fall back before any final cache
+        # surface is constructed or enrolled.
+        return AuthoringByteResult(
+            "deferred-to-restart",
+            {
+                "status": "deferred-to-restart",
+                "reason": "authoring-cache-build-capacity-limit",
+                "diagnostic": f"{type(exc).__name__}: {exc}",
+            },
+        )
+    finally:
+        if connection is not None:
+            connection.close()
+        if 'vector_connection' in locals():
+            vector_connection.close()
+
+
+def _populate_compiled_connection(connection: sqlite3.Connection, world: World, timings: dict[str, float]) -> StoryTime:
+    """Populate the shared base projections on an initialized connection."""
+    for name, insert in (("entities", _insert_entities), ("threads", _insert_threads), ("narrative", _insert_narrative)):
+        stage = time.perf_counter(); insert(connection, world)
+        timings[name] = (time.perf_counter() - stage) * 1000
+    stage = time.perf_counter(); current = _insert_derived(connection, world)
+    timings["derived"] = (time.perf_counter() - stage) * 1000
+    return current
+
+
 def cache_paths(repository: Repository) -> tuple[Path, Path, Path]:
     cache = repository.root / ".wedl"
-    return cache, cache / "world.sqlite", cache / "revisions"
+    revisions = cache / "revisions"
+    return cache, cache / "world.sqlite", revisions
+
+
+def _revision_cache_path(repository: Repository, revisions: Path, revision: str) -> Path:
+    return revisions / f"{revision}.sqlite"
+
+
+def _revision_cache_files(repository: Repository, revisions: Path) -> list[Path]:
+    return list(revisions.glob("*.sqlite"))
 
 
 def vector_cache(repository: Repository) -> sqlite3.Connection:
     """Open the disposable content-addressed normalized-vector cache."""
-    path = repository.root / ".wedl" / "vector-cache-v2.sqlite"
+    cache, _database, _revisions = cache_paths(repository)
+    path = cache / "vector-cache-v2.sqlite"
     path.parent.mkdir(parents=True, exist_ok=True)
     connection = sqlite3.connect(path, timeout=30.0)
     connection.row_factory = sqlite3.Row
@@ -219,6 +550,58 @@ def vector_cache(repository: Repository) -> sqlite3.Connection:
         """
     )
     return connection
+
+
+def _bootstrap_authoring_vector_connection(connection: sqlite3.Connection) -> None:
+    """Initialize a file-free vector-cache connection for bounded authoring work."""
+    connection.execute("PRAGMA journal_mode=OFF")
+    connection.execute("PRAGMA synchronous=OFF")
+    connection.execute("PRAGMA temp_store=MEMORY")
+    connection.execute("PRAGMA cache_size=-32768")
+    connection.executescript(
+        "CREATE TABLE vector_model_cache(cache_key TEXT PRIMARY KEY,model_id TEXT NOT NULL,provider TEXT NOT NULL,model_name TEXT NOT NULL,dimensions INTEGER NOT NULL,normalized INTEGER NOT NULL,corpus_hash TEXT,config_json TEXT NOT NULL,model_blob BLOB);"
+        "CREATE TABLE vector_value_cache(cache_key TEXT NOT NULL,input_hash TEXT NOT NULL,dimensions INTEGER NOT NULL,norm REAL NOT NULL,vector BLOB NOT NULL,PRIMARY KEY(cache_key,input_hash));"
+    )
+
+
+def _load_authoring_vector_cache(
+    repository: Repository,
+    connection: sqlite3.Connection,
+) -> bool:
+    """Copy a bounded final vector cache into an in-memory working database.
+
+    The shared cache is opened query-only and is never mutated by the
+    authoring path. A failed or oversized copy is a cache deferral signal,
+    rather than a reason to create a private file-backed cache.
+    """
+    connection.row_factory = sqlite3.Row
+    path = repository.root / ".wedl" / "vector-cache-v2.sqlite"
+    if not path.is_file():
+        _bootstrap_authoring_vector_connection(connection)
+        return True
+    try:
+        with closing(connect(path, True)) as source:
+            page_size = int(source.execute("PRAGMA page_size").fetchone()[0])
+            pages = int(source.execute("PRAGMA page_count").fetchone()[0])
+            if pages * page_size > 64 * 1024 * 1024:
+                return False
+            connection.execute(
+                f"PRAGMA max_page_count={64 * 1024 * 1024 // page_size}"
+            )
+            source.backup(connection)
+        # A legacy final cache can have a WAL-format header even though the
+        # read-only backup contains its checkpointed rows. Rebuild the memory
+        # database after disabling WAL so serialized bytes never require a
+        # sibling ``-wal`` file to reopen.
+        connection.execute("PRAGMA journal_mode=DELETE")
+        connection.execute("VACUUM")
+        connection.execute("PRAGMA journal_mode=OFF")
+        connection.execute("PRAGMA synchronous=OFF")
+        connection.execute("PRAGMA temp_store=MEMORY")
+        connection.execute("PRAGMA cache_size=-32768")
+        return True
+    except sqlite3.Error:
+        return False
 
 
 def fingerprint(world: World, profile: CompilationProfile) -> str:
@@ -639,17 +1022,23 @@ def _persist_vector_build(
     cache.commit()
 
 
+def _populate_vector_connection(connection: sqlite3.Connection, cache_key: str, build: Any) -> None:
+    """Persist one completed vector build into a caller-owned connection only."""
+    _persist_vector_build(connection, cache_key, build)
+
+
 def _load_or_build_vectors(
     repository: Repository,
     profile: CompilationProfile,
     scope: str,
     texts_by_hash: dict[str, str],
     training_hashes: list[str],
-    provider_config: dict[str, Any],
+    provider_config: dict[str, Any], cache_connection: sqlite3.Connection | None = None,
 ) -> tuple[VectorModel, dict[str, Any], dict[str, int]]:
     input_hashes = sorted(texts_by_hash)
     cache_key = _vector_cache_key(profile, scope, training_hashes, provider_config)
-    with closing(vector_cache(repository)) as cache:
+    cache = cache_connection or vector_cache(repository)
+    try:
         model = _cached_model(cache, cache_key)
         cached = _cached_vectors(cache, cache_key, input_hashes) if model else {}
         if model and len(cached) == len(input_hashes):
@@ -681,13 +1070,16 @@ def _load_or_build_vectors(
             "reused": len(cached),
             "generated": len(build.vectors),
         }
+    finally:
+        if cache_connection is None:
+            cache.close()
 
 
 def _insert_search(
     connection: sqlite3.Connection,
     world: World,
     repository: Repository,
-    profile: CompilationProfile,
+    profile: CompilationProfile, vector_cache_connection: sqlite3.Connection | None = None,
 ) -> dict[str, Any]:
     timings: dict[str, float] = {}
     if profile.name == "state":
@@ -762,7 +1154,7 @@ def _insert_search(
                 scope,
                 texts_by_hash,
                 training_hashes,
-                provider_config,
+                provider_config, vector_cache_connection,
             )
             models_by_scope[scope] = model
             vector_stats["reused"] += stats["reused"]
@@ -908,6 +1300,89 @@ def _insert_search(
         ],
     }
 
+
+def _populate_full_compiled_connection(
+    connection: sqlite3.Connection,
+    world: World,
+    repository: Repository,
+    profile: CompilationProfile,
+    compiler_fingerprint: str,
+    build_mode: str,
+    timings: dict[str, float],
+    *,
+    vector_cache_connection: sqlite3.Connection | None = None,
+) -> tuple[StoryTime, dict[str, Any]]:
+    """Build the complete direct-compiler projection on a supplied connection."""
+    stats: dict[str, Any] = {}
+    current = _populate_compiled_connection(connection, world, timings)
+    stage = time.perf_counter()
+    stats.update(insert_chronology_index(connection, build_chronology_projection(world, validated=True)))
+    timings["chronology"] = (time.perf_counter() - stage) * 1000
+    stage = time.perf_counter()
+    stats.update(insert_spatial_index(connection, build_spatial_projection(world, validated=True)))
+    timings["spatial"] = (time.perf_counter() - stage) * 1000
+    stage = time.perf_counter()
+    stats.update(_insert_search(connection, world, repository, profile, vector_cache_connection))
+    timings["search"] = (time.perf_counter() - stage) * 1000
+    stage = time.perf_counter()
+    connection.executescript(INDEX_DDL)
+    timings["indexes"] = (time.perf_counter() - stage) * 1000
+    connection.execute(
+        "INSERT INTO revision VALUES (?,?,?,?,?,?,?,?,?,?,CURRENT_TIMESTAMP,?)",
+        (
+            world.revision, world.tree_oid, world.schema, SQLITE_SCHEMA,
+            __version__, compiler_fingerprint, profile.name,
+            canonical_json(profile.as_dict()), canonical_json(stats.get("vectorModels") or []),
+            len(world.records), build_mode,
+        ),
+    )
+    for key, value in timings.items():
+        connection.execute("INSERT INTO compile_metric VALUES (?,?,?)", (key, value, "{}"))
+    return current, stats
+
+
+def _compiled_report(
+    *,
+    world: World,
+    database: Path,
+    database_bytes: int,
+    build_mode: str,
+    changed: list[str],
+    profile: CompilationProfile,
+    current: StoryTime,
+    stats: dict[str, Any],
+    timings: dict[str, float],
+    source_load: dict[str, Any],
+) -> dict[str, Any]:
+    """Return the public direct-compiler report for any finished connection."""
+    return {
+        "status": "compiled", "buildMode": build_mode,
+        "revision": world.revision, "treeOid": world.tree_oid,
+        "database": str(database), "databaseBytes": database_bytes,
+        "recordCount": len(world.records), "searchProfile": profile.as_dict(),
+        "searchDocumentCount": stats.get("documents", 0),
+        "ftsDocumentCount": stats.get("ftsDocuments", 0),
+        "vectorDocumentCount": stats.get("vectorDocuments", 0),
+        "uniqueVectorCount": stats.get("uniqueVectors", 0),
+        "vectorLinkCount": stats.get("vectorLinks", 0),
+        "vectorModels": stats.get("vectorModels") or [],
+        "vectorCache": {"reused": stats.get("reused", 0), "generated": stats.get("generated", 0), "uniqueInputs": stats.get("uniqueInputs", 0)},
+        "searchProjection": {"timingsMs": stats.get("timingsMs", {})},
+        "activeSceneId": world.active_scene().id if world.active_scene() else None,
+        "activeScenes": [{"id": scene.id, "title": scene.title} for scene in world.active_scenes()],
+        "currentTime": current.to_dict(), "changedPaths": changed,
+        "sourceLoad": source_load,
+        "chronology": {
+            "calendarCount": stats.get("calendarCount", 0), "eraCount": stats.get("eraCount", 0),
+            "anchorCount": stats.get("anchorCount", 0), "annotationCount": stats.get("annotationCount", 0),
+            "insertBatches": stats.get("chronologyInsertBatches", 0),
+            "maxInsertBatch": stats.get("chronologyMaxInsertBatch", 0),
+            "timingMs": round(timings.get("chronology", 0), 3),
+        },
+        "timingsMs": {key: round(value, 3) for key, value in timings.items()},
+    }
+
+
 def compile_world(
     repository: Repository,
     revision: str = "HEAD",
@@ -927,7 +1402,7 @@ def compile_world(
     stage = time.perf_counter()
     resolved = repository.resolve(revision)
     tree_oid = repository.tree_oid(resolved)
-    previous = database_meta(database)
+    previous = database_meta(getattr(repository, "_transaction_profile_database", database))
     database_issues = _compiled_database_issues(database)
     timings["resolveRevision"] = (time.perf_counter() - stage) * 1000
     no_profile_override = all(
@@ -1050,115 +1525,42 @@ def compile_world(
     stats: dict[str, Any] = {}
     try:
         with closing(connect(temporary)) as connection:
-            connection.execute("PRAGMA journal_mode=OFF")
-            connection.execute("PRAGMA synchronous=OFF")
-            connection.execute("PRAGMA temp_store=MEMORY")
-            connection.execute("PRAGMA cache_size=-65536")
             stage = time.perf_counter()
-            connection.executescript(DDL)
+            _bootstrap_compiled_connection(connection)
             timings["schema"] = (time.perf_counter() - stage) * 1000
             connection.execute("BEGIN IMMEDIATE")
-            stage = time.perf_counter()
-            _insert_entities(connection, world)
-            timings["entities"] = (time.perf_counter() - stage) * 1000
-            stage = time.perf_counter()
-            _insert_threads(connection, world)
-            timings["threads"] = (time.perf_counter() - stage) * 1000
-            stage = time.perf_counter()
-            _insert_narrative(connection, world)
-            timings["narrative"] = (time.perf_counter() - stage) * 1000
-            stage = time.perf_counter()
-            stats.update(insert_chronology_index(connection, build_chronology_projection(world, validated=True)))
-            timings["chronology"] = (time.perf_counter() - stage) * 1000
-            stage = time.perf_counter()
-            stats.update(insert_spatial_index(connection, build_spatial_projection(world, validated=True)))
-            timings["spatial"] = (time.perf_counter() - stage) * 1000
-            stage = time.perf_counter()
-            current = _insert_derived(connection, world)
-            timings["derived"] = (time.perf_counter() - stage) * 1000
-            stage = time.perf_counter()
-            stats.update(_insert_search(connection, world, repository, profile))
-            timings["search"] = (time.perf_counter() - stage) * 1000
-            stage = time.perf_counter()
-            connection.executescript(INDEX_DDL)
-            timings["indexes"] = (time.perf_counter() - stage) * 1000
-            connection.execute(
-                "INSERT INTO revision VALUES (?,?,?,?,?,?,?,?,?,?,CURRENT_TIMESTAMP,?)",
-                (
-                    world.revision,
-                    world.tree_oid,
-                    world.schema,
-                    SQLITE_SCHEMA,
-                    __version__,
-                    compiler_fingerprint,
-                    profile.name,
-                    canonical_json(profile.as_dict()),
-                    canonical_json(stats.get("vectorModels") or []),
-                    len(world.records),
-                    build_mode,
-                ),
+            current, stats = _populate_full_compiled_connection(
+                connection, world, repository, profile, compiler_fingerprint, build_mode, timings,
             )
-            for key, value in timings.items():
-                connection.execute(
-                    "INSERT INTO compile_metric VALUES (?,?,?)", (key, value, "{}")
-                )
             connection.commit()
-            if connection.execute("PRAGMA integrity_check").fetchone()[0] != "ok":
-                raise RuntimeError("SQLite integrity check failed")
-            if connection.execute("PRAGMA foreign_key_check").fetchone() is not None:
-                raise RuntimeError("SQLite foreign-key check failed")
+            _verify_compiled_connection(connection)
         os.replace(temporary, database)
         if world.revision != "WORKTREE":
-            retained = revisions / f"{world.revision}.sqlite"
+            retained = _revision_cache_path(repository, revisions, world.revision)
             retained.unlink(missing_ok=True)
             try:
                 os.link(database, retained)
             except OSError:
                 shutil.copy2(database, retained)
             for old in sorted(
-                revisions.glob("*.sqlite"),
+                _revision_cache_files(repository, revisions),
                 key=lambda path: path.stat().st_mtime,
                 reverse=True,
             )[retain_revisions:]:
                 old.unlink(missing_ok=True)
         timings["total"] = (time.perf_counter() - started) * 1000
-        return {
-            "status": "compiled",
-            "buildMode": build_mode,
-            "revision": world.revision,
-            "treeOid": world.tree_oid,
-            "database": str(database),
-            "databaseBytes": database.stat().st_size,
-            "recordCount": len(world.records),
-            "searchProfile": profile.as_dict(),
-            "searchDocumentCount": stats.get("documents", 0),
-            "ftsDocumentCount": stats.get("ftsDocuments", 0),
-            "vectorDocumentCount": stats.get("vectorDocuments", 0),
-            "uniqueVectorCount": stats.get("uniqueVectors", 0),
-            "vectorLinkCount": stats.get("vectorLinks", 0),
-            "vectorModels": stats.get("vectorModels") or [],
-            "vectorCache": {
-                "reused": stats.get("reused", 0),
-                "generated": stats.get("generated", 0),
-                "uniqueInputs": stats.get("uniqueInputs", 0),
-            },
-            "searchProjection": {"timingsMs": stats.get("timingsMs", {})},
-            "activeSceneId": world.active_scene().id if world.active_scene() else None,
-            "activeScenes": [{"id": scene.id, "title": scene.title} for scene in world.active_scenes()],
-            "currentTime": current.to_dict(),
-            "changedPaths": changed,
-            "sourceLoad": dict(repository.last_load_stats),
-            "chronology": {
-                "calendarCount": stats.get("calendarCount", 0),
-                "eraCount": stats.get("eraCount", 0),
-                "anchorCount": stats.get("anchorCount", 0),
-                "annotationCount": stats.get("annotationCount", 0),
-                "insertBatches": stats.get("chronologyInsertBatches", 0),
-                "maxInsertBatch": stats.get("chronologyMaxInsertBatch", 0),
-                "timingMs": round(timings.get("chronology", 0), 3),
-            },
-            "timingsMs": {key: round(value, 3) for key, value in timings.items()},
-        }
+        return _compiled_report(
+            world=world,
+            database=database,
+            database_bytes=database.stat().st_size,
+            build_mode=build_mode,
+            changed=changed,
+            profile=profile,
+            current=current,
+            stats=stats,
+            timings=timings,
+            source_load=dict(repository.last_load_stats),
+        )
     finally:
         temporary.unlink(missing_ok=True)
 

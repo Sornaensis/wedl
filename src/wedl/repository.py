@@ -35,6 +35,153 @@ PARSER_FINGERPRINT = (
     f"{'libyaml' if getattr(yaml, '__with_libyaml__', False) else 'python'}"
 )
 
+_MAX_COMMIT_BEFORE_BYTES = 64 * 1024 * 1024
+
+
+def _source_identity(metadata: os.stat_result) -> tuple[int, int, int, int, int, int]:
+    return (
+        metadata.st_dev, metadata.st_ino, metadata.st_size,
+        metadata.st_mtime_ns,
+        metadata.st_nlink, metadata.st_mode,
+    )
+
+
+def _regular_source(metadata: os.stat_result) -> bool:
+    reparse = getattr(metadata, "st_file_attributes", 0) & getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0x400)
+    return stat.S_ISREG(metadata.st_mode) and not reparse and metadata.st_nlink == 1
+
+
+def _directory_identity(metadata: os.stat_result) -> tuple[int, int, int]:
+    # Directory mtime and size legitimately change when the journal creates
+    # sibling entries. Device/inode/mode identify parent substitution.
+    return metadata.st_dev, metadata.st_ino, metadata.st_mode
+
+
+def _source_parent_identities(path: Path, root: Path) -> tuple[tuple[Path, tuple[int, int, int] | None], ...]:
+    """Pin every parent within the repository without following a reparse point."""
+    try:
+        relative = path.relative_to(root)
+        parents = (root, *(root.joinpath(*relative.parts[:index]) for index in range(1, len(relative.parts))))
+        states = []
+        for parent in parents:
+            try:
+                metadata = os.lstat(parent)
+            except FileNotFoundError:
+                states.append((parent, None))
+                continue
+            reparse = getattr(metadata, "st_file_attributes", 0) & getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0x400)
+            if not stat.S_ISDIR(metadata.st_mode) or reparse:
+                raise RepositoryError("canonical source parent changed during bounded capture")
+            states.append((parent, _directory_identity(metadata)))
+        return tuple(states)
+    except (OSError, ValueError) as exc:
+        raise RepositoryError("canonical source parent changed during bounded capture") from exc
+
+
+def _verify_source_parents(states: tuple[tuple[Path, tuple[int, int, int] | None], ...]) -> None:
+    for parent, identity in states:
+        try:
+            metadata = os.lstat(parent)
+        except FileNotFoundError:
+            if identity is None:
+                continue
+            raise RepositoryError("canonical source parent changed during bounded capture")
+        except OSError as exc:
+            raise RepositoryError("canonical source parent changed during bounded capture") from exc
+        if identity is None:
+            raise RepositoryError("canonical source parent changed during bounded capture")
+        reparse = getattr(metadata, "st_file_attributes", 0) & getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0x400)
+        if not stat.S_ISDIR(metadata.st_mode) or reparse or _directory_identity(metadata) != identity:
+            raise RepositoryError("canonical source parent changed during bounded capture")
+
+
+def _verify_descriptor_bytes(descriptor: int, expected: bytes) -> None:
+    os.lseek(descriptor, 0, os.SEEK_SET)
+    view = memoryview(expected)
+    offset = 0
+    while offset < len(view):
+        chunk = os.read(descriptor, min(1024 * 1024, len(view) - offset))
+        if not chunk or chunk != view[offset:offset + len(chunk)]:
+            raise RepositoryError("canonical source changed during bounded capture")
+        offset += len(chunk)
+    if os.read(descriptor, 1):
+        raise RepositoryError("canonical source changed during bounded capture")
+
+
+def _verify_source_identity(
+    path: Path, identity: tuple[int, int, int, int, int, int] | None,
+    *, before: bytes | None = None,
+    parents: tuple[tuple[Path, tuple[int, int, int] | None], ...] = (),
+) -> None:
+    _verify_source_parents(parents)
+    try:
+        current = os.lstat(path)
+    except FileNotFoundError:
+        current = None
+    if identity is None:
+        if current is not None:
+            raise RepositoryError("canonical source changed during bounded capture")
+    elif current is None or not _regular_source(current) or _source_identity(current) != identity:
+        raise RepositoryError("canonical source changed during bounded capture")
+    if before is not None:
+        try:
+            descriptor = os.open(path, os.O_RDONLY | getattr(os, "O_BINARY", 0) | getattr(os, "O_NOFOLLOW", 0))
+        except OSError as exc:
+            raise RepositoryError("canonical source changed during bounded capture") from exc
+        try:
+            opened = os.fstat(descriptor)
+            if not _regular_source(opened) or _source_identity(opened) != identity:
+                raise RepositoryError("canonical source changed during bounded capture")
+            _verify_descriptor_bytes(descriptor, before)
+            if _source_identity(os.fstat(descriptor)) != identity:
+                raise RepositoryError("canonical source changed during bounded capture")
+        finally:
+            os.close(descriptor)
+        _verify_source_parents(parents)
+        if _source_identity(os.lstat(path)) != identity:
+            raise RepositoryError("canonical source changed during bounded capture")
+
+
+def _bounded_commit_before(
+    path: Path, maximum: int, *, root: Path | None = None,
+) -> tuple[bytes | None, int | None, tuple[int, int, int, int, int, int] | None]:
+    """Read one regular source through a bounded, identity-checked descriptor."""
+    parents = _source_parent_identities(path, root or path.parent)
+    try:
+        named = os.lstat(path)
+    except FileNotFoundError:
+        _verify_source_identity(path, None, parents=parents)
+        return None, None, None
+    if not _regular_source(named) or named.st_size > maximum:
+        raise RepositoryError("canonical source before image exceeds byte limit")
+    try:
+        descriptor = os.open(path, os.O_RDONLY | getattr(os, "O_BINARY", 0) | getattr(os, "O_NOFOLLOW", 0))
+    except OSError as exc:
+        raise RepositoryError("canonical source changed during bounded capture") from exc
+    try:
+        opened = os.fstat(descriptor)
+        identity = _source_identity(opened)
+        if not _regular_source(opened) or identity != _source_identity(named) or opened.st_size > maximum:
+            raise RepositoryError("canonical source changed during bounded capture")
+        chunks: list[bytes] = []
+        remaining = opened.st_size
+        while remaining:
+            chunk = os.read(descriptor, min(1024 * 1024, remaining))
+            if not chunk:
+                raise RepositoryError("canonical source changed during bounded capture")
+            chunks.append(chunk)
+            remaining -= len(chunk)
+        if os.read(descriptor, 1) or _source_identity(os.fstat(descriptor)) != identity or os.fstat(descriptor).st_ctime_ns != opened.st_ctime_ns:
+            raise RepositoryError("canonical source changed during bounded capture")
+        before = b"".join(chunks)
+        _verify_descriptor_bytes(descriptor, before)
+        if _source_identity(os.fstat(descriptor)) != identity or os.fstat(descriptor).st_ctime_ns != opened.st_ctime_ns:
+            raise RepositoryError("canonical source changed during bounded capture")
+        _verify_source_identity(path, identity, before=before, parents=parents)
+        return before, stat.S_IMODE(opened.st_mode), identity
+    finally:
+        os.close(descriptor)
+
 
 class Repository:
     # Git's lock is external state.  This deliberately small private window is
@@ -1011,10 +1158,13 @@ class Repository:
         trailers: dict[str, str] | None = None,
         transaction_enroll: Callable[[TransactionJournal], None] | None = None,
         retain_transaction: bool = False,
+        max_before_bytes: int = _MAX_COMMIT_BEFORE_BYTES,
         _external_lock_deadline: list[float | None] | None = None,
     ) -> str:
         if not self.is_git:
             raise RepositoryError("Git is required for canonical writes")
+        if not isinstance(max_before_bytes, int) or isinstance(max_before_bytes, bool) or not 0 <= max_before_bytes <= _MAX_COMMIT_BEFORE_BYTES:
+            raise RepositoryError("invalid canonical source before-image limit")
         with self._canonical_write_lock():
             # This request-scoped private deadline remains inactive until an
             # eligible seam actually observes an external Git index lock.
@@ -1081,12 +1231,19 @@ class Repository:
                     raise RepositoryError("detached HEAD writes are not supported")
                 originals = {}
                 original_modes: dict[str, int | None] = {}
+                source_identities: dict[str, tuple[int, int, int, int, int, int] | None] = {}
+                source_parents: dict[str, tuple[tuple[Path, tuple[int, int, int] | None], ...]] = {}
+                before_total = 0
                 for path in files:
                     target = self.root / path
-                    if target.exists() and not target.is_file():
-                        raise RepositoryError("canonical write target is not a regular file")
-                    originals[path] = target.read_bytes() if target.exists() else None
-                    original_modes[path] = stat.S_IMODE(target.stat().st_mode) if target.exists() else None
+                    source_parents[path] = _source_parent_identities(target, self.root)
+                    before, mode, identity = _bounded_commit_before(target, max_before_bytes - before_total, root=self.root)
+                    originals[path] = before
+                    original_modes[path] = mode
+                    source_identities[path] = identity
+                    before_total += len(before or b"")
+                for path, identity in source_identities.items():
+                    _verify_source_identity(self.root / path, identity, before=originals[path], parents=source_parents[path])
                 journal = TransactionJournal.create(
                     self.root,
                     ref=ref,
@@ -1105,6 +1262,8 @@ class Repository:
                 # available for their publication/recovery phase.
                 if transaction_enroll is not None:
                     transaction_enroll(journal)
+                for path, identity in source_identities.items():
+                    _verify_source_identity(self.root / path, identity, before=originals[path], parents=source_parents[path])
                 mutation_checkpoint("ref-cas-commit")
                 self._git(["update-ref", ref, commit, expected_head])
                 journal.advance("ref_committed")

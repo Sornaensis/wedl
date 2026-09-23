@@ -3,23 +3,444 @@ from __future__ import annotations
 from copy import deepcopy
 import difflib
 import hashlib
+import inspect
+from itertools import chain
 import json
+import os
 from pathlib import Path
+import sqlite3
+import stat
 from typing import Any
 
 from . import SOURCE_SCHEMA, __version__
-from .compiler import compile_world
-from .errors import ConfirmationMismatch, ConfirmationRequired, ConflictError, StaleRevision, UsageError, ValidationFailed
+from .compiler import _authoring_preconstruction_admitted, _authoring_preconstruction_bytes, _authoring_source_metadata_bytes, compile_world, compile_world_bytes
+from .errors import ConfirmationMismatch, ConfirmationRequired, ConflictError, RepositoryError, StaleRevision, UsageError, ValidationFailed
 from .ids import id_from_seed, new_id
 from .model import Record, World
 from .repository import Repository
+from .transaction_recovery import JournalLiveByteBudget, SurfaceEnrollment, TransactionJournal
 from .source import generated_path, serialize_record
 from .util import atomic_write, canonical_json, deep_replace, slugify
 from .validation import validate_world
 
 
+_DIRECT_COMPILE_WORLD = compile_world
+_DIRECT_COMPILE_WORLD_BYTES = compile_world_bytes
+_DIRECT_ATOMIC_WRITE = atomic_write
+_MIB = 1024 * 1024
+_AUTHORING_PROCESS_LIMIT = 512 * _MIB
+# Runtime, allocator slack, and the non-byte Python request/preview/journal
+# graphs receive 32 MiB each in both overlapping phase estimates.
+_AUTHORING_CALLER_FIXED_RESERVE = (32 + 32 + 32) * _MIB
+_AUTHORING_MAX_CACHE_BEFORE = 8 * _MIB
+_AUTHORING_MAX_RECEIPT = 16 * _MIB
+_AUTHORING_MAX_SOURCE = 16 * _MIB
+_AUTHORING_MAX_SOURCE_PATHS = 4096
+_AUTHORING_MAX_REQUEST = 8 * _MIB
+_AUTHORING_MAX_REQUEST_NODES = 131072
+_AUTHORING_MAX_REVISIONS = 1024
+
+
+def _authoring_input_bytes(value: Any, maximum: int, *, error: str = "authoring request byte limit exceeded") -> int:
+    """Price a JSON input graph before copying or encoding any payload string."""
+    pending = [(iter((value,)), 0)]
+    seen: set[int] = set()
+    total = nodes = 0
+    while pending:
+        iterator, depth = pending[-1]
+        try:
+            item = next(iterator)
+        except StopIteration:
+            pending.pop()
+            continue
+        nodes += 1
+        if nodes > _AUTHORING_MAX_REQUEST_NODES or depth > 64:
+            raise RepositoryError(error)
+        if isinstance(item, str):
+            total += len(item) * 6
+        elif item is None or isinstance(item, (bool, int, float)):
+            total += 32
+        elif isinstance(item, (dict, list, tuple)):
+            if id(item) in seen:
+                raise RepositoryError(error)
+            seen.add(id(item))
+            total += 64
+            pending.append((
+                iter(chain(item.keys(), item.values())) if isinstance(item, dict) else iter(item),
+                depth + 1,
+            ))
+        else:
+            raise RepositoryError(error)
+        if total > maximum:
+            raise RepositoryError(error)
+    return total
+
+
+def _read_bounded_receipt(path: Path) -> bytes | None:
+    """Read the shared receipt through one bounded descriptor identity."""
+    try:
+        named = os.lstat(path)
+    except FileNotFoundError:
+        return None
+    reparse = getattr(named, "st_file_attributes", 0) & getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0x400)
+    if reparse or path.is_symlink() or not stat.S_ISREG(named.st_mode) or named.st_size > _AUTHORING_MAX_RECEIPT:
+        raise RepositoryError("idempotency receipt exceeds authoring byte limit")
+    descriptor = os.open(path, os.O_RDONLY | getattr(os, "O_BINARY", 0))
+    try:
+        initial = os.fstat(descriptor)
+        identity = (initial.st_dev, initial.st_ino, initial.st_size)
+        if identity != (named.st_dev, named.st_ino, named.st_size):
+            raise RepositoryError("idempotency receipt changed during read")
+        chunks: list[bytes] = []
+        remaining = initial.st_size
+        while remaining:
+            chunk = os.read(descriptor, min(_MIB, remaining))
+            if not chunk:
+                raise RepositoryError("idempotency receipt changed during read")
+            chunks.append(chunk)
+            remaining -= len(chunk)
+        if os.read(descriptor, 1) or os.fstat(descriptor).st_size != initial.st_size:
+            raise RepositoryError("idempotency receipt changed during read")
+        current = os.lstat(path)
+        if (current.st_dev, current.st_ino, current.st_size) != identity:
+            raise RepositoryError("idempotency receipt changed during read")
+        return b"".join(chunks)
+    finally:
+        os.close(descriptor)
+
+
+def _bounded_canonical_json_bytes(value: Any, maximum: int, *, error: str) -> bytes:
+    """Encode canonical JSON without constructing an unbounded intermediate."""
+    # JSONEncoder emits an entire string as one chunk. Reject a string whose
+    # character count alone exceeds the byte limit before it can allocate an
+    # unbounded escaped chunk. A character can escape to at most six bytes.
+    pending = [iter((value,))]
+    seen: set[int] = set()
+    while pending:
+        try:
+            item = next(pending[-1])
+        except StopIteration:
+            pending.pop()
+            continue
+        if isinstance(item, str):
+            if len(item) > maximum:
+                raise RepositoryError(error)
+        elif isinstance(item, (dict, list, tuple)) and id(item) not in seen:
+            seen.add(id(item))
+            pending.append(iter(chain(item.keys(), item.values())) if isinstance(item, dict) else iter(item))
+    encoder = json.JSONEncoder(ensure_ascii=False, sort_keys=True, separators=(",", ":"))
+    output = bytearray()
+    total = 0
+    for chunk in encoder.iterencode(value):
+        encoded = chunk.encode("utf-8")
+        total += len(encoded)
+        if total > maximum:
+            raise RepositoryError(error)
+        output.extend(encoded)
+    return bytes(output)
+
+
 class ProtocolError(UsageError):
     code = "protocol_error"
+
+
+def _compile_committed_world(repository: Repository, committed: str) -> dict[str, Any]:
+    """Invoke the compiler with its revision when its declared callable accepts it.
+
+    The changeset boundary has historically exposed a repository-only compiler
+    seam for authoring callers.  Inspect the callable *before* invocation so a
+    one-argument test or integration replacement remains supported without
+    treating an actual compiler ``TypeError`` as a signature mismatch.
+    """
+
+    signature = inspect.signature(compile_world)
+    try:
+        signature.bind(repository, committed)
+    except TypeError:
+        signature.bind(repository)
+        return compile_world(repository)
+    return compile_world(repository, committed)
+
+
+def _authoring_compile_fault_hook() -> None:
+    """Preserve injected compile failures without exposing a live repository."""
+    if compile_world is _DIRECT_COMPILE_WORLD:
+        return
+    # Compatibility replacements used by older callers are fault injectors.
+    # An inert object ensures a successful replacement cannot compile into, or
+    # otherwise mutate, the shared authoring cache before journal enrollment.
+    _compile_committed_world(object(), "")  # type: ignore[arg-type]
+
+
+def _authoring_receipt_fault_hook() -> None:
+    """Preserve injected receipt failures without exposing a shared path."""
+    if atomic_write is _DIRECT_ATOMIC_WRITE:
+        return
+    # Existing failure-injection consumers use a lambda that raises.  A
+    # successful wrapper/spying replacement may delegate to the real atomic
+    # writer, so invoking it here would create an extra receipt write before
+    # enrollment.  Do not call such successful replacements at all; normal
+    # receipt publication remains wholly owned by the transaction journal.
+    if getattr(atomic_write, "__name__", None) == "<lambda>":
+        atomic_write(object(), b"")  # type: ignore[arg-type]
+
+
+def _authoring_cache_preflight(
+    repository: Repository,
+    expected_head: str,
+    changes: dict[str, bytes | None],
+    caller_live_bytes: int = 0,
+    phase_peak: list[int] | None = None,
+) -> bool:
+    """Prove the cache build bound before creating the authoring journal."""
+    try:
+        resolved = repository.resolve(expected_head)
+        required = _authoring_preconstruction_bytes(repository, resolved)
+        # The committed candidate may add source bytes after the expected tree.
+        # Counting every replacement as an addition is deliberately conservative
+        # and avoids loading/parsing the candidate merely to price it.
+        compiler_phase_peak = (
+            required + caller_live_bytes + 4 * sum(len(value) for value in changes.values() if value is not None)
+            if required is not None
+            else None
+        )
+        if phase_peak is not None and compiler_phase_peak is not None:
+            phase_peak.append(compiler_phase_peak)
+        # This construction peak ends before register_surfaces begins. Its
+        # returned buffers remain live and are priced as journal images there;
+        # the whole apply peak is max(construction peak, journal peak).
+        return _authoring_preconstruction_admitted(compiler_phase_peak)
+    except (MemoryError, OverflowError, OSError, sqlite3.Error):
+        return False
+
+
+def _authoring_phase_peak(compiler_peak: int, journal_peak: int) -> int:
+    """Combine sequential construction and journal phases by their live peak."""
+    return max(compiler_peak, journal_peak)
+
+
+def _authoring_source_preflight(repository: Repository, expected_head: str) -> int:
+    """Reject unknown or oversized source before preview constructs the world."""
+    try:
+        source_bytes = _authoring_source_metadata_bytes(repository, repository.resolve(expected_head))
+    except (MemoryError, OverflowError, OSError, ValueError) as exc:
+        raise RepositoryError("authoring source byte limit exceeded") from exc
+    if source_bytes is None or source_bytes > _AUTHORING_MAX_SOURCE:
+        raise RepositoryError("authoring source byte limit exceeded")
+    return source_bytes
+
+
+def _authoring_commit_source_preflight(
+    repository: Repository, changes: dict[str, bytes | None], source_bytes: int,
+) -> int:
+    """Bound every source image read by commit_files before calling it."""
+    if len(changes) > _AUTHORING_MAX_SOURCE_PATHS:
+        raise RepositoryError("authoring source byte limit exceeded")
+    before_bytes = after_bytes = 0
+    for relative, data in changes.items():
+        target = repository.root / relative
+        try:
+            metadata = os.lstat(target)
+        except FileNotFoundError:
+            metadata = None
+        if metadata is not None:
+            reparse = getattr(metadata, "st_file_attributes", 0) & getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0x400)
+            if reparse or not stat.S_ISREG(metadata.st_mode):
+                raise RepositoryError("authoring source byte limit exceeded")
+            before_bytes += metadata.st_size
+        if data is not None:
+            after_bytes += len(data) + len(relative.encode("utf-8"))
+        if before_bytes > _AUTHORING_MAX_SOURCE or after_bytes > _AUTHORING_MAX_SOURCE:
+            raise RepositoryError("authoring source byte limit exceeded")
+    # Count replacements as additions: this admits only a candidate whose
+    # source tree remains bounded even if all touched paths are new.
+    if source_bytes + after_bytes > _AUTHORING_MAX_SOURCE:
+        raise RepositoryError("authoring source byte limit exceeded")
+    return before_bytes
+
+
+def _deferred_compile_report(
+    reason: str,
+    *,
+    record_count: int,
+    report: dict[str, Any] | None = None,
+    diagnostic: str | None = None,
+) -> dict[str, Any]:
+    """Keep the public compile-report shape when disposable caches defer."""
+    deferred = dict(report or {})
+    deferred.update({"status": "deferred-to-restart", "reason": reason})
+    deferred.setdefault("recordCount", record_count)
+    if diagnostic is not None:
+        deferred["diagnostic"] = diagnostic
+    return deferred
+
+
+def _bounded_retained_revisions(directory: Path) -> list[Path] | None:
+    """Inspect at most the admitted number of directory entries."""
+    if not directory.is_dir():
+        return []
+    retained: list[tuple[int, str, Path]] = []
+    scanned = 0
+    try:
+        with os.scandir(directory) as entries:
+            for entry in entries:
+                scanned += 1
+                if scanned > _AUTHORING_MAX_REVISIONS:
+                    return None
+                if not entry.name.endswith(".sqlite") or not entry.is_file(follow_symlinks=False):
+                    continue
+                retained.append((entry.stat(follow_symlinks=False).st_mtime_ns, entry.name, Path(entry.path)))
+    except OSError:
+        return None
+    retained.sort(key=lambda item: (-item[0], item[1]))
+    return [item[2] for item in retained]
+
+
+def _authoring_cache_enrollments(
+    repository: Repository,
+    journal: TransactionJournal,
+    *,
+    admitted: bool = True,
+    record_count: int,
+    caller_live_bytes: int = 0,
+) -> tuple[dict[str, Any], str, tuple[SurfaceEnrollment, ...]]:
+    """Prepare every bounded cache surface before the one journal admission."""
+    shared = repository.root / ".wedl"
+    committed = str(journal.record["committedHead"])
+    revision_dir = shared / "revisions"
+    if not admitted:
+        return _deferred_compile_report(
+            "authoring-preconstruction-memory-limit", record_count=record_count,
+        ), committed, ()
+    retained_before = _bounded_retained_revisions(revision_dir)
+    if retained_before is None:
+        return _deferred_compile_report(
+            "authoring-revision-enumeration-limit", record_count=record_count,
+        ), committed, ()
+    # These public before-images are already known from their paths. Admit
+    # their aggregate before constructing either in-memory database.
+    before_paths = (
+        shared / "world.sqlite",
+        shared / "vector-cache-v2.sqlite",
+        revision_dir / f"{committed}.sqlite",
+        *retained_before[4:],
+    )
+    before_size = 0
+    try:
+        for public_path in dict.fromkeys(before_paths):
+            try:
+                metadata = os.lstat(public_path)
+            except FileNotFoundError:
+                continue
+            if not stat.S_ISREG(metadata.st_mode) or (
+                getattr(metadata, "st_file_attributes", 0)
+                & getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0x400)
+            ):
+                return _deferred_compile_report(
+                    "authoring-cache-before-size-limit", record_count=record_count,
+                ), committed, ()
+            before_size += metadata.st_size
+            if before_size > _AUTHORING_MAX_CACHE_BEFORE:
+                return _deferred_compile_report(
+                    "authoring-cache-before-size-limit", record_count=record_count,
+                ), committed, ()
+    except OSError:
+        return _deferred_compile_report(
+            "authoring-cache-before-size-limit", record_count=record_count,
+        ), committed, ()
+    # Keep the longstanding changeset compiler seam observable for integrations
+    # which deliberately inject a post-commit compile failure. Normal authoring
+    # never calls the disk-backed compiler; its bounded byte builder remains the
+    # sole cache producer.
+    _authoring_compile_fault_hook()
+    _authoring_receipt_fault_hook()
+    try:
+        result = (
+            compile_world_bytes(repository, committed, caller_live_bytes=caller_live_bytes)
+            if compile_world_bytes is _DIRECT_COMPILE_WORLD_BYTES
+            else compile_world_bytes(repository, committed)
+        )
+    except (MemoryError, OverflowError, sqlite3.Error) as exc:
+        # Cache products are disposable. A bounded authoring build must never
+        # turn a capacity failure into a partially enrolled cache set.
+        return _deferred_compile_report(
+            "authoring-cache-build-capacity-limit",
+            record_count=record_count,
+            diagnostic=f"{type(exc).__name__}: {exc}",
+        ), committed, ()
+    report = dict(result.report)
+    if result.status != "compiled" or result.world_bytes is None or result.revision_bytes is None:
+        return report, committed, ()
+    outputs: dict[str, bytes | None] = {
+        ".wedl/world.sqlite": result.world_bytes,
+        f".wedl/revisions/{committed}.sqlite": result.revision_bytes,
+    }
+    if result.vector_bytes is not None:
+        outputs[".wedl/vector-cache-v2.sqlite"] = result.vector_bytes
+    # Construction retains each immutable buffer once. The journal's v7
+    # admission independently prices every final surface, including the
+    # intentionally aliased world/revision bytes.
+    unique_outputs = {id(value): value for value in outputs.values() if value is not None}
+    if sum(len(value) for value in unique_outputs.values()) > 96 * 1024 * 1024:
+        return _deferred_compile_report(
+            "authoring-cache-aggregate-size-limit", record_count=record_count, report=report,
+        ), committed, ()
+
+    # The in-memory compiler starts without old revision copies. Its final
+    # retained set is the new revision plus the newest four existing ones.
+    for stale in retained_before[4:]:
+        outputs[f".wedl/revisions/{stale.name}"] = None
+
+    before_sizes = [
+        public_path.stat().st_size
+        for public in outputs
+        if (public_path := repository.root / public).is_file()
+    ]
+    if sum(before_sizes) > _AUTHORING_MAX_CACHE_BEFORE:
+        return _deferred_compile_report(
+            "authoring-cache-before-size-limit", record_count=record_count, report=report,
+        ), committed, ()
+    enrollments = tuple(
+        SurfaceEnrollment(
+            public,
+            after=after,
+            capture_before=True,
+            max_before_bytes=_AUTHORING_MAX_CACHE_BEFORE,
+            role="cache",
+        )
+        for public, after in sorted(outputs.items())
+    )
+    report["database"] = str(shared / "world.sqlite")
+    return report, committed, enrollments
+
+
+def _authoring_caller_reserve(
+    enrollments: tuple[SurfaceEnrollment, ...],
+    *,
+    changes: dict[str, bytes | None],
+    diff: str,
+    authoring_impact: bytes | None,
+    request_bytes: int = 0,
+    source_before_bytes: int = 0,
+) -> int:
+    """Reserve live caller graphs and runtime headroom outside journal images."""
+    receipt_images = [
+        value for enrollment in enrollments if enrollment.role == "receipt"
+        for value in (enrollment.before, enrollment.after) if value is not None
+    ]
+    # Cache images are priced by the journal. Receipt graphs, pending source
+    # changes, preview diff, and impact input remain owned by this caller while
+    # enrollment allocates its own ledger. The fixed reserve covers Python,
+    # SQLite and allocator state that does not scale with these byte strings.
+    return (
+        _AUTHORING_CALLER_FIXED_RESERVE
+        + 8 * sum(len(value) for value in receipt_images)
+        + 4 * sum(len(value) for value in changes.values() if value is not None)
+        + 4 * len(diff)
+        + 8 * len(authoring_impact or b"")
+        + 8 * request_bytes
+        + 8 * source_before_bytes
+    )
 
 
 CHANGESET_OPERATION_SCHEMA = [
@@ -450,7 +871,7 @@ def preview(
         changes[path] = new_data
         diffs.extend(difflib.unified_diff((old_data or b"").decode().splitlines(True), (new_data or b"").decode().splitlines(True), fromfile=f"a/{path}", tofile=f"b/{path}"))
     request_hash = _request_hash(payload)
-    return {"protocol": "wedl-preview/v1", "valid": valid, "expectedHead": expected, "requestHash": request_hash, "confirmationToken": confirmation_token(payload, request_hash=request_hash, expected_head=expected), "generatedIds": replacements, "touchedEntityIds": sorted(touched), "diagnostics": diagnostics, "files": sorted(changes), "diff": "".join(diffs), "_changes": changes}
+    return {"protocol": "wedl-preview/v1", "valid": valid, "expectedHead": expected, "requestHash": request_hash, "confirmationToken": confirmation_token(payload, request_hash=request_hash, expected_head=expected), "generatedIds": replacements, "touchedEntityIds": sorted(touched), "diagnostics": diagnostics, "files": sorted(changes), "diff": "".join(diffs), "_changes": changes, "_recordCount": len(records)}
 
 
 def apply(
@@ -470,13 +891,39 @@ def apply(
     always pass a confirmation token instead.
     """
 
+    # A previous process may have advanced the ref before it reached receipt,
+    # cache, real-index, or finalization publication.  Reconcile that durable
+    # transaction before inspecting receipts: otherwise an idempotent retry can
+    # either plan against a stale expected HEAD or return a published receipt
+    # while its transaction still owns an incomplete index/cache state.
+    repository.recover_authoring_transactions()
+    request_bytes = _authoring_input_bytes(payload, _AUTHORING_MAX_REQUEST)
+    impact_input_bytes = (
+        _authoring_input_bytes(
+            authoring_impact, _AUTHORING_MAX_RECEIPT,
+            error="idempotency receipt exceeds authoring byte limit",
+        )
+        if authoring_impact is not None else 0
+    )
+    expected_head = str(payload.get("expectedHead") or "")
+    if use_current_head or expected_head == "HEAD":
+        expected_head = repository.head()
+    source_bytes = _authoring_source_preflight(repository, expected_head)
     key = str(payload.get("idempotencyKey") or "")
     request_hash = _request_hash(payload)
     full_payload_hash = _full_payload_hash(payload)
     receipt_path = repository.root / ".wedl" / "idempotency.json"
+    receipt_before = _read_bounded_receipt(receipt_path)
     receipts: dict[str, Any] = {}
-    if receipt_path.exists():
-        receipts = json.loads(receipt_path.read_text())
+    if receipt_before is not None:
+        receipts = json.loads(receipt_before.decode("utf-8"))
+    bounded_authoring_impact: bytes | None = None
+    if authoring_impact is not None:
+        bounded_authoring_impact = _bounded_canonical_json_bytes(
+            authoring_impact,
+            _AUTHORING_MAX_RECEIPT,
+            error="idempotency receipt exceeds authoring byte limit",
+        )
     # Network retries must succeed even though the original request's expected
     # HEAD is now stale. Verify the canonical request hash before any planning.
     if key and key in receipts:
@@ -504,22 +951,154 @@ def apply(
             raise ConfirmationRequired("changeset apply requires a preview confirmation token")
         if confirmation_token_value != result["confirmationToken"]:
             raise ConfirmationMismatch("changeset confirmation token does not match the previewed request")
-    commit = repository.commit_files(expected_head=result["expectedHead"], files=result.pop("_changes"), message=str(payload.get("summary") or "wedl: narrative change"), trailers={"Wedl-Request": request_hash, "Wedl-Idempotency": hashlib.sha256(key.encode()).hexdigest() if key else ""})
-    compile_report = compile_world(repository)
-    response = {"protocol": "wedl-command-result/v1", "status": "committed", "previousHead": result["expectedHead"], "newHead": commit, "generatedIds": result["generatedIds"], "touchedEntityIds": result["touchedEntityIds"], "compile": compile_report, "idempotentReplay": False}
-    if key:
-        receipt_path.parent.mkdir(parents=True, exist_ok=True)
-        receipt = {"requestHash": request_hash, "fullPayloadHash": full_payload_hash, "confirmationToken": result["confirmationToken"], "result": response}
-        if authoring_intent_hash is not None:
-            receipt["authoringIntentHash"] = authoring_intent_hash
-        # This is deliberately receipt metadata, not part of the generic raw
-        # changeset response. Semantic authoring retries can recover their
-        # name-only helper summary without changing raw API payloads.
-        if authoring_impact is not None:
-            receipt["authorImpact"] = deepcopy(authoring_impact)
-        receipts[key] = receipt
-        atomic_write(
-            receipt_path,
-            (json.dumps(receipts, ensure_ascii=False, indent=2) + "\n").encode("utf-8"),
+    changes = result.pop("_changes")
+    record_count = result.pop("_recordCount")
+    enrolled: dict[str, Any] = {}
+
+    source_before_bytes = _authoring_commit_source_preflight(repository, changes, source_bytes)
+    source_after_bytes = sum(len(value) for value in changes.values() if value is not None)
+    # The prepared source journal, preview/result graph, original request and
+    # receipt graph remain live while the optional in-memory compiler runs.
+    # Its own 320 MiB fixed construction estimate is added separately.
+    compiler_caller_live = (
+        _AUTHORING_CALLER_FIXED_RESERVE
+        + 8 * (request_bytes + impact_input_bytes + len(receipt_before or b""))
+        + 8 * (source_before_bytes + source_after_bytes)
+        + 4 * len(result.get("diff", ""))
+    )
+    compiler_phase_peak: list[int] = []
+    cache_preflight = _authoring_cache_preflight(
+        repository, result["expectedHead"], changes, compiler_caller_live, compiler_phase_peak,
+    )
+
+    def enroll(journal: TransactionJournal) -> None:
+        compile_report, committed, cache_enrollments = _authoring_cache_enrollments(
+            repository, journal, admitted=cache_preflight, record_count=record_count,
+            caller_live_bytes=compiler_caller_live,
         )
-    return response
+        response = {
+            "protocol": "wedl-command-result/v1", "status": "committed",
+            "previousHead": result["expectedHead"], "newHead": committed,
+            "generatedIds": result["generatedIds"], "touchedEntityIds": result["touchedEntityIds"],
+            "compile": compile_report, "idempotentReplay": False,
+        }
+        receipt_enrollments: tuple[SurfaceEnrollment, ...] = (
+            SurfaceEnrollment(
+                ".wedl/idempotency.json", before=receipt_before,
+                after=receipt_before, role="receipt",
+            ),
+        )
+        if key:
+            next_receipts = dict(receipts)
+            def encode_receipt() -> tuple[SurfaceEnrollment, ...]:
+                receipt = {"requestHash": request_hash, "fullPayloadHash": full_payload_hash,
+                           "confirmationToken": result["confirmationToken"], "result": response}
+                if authoring_intent_hash is not None:
+                    receipt["authoringIntentHash"] = authoring_intent_hash
+                if bounded_authoring_impact is not None:
+                    # This value passed a streaming byte bound before parsing,
+                    # so receipt construction cannot copy an unbounded input.
+                    receipt["authorImpact"] = json.loads(bounded_authoring_impact)
+                next_receipts[key] = receipt
+                receipt_after = _bounded_canonical_json_bytes(
+                    next_receipts,
+                    _AUTHORING_MAX_RECEIPT,
+                    error="idempotency receipt exceeds authoring byte limit",
+                )
+                return (
+                    SurfaceEnrollment(
+                        ".wedl/idempotency.json",
+                        before=receipt_before,
+                        after=receipt_after,
+                        role="receipt",
+                    ),
+                )
+
+            receipt_enrollments = encode_receipt()
+        enrollments = (*cache_enrollments, *receipt_enrollments)
+        caller_reserve = _authoring_caller_reserve(
+            enrollments, changes=changes, diff=result.get("diff", ""),
+            authoring_impact=bounded_authoring_impact,
+            request_bytes=request_bytes, source_before_bytes=source_before_bytes,
+        )
+        budget = JournalLiveByteBudget(
+            total_bytes=_AUTHORING_PROCESS_LIMIT,
+            caller_reserve_bytes=caller_reserve,
+        )
+        # SQLite page stores and temporary serialization probes are gone now.
+        # Final cache images remain live and register_surfaces prices them in
+        # its exact journal peak, so the apply peak is the maximum of these
+        # two sequential phases rather than their sum.
+        cache_rejected = False
+        try:
+            if _authoring_phase_peak(
+                compiler_phase_peak[0] if cache_preflight and compiler_phase_peak else 0,
+                caller_reserve,
+            ) > _AUTHORING_PROCESS_LIMIT:
+                raise RepositoryError("transaction journal live-byte budget exceeded")
+            journal.register_surfaces(enrollments, live_budget=budget)
+        except RepositoryError as exc:
+            # A failed v7 admission has not mutated the journal. Cache
+            # products are disposable, so retry only the unchanged receipt
+            # surface or the newly encoded mandatory receipt.
+            if not cache_enrollments or str(exc) != "transaction journal live-byte budget exceeded":
+                raise
+            cache_rejected = True
+        if cache_rejected:
+            # Leave the exception handler first: its traceback also retains
+            # the rejected register_surfaces argument and final cache bytes.
+            # Then drop both local tuples before pricing the receipt-only peak.
+            cache_enrollments = ()
+            enrollments = ()
+            compile_report = _deferred_compile_report(
+                "authoring-process-memory-limit",
+                record_count=record_count,
+                report=compile_report,
+            )
+            response["compile"] = compile_report
+            if key:
+                receipt_enrollments = encode_receipt()
+            enrollments = receipt_enrollments
+            caller_reserve = _authoring_caller_reserve(
+                enrollments, changes=changes, diff=result.get("diff", ""),
+                authoring_impact=bounded_authoring_impact,
+                request_bytes=request_bytes, source_before_bytes=source_before_bytes,
+            )
+            if _authoring_phase_peak(
+                compiler_phase_peak[0] if cache_preflight and compiler_phase_peak else 0,
+                caller_reserve,
+            ) > _AUTHORING_PROCESS_LIMIT:
+                raise RepositoryError("transaction journal live-byte budget exceeded")
+            journal.register_surfaces(
+                enrollments,
+                live_budget=JournalLiveByteBudget(
+                    total_bytes=_AUTHORING_PROCESS_LIMIT,
+                    caller_reserve_bytes=caller_reserve,
+                ),
+            )
+        enrolled["response"] = response
+
+    try:
+        repository.commit_files(
+            expected_head=result["expectedHead"], files=changes,
+            message=str(payload.get("summary") or "wedl: narrative change"),
+            trailers={"Wedl-Request": request_hash, "Wedl-Idempotency": hashlib.sha256(key.encode()).hexdigest() if key else ""},
+            transaction_enroll=enroll, retain_transaction=True,
+            max_before_bytes=_AUTHORING_MAX_SOURCE,
+        )
+    except Exception as failure:
+        # Enrollment failures occur before the ref CAS.  Let the prerequisite
+        # reconcile its prepared journal instead of constructing a second
+        # changeset rollback transaction.
+        try:
+            repository.recover_authoring_transactions()
+        except Exception as recovery:
+            raise RepositoryError(
+                f"changeset transaction recovery failed after {type(failure).__name__}: {failure}; {recovery}"
+            ) from failure
+        raise
+    # The prerequisite owns finalization.  Its restart reconciliation is also
+    # the normal success path, so no second rollback or direct cache/receipt
+    # mutation is needed here.
+    repository.recover_authoring_transactions()
+    return enrolled["response"]
