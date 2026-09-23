@@ -82,6 +82,27 @@ readiness verifies required spatial tables/indexes, integrity, foreign keys,
 and portal target shape before accepting revision metadata; an incompatible
 cache is rebuilt by atomic replacement.
 
+## Generational component projection (v0.7)
+
+The v0.7 generational component stores one row per authored record in
+`generational_record`, typed endpoint rows for each of the eight kinds, ordered
+`generational_union_participant` rows, and exact authored transitions in
+`generational_transition`. Btree indexes support child-to-parent, organization
+containment, legacy-to-tenure/claim, character-to-vital, and per-record as-of
+replay. `generational_current` is a disposable fold at the world cursor.
+
+`generational_candidate` holds private structural search material with timeline,
+applicability, audience, perspective, and citation fields. Generational source
+records are excluded from generic `search_document`, FTS5, and vector models;
+the future viewer-aware query layer must filter private candidates before
+ranking. See [GENERATIONAL_COMPILATION.md](GENERATIONAL_COMPILATION.md) for
+ordering, replay, citations, and the internal query boundary.
+
+The disposable schema is `wedl-sqlite/v8`. Readiness checks require the
+generational tables and indexes, their exact column/foreign-key/index shapes,
+as well as the spatial shape, SQLite integrity,
+and foreign-key integrity. A stale or damaged cache is rebuilt atomically.
+
 ## 4. Search documents
 
 Search is built from bounded, audience-labelled chunks:

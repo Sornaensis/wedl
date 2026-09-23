@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from contextlib import closing
 from dataclasses import dataclass
+from functools import lru_cache
 from itertools import combinations
 import hashlib
 import json
@@ -29,6 +30,7 @@ from .validation import validate_world
 from .chronology_index import build_chronology_projection, insert_chronology_index
 from .v07 import SOURCE_SCHEMA as V07_SOURCE_SCHEMA
 from .spatial_index import build_spatial_projection, insert_spatial_index
+from .generational_index import insert_generational_index
 
 
 # Bump when search-document construction changes without a SQLite DDL change.
@@ -41,7 +43,8 @@ CHRONOLOGY_INDEX_GENERATION_TOKEN = "wedl-chronology-index/v3"
 # a database created before its DDL must never be mistaken for a compatible
 # read model by a later opt-in caller.
 SPATIAL_INDEX_GENERATION_TOKEN = "wedl-spatial-index/v1"
-COMPILER_FINGERPRINT_PREFIX = f"{DOCUMENT_GENERATION_TOKEN}:{CHRONOLOGY_INDEX_GENERATION_TOKEN}:{SPATIAL_INDEX_GENERATION_TOKEN}:"
+GENERATIONAL_INDEX_GENERATION_TOKEN = "wedl-generational-index/v1"
+COMPILER_FINGERPRINT_PREFIX = f"{DOCUMENT_GENERATION_TOKEN}:{CHRONOLOGY_INDEX_GENERATION_TOKEN}:{SPATIAL_INDEX_GENERATION_TOKEN}:{GENERATIONAL_INDEX_GENERATION_TOKEN}:"
 
 DDL = r"""
 PRAGMA foreign_keys=ON;
@@ -102,6 +105,19 @@ CREATE TABLE spatial_overlay(id TEXT PRIMARY KEY REFERENCES entity(id),source_or
 CREATE TABLE spatial_overlay_location(overlay_id TEXT NOT NULL REFERENCES spatial_overlay(id),location_id TEXT NOT NULL REFERENCES spatial_location(id),source_ordinal INTEGER NOT NULL,PRIMARY KEY(overlay_id,location_id));
 CREATE TABLE spatial_overlay_audience(overlay_id TEXT NOT NULL REFERENCES spatial_overlay(id),audience TEXT NOT NULL,source_ordinal INTEGER NOT NULL,PRIMARY KEY(overlay_id,audience));
 CREATE TABLE spatial_overlay_perspective(overlay_id TEXT NOT NULL REFERENCES spatial_overlay(id),perspective TEXT NOT NULL,source_ordinal INTEGER NOT NULL,PRIMARY KEY(overlay_id,perspective));
+CREATE TABLE generational_record(id TEXT PRIMARY KEY REFERENCES entity(id),kind TEXT NOT NULL,source_ordinal INTEGER NOT NULL UNIQUE,source_path TEXT NOT NULL,blob_oid TEXT,status TEXT NOT NULL,capability TEXT NOT NULL,timeline TEXT NOT NULL,audience_json TEXT NOT NULL,perspectives_json TEXT NOT NULL);
+CREATE TABLE generational_organization(id TEXT PRIMARY KEY REFERENCES generational_record(id),organization_kind TEXT NOT NULL,parent_id TEXT,location_id TEXT);
+CREATE TABLE generational_parentage(id TEXT PRIMARY KEY REFERENCES generational_record(id),child_id TEXT NOT NULL,parent_id TEXT NOT NULL);
+CREATE TABLE generational_union(id TEXT PRIMARY KEY REFERENCES generational_record(id));
+CREATE TABLE generational_union_participant(union_id TEXT NOT NULL REFERENCES generational_union(id),transition_id TEXT NOT NULL REFERENCES generational_transition(id),participant_id TEXT NOT NULL,source_ordinal INTEGER NOT NULL,PRIMARY KEY(transition_id,participant_id));
+CREATE TABLE generational_affiliation(id TEXT PRIMARY KEY REFERENCES generational_record(id),character_id TEXT NOT NULL,organization_id TEXT NOT NULL);
+CREATE TABLE generational_legacy(id TEXT PRIMARY KEY REFERENCES generational_record(id),legacy_kind TEXT NOT NULL,organization_id TEXT);
+CREATE TABLE generational_tenure(id TEXT PRIMARY KEY REFERENCES generational_record(id),legacy_id TEXT NOT NULL,predecessor_tenure_id TEXT,successor_tenure_id TEXT);
+CREATE TABLE generational_claim(id TEXT PRIMARY KEY REFERENCES generational_record(id),legacy_id TEXT NOT NULL,claimant_id TEXT NOT NULL);
+CREATE TABLE generational_vital(id TEXT PRIMARY KEY REFERENCES generational_record(id),character_id TEXT NOT NULL,disclosure TEXT NOT NULL);
+CREATE TABLE generational_transition(id TEXT PRIMARY KEY,record_id TEXT NOT NULL REFERENCES generational_record(id),source_ordinal INTEGER NOT NULL,transition_kind TEXT NOT NULL,applicability_kind TEXT NOT NULL,timeline TEXT NOT NULL,start_tick INTEGER NOT NULL,start_order INTEGER NOT NULL,end_tick INTEGER,end_order INTEGER,payload_json TEXT NOT NULL,cause_event_id TEXT,cause_citation_json TEXT,replaces_transition_id TEXT,citation_json TEXT NOT NULL,UNIQUE(record_id,source_ordinal));
+CREATE TABLE generational_current(record_id TEXT PRIMARY KEY REFERENCES generational_record(id),timeline TEXT NOT NULL,at_tick INTEGER NOT NULL,at_order INTEGER NOT NULL,state TEXT NOT NULL,value_json TEXT NOT NULL);
+CREATE TABLE generational_candidate(record_id TEXT NOT NULL REFERENCES generational_record(id),transition_id TEXT NOT NULL REFERENCES generational_transition(id),source_ordinal INTEGER NOT NULL,capability TEXT NOT NULL,timeline TEXT NOT NULL,start_tick INTEGER NOT NULL,start_order INTEGER NOT NULL,end_tick INTEGER,end_order INTEGER,audience_json TEXT NOT NULL,perspectives_json TEXT NOT NULL,citation_json TEXT NOT NULL,structural_json TEXT NOT NULL,PRIMARY KEY(record_id,transition_id));
 """
 INDEX_DDL = r"""
 CREATE INDEX entity_kind_idx ON entity(kind,status,title);
@@ -145,6 +161,16 @@ CREATE INDEX spatial_overlay_reverse_idx ON spatial_overlay(timeline,end_tick,en
 CREATE INDEX spatial_overlay_location_location_idx ON spatial_overlay_location(location_id,overlay_id);
 CREATE INDEX spatial_overlay_audience_audience_idx ON spatial_overlay_audience(audience,overlay_id);
 CREATE INDEX spatial_overlay_perspective_perspective_idx ON spatial_overlay_perspective(perspective,overlay_id);
+CREATE INDEX generational_record_kind_idx ON generational_record(kind,timeline,source_ordinal,id);
+CREATE INDEX generational_organization_parent_idx ON generational_organization(parent_id,id);
+CREATE INDEX generational_parentage_child_idx ON generational_parentage(child_id,parent_id,id);
+CREATE INDEX generational_union_participant_idx ON generational_union_participant(participant_id,union_id);
+CREATE INDEX generational_affiliation_organization_idx ON generational_affiliation(organization_id,character_id,id);
+CREATE INDEX generational_tenure_legacy_idx ON generational_tenure(legacy_id,id);
+CREATE INDEX generational_claim_legacy_idx ON generational_claim(legacy_id,id);
+CREATE INDEX generational_vital_character_idx ON generational_vital(character_id,id);
+CREATE INDEX generational_transition_asof_idx ON generational_transition(record_id,timeline,start_tick,start_order,source_ordinal,id);
+CREATE INDEX generational_candidate_asof_idx ON generational_candidate(timeline,start_tick,start_order,record_id,source_ordinal);
 """
 
 _REQUIRED_SPATIAL_TABLES = frozenset({
@@ -167,6 +193,50 @@ _REQUIRED_SPATIAL_INDEXES = frozenset({
     "spatial_overlay_audience_audience_idx",
     "spatial_overlay_perspective_perspective_idx",
 })
+_REQUIRED_GENERATIONAL_TABLES = frozenset({
+    "generational_record", "generational_organization", "generational_parentage",
+    "generational_union", "generational_union_participant", "generational_affiliation",
+    "generational_legacy", "generational_tenure", "generational_claim",
+    "generational_vital", "generational_transition", "generational_current",
+    "generational_candidate",
+})
+_REQUIRED_GENERATIONAL_INDEXES = frozenset({
+    "generational_record_kind_idx", "generational_organization_parent_idx",
+    "generational_parentage_child_idx", "generational_union_participant_idx",
+    "generational_affiliation_organization_idx", "generational_tenure_legacy_idx",
+    "generational_claim_legacy_idx", "generational_vital_character_idx",
+    "generational_transition_asof_idx", "generational_candidate_asof_idx",
+})
+
+
+def _generational_shapes(connection: sqlite3.Connection) -> tuple[dict[str, tuple[Any, ...]], dict[str, tuple[Any, ...]]]:
+    """Read complete table/foreign-key and index-column shapes by name."""
+    tables = {
+        name: (
+            tuple(tuple(row) for row in connection.execute(f"PRAGMA table_xinfo({name})")),
+            tuple(tuple(row) for row in connection.execute(f"PRAGMA foreign_key_list({name})")),
+        )
+        for name in _REQUIRED_GENERATIONAL_TABLES
+    }
+    indexes = {
+        name: (
+            connection.execute(
+                "SELECT tbl_name FROM sqlite_schema WHERE type='index' AND name=?", (name,)
+            ).fetchone()[0],
+            tuple(tuple(row) for row in connection.execute(f"PRAGMA index_xinfo({name})")),
+        )
+        for name in _REQUIRED_GENERATIONAL_INDEXES
+    }
+    return tables, indexes
+
+
+@lru_cache(maxsize=1)
+def _expected_generational_shapes() -> tuple[dict[str, tuple[Any, ...]], dict[str, tuple[Any, ...]]]:
+    """Generate the required signatures once from the compiler's own DDL."""
+    with closing(sqlite3.connect(":memory:")) as connection:
+        connection.executescript(DDL)
+        connection.executescript(INDEX_DDL)
+        return _generational_shapes(connection)
 
 
 
@@ -659,6 +729,16 @@ def _compiled_database_issues(path: Path) -> tuple[str, ...]:
             }
             issues = [f"missingTable:{name}" for name in sorted(_REQUIRED_SPATIAL_TABLES - tables)]
             issues.extend(f"missingIndex:{name}" for name in sorted(_REQUIRED_SPATIAL_INDEXES - indexes))
+            issues.extend(f"missingTable:{name}" for name in sorted(_REQUIRED_GENERATIONAL_TABLES - tables))
+            issues.extend(f"missingIndex:{name}" for name in sorted(_REQUIRED_GENERATIONAL_INDEXES - indexes))
+            if issues:
+                return tuple(issues)
+            expected_tables, expected_indexes = _expected_generational_shapes()
+            actual_tables, actual_indexes = _generational_shapes(connection)
+            issues.extend(f"tableShape:{name}" for name in sorted(expected_tables)
+                          if actual_tables[name] != expected_tables[name])
+            issues.extend(f"indexShape:{name}" for name in sorted(expected_indexes)
+                          if actual_indexes[name] != expected_indexes[name])
             if issues:
                 return tuple(issues)
             if connection.execute("PRAGMA foreign_key_check").fetchone() is not None:
@@ -1321,6 +1401,9 @@ def _populate_full_compiled_connection(
     stage = time.perf_counter()
     stats.update(insert_spatial_index(connection, build_spatial_projection(world, validated=True)))
     timings["spatial"] = (time.perf_counter() - stage) * 1000
+    stage = time.perf_counter()
+    stats.update(insert_generational_index(connection, world, current))
+    timings["generational"] = (time.perf_counter() - stage) * 1000
     stage = time.perf_counter()
     stats.update(_insert_search(connection, world, repository, profile, vector_cache_connection))
     timings["search"] = (time.perf_counter() - stage) * 1000

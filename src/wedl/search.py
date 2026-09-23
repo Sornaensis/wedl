@@ -14,6 +14,7 @@ import numpy as np
 from .audience import section_audience, sections
 from .conversation import beat_kind, conversation_end, conversation_participant_at, conversation_start, remembered_quotes, scene_end, scene_start, turn_time
 from .errors import UsageError
+from .generational import GENERATIONAL_KINDS
 from .lexical import fts_query_parts
 from .model import Record, StoryTime, World
 from .profiles import CompilationProfile
@@ -301,6 +302,11 @@ def build_documents(world: World) -> list[SearchDocument]:
         # frequencies or LSA training and reorder canonical retrieval.  Their
         # explicit author opt-in path uses hypothesis_source_search below.
         if record.kind == "hypothesis":
+            continue
+        # Generational metadata and prose may describe future or withheld
+        # history. Its private projection is filtered by the query owner
+        # before ranking; generic FTS and vectors have no viewer policy for it.
+        if record.kind in GENERATIONAL_KINDS:
             continue
         # Identity is intentionally timeless.  Keep it separate from prose so
         # an as-of author query can still resolve a known record without a
