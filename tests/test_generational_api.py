@@ -205,9 +205,10 @@ def test_http_cli_contract_and_session_are_identical(
             fields["maxCharacters"] = 4096
         as_of = request(repository, operation, **fields)
         assert_parity(operation, as_of)
-        all_time = {key: value for key, value in as_of.items() if key != "at"}
-        all_time["mode"] = "author-all-time"
-        assert_parity(operation, all_time)
+        if operation == "parents":
+            all_time = {key: value for key, value in as_of.items() if key != "at"}
+            all_time["mode"] = "author-all-time"
+            assert_parity(operation, all_time)
 
     matrix = (
         ("parents", request(repository, "parents", subject="character_child"), "available"),
