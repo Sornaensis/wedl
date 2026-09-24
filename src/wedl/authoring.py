@@ -107,8 +107,8 @@ def apply_intent(
     # This also protects receipt replay: a caller must present the original
     # confirmation token instead of turning an idempotency key into a write
     # capability.
-    if intent["action"].startswith("spatial.") and allow_unconfirmed:
-        raise ConfirmationRequired("spatial authoring apply requires a preview confirmation token")
+    if intent["action"].startswith(("spatial.", "generational.")) and allow_unconfirmed:
+        raise ConfirmationRequired("spatial and generational authoring require a preview confirmation token")
     _validate_intent_types(intent)
     key = str(intent.get("idempotencyKey") or _stable_key(intent))
     receipt_path = repository.root / ".wedl" / "idempotency.json"
@@ -569,7 +569,7 @@ def preview_intent(repository: Repository, intent: dict[str, Any]) -> dict[str, 
     from .changeset import preview as preview_changeset
 
     payload = compile_intent(repository, intent)
-    plan = preview_changeset(repository, payload, cache_write=not str(intent.get("action", "")).startswith("spatial."))
+    plan = preview_changeset(repository, payload, cache_write=not str(intent.get("action", "")).startswith(("spatial.", "generational.")))
     plan.pop("_changes", None)
     return {
         "protocol": "wedl-author-preview/v1", "intent": intent, "changeset": payload,
@@ -1052,6 +1052,10 @@ def compile_intent(repository: Repository, intent: dict[str, Any]) -> dict[str, 
 
     if action.startswith("spatial."):
         return _envelope(repository, intent, _spatial_intent(world, intent, action))
+
+    if action.startswith("generational."):
+        from .generational_authoring import compile_operations
+        return _envelope(repository, intent, compile_operations(repository, intent))
 
     if action == "chronology.replace":
         if set(intent).difference({"action", "expectedHead", "change", "summary", "idempotencyKey"}):

@@ -276,6 +276,106 @@ _SPATIAL_AUTHORING = [
     _strict_object("action", "expectedHead", "idempotencyKey", "payload", properties={"action": {"const": "spatial.overlay.create"}, "expectedHead": {"type": "string", "pattern": "^[0-9a-f]{40}$"}, "idempotencyKey": _SPATIAL_NONBLANK_STRING, "summary": _SPATIAL_SUMMARY, "payload": _SPATIAL_OVERLAY_CREATE}),
     _spatial_update_authoring("spatial.overlay.update", {key: value for key, value in _SPATIAL_OVERLAY_FIELDS.items() if key != "title"}),
 ]
+_GEN_TIME = _strict_object("timeline", "tick", "order", properties={
+    "timeline": _SPATIAL_NONBLANK_STRING,
+    "tick": _bounded_decimal_string(2 ** 63 - 1, 2 ** 63),
+    "order": _bounded_decimal_string(2 ** 31 - 1, 2 ** 31),
+})
+_GEN_SHA = {"type": "string", "pattern": "^[0-9a-f]{40}$"}
+_GEN_REF = _SPATIAL_NONBLANK_STRING
+_GEN_REFS = {"type": "array", "minItems": 2, "maxItems": 100, "uniqueItems": True, "items": _GEN_REF}
+_GEN_WORDS = {"type": "array", "maxItems": 100, "uniqueItems": True, "items": _SPATIAL_NONBLANK_STRING}
+_GEN_FIELD_SCHEMAS = {
+    "organization": (("organization_kind",), {"organization_kind": {"enum": ["house", "dynasty", "clan", "institution", "other"]}, "parent_id": {"anyOf": [_GEN_REF, {"type": "null"}]}, "location_id": {"anyOf": [_GEN_REF, {"type": "null"}]}}),
+    "parentage": (("child_id", "parent_id"), {"child_id": _GEN_REF, "parent_id": _GEN_REF}),
+    "union": (("participant_ids",), {"participant_ids": _GEN_REFS}),
+    "affiliation": (("character_id", "organization_id"), {"character_id": _GEN_REF, "organization_id": _GEN_REF}),
+    "legacy": (("legacy_kind",), {"legacy_kind": {"enum": ["office", "estate", "title", "other"]}, "organization_id": {"anyOf": [_GEN_REF, {"type": "null"}]}}),
+    "tenure": (("legacy_id",), {"legacy_id": _GEN_REF, "predecessor_tenure_id": {"anyOf": [_GEN_REF, {"type": "null"}]}, "successor_tenure_id": {"anyOf": [_GEN_REF, {"type": "null"}]}}),
+    "claim": (("legacy_id", "claimant_id"), {"legacy_id": _GEN_REF, "claimant_id": _GEN_REF}),
+    "vital-history": (("character_id", "disclosure"), {"character_id": _GEN_REF, "disclosure": {"enum": ["known", "unknown", "withheld"]}}),
+}
+_GEN_TRANSITIONS = {
+    "organization": ("rename", "reparent", "dormant", "dissolve"),
+    "parentage": ("confirm", "end"),
+    "union": ("form", "reconcile", "end", "annul"),
+    "affiliation": ("role", "end"),
+    "legacy": ("rename", "dormant", "dissolve"),
+    "tenure": ("designate", "hold", "vacate", "transfer", "end"),
+    "claim": ("dispute", "recognize", "withdraw", "reject"),
+    "vital-history": ("birth", "death", "existence-start", "existence-end"),
+}
+_GEN_EMPTY = _strict_object(properties={})
+_GEN_PAYLOAD = {
+    "organization-initialize": _strict_object("title", "aliases", properties={"title": _GEN_REF, "aliases": _GEN_WORDS}),
+    "organization-rename": _strict_object("title", "aliases", properties={"title": _GEN_REF, "aliases": _GEN_WORDS}),
+    "organization-reparent": _strict_object("parent_id", properties={"parent_id": {"anyOf": [_GEN_REF, {"type": "null"}]}}),
+    "parentage-initialize": _strict_object("basis", properties={"basis": {"enum": ["biological", "adoptive"]}}),
+    "parentage-confirm": _strict_object("basis", properties={"basis": {"enum": ["biological", "adoptive"]}}),
+    "union-initialize": _strict_object("participant_ids", properties={"participant_ids": _GEN_REFS}),
+    "union-form": _strict_object("participant_ids", properties={"participant_ids": _GEN_REFS}),
+    "union-reconcile": _strict_object("participant_ids", properties={"participant_ids": _GEN_REFS}),
+    "affiliation-initialize": _strict_object("role", properties={"role": {"type": ["string", "null"]}}),
+    "affiliation-role": _strict_object("role", properties={"role": _GEN_REF}),
+    "legacy-initialize": _strict_object("title", "aliases", properties={"title": _GEN_REF, "aliases": _GEN_WORDS}),
+    "legacy-rename": _strict_object("title", "aliases", properties={"title": _GEN_REF, "aliases": _GEN_WORDS}),
+    "tenure-initialize": _strict_object("holder_id", "basis", properties={"holder_id": {"anyOf": [_GEN_REF, {"type": "null"}]}, "basis": {"enum": ["legal", "de-facto"]}}),
+    "tenure-designate": _strict_object("holder_id", "basis", properties={"holder_id": _GEN_REF, "basis": {"enum": ["legal", "de-facto"]}}),
+    "tenure-hold": _strict_object("holder_id", "basis", properties={"holder_id": _GEN_REF, "basis": {"enum": ["legal", "de-facto"]}}),
+    "tenure-vacate": _strict_object("holder_id", properties={"holder_id": {"type": "null"}}),
+    "tenure-transfer": _strict_object("from_tenure_id", "to_tenure_id", properties={"from_tenure_id": _GEN_REF, "to_tenure_id": _GEN_REF}),
+    "claim-initialize": _strict_object("competes_with", properties={"competes_with": {"type": "array", "maxItems": 100, "uniqueItems": True, "items": _GEN_REF}}),
+    "claim-dispute": _strict_object("competes_with", properties={"competes_with": {"type": "array", "maxItems": 100, "uniqueItems": True, "items": _GEN_REF}}),
+}
+_GEN_OUTER = {"expectedHead": _GEN_SHA, "idempotencyKey": _GEN_REF, "summary": _SPATIAL_SUMMARY}
+
+
+def _gen_author_item(kind: str, action: str, transition: str | None = None, *, outer: bool = False) -> dict[str, Any]:
+    common = {"action": {"const": action}, "kind": {"const": kind}}
+    required = ["action", "kind"]
+    if action == "generational.create":
+        field_required, field_properties = _GEN_FIELD_SCHEMAS[kind]
+        initial = ("vital" if kind == "vital-history" else kind) + "-initialize"
+        common.update({"id": _GEN_REF, "title": _GEN_REF, "domain": _GEN_REF,
+                       "tags": _GEN_WORDS, "aliases": _GEN_WORDS, "threads": _GEN_WORDS,
+                       "audience": {**_GEN_WORDS, "minItems": 1}, "perspectives": {**_GEN_WORDS, "minItems": 1},
+                       "fields": _strict_object(*field_required, properties=field_properties),
+                       "payload": _GEN_PAYLOAD.get(initial, _GEN_EMPTY), "at": _GEN_TIME})
+        required.extend(("title", "audience", "perspectives", "fields", "payload", "at"))
+    else:
+        assert transition is not None
+        common.update({"record": _GEN_REF, "transition": {"const": transition},
+                       "payload": _GEN_PAYLOAD.get(transition, _GEN_EMPTY),
+                       "cause": _GEN_REF, "transitionId": _GEN_REF})
+        required.extend(("record", "transition", "payload", "cause"))
+        if transition == "tenure-vacate":
+            common["interval"] = _strict_object("first", "last", properties={"first": _GEN_TIME, "last": _GEN_TIME})
+            required.append("interval")
+        else:
+            common["at"] = _GEN_TIME
+            required.append("at")
+        if action == "generational.correct":
+            common["replaces"] = _GEN_REF
+            required.append("replaces")
+    if outer:
+        common.update(_GEN_OUTER)
+        required.extend(("expectedHead", "idempotencyKey"))
+    return _strict_object(*required, properties=common)
+
+
+_GEN_AUTHOR_SINGLE = [_gen_author_item(kind, "generational.create", outer=True) for kind in _GEN_FIELD_SCHEMAS]
+_GEN_AUTHOR_ITEMS = [_gen_author_item(kind, "generational.create") for kind in _GEN_FIELD_SCHEMAS]
+for _kind, _verbs in _GEN_TRANSITIONS.items():
+    for _verb in _verbs:
+        _transition = ("vital" if _kind == "vital-history" else _kind) + "-" + _verb
+        for _action in ("generational.append", "generational.correct"):
+            _GEN_AUTHOR_SINGLE.append(_gen_author_item(_kind, _action, _transition, outer=True))
+            _GEN_AUTHOR_ITEMS.append(_gen_author_item(_kind, _action, _transition))
+_GEN_BATCH = _strict_object("action", "expectedHead", "idempotencyKey", "items", properties={
+    "action": {"const": "generational.batch"}, **_GEN_OUTER,
+    "items": {"type": "array", "minItems": 1, "maxItems": 32, "items": {"oneOf": _GEN_AUTHOR_ITEMS}},
+})
+_GEN_AUTHORING_REQUEST = {"oneOf": [*_GEN_AUTHOR_SINGLE, _GEN_BATCH]}
 _AUTHORING_REQUEST = {"oneOf": [
     _object("action", "time", properties={**_AUTHORING_COMMON, "action": {"const": "current-time.set"}}),
     _object("action", "title", "location", "characters", properties={**_AUTHORING_COMMON, "action": {"const": "scene.create"}}),
@@ -289,6 +389,7 @@ _AUTHORING_REQUEST = {"oneOf": [
     _object("action", "hypothesis", "note", properties={**_AUTHORING_COMMON, "action": {"const": "hypothesis.reject"}, "note": _NONBLANK_STRING}),
     {"$ref": "#/components/schemas/ChronologyAuthoringRequest"},
     *_SPATIAL_AUTHORING,
+    {"$ref": "#/components/schemas/GenerationalAuthoringRequest"},
 ]}
 
 _AUTHOR_IMPACT_ITEM = _object(
@@ -600,6 +701,210 @@ for _depth in range(64, 0, -1):
     SCHEMAS[f"ChronologyAuthorValueDepth{_depth}"] = {"oneOf": _branches}
 
 
+SCHEMAS["GenerationalAuthoringRequest"] = _GEN_AUTHORING_REQUEST
+SCHEMAS["GenerationalScaffoldResponse"] = _GEN_AUTHORING_REQUEST
+_GEN_SCHEMA_FIELD = _strict_object("required", "optional", "transitions", properties={
+    key: {"type": "array", "uniqueItems": True, "items": _GEN_REF}
+    for key in ("required", "optional", "transitions")})
+_GEN_SCHEMA_FIELDS = _strict_object(*_GEN_FIELD_SCHEMAS, properties={
+    kind: _GEN_SCHEMA_FIELD for kind in _GEN_FIELD_SCHEMAS})
+SCHEMAS["GenerationalSchemaResponse"] = _strict_object(
+    "protocol", "sourceSchema", "kinds", "variants", "fields", "confirmation", "batchLimit",
+    properties={"protocol": {"const": "wedl-generational-authoring-schema/v1"},
+                "sourceSchema": {"const": "wedl/v0.7"}, "kinds": {"type": "array", "items": _STRING},
+                "variants": {"type": "array", "items": _STRING},
+                "fields": _GEN_SCHEMA_FIELDS, "confirmation": _STRING,
+                "batchLimit": {"const": 32}},
+)
+_GEN_READ_ACTIONS = ("parents", "ancestors", "descendants", "relatives", "union",
+                     "organization", "legacy", "vital", "search", "context")
+_GEN_APPLICABILITY = {"oneOf": [
+    _strict_object("applicability_kind", "point", properties={
+        "applicability_kind": {"const": "instant"}, "point": _GEN_TIME}),
+    _strict_object("applicability_kind", "first", "last", properties={
+        "applicability_kind": {"const": "inclusive-interval"},
+        "first": _GEN_TIME, "last": _GEN_TIME}),
+]}
+_GEN_CITATION = _strict_object("record_id", "path", "applicability", properties={
+    "record_id": _GEN_REF, "path": _GEN_REF, "applicability": _GEN_APPLICABILITY})
+_GEN_CITATIONS = {"type": "array", "minItems": 1, "items": _GEN_CITATION}
+_GEN_HISTORY_PAYLOAD = _strict_object(properties={
+    "title": _GEN_REF, "aliases": _GEN_WORDS, "parent_id": {"type": ["string", "null"]},
+    "basis": {"enum": ["biological", "adoptive", "legal", "de-facto"]},
+    "participant_ids": {"type": "array", "items": _GEN_REF},
+    "role": {"type": ["string", "null"]},
+    "holder_id": {"type": ["string", "null"]},
+    "from_tenure_id": _GEN_REF, "to_tenure_id": _GEN_REF,
+    "competes_with": {"type": "array", "items": _GEN_REF},
+})
+_GEN_HISTORY = _strict_object("transitionId", "kind", "payload", "citation", properties={
+    "transitionId": _GEN_REF, "kind": _GEN_REF, "payload": _GEN_HISTORY_PAYLOAD,
+    "causeEventId": _GEN_REF, "citation": _GEN_CITATION})
+_GEN_FOLD_COMMON = {"recordId": _GEN_REF, "state": _GEN_REF,
+                    "citations": _GEN_CITATIONS,
+                    "causes": {"type": "array", "items": _strict_object(
+                        "eventId", "citation", properties={
+                            "eventId": _GEN_REF, "citation": _GEN_CITATION})},
+                    "history": {"type": "array", "items": _GEN_HISTORY}}
+_GEN_FOLD_VALUES = {
+    "organization": {"organization_kind": _GEN_REF, "parent_id": {"type": ["string", "null"]},
+                     "location_id": {"type": ["string", "null"]}, "title": _GEN_REF,
+                     "aliases": _GEN_WORDS},
+    "parentage": {"child_id": _GEN_REF, "parent_id": _GEN_REF,
+                   "timeline": _GEN_REF, "start_tick": _INTEGER,
+                   "start_order": _INTEGER, "source_ordinal": _INTEGER,
+                   "basis": {"enum": ["biological", "adoptive"]}},
+    "union": {"participant_ids": {"type": "array", "items": _GEN_REF}},
+    "affiliation": {"character_id": _GEN_REF, "organization_id": _GEN_REF,
+                    "role": {"type": ["string", "null"]}},
+    "legacy": {"legacy_kind": _GEN_REF, "organization_id": {"type": ["string", "null"]},
+               "title": _GEN_REF, "aliases": _GEN_WORDS},
+    "tenure": {"legacy_id": _GEN_REF, "predecessor_tenure_id": {"type": ["string", "null"]},
+               "successor_tenure_id": {"type": ["string", "null"]},
+               "holder_id": {"type": ["string", "null"]},
+               "basis": {"enum": ["legal", "de-facto"]},
+               "from_tenure_id": _GEN_REF, "to_tenure_id": _GEN_REF},
+    "claim": {"legacy_id": _GEN_REF, "claimant_id": _GEN_REF,
+              "competes_with": {"type": "array", "items": _GEN_REF}},
+    "vital-history": {"character_id": _GEN_REF,
+                      "disclosure": {"enum": ["known", "unknown", "withheld"]}},
+}
+_GEN_FOLD_REQUIRED = {
+    "organization": ("organization_kind",),
+    "parentage": ("child_id", "parent_id", "timeline", "start_tick", "start_order",
+                   "source_ordinal", "basis"),
+    "union": ("participant_ids",),
+    "affiliation": ("character_id", "organization_id", "role"),
+    "legacy": ("legacy_kind",),
+    "tenure": ("legacy_id", "holder_id", "basis"),
+    "claim": ("legacy_id", "claimant_id", "competes_with"),
+    "vital-history": ("character_id", "disclosure"),
+}
+_GEN_FOLD = {"oneOf": [_strict_object(
+    "recordId", "kind", "state", "value", "citations", "causes",
+    properties={**_GEN_FOLD_COMMON, "kind": {"const": kind},
+                "value": _strict_object(*_GEN_FOLD_REQUIRED[kind], properties=fields)})
+    for kind, fields in _GEN_FOLD_VALUES.items()]}
+_GEN_EDGE = _strict_object("from", "to", "recordId", "citations", properties={
+    "from": _GEN_REF, "to": _GEN_REF, "recordId": _GEN_REF,
+    "citations": _GEN_CITATIONS})
+_GEN_PATH = _strict_object("targetId", "edges", properties={
+    "targetId": _GEN_REF, "edges": {"type": "array", "items": _GEN_EDGE}})
+_GEN_RELATION = _strict_object("targetId", "generationDistance", "label", "edges", properties={
+    "targetId": _GEN_REF, "generationDistance": {"type": "integer", "minimum": 0},
+    "label": {"enum": ["ancestor", "descendant", "relative-path"]},
+    "edges": {"type": "array", "items": _GEN_EDGE}})
+_GEN_PARENT = _strict_object("targetId", "label", "recordId", "citations", properties={
+    "targetId": _GEN_REF, "label": {"enum": ["biological-parent", "adoptive-parent"]},
+    "recordId": _GEN_REF, "citations": _GEN_CITATIONS,
+    "history": {"type": "array", "items": _GEN_HISTORY}})
+_GEN_SUCCESSION = _strict_object("from", "to", "citations", "causes", properties={
+    "from": _GEN_REF, "to": _GEN_REF, "citations": _GEN_CITATIONS,
+    "causes": _GEN_FOLD_COMMON["causes"]})
+_GEN_SEARCH_RESULT = _strict_object("recordId", "kind", "citations", properties={
+    "recordId": _GEN_REF, "kind": {"enum": list(_GEN_FOLD_VALUES)},
+    "citations": _GEN_CITATIONS})
+_GEN_READ_RESULTS = {
+    "parents": {"relations": {"type": "array", "items": _GEN_PARENT}},
+    "ancestors": {"relations": {"type": "array", "items": _GEN_RELATION}},
+    "descendants": {"relations": {"type": "array", "items": _GEN_RELATION}},
+    "relatives": {"relations": {"type": "array", "items": _GEN_RELATION}},
+    "union": {"participants": {"type": "array", "items": _STRING},
+              "citations": _GEN_CITATIONS,
+              "history": {"type": "array", "items": _GEN_HISTORY}},
+    "organization": {"organization": _GEN_FOLD, "parentPath": {"type": "array", "items": _GEN_PATH},
+                     "roles": {"type": "array", "items": _GEN_FOLD}},
+    "legacy": {"legacy": _GEN_FOLD, "tenures": {"type": "array", "items": _GEN_FOLD},
+               "holders": {"type": "array", "items": _GEN_FOLD},
+               "claims": {"type": "array", "items": _GEN_FOLD},
+               "succession": {"type": "array", "items": _GEN_SUCCESSION}},
+    "vital": {"vital": {"enum": ["living", "dead", "existing", "ended"]},
+              "citations": _GEN_CITATIONS,
+              "history": {"type": "array", "items": _GEN_HISTORY}},
+    "search": {"results": {"type": "array", "items": _GEN_SEARCH_RESULT},
+               "cursor": {"type": ["string", "null"]}},
+    "context": {"items": {"type": "array", "items": {"oneOf": [
+        _strict_object("kind", "result", properties={
+            "kind": {"const": kind},
+            "result": _strict_object("state", *required, properties={
+                "state": {"const": "available"}, **result})})
+        for kind, required, result in (
+            ("parents", ("relations",), {"relations": {"type": "array", "items": _GEN_PARENT}}),
+            ("ancestors", ("relations",), {"relations": {"type": "array", "items": _GEN_RELATION}}),
+            ("descendants", ("relations",), {"relations": {"type": "array", "items": _GEN_RELATION}}),
+            ("vital", ("vital", "citations"), {"vital": {"enum": ["living", "dead", "existing", "ended"]},
+                                               "citations": _GEN_CITATIONS,
+                                               "history": {"type": "array", "items": _GEN_HISTORY}}),
+        )]}}, "truncated": _BOOLEAN},
+}
+
+
+def _generational_request(action: str) -> dict[str, Any]:
+    common = {"protocol": {"const": "wedl-generational/v1"}, "operation": {"const": action},
+              "revision": _GEN_SHA, "capabilities": {"oneOf": [{"const": value} for value in _CANONICAL_CAPABILITY_LISTS if "generational-core-v1" in value]},
+              "timeline": _GEN_REF, "items": {"type": "integer", "minimum": 1, "maximum": 100 if action == "context" else 500},
+              "depth": {"type": "integer", "minimum": 0, "maximum": 16 if action == "context" else 32}}
+    required = ["protocol", "operation", "revision", "capabilities", "mode", "timeline"]
+    if action == "search":
+        common["text"] = {"type": "string", "pattern": "^\\w{1,32}$"}
+        common["cursor"] = {"type": ["string", "null"], "minLength": 1, "maxLength": 1024}
+        required.append("text")
+    else:
+        common["subject"] = _GEN_REF
+        required.append("subject")
+    if action == "relatives":
+        common["target"] = _GEN_REF
+        required.append("target")
+    if action == "context":
+        common["maxCharacters"] = {"type": "integer", "minimum": 80, "maximum": 65536}
+        required.append("maxCharacters")
+    return {"oneOf": [
+        _strict_object(*required, properties={**common, "mode": {"const": "author-as-of"}, "at": _GEN_TIME}),
+        _strict_object(*required, properties={**common, "mode": {"const": "author-all-time"}}),
+        _strict_object(*required, "at", properties={**common, "mode": {"const": "character"}, "at": _GEN_TIME}),
+    ]}
+
+
+_GEN_REFERENCE_DETAIL = _strict_object("id", "kind", "title", "reference", properties={
+    "id": _GEN_REF, "kind": {"enum": ["character", "union", "organization", "legacy"]},
+    "title": _GEN_REF, "reference": _GEN_REF})
+
+
+for _action in _GEN_READ_ACTIONS:
+    _stem = _action.capitalize()
+    SCHEMAS[f"Generational{_stem}Request"] = _generational_request(_action)
+    _base = {"protocol": {"const": "wedl-generational/v1"}, "operation": {"const": _action},
+             "revision": {"anyOf": [_GEN_SHA, {"type": "null"}]}}
+    _result = _GEN_READ_RESULTS[_action]
+    _required_result = {"parents": ("relations",), "ancestors": ("relations",),
+                        "descendants": ("relations",), "relatives": ("relations",),
+                        "union": ("participants", "citations"),
+                        "organization": ("organization", "parentPath", "roles"),
+                        "legacy": ("legacy", "tenures", "holders", "claims", "succession"),
+                        "vital": ("vital", "citations"), "search": ("results", "cursor"),
+                        "context": ("items", "truncated")}[_action]
+    SCHEMAS[f"Generational{_stem}AvailableOutcome"] = _strict_object(
+        "protocol", "operation", "revision", "state", *_required_result,
+        properties={**_base, "state": {"const": "available"}, **_result})
+    SCHEMAS[f"Generational{_stem}UnknownOutcome"] = _strict_object(
+        "protocol", "operation", "revision", "state",
+        properties={**_base, "state": {"const": "unknown"},
+                    **({"items": {"type": "array", "maxItems": 0}, "truncated": {"const": False}}
+                       if _action == "context" else {})})
+    SCHEMAS[f"Generational{_stem}InvalidOutcome"] = _strict_object(
+        "protocol", "operation", "revision", "state", "code",
+        properties={**_base, "state": {"const": "invalid"},
+                    "code": {"enum": ["GEN-REQUEST-001", "GEN-TIME-001", "GEN-REFERENCE-001"]},
+                    "candidates": {"type": "array", "maxItems": 8, "items": _GEN_REFERENCE_DETAIL},
+                    "suggestions": {"type": "array", "maxItems": 8, "items": _GEN_REFERENCE_DETAIL}})
+    SCHEMAS[f"Generational{_stem}UnavailableOutcome"] = _strict_object(
+        "protocol", "operation", "revision", "state",
+        properties={**_base, "state": {"const": "unavailable"}})
+    SCHEMAS[f"Generational{_stem}LimitOutcome"] = _strict_object(
+        "protocol", "operation", "revision", "state", "code",
+        properties={**_base, "state": {"const": "limit"}, "code": {"const": "GEN-LIMIT-001"}})
+
+
 _CHANGESET = {
     "protocol": "wedl-changeset/v1",
     "expectedHead": "0123456789abcdef0123456789abcdef01234567",
@@ -636,6 +941,19 @@ _OPERATIONS: dict[str, tuple[str, dict[str, Any]]] = {
     "changeset apply": ("ChangesetApplyResponse", {"protocol": "wedl-command-result/v1", "status": "committed", "previousHead": _CHANGESET["expectedHead"], "newHead": "fedcba9876543210fedcba9876543210fedcba98", "generatedIds": {}, "touchedEntityIds": [], "compile": {"status": "compiled", "revision": "fedcba9876543210fedcba9876543210fedcba98"}, "idempotentReplay": False}),
     "session": ("SessionResponse", {"token": "session-token", "head": _CHANGESET["expectedHead"]}),
     "root": ("WorkspaceHtmlResponse", "<!doctype html><title>WEDL</title>"),
+    **{f"generational {action}": (f"Generational{action.capitalize()}AvailableOutcome", {
+        "protocol": "wedl-generational/v1", "operation": action,
+        "revision": "0" * 40, "state": "available",
+        **({"relations": []} if action in {"parents", "ancestors", "descendants", "relatives"}
+           else {"participants": [], "citations": []} if action == "union"
+           else {"organization": {}, "parentPath": [], "roles": []} if action == "organization"
+           else {"legacy": {}, "tenures": [], "holders": [], "claims": [], "succession": []} if action == "legacy"
+           else {"vital": "living", "citations": []} if action == "vital"
+           else {"results": [], "cursor": None} if action == "search"
+           else {"items": [], "truncated": False}),
+    }) for action in _GEN_READ_ACTIONS},
+    "generational scaffold": ("GenerationalScaffoldResponse", {"action": "generational.create", "expectedHead": "0" * 40, "idempotencyKey": "generational-starter-choose-a-unique-key", "kind": "organization", "title": "New organization", "audience": ["public"], "perspectives": ["ordinary"], "fields": {"organization_kind": "house"}, "payload": {"title": "New organization", "aliases": []}, "at": {"timeline": "main", "tick": "0", "order": "0"}}),
+    "generational schema": ("GenerationalSchemaResponse", {"protocol": "wedl-generational-authoring-schema/v1", "sourceSchema": "wedl/v0.7", "kinds": sorted(_GEN_FIELD_SCHEMAS), "variants": ["generational.create", "generational.append", "generational.correct", "generational.batch"], "fields": {}, "confirmation": "author request preview -> author request apply --confirm TOKEN", "batchLimit": 32}),
 }
 
 
@@ -648,6 +966,10 @@ def operation_schema(operation: str) -> str:
 def operation_example(operation: str) -> tuple[dict[str, Any], ...]:
     """Return one compact but schema-valid success response example."""
 
+    if operation == "generational schema":
+        from .generational_authoring import schema as generational_schema
+
+        return ({"summary": "Current generational intent schema", "value": generational_schema()},)
     if operation == "context":
         base = deepcopy(_OPERATIONS[operation][1])
         dramatic = {**base, "perspective": "dramatic-irony", "characterPrompt": "Known evidence.", "authorMargin": "Withheld evidence."}

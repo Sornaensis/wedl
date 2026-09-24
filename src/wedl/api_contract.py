@@ -89,6 +89,133 @@ _SPATIAL_EXAMPLES: dict[str, dict[str, Any]] = {
     "overlay-as-of": {"queryScope": "location", "locationId": "location_X", "audience": "author", "perspective": "author", "asOf": {"timeline": "main", "tick": "0", "order": "0"}},
 }
 
+_GENERATIONAL_OPERATIONS = ("parents", "ancestors", "descendants", "relatives", "union",
+                           "organization", "legacy", "vital", "search", "context")
+
+
+def _generational_example(action: str) -> dict[str, Any]:
+    body: dict[str, Any] = {"protocol": "wedl-generational/v1", "operation": action,
+                            "revision": "0" * 40, "capabilities": ["generational-core-v1"],
+                            "mode": "author-as-of", "timeline": "main",
+                            "at": {"timeline": "main", "tick": "-7", "order": "2"},
+                            "items": 20, "depth": 4}
+    if action == "search":
+        body["text"] = "aster"
+        body["cursor"] = None
+    else:
+        body["subject"] = {"union": "The Threefold Compact", "organization": "House Aster",
+                           "legacy": "Keeper of Keys"}.get(action, "Mara Vale")
+        if action == "relatives":
+            body["target"] = "Ilyra Sorn"
+        if action == "context":
+            body["maxCharacters"] = 4096
+    return body
+
+
+def _generational_response_example(action: str) -> dict[str, Any]:
+    citation = {"record_id": "parentage_0123456789ABCDEFGHJKMNPQRS",
+                "path": "story/parentages/parentage_0123456789ABCDEFGHJKMNPQRS.md",
+                "applicability": {"applicability_kind": "instant",
+                                  "point": {"timeline": "main", "tick": "-7", "order": "2"}}}
+    edge = {"from": "char_1123456789ABCDEFGHJKMNPQRS",
+            "to": "char_0123456789ABCDEFGHJKMNPQRS",
+            "recordId": citation["record_id"], "citations": [citation]}
+    parent = {"targetId": "char_0123456789ABCDEFGHJKMNPQRS",
+              "label": "biological-parent", "recordId": citation["record_id"],
+              "citations": [citation]}
+    result: dict[str, Any] = {
+        "parents": {"relations": [parent]},
+        "ancestors": {"relations": [{"targetId": "char_0123456789ABCDEFGHJKMNPQRS",
+                                     "generationDistance": 1, "label": "ancestor",
+                                     "edges": [edge]}]},
+        "descendants": {"relations": [{"targetId": "char_0123456789ABCDEFGHJKMNPQRS",
+                                       "generationDistance": 1, "label": "descendant",
+                                       "edges": [edge]}]},
+        "relatives": {"relations": [{"targetId": "char_0123456789ABCDEFGHJKMNPQRS",
+                                     "generationDistance": 1, "label": "relative-path",
+                                     "edges": [edge]}]},
+        "union": {"participants": ["char_0123456789ABCDEFGHJKMNPQRS",
+                                   "char_1123456789ABCDEFGHJKMNPQRS"], "citations": [citation]},
+        "organization": {"organization": {"recordId": "organization_0123456789ABCDEFGHJKMNPQRS",
+                                            "kind": "organization", "state": "active",
+                                            "value": {"organization_kind": "house", "title": "House Aster",
+                                                      "aliases": []},
+                                            "citations": [citation], "causes": []},
+                         "parentPath": [], "roles": []},
+        "legacy": {"legacy": {"recordId": "legacy_0123456789ABCDEFGHJKMNPQRS",
+                              "kind": "legacy", "state": "active",
+                              "value": {"legacy_kind": "office", "title": "Keeper of Keys",
+                                        "aliases": []},
+                              "citations": [citation], "causes": []},
+                   "tenures": [], "holders": [], "claims": [], "succession": []},
+        "vital": {"vital": "living", "citations": [citation]},
+        "search": {"results": [{"recordId": citation["record_id"], "kind": "parentage",
+                                "citations": [citation]}],
+                   "cursor": None},
+        "context": {"items": [{"kind": "parents", "result": {"state": "available",
+                                                       "relations": [parent]}}],
+                    "truncated": False},
+    }[action]
+    return {"protocol": "wedl-generational/v1", "operation": action,
+            "revision": "0" * 40, "state": "available", **result}
+
+
+def _generational_intent_examples(path: str, *, apply: bool) -> tuple[dict[str, Any], ...]:
+    point = {"timeline": "main", "tick": "0", "order": "0"}
+    common = {"expectedHead": "0" * 40, "idempotencyKey": "choose-a-unique-key"}
+    creates = {
+        "organization": ({"organization_kind": "house"}, {"title": "House Aster", "aliases": []}),
+        "parentage": ({"child_id": "Mara Vale", "parent_id": "Ilyra Sorn"}, {"basis": "adoptive"}),
+        "union": ({"participant_ids": ["Ilyra Sorn", "Mara Vale"]},
+                  {"participant_ids": ["Ilyra Sorn", "Mara Vale"]}),
+        "affiliation": ({"character_id": "Mara Vale", "organization_id": "House Aster"},
+                        {"role": "scribe"}),
+        "legacy": ({"legacy_kind": "office"}, {"title": "Keeper of Keys", "aliases": []}),
+        "tenure": ({"legacy_id": "Keeper of Keys"}, {"holder_id": "Mara Vale", "basis": "legal"}),
+        "claim": ({"legacy_id": "Keeper of Keys", "claimant_id": "Ilyra Sorn"},
+                  {"competes_with": []}),
+        "vital-history": ({"character_id": "Mara Vale", "disclosure": "known"}, {}),
+    }
+    bodies = [(f"generational.create {kind}", {"action": "generational.create", **common,
+               "kind": kind, "title": f"New {kind}", "audience": ["public"],
+               "perspectives": ["ordinary"], "fields": fields, "payload": payload, "at": point})
+              for kind, (fields, payload) in creates.items()]
+    append = {"action": "generational.append", **common, "kind": "organization",
+              "record": "House Aster", "transition": "organization-rename",
+              "payload": {"title": "House Aster Renewed", "aliases": []},
+              "cause": "Founding decree", "at": {"timeline": "main", "tick": "1", "order": "0"}}
+    correct = {**append, "action": "generational.correct",
+               "replaces": "transition_00000000000000000000000000"}
+    batch_item = {key: value for key, value in bodies[0][1].items()
+                  if key not in {"expectedHead", "idempotencyKey"}}
+    batch = {"action": "generational.batch", **common, "items": [batch_item]}
+    bodies.extend((("generational.append", append), ("generational.correct", correct),
+                   ("generational.batch", batch)))
+    headers = {"X-Wedl-Token": "<session-token>"}
+    if apply:
+        headers["X-Wedl-Confirmation"] = "wedl-confirmation/v1:<proof>"
+    return tuple({"summary": summary, "value": {"method": "POST", "path": path,
+                                               "headers": headers, "body": body}}
+                 for summary, body in bodies)
+
+
+def _generational_descriptor(action: str) -> DiscoveryDescriptor:
+    stem = action.capitalize()
+    return DiscoveryDescriptor(
+        f"Read generational {action}",
+        "Read selected-revision cited generational evidence. The session is a local author principal; character mode remains closed without a trusted character identity. Semantic states use the 200/400/409/422 matrix.",
+        ("Generational",), "Generational outcome.",
+        ("authentication_required", "usage_error", "compile_required", "parse_error", "repository_error"),
+        examples=({"summary": f"{action} request", "value": {"method": "POST",
+                   "path": f"/api/generational/{action}",
+                   "headers": {"X-Wedl-Token": "<session-token>"},
+                   "body": _generational_example(action)}},),
+        success_schema=f"Generational{stem}AvailableOutcome",
+        success_examples=({"summary": f"{action} cited outcome",
+                           "value": _generational_response_example(action)},),
+        request_schema=f"Generational{stem}Request",
+    )
+
 
 def _spatial_descriptor(action: str) -> DiscoveryDescriptor:
     stem = "OverlayAsOf" if action == "overlay-as-of" else "".join(part.capitalize() for part in action.split("-"))
@@ -199,6 +326,9 @@ _POLICY: dict[tuple[str, ...], tuple[ApiClass, str, str, RouteBinding | None, st
     ("spatial", "reachability"): (ApiClass.QUERY, "read", "mounted", RouteBinding("POST", "/api/spatial/reachability", (("require_compiled", "requireCompiled"),)), None),
     ("spatial", "path"): (ApiClass.QUERY, "read", "mounted", RouteBinding("POST", "/api/spatial/path", (("require_compiled", "requireCompiled"),)), None),
     ("spatial", "overlay-as-of"): (ApiClass.QUERY, "read", "mounted", RouteBinding("POST", "/api/spatial/overlay-as-of", (("require_compiled", "requireCompiled"),)), None),
+    **{("generational", action): (ApiClass.QUERY, "read", "mounted", RouteBinding("POST", f"/api/generational/{action}", (("require_compiled", "requireCompiled"),), AuthPolicy.SESSION), None) for action in _GENERATIONAL_OPERATIONS},
+    ("generational", "scaffold"): (ApiClass.ACTION, "write", "mounted", RouteBinding("POST", "/api/generational/scaffold", auth=AuthPolicy.SESSION), None),
+    ("generational", "schema"): (ApiClass.QUERY, "read", "mounted", RouteBinding("GET", "/api/generational/schema", auth=AuthPolicy.SESSION), None),
     ("threads",): (ApiClass.QUERY, "read", "mounted", RouteBinding("GET", "/api/threads", (("require_compiled", "requireCompiled"),)), None),
     ("thread-memberships",): (ApiClass.QUERY, "read", "mounted", RouteBinding("GET", "/api/thread-memberships", (("record_ids", "recordId"), ("thread_ids", "threadId"), ("require_compiled", "requireCompiled"))), None),
     ("whereabouts",): (ApiClass.QUERY, "read", "mounted", RouteBinding("GET", "/api/whereabouts", (("character", "character"), ("tick", "tick"), ("timeline", "timeline"), ("order", "order"), ("require_compiled", "requireCompiled"))), None),
@@ -250,6 +380,9 @@ _DISCOVERY: dict[tuple[str, ...], DiscoveryDescriptor] = {
     ("chronology", "search"): DiscoveryDescriptor("Search chronology annotations", "Search annotations from an unwrapped wedl-chronology/v1 request.", ("Chronology",), "Chronology outcome.", ("usage_error", "compile_required", "validation_failed", "parse_error", "repository_error"), examples=({"summary": "Search", "value": {"method": "POST", "path": "/api/chronology/search", "body": {"protocol": "wedl-chronology/v1", "predicate": "on_date", "value": {"kind": "civil", "calendarId": "calendar_X", "year": "0"}}}},), success_schema="ChronologySearchOutcome", success_examples=({"summary": "Matches", "value": {"protocol": "wedl-chronology/v1", "operation": "search", "revision": "0" * 40, "outcome": "ok", "advisories": [], "result": {"request": {"predicate": "on_date", "limit": 100}, "matches": []}}},), request_schema="ChronologySearchRequest"),
     ("chronology", "story-times"): DiscoveryDescriptor("Map chronology date to story times", "Map through explicit anchors only from an unwrapped wedl-chronology/v1 request.", ("Chronology",), "Chronology outcome.", ("usage_error", "compile_required", "validation_failed", "parse_error", "repository_error"), examples=({"summary": "Map", "value": {"method": "POST", "path": "/api/chronology/story-times", "body": {"protocol": "wedl-chronology/v1", "value": {"kind": "civil", "calendarId": "calendar_X", "year": "0"}}}},), success_schema="ChronologyStoryTimesOutcome", success_examples=({"summary": "Mapping", "value": {"protocol": "wedl-chronology/v1", "operation": "story-times", "revision": "0" * 40, "outcome": "ok", "advisories": [], "result": {"mapping": "none", "storyTimes": []}}},), request_schema="ChronologyStoryTimesRequest"),
     **{("spatial", action): _spatial_descriptor(action) for action in _SPATIAL_EXAMPLES},
+    **{("generational", action): _generational_descriptor(action) for action in _GENERATIONAL_OPERATIONS},
+    ("generational", "scaffold"): DiscoveryDescriptor("Scaffold a generational intent", "Create a current-HEAD v0.7 organization starter for explicit editing and preview.", ("Generational",), "Generational authoring starter.", ("authentication_required", "usage_error", "parse_error", "repository_error")),
+    ("generational", "schema"): DiscoveryDescriptor("Get generational intent schema", "Enumerate the closed eight-kind v0.7 create, append, correct, and batch variants.", ("Generational",), "Generational intent catalogue.", ("authentication_required",)),
     ("threads",): DiscoveryDescriptor("List narrative thread labels", "Return only declared optional narrative grouping labels for the shared world; memberships, state, time, and retrieval data are not exposed.", ("Queries",), "Narrative thread catalog.", ("compile_required", "validation_failed", "parse_error", "repository_error")),
     ("thread-memberships",): DiscoveryDescriptor("Project selected narrative memberships", "Return the selected narrative-group intersection for supplied canonical records only. It exposes neither unselected membership nor state, time, or retrieval data.", ("Queries",), "Selected narrative membership projection.", ("usage_error", "compile_required", "validation_failed", "parse_error", "repository_error")),
     ("whereabouts",): DiscoveryDescriptor("Read character whereabouts", "Return canonical and retired characters' explicit location state and journey history plus a calculated, noncanonical prominence breakdown at one author horizon. The result does not infer routes, travel, group membership, or knowledge.", ("Queries",), "Character whereabouts.", ("usage_error", "not_found", "compile_required", "validation_failed", "parse_error", "repository_error")),
@@ -258,8 +391,8 @@ _DISCOVERY: dict[tuple[str, ...], DiscoveryDescriptor] = {
     ("search",): DiscoveryDescriptor("Search the world", "Search indexed content with author or character perspective and optional temporal scope. Hypotheses require explicit author opt-in and are never canonical facts.", ("Queries",), "Search results.", ("usage_error", "compile_required", "validation_failed", "parse_error", "repository_error")),
     ("context",): DiscoveryDescriptor("Build context", "Build a bounded retrieval context for the selected character, scene, and query.", ("Queries",), "Context result.", ("usage_error", "compile_required", "validation_failed", "parse_error", "repository_error")),
     ("conversation", "show"): DiscoveryDescriptor("Read a conversation", "Resolve a conversation from an author or character perspective at a timeline position.", ("Queries",), "Conversation.", ("usage_error", "not_found", "compile_required", "validation_failed", "parse_error", "repository_error")),
-    ("author", "request", "preview"): DiscoveryDescriptor("Preview an authoring intent", "Resolve title or alias references and compile a semantic authoring intent to the existing raw changeset protocol without writes.", ("Authoring",), "Authoring preview.", ("authentication_required", "usage_error", "not_found", "protocol_error", "upgrade_required", "parse_error", "repository_error")),
-    ("author", "request", "apply"): DiscoveryDescriptor("Apply an authoring intent", "Resolve a semantic authoring intent, require a preview confirmation, and apply its compiled raw changeset.", ("Authoring",), "Authoring application result.", ("authentication_required", "usage_error", "not_found", "protocol_error", "upgrade_required", "validation_failed", "confirmation_required", "confirmation_mismatch", "conflict", "stale_revision", "dirty_managed_tree", "parse_error", "repository_error")),
+    ("author", "request", "preview"): DiscoveryDescriptor("Preview an authoring intent", "Resolve title or alias references and compile a semantic authoring intent to the existing raw changeset protocol without writes.", ("Authoring",), "Authoring preview.", ("authentication_required", "usage_error", "not_found", "protocol_error", "upgrade_required", "parse_error", "repository_error"), examples=_generational_intent_examples("/api/authoring/preview", apply=False)),
+    ("author", "request", "apply"): DiscoveryDescriptor("Apply an authoring intent", "Resolve a semantic authoring intent, require a preview confirmation, and apply its compiled raw changeset.", ("Authoring",), "Authoring application result.", ("authentication_required", "usage_error", "not_found", "protocol_error", "upgrade_required", "validation_failed", "confirmation_required", "confirmation_mismatch", "conflict", "stale_revision", "dirty_managed_tree", "parse_error", "repository_error"), examples=_generational_intent_examples("/api/authoring/apply", apply=True)),
     ("changeset", "scaffold"): DiscoveryDescriptor("Scaffold a changeset", "Create a current-HEAD-bound starter changeset; it has no request body.", ("Changesets",), "Changeset scaffold.", ("authentication_required", "protocol_error", "parse_error", "repository_error")),
     ("changeset", "schema"): DiscoveryDescriptor("Get changeset schema", "Return the public schema for raw wedl-changeset/v1 request objects.", ("Changesets",), "Changeset schema.", ()),
     ("changeset", "preview"): DiscoveryDescriptor("Preview a changeset", "Validate a raw changeset object against the current HEAD without writes. Candidate validation is returned as valid=false, not an error response.", ("Changesets",), "Changeset preview.", ("authentication_required", "protocol_error", "parse_error", "repository_error")),
@@ -303,6 +436,9 @@ def _request_example(command: tuple[str, ...], binding: RouteBinding) -> tuple[d
         ("chronology", "search"): {"body": {"protocol": "wedl-chronology/v1", "predicate": "on_date", "value": {"kind": "civil", "calendarId": "calendar_X", "year": "0"}}},
         ("chronology", "story-times"): {"body": {"protocol": "wedl-chronology/v1", "value": {"kind": "civil", "calendarId": "calendar_X", "year": "0"}}},
         **{("spatial", action): {"body": {"protocol": "wedl-spatial/v1", "revision": "0" * 40, "capabilities": ["spatial-core-v1", "geometry-v1", "route-v1", "overlay-v1"], "limit": 10, "cursor": None, **({"locationId": "location_X"} if action in {"containment", "children", "adjacency"} else {"fromLocationId": "location_X"} if action == "reachability" else {"fromLocationId": "location_X", "toLocationId": "location_Y", "metric": "routeDistance"} if action == "path" else {"mapId": "map_X", "bounds": {"min": [0, 0], "max": [1, 1]}, "relation": "intersects"} if action == "bbox" else {"position": {"mapId": "map_X", "coordinates": [0, 0]}, "radius": 1} if action == "nearby" else {"queryScope": "location", "locationId": "location_X", "audience": "author", "perspective": "author", "asOf": {"timeline": "main", "tick": "0", "order": "0"}})}} for action in ("containment", "children", "bbox", "nearby", "adjacency", "reachability", "path", "overlay-as-of")},
+        **{("generational", action): {"headers": {"X-Wedl-Token": "<session-token>"}, "body": _generational_example(action)} for action in _GENERATIONAL_OPERATIONS},
+        ("generational", "scaffold"): {"headers": {"X-Wedl-Token": "<session-token>"}},
+        ("generational", "schema"): {"headers": {"X-Wedl-Token": "<session-token>"}},
         ("threads",): {},
         ("thread-memberships",): {"query": {"recordId": "event_0123456789ABCDEFGHJKMNPQRS", "threadId": "thread_0123456789ABCDEFGHJKMNPQRS"}},
         ("whereabouts",): {"query": {"character": "Mara Vale", "tick": 12}},
@@ -333,7 +469,7 @@ _DISCOVERY = {
             if "parse_error" in descriptor.errors
             else descriptor.errors
         ),
-        _request_example(command, binding),
+        descriptor.examples or _request_example(command, binding),
         descriptor.success_schema or operation_schema(" ".join(command)),
         descriptor.success_examples or operation_example(" ".join(command)),
         descriptor.success_media_type,
@@ -492,7 +628,7 @@ def _argument_contract(action: argparse.Action, binding: RouteBinding | None) ->
             return _argument_contract_with_transport(action, transport, name, reason)
         reason = "mapped to the established HTTP path parameter"
     elif action.dest == "file" and binding is not None:
-        transport, name, reason = Transport.BODY, "payload", "the API accepts parsed changeset JSON rather than a local file path"
+        transport, name, reason = Transport.BODY, "payload", "the API accepts the parsed JSON request rather than a local file path"
     else:
         try:
             transport, name, reason = _ARGUMENT_DISPOSITIONS[action.dest]
@@ -524,7 +660,17 @@ def _argument_contract_with_transport(
     required = bool(action.required) or (positional and action.nargs not in ("?", "*", argparse.REMAINDER))
     transport_description = action.help
     if transport == Transport.BODY:
-        if action.help and "authoring intent" in action.help:
+        if action.help and "wedl-generational/v1" in action.help:
+            transport_description = (
+                "Raw wedl-generational/v1 JSON object. Send the request itself, not a wrapper "
+                "or local file path. CLI FILE: " + action.help
+            )
+        elif action.help and "wedl-spatial/v1" in action.help:
+            transport_description = (
+                "Raw wedl-spatial/v1 JSON object. Send the request itself, not a wrapper "
+                "or local file path. CLI FILE: " + action.help
+            )
+        elif action.help and "authoring intent" in action.help:
             transport_description = (
                 "Semantic authoring intent JSON object. Send the intent itself, not a wrapper or local file path; "
                 "the server resolves names and returns its compiled wedl-changeset/v1. CLI FILE: " + action.help
@@ -711,6 +857,21 @@ def discovery_responses(descriptor: DiscoveryDescriptor) -> dict[int, dict[str, 
                 "x-wedl-spatial-state": state,
                 "content": {"application/json": {"schema": schema}},
             }
+    if "Generational" in descriptor.tags and descriptor.success_schema.endswith("AvailableOutcome"):
+        for status, state in ((200, "unknown"), (400, "invalid"), (409, "unavailable"), (422, "limit")):
+            suffix = descriptor.success_schema.removesuffix("AvailableOutcome")
+            semantic = {"$ref": f"#/components/schemas/{suffix}{state.capitalize()}Outcome"}
+            existing = responses.get(status)
+            if status == 200:
+                success = responses[200]["content"]["application/json"]["schema"]
+                responses[200]["content"]["application/json"]["schema"] = {"oneOf": [success, semantic]}
+                continue
+            schema = semantic if existing is None else {"oneOf": [semantic, {"$ref": "#/components/schemas/WedlError"}]}
+            responses[status] = {
+                "description": f"Generational `{state}` outcome." + (" Ordinary WEDL errors may also use this status." if existing is not None else ""),
+                "x-wedl-generational-state": state,
+                "content": {"application/json": {"schema": schema}},
+            }
     return responses
 
 
@@ -756,7 +917,9 @@ def normalize_discovery_openapi(document: dict[str, Any]) -> dict[str, Any]:
     methods = {"get", "post", "put", "patch", "delete", "head", "options", "trace"}
     for path_item in document.get("paths", {}).values():
         for method, operation in path_item.items():
-            if method in methods and isinstance(operation, dict) and "Spatial" not in operation.get("tags", ()):
+            semantic_gen_read = (isinstance(operation, dict) and
+                                 operation.get("operationId") in {f"generational_{action}_post" for action in _GENERATIONAL_OPERATIONS})
+            if method in methods and isinstance(operation, dict) and "Spatial" not in operation.get("tags", ()) and not semantic_gen_read:
                 operation.get("responses", {}).pop("422", None)
     # FastAPI merges ``openapi_extra`` with its generated body schema.  That
     # is helpful for ordinary models but would leave a misleading hybrid here
@@ -776,6 +939,10 @@ def normalize_discovery_openapi(document: dict[str, Any]) -> dict[str, Any]:
             # the required spatial cursor), so restore the contract-owned
             # examples verbatim after framework normalization.
             operation["x-wedl-examples"] = list(contract.discovery.examples)
+            if contract.command[0] == "generational":
+                operation["responses"]["200"]["content"]["application/json"]["examples"] = {
+                    "success": example for example in contract.discovery.success_examples
+                }
     # These are introduced solely by FastAPI's default 422 schema.  Removing
     # the unreachable response must also remove its unreachable components so
     # the document has one explicit structural vocabulary.

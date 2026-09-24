@@ -14,7 +14,9 @@ use `/api/session` only when a client needs the local session token.
 
 ## Authentication
 
-Read routes are public to the local server. Session-protected routes require
+Most read routes are public to the local server. Generational reads require
+the repository session token because their author scope can include private
+history. Session-protected routes require
 `X-Wedl-Token`, whose value is returned by `GET /api/session` and stored for
 the local repository in `.wedl/session.json`. The OpenAPI token field is
 optional so an omitted token reaches WEDL's structured `401
@@ -50,6 +52,9 @@ call.
 | POST | `/api/spatial/reachability` | no | Traverse bounded authored directed route and portal edges. |
 | POST | `/api/spatial/path` | no | Read one authored metric path without inferring travel. |
 | POST | `/api/spatial/overlay-as-of` | no | Read authorized overlays at an exact StoryTime horizon. |
+| POST | `/api/generational/{operation}` | yes | Read named, cited generational history; operations: parents, ancestors, descendants, relatives, union, organization, legacy, vital, search, context. |
+| POST | `/api/generational/scaffold` | yes | Current-HEAD generational organization starter intent. |
+| GET | `/api/generational/schema` | yes | Closed generational intent variant catalogue. |
 | GET | `/api/threads` | no | Declared optional narrative grouping labels only. |
 | GET | `/api/thread-memberships` | no | Selected grouping membership projection for supplied records. |
 | GET | `/api/whereabouts` | no | Horizon-bounded character locations and explicit journeys. |
@@ -69,6 +74,19 @@ Query names preserve the established aliases where applicable: `q`,
 `requireCompiled`, `includeText`, `includeHypotheses`, `allTime`, `maxCharacters`, and `maxItems`.
 Use `/openapi.json` for the full current parameter list, parser defaults,
 enums, numeric bounds, and descriptions.
+
+Generational reads accept an unwrapped, closed `wedl-generational/v1` body
+with the selected revision, canonical capabilities, author mode, timeline,
+and named selector. The same body is accepted by `wedl generational ACTION
+FILE`. The server derives author audience and perspective; caller-supplied
+viewer fields are rejected. The local token is repository-scoped and cannot
+authenticate a character, so character mode remains closed `unknown`.
+Author as-of is the default read scope; all-time is explicit and forbids `at`.
+StoryTime ticks and orders are canonical signed decimal strings. Semantic
+`available` and `unknown` use 200, `invalid` uses 400, `unavailable` uses 409,
+and `limit` uses 422. The generic WEDL error envelope remains in use for
+authentication, parse, and repository errors. See [Generational query](GENERATIONAL_QUERY.md)
+and [Generational authoring](GENERATIONAL_AUTHORING.md).
 
 ## Spatial reads
 

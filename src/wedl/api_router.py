@@ -34,6 +34,8 @@ from .compiler import compile_world
 from .context import build_context
 from .chronology_api import catalog as chronology_catalog, convert_date as chronology_convert, format_date as chronology_format, search_annotations as chronology_search, story_times as chronology_story_times
 from .spatial_api import execute as spatial_execute, status_code as spatial_status_code
+from .generational_api import OPERATIONS as GENERATIONAL_OPERATIONS, execute as generational_execute, status_code as generational_status_code
+from .generational_authoring import scaffold as generational_scaffold, schema as generational_schema
 from .query import (
     causality,
     conversation_view,
@@ -209,7 +211,11 @@ def openapi_contract_errors(schema: dict[str, Any]) -> tuple[str, ...]:
                     continue
                 for media_type, expected_media in expected_content.items():
                     actual_media = actual_content.get(media_type, {})
-                    if actual_media.get("schema", {}).get("$ref") != expected_media.get("schema", {}).get("$ref"):
+                    expected_schema = expected_media.get("schema", {})
+                    actual_schema = actual_media.get("schema", {})
+                    schema_drift = (actual_schema != expected_schema if "oneOf" in expected_schema
+                                    else actual_schema.get("$ref") != expected_schema.get("$ref"))
+                    if schema_drift:
                         errors.append(f"OpenAPI success schema reference drift for {method} {path}: {response_status}")
                     if actual_media.get("examples") != expected_media.get("examples"):
                         errors.append(f"OpenAPI success examples drift for {method} {path}: {response_status}")
@@ -550,6 +556,18 @@ def create_api_router(runtime: Any, authorize: Authorize) -> APIRouter:
         value = await asyncio.to_thread(spatial_execute, runtime.repository, operation, arguments["file"], require_compiled=arguments["require_compiled"])
         return JSONResponse(value, status_code=spatial_status_code(value))
 
+    async def generational_handler(operation: str, **arguments: Any) -> Any:
+        value = await asyncio.to_thread(generational_execute, runtime.repository, operation,
+                                        arguments["file"], require_compiled=arguments["require_compiled"])
+        return JSONResponse(value, status_code=generational_status_code(value))
+
+    async def generational_scaffold_handler() -> dict[str, Any]:
+        async with runtime.write_lock:
+            return await asyncio.to_thread(generational_scaffold, runtime.repository)
+
+    async def generational_schema_handler() -> dict[str, Any]:
+        return generational_schema()
+
     async def threads_handler(**arguments: Any) -> dict[str, Any]:
         return await asyncio.to_thread(
             thread_catalog,
@@ -667,6 +685,9 @@ def create_api_router(runtime: Any, authorize: Authorize) -> APIRouter:
         ("spatial", "reachability"): lambda **arguments: spatial_handler("reachability", **arguments),
         ("spatial", "path"): lambda **arguments: spatial_handler("path", **arguments),
         ("spatial", "overlay-as-of"): lambda **arguments: spatial_handler("overlay-as-of", **arguments),
+        **{("generational", action): (lambda action=action, **arguments: generational_handler(action, **arguments)) for action in GENERATIONAL_OPERATIONS},
+        ("generational", "scaffold"): generational_scaffold_handler,
+        ("generational", "schema"): generational_schema_handler,
         ("threads",): threads_handler,
         ("thread-memberships",): thread_memberships_handler,
         ("whereabouts",): whereabouts_handler,

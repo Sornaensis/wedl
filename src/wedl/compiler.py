@@ -449,6 +449,7 @@ def compile_world_bytes(repository: Repository, revision: str = "HEAD", *, calle
     connection: sqlite3.Connection | None = None
     try:
         connection = sqlite3.connect(":memory:")
+        connection.row_factory = sqlite3.Row
         started = time.perf_counter()
         if not callable(getattr(connection, "serialize", None)) or not callable(getattr(connection, "deserialize", None)):
             return AuthoringByteResult("deferred-to-restart", {"status": "deferred-to-restart", "reason": "sqlite-serialize-unavailable"})

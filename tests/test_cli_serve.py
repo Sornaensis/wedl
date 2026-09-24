@@ -436,3 +436,19 @@ def test_serve_help_explains_readiness_and_opt_in_opening() -> None:
     assert "checks the repository and local port before it blocks" in help_text
     assert "--open" in help_text
     assert "do not open a browser" in help_text
+
+
+def test_generational_cli_preserves_semantic_exit_matrix(monkeypatch: pytest.MonkeyPatch,
+                                                        capsys: pytest.CaptureFixture[str]) -> None:
+    monkeypatch.setattr("wedl.cli.Repository", _Repository)
+    monkeypatch.setattr("wedl.cli._json_file", lambda _path: {"protocol": "wedl-generational/v1"})
+    for state, expected_exit in (("available", 0), ("unknown", 0),
+                                 ("invalid", 2), ("unavailable", 2), ("limit", 2)):
+        outcome = {"protocol": "wedl-generational/v1", "operation": "parents",
+                   "revision": "0" * 40, "state": state}
+        monkeypatch.setattr("wedl.cli.generational_execute",
+                            lambda _repo, _operation, _request, *, require_compiled: outcome)
+        assert main(["generational", "parents", "-", "--repo", "world"]) == expected_exit
+        captured = capsys.readouterr()
+        assert json.loads(captured.out if expected_exit == 0 else captured.err) == outcome
+        assert (captured.err if expected_exit == 0 else captured.out) == ""

@@ -29,6 +29,8 @@ from .migration import PROTOCOL as MIGRATION_PROTOCOL, apply as apply_migration,
 from .query import causality, conversation_view, entity_state, hypotheses, interactions_between, knowledge, list_entities, search_world, show_entity, status, story_points, thread_catalog, thread_memberships, timeline, validation_report, whereabouts
 from .chronology_api import catalog as chronology_catalog, convert_date as chronology_convert_date, format_date as chronology_format_date, search_annotations as chronology_search_annotations, story_times as chronology_story_times
 from .spatial_api import execute as spatial_execute
+from .generational_api import execute as generational_execute
+from .generational_authoring import scaffold as generational_scaffold, schema as generational_schema
 from .repository import Repository
 from .server import local_server_url, open_local_browser, preflight_local_server, run_local_server
 from .source import serialize_record
@@ -231,6 +233,17 @@ def dispatch(args: argparse.Namespace) -> Any:
             }[args.chronology_command](repository, request, require_compiled=args.require_compiled)
     elif args.command == "spatial":
         value = spatial_execute(repository, args.spatial_command, _json_file(args.file), require_compiled=args.require_compiled)
+    elif args.command == "generational":
+        if args.generational_command == "scaffold":
+            value = generational_scaffold(repository)
+            _write_json_file(args.output, value)
+            if args.output != "-":
+                return None
+        elif args.generational_command == "schema":
+            value = generational_schema()
+        else:
+            value = generational_execute(repository, args.generational_command,
+                                         _json_file(args.file), require_compiled=args.require_compiled)
     elif args.command == "threads": value = thread_catalog(repository, require_compiled=args.require_compiled)
     elif args.command == "thread-memberships": value = thread_memberships(repository, tuple(args.record_ids), tuple(args.thread_ids), require_compiled=args.require_compiled)
     elif args.command == "whereabouts": value = whereabouts(repository, args.character, args.tick, args.timeline, args.order, require_compiled=args.require_compiled)
@@ -244,8 +257,8 @@ def dispatch(args: argparse.Namespace) -> Any:
             intent = _json_file(args.file)
             if args.author_subject_command == "preview":
                 return preview_intent(repository, intent)
-            if args.yes and isinstance(intent, dict) and str(intent.get("action", "")).startswith("spatial."):
-                raise UsageError("--yes cannot bypass preview confirmation for spatial authoring")
+            if args.yes and isinstance(intent, dict) and str(intent.get("action", "")).startswith(("spatial.", "generational.")):
+                raise UsageError("--yes cannot bypass preview confirmation for spatial or generational authoring")
             value = apply_intent(repository, intent, confirmation_token_value=args.confirm, allow_unconfirmed=args.yes)
             return value
         action = {
@@ -331,7 +344,7 @@ def main(argv: list[str] | None = None) -> int:
             # outcomes.  Keep their exact envelope on stderr for parity with
             # the HTTP status mapping instead of pretending an empty result
             # succeeded.
-            if args.command == "spatial" and isinstance(value, dict) and value.get("state") != "ok":
+            if args.command in {"spatial", "generational"} and isinstance(value, dict) and value.get("state") not in {"ok", "available", "unknown"}:
                 print(json.dumps(value, ensure_ascii=False, separators=(",", ":")) if args.compact else pretty_json(value), file=sys.stderr)
                 return 2
             if args.command == "completion":
