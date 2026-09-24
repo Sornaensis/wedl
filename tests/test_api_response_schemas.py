@@ -4,7 +4,7 @@ from copy import deepcopy
 import jsonschema
 import pytest
 
-from wedl.api_contract import Transport, control_endpoints, discovery_components, discovery_responses, route_contracts
+from wedl.api_contract import Transport, control_endpoints, discovery_components, discovery_responses, explorer_endpoints, route_contracts
 from wedl.api_schemas import components, operation_example
 from wedl.generational_authoring import schema as generational_schema
 
@@ -38,6 +38,24 @@ def test_spatial_route_filters_allow_omitted_nullable_modes_but_remain_closed() 
         _validate("SpatialRouteFilters", {"availability": ["open"], "unexpected": True})
     with pytest.raises(jsonschema.ValidationError):
         _validate("SpatialRouteFilters", {"availability": ["closed"]})
+
+
+def test_spatial_explorer_http_only_examples_and_closed_outcomes() -> None:
+    for endpoint in explorer_endpoints():
+        descriptor = endpoint.descriptor
+        assert descriptor.request_schema and descriptor.success_schema
+        _validate(descriptor.success_schema, descriptor.success_examples[0]["value"])
+        if endpoint.method == "POST":
+            request = descriptor.examples[0]["value"]["body"]
+            _validate(descriptor.request_schema, request)
+            with pytest.raises(jsonschema.ValidationError):
+                _validate(descriptor.request_schema, {**request, "unexpected": True})
+        responses = discovery_responses(descriptor)
+        for status, state in ((400, "invalid"), (403, "forbidden"), (409, "unavailable"), (422, "limit")):
+            example = responses[status]["content"]["application/json"]["examples"][state]["value"]
+            _validate(f"SpatialExplorer{endpoint.path.rsplit('/', 1)[-1].capitalize()}{state.capitalize()}Outcome", example)
+            with pytest.raises(jsonschema.ValidationError):
+                _validate(f"SpatialExplorer{endpoint.path.rsplit('/', 1)[-1].capitalize()}{state.capitalize()}Outcome", {**example, "unexpected": True})
 
 
 def test_spatial_command_http_request_and_status_matrix_is_exact() -> None:

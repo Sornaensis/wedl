@@ -419,7 +419,7 @@ class SpatialStore:
         next_cursor = _cursor(binding, (records[-1][1], records[-1][0])) if len(rows) > limit and records else None
         return SpatialOutcome(SpatialOutcomeKind.OK, self.revision, CataloguePage(tuple(row[0] for row in records), "authored-parent-id", None, {"parent_id": location_id}, cursor=next_cursor))
 
-    def bbox(self, map_id: str, bounds: BoundingBox | Any, *, relation: str = "intersects", limit: int = 100, cursor: str | None = None) -> SpatialOutcome:
+    def bbox(self, map_id: str, bounds: BoundingBox | Any, *, relation: str = "intersects", limit: int = 100, cursor: str | None = None, candidate_budget: int | None = None) -> SpatialOutcome:
         unavailable = self._available("geometry-v1")
         if unavailable: return unavailable
         bad_limit = self._limit(limit)
@@ -456,9 +456,31 @@ class SpatialStore:
         if dimensions == 3:
             clauses += ["min_z<=?", "max_z>=?"] if relation == "intersects" else ["min_z>=?", "max_z<=?"]
             params += [maximum[2], minimum[2]] if relation == "intersects" else [minimum[2], maximum[2]]
-        if last is not None:
-            clauses.append("(source_ordinal>? OR (source_ordinal=? AND id>?))"); params += [last[0], last[0], last[1]]
-        rows = self.connection.execute("SELECT id,source_ordinal FROM spatial_location WHERE " + " AND ".join(clauses) + " ORDER BY source_ordinal,id LIMIT ?", (*params, limit + 1)).fetchall()
+        if candidate_budget is None:
+            if last is not None:
+                clauses.append("(source_ordinal>? OR (source_ordinal=? AND id>?))"); params += [last[0], last[0], last[1]]
+            rows = self.connection.execute("SELECT id,source_ordinal FROM spatial_location WHERE " + " AND ".join(clauses) + " ORDER BY source_ordinal,id LIMIT ?", (*params, limit + 1)).fetchall()
+        else:
+            # Explorer viewports use the map-scoped RTree for the first probe.
+            # The Btree's map_id/min_x prefix can visit an entire sparse map
+            # even when only a few high-end geometries match the viewport.
+            if type(candidate_budget) is not int or not 1 <= candidate_budget <= MAX_GEOMETRY_CANDIDATES:
+                return SpatialOutcome(SpatialOutcomeKind.INVALID, self.revision, reason=SpatialReason.REQUEST, detail="candidate budget is invalid")
+            if self.connection.execute("SELECT 1 FROM sqlite_master WHERE name='spatial_location_rtree' AND type='table'").fetchone() is None:
+                return SpatialOutcome(SpatialOutcomeKind.UNAVAILABLE, self.revision, reason=SpatialReason.GEOMETRY,
+                                      detail="compiled spatial bounds index is unavailable")
+            map_key = self.connection.execute("SELECT rowid FROM spatial_map WHERE id=?", (map_id,)).fetchone()[0]
+            candidates = self.connection.execute(
+                "SELECT loc.id,loc.source_ordinal FROM spatial_location_rtree AS box "
+                "CROSS JOIN spatial_location AS loc ON loc.source_ordinal=box.source_ordinal "
+                "WHERE box.min_map<=? AND box.max_map>=? AND box.min_x<=? AND box.max_x>=? "
+                "AND box.min_y<=? AND box.max_y>=? AND " +
+                " AND ".join("loc." + clause for clause in clauses) + " LIMIT ?",
+                (map_key, map_key, maximum[0], minimum[0], maximum[1], minimum[1], *params, candidate_budget + 1),
+            ).fetchall()
+            if len(candidates) > candidate_budget:
+                return SpatialOutcome(SpatialOutcomeKind.LIMIT, self.revision, reason=SpatialReason.LIMIT, detail="geometry candidate budget exceeded")
+            rows = sorted((row for row in candidates if last is None or (row[1], row[0]) > last), key=lambda row: (row[1], row[0]))[:limit + 1]
         records = rows[:limit]
         next_cursor = _cursor(binding, (records[-1][1], records[-1][0])) if len(rows) > limit and records else None
         return SpatialOutcome(SpatialOutcomeKind.OK, self.revision, CataloguePage(tuple(item[0] for item in records), "authored-geometry-bounds", map_row[0], {"map_id": map_id, "relation": relation}, cursor=next_cursor))

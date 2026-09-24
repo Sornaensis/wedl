@@ -12,6 +12,14 @@ from wedl.api_schemas import components
 
 ROOT = Path(__file__).resolve().parents[1]
 ADR = ROOT / "docs/decisions/0004-spatial-domain-query-and-version-contract.md"
+
+
+def test_explorer_adjunct_decision_records_bounded_selected_lens() -> None:
+    text = ADR.read_text(encoding="utf-8")
+    assert "wedl-spatial-explorer/v1" in text
+    assert "catalog, places, viewport, and layers" in text
+    assert "before counting or paging" in text
+    assert "not a trusted character identity" in text or "does not confer trusted character identity" in text
 SCHEMA = ROOT / "docs/decisions/examples/spatial-schema-v07.yaml"
 QUERIES = ROOT / "docs/decisions/examples/spatial-query-v1.yaml"
 

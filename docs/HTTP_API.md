@@ -52,6 +52,10 @@ call.
 | POST | `/api/spatial/reachability` | no | Traverse bounded authored directed route and portal edges. |
 | POST | `/api/spatial/path` | no | Read one authored metric path without inferring travel. |
 | POST | `/api/spatial/overlay-as-of` | no | Read authorized overlays at an exact StoryTime horizon. |
+| GET | `/api/spatial/explorer/catalog` | no | Bootstrap or page compiled map descriptors. |
+| POST | `/api/spatial/explorer/places` | no | Page bounded hierarchy, title search, or exact-ID place cards. |
+| POST | `/api/spatial/explorer/viewport` | no | Page native same-map authored geometry. |
+| POST | `/api/spatial/explorer/layers` | no | Page authorized as-of overlay membership in one viewport. |
 | POST | `/api/generational/{operation}` | yes | Read named, cited generational history; operations: parents, ancestors, descendants, relatives, union, organization, legacy, vital, search, context. |
 | POST | `/api/generational/scaffold` | yes | Current-HEAD generational organization starter intent. |
 | GET | `/api/generational/schema` | yes | Closed generational intent variant catalogue. |
@@ -89,6 +93,74 @@ authentication, parse, and repository errors. See [Generational query](GENERATIO
 and [Generational authoring](GENERATIONAL_AUTHORING.md).
 
 ## Spatial reads
+
+### Spatial explorer adjunct
+
+The four `/api/spatial/explorer/*` reads use `wedl-spatial-explorer/v1` and
+are HTTP-only. They consume the compiled projection and do not add CLI
+commands. Call `GET /api/spatial/explorer/catalog?limit=20` first. It returns
+the exact `revision`, ordered `capabilities`, source schema, map descriptors
+(`id`, label, CRS, axes, unit, bounds), `spatialAvailable`, and `nextCursor`.
+Legacy and coordinate-free worlds return an empty map list. For later catalog
+pages, send that revision and each capability as a repeated `capabilities`
+query parameter, with the cursor and unchanged limit. The first page takes no
+revision or capability guess.
+
+The other three routes accept one raw, closed JSON request with `protocol`,
+catalog `revision`, ordered `capabilities`, `limit` (1–100), and nullable
+`cursor`. Examples:
+
+```json
+{"protocol":"wedl-spatial-explorer/v1","revision":"0000000000000000000000000000000000000000","capabilities":["spatial-core-v1","geometry-v1","route-v1","overlay-v1"],"limit":20,"cursor":null,"mode":"children","parentId":"location:gate"}
+```
+
+`places` modes are `roots`, `children` (`parentId`), `search` (nonblank `query`),
+and `select` (1–100 exact `ids`). Roots and children page by stable ID using
+the compiled parent index. Place cards contain stable ID, label,
+authored parent, map ID, geometry availability, and basis. Search inspects at
+most 2,000 compiled title-document candidates before the place join. A
+broader title match returns `limit` even if its documents are not places.
+It does not send all records to the browser.
+
+| Mode | Request fields in addition to the shared envelope | Response `basis` |
+| --- | --- | --- |
+| `roots` | `"mode":"roots"` | `authored-parent-id` |
+| `children` | `"mode":"children","parentId":"location_parent"` | `authored-parent-id` |
+| `search` | `"mode":"search","query":"Example place"` | `compiled-title-search` |
+| `select` | `"mode":"select","ids":["location_X"]` | `authored-location-id` |
+
+The OpenAPI document includes a request and a bounded result example for
+each mode.
+
+`viewport` adds `mapId`, finite same-dimensional `bounds` (`min`/`max`), and
+`relation` (`within` or `intersects`). It returns only that map's authored
+features in native CRS and unit. `layers` adds the same viewport, canonical
+decimal-string `asOf` StoryTime, and explicit `audience` and `perspective`.
+An optional `overlayId` selects an authorized overlay. Hidden and nonexistent
+IDs receive the same forbidden outcome. Authorization precedes layer counts,
+pagination, geometry joins, and cursor generation. This selected lens is a
+local author presentation filter, not a trusted character identity.
+
+All cursors bind the selected revision, operation, filters, page limit, map
+scope, and selected lens. A changed request receives `invalid`. Semantic
+states are `ok` 200, `invalid` 400, `unavailable` 409, `forbidden` 403, and
+`limit` 422; malformed requests and compile failures use the ordinary WEDL
+error envelope. A feature exceeding the 10,000-vertex budget returns a
+closed `limit` outcome. The normalized OpenAPI document gives complete
+request, response, and status schemas for every route.
+Explorer reads use compiled parent and title indexes. Viewports use a
+map-scoped RTree for bounded geometry candidate probes, then apply exact
+same-map bounds tests before sorting and paging. A compiled cache without
+that optional RTree returns `unavailable` for an explorer viewport; the
+compiler fingerprint rebuilds older caches with the new RTree dimensions and
+location-first audience/perspective membership index. Layer queries probe at
+most 10,000 public viewport geometries, then seek the selected lens at each
+location. Static memberships use a partial index; changing memberships use
+a compiled temporal RTree keyed by location/lens/timeline scope and four
+exact 24-bit digits of signed StoryTime. Each interval uses at most 15
+disjoint boxes; exact StoryTime checks still precede the 2,000 visible
+membership budget.
+Markdown and Git source remain authoritative.
 
 The eight `/api/spatial/*` endpoints accept the raw, closed `wedl-spatial/v1`
 JSON body; a CLI file path is never part of the HTTP body. Every request names

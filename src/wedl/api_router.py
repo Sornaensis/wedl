@@ -25,6 +25,8 @@ from .api_contract import (
     discovery_openapi_extra,
     discovery_request_body,
     discovery_responses,
+    explorer_endpoints,
+    explorer_request_body,
     route_contracts,
     validate_discovery_descriptors,
 )
@@ -34,6 +36,7 @@ from .compiler import compile_world
 from .context import build_context
 from .chronology_api import catalog as chronology_catalog, convert_date as chronology_convert, format_date as chronology_format, search_annotations as chronology_search, story_times as chronology_story_times
 from .spatial_api import execute as spatial_execute, status_code as spatial_status_code
+from .spatial_explorer_api import execute as explorer_execute, status_code as explorer_status_code
 from .generational_api import OPERATIONS as GENERATIONAL_OPERATIONS, execute as generational_execute, status_code as generational_status_code
 from .generational_authoring import scaffold as generational_scaffold, schema as generational_schema
 from .query import (
@@ -146,6 +149,26 @@ def openapi_contract_errors(schema: dict[str, Any]) -> tuple[str, ...]:
             "parameters": parameters,
             "body": None if body is None else discovery_request_body(contract.discovery, body),
             **discovery_value(contract.discovery, auth=contract.binding.auth, command=contract.command),
+        }
+
+    for endpoint in explorer_endpoints():
+        key = (endpoint.path, endpoint.method.lower())
+        if key in expected:
+            expected[key] = {"duplicate": key}
+            continue
+        params = []
+        if endpoint.method == "GET":
+            params = [
+                parameter_value("limit", "query", False, "integer", default=20, minimum=1, maximum=100),
+                parameter_value("cursor", "query", False, "string"),
+                parameter_value("revision", "query", False, "string"),
+                parameter_value("capabilities", "query", False, "array"),
+            ]
+        expected[key] = {
+            "operationId": f"spatial_explorer_{endpoint.path.rsplit('/', 1)[-1]}_{key[1]}",
+            "command": None, "auth": endpoint.auth.value, "parameters": params,
+            "body": None if endpoint.method == "GET" else explorer_request_body(endpoint.descriptor),
+            **discovery_value(endpoint.descriptor, auth=endpoint.auth),
         }
 
     errors: list[str] = []
@@ -708,5 +731,36 @@ def create_api_router(runtime: Any, authorize: Authorize) -> APIRouter:
         )
     for command, handler in behaviors.items():
         mount(command, handler)
+
+    def explorer_options(endpoint: Any) -> dict[str, Any]:
+        return {"methods": [endpoint.method],
+                "operation_id": f"spatial_explorer_{endpoint.path.rsplit('/', 1)[-1]}_{endpoint.method.lower()}",
+                "summary": endpoint.descriptor.summary,
+                "description": endpoint.descriptor.description,
+                "tags": list(endpoint.descriptor.tags),
+                "responses": discovery_responses(endpoint.descriptor),
+                "openapi_extra": discovery_openapi_extra(endpoint.descriptor, auth=endpoint.auth)}
+
+    for endpoint in explorer_endpoints():
+        action = endpoint.path.rsplit("/", 1)[-1]
+        if action == "catalog":
+            async def explorer_catalog(limit: int = Query(20, ge=1, le=100),
+                                       cursor: str | None = Query(None),
+                                       revision: str | None = Query(None),
+                                       capabilities: list[str] | None = Query(None)) -> Any:
+                request: dict[str, Any] = {"protocol": "wedl-spatial-explorer/v1", "limit": limit}
+                if cursor is not None: request["cursor"] = cursor
+                if revision is not None: request["revision"] = revision
+                if capabilities is not None: request["capabilities"] = capabilities
+                value = await asyncio.to_thread(explorer_execute, runtime.repository, "catalog", request)
+                return JSONResponse(value, status_code=explorer_status_code(value))
+            router.add_api_route(endpoint.path, explorer_catalog, **explorer_options(endpoint))
+        else:
+            def explorer_post(operation: str) -> Handler:
+                async def handler(payload: dict[str, Any] = Body(...)) -> Any:
+                    value = await asyncio.to_thread(explorer_execute, runtime.repository, operation, payload)
+                    return JSONResponse(value, status_code=explorer_status_code(value))
+                return handler
+            router.add_api_route(endpoint.path, explorer_post(action), **explorer_options(endpoint))
 
     return router

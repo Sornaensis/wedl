@@ -14,6 +14,7 @@ import sqlite3
 import time
 from typing import Any, Iterable
 
+from .model import ORDER_MAX, ORDER_MIN
 from .spatial_validation import validate_spatial_component
 from .util import canonical_json
 from .validation import _location_target
@@ -21,6 +22,36 @@ from .v07 import SOURCE_SCHEMA
 
 
 I64_MIN, I64_MAX = -(2**63), 2**63 - 1
+_TIME_DIGIT_MAX = (1 << 24) - 1
+
+
+def _story_time_digits(tick: int, order: int) -> tuple[int, int, int, int]:
+    """Order-preserving, float32-exact digits for signed StoryTime bounds."""
+    value = ((tick + (1 << 63)) << 32) | (order - ORDER_MIN)
+    return tuple((value >> shift) & _TIME_DIGIT_MAX for shift in (72, 48, 24, 0))
+
+
+def _time_rectangles(lower: tuple[int, ...], upper: tuple[int, ...]) -> Iterable[tuple[tuple[int, int], ...]]:
+    """Partition one inclusive lexicographic range into disjoint boxes."""
+    if not lower:
+        yield ()
+    elif len(lower) == 1:
+        yield ((lower[0], upper[0]),)
+    elif all(left == 0 and right == _TIME_DIGIT_MAX for left, right in zip(lower, upper)):
+        yield ((0, _TIME_DIGIT_MAX),) * len(lower)
+    elif lower == upper:
+        yield tuple((value, value) for value in lower)
+    elif lower[0] == upper[0]:
+        for rest in _time_rectangles(lower[1:], upper[1:]):
+            yield ((lower[0], lower[0]), *rest)
+    else:
+        tail = len(lower) - 1
+        for rest in _time_rectangles(lower[1:], (_TIME_DIGIT_MAX,) * tail):
+            yield ((lower[0], lower[0]), *rest)
+        if lower[0] + 1 < upper[0]:
+            yield ((lower[0] + 1, upper[0] - 1), *((0, _TIME_DIGIT_MAX),) * tail)
+        for rest in _time_rectangles((0,) * tail, upper[1:]):
+            yield ((upper[0], upper[0]), *rest)
 
 
 @dataclass(frozen=True, slots=True)
@@ -179,6 +210,17 @@ def insert_spatial_index(connection: sqlite3.Connection, projection: SpatialProj
     insert("INSERT INTO spatial_overlay_location VALUES (?,?,?)", projection.overlay_locations)
     insert("INSERT INTO spatial_overlay_audience VALUES (?,?,?)", projection.overlay_audiences)
     insert("INSERT INTO spatial_overlay_perspective VALUES (?,?,?)", projection.overlay_perspectives)
+    # The selected local-author lens must be seekable from a viewport member;
+    # scanning either all authorized offscreen overlays or hidden memberships
+    # at one visible location is unbounded. Stream the normalized cross-product
+    # into bounded batches without retaining it in the source projection.
+    insert("INSERT INTO spatial_overlay_lens_location VALUES (?,?,?,?,?,?,?,?,?,?)",
+           connection.execute("SELECT m.location_id,a.audience,p.perspective,m.overlay_id,"
+                              "o.lifecycle,o.timeline,o.start_tick,o.start_order,o.end_tick,o.end_order "
+                              "FROM spatial_overlay_location AS m "
+                              "JOIN spatial_overlay_audience AS a ON a.overlay_id=m.overlay_id "
+                              "JOIN spatial_overlay_perspective AS p ON p.overlay_id=m.overlay_id "
+                              "JOIN spatial_overlay AS o ON o.id=m.overlay_id"))
     bounds_index = install_optional_spatial_index(connection)
     return {"spatialMapCount": len(projection.maps), "spatialLocationCount": len(projection.locations), "spatialVertexCount": len(projection.vertices), "spatialRouteCount": len(projection.routes), "spatialRouteEdgeCount": len(projection.route_edges), "spatialOverlayCount": len(projection.overlays), "spatialBoundsIndex": bounds_index, "spatialInsertBatches": batches, "spatialMaxInsertBatch": maximum, "spatialTimingMs": round((time.perf_counter() - started) * 1000, 3)}
 
@@ -186,19 +228,55 @@ def insert_spatial_index(connection: sqlite3.Connection, projection: SpatialProj
 def install_optional_spatial_index(connection: sqlite3.Connection) -> str:
     """Install an RTree when this SQLite build has it, otherwise retain Btree.
 
-    The Btree indexes in the base schema are always sufficient and have the
-    same ordered candidate semantics.  The optional RTree is deliberately a
-    cache-local acceleration and stores only bounds already projected above.
+    The Btree indexes in the base schema retain the existing ordered query
+    semantics. The RTree additionally scopes a geometry probe to one compiled
+    map rowid, so a sparse explorer viewport does not walk all earlier bounds.
+    It stores only bounds and map identity already projected above.
     SQLite RTree rounds lower bounds down and upper bounds up, making its rows
     conservative candidates; callers must still post-filter against the exact
     NUMERIC bounds in ``spatial_location``.
     """
     try:
-        connection.execute("CREATE VIRTUAL TABLE spatial_location_rtree USING rtree(source_ordinal,min_x,max_x,min_y,max_y)")
+        connection.execute("CREATE VIRTUAL TABLE spatial_location_rtree USING rtree(source_ordinal,min_x,max_x,min_y,max_y,min_map,max_map)")
         connection.executemany(
-            "INSERT INTO spatial_location_rtree VALUES (?,?,?,?,?)",
-            connection.execute("SELECT source_ordinal,min_x,max_x,min_y,max_y FROM spatial_location WHERE map_id IS NOT NULL ORDER BY source_ordinal"),
+            "INSERT INTO spatial_location_rtree VALUES (?,?,?,?,?,?,?)",
+            connection.execute("SELECT loc.source_ordinal,loc.min_x,loc.max_x,loc.min_y,loc.max_y,map.rowid,map.rowid "
+                               "FROM spatial_location AS loc JOIN spatial_map AS map ON map.id=loc.map_id "
+                               "ORDER BY loc.source_ordinal"),
+        )
+        connection.execute("INSERT OR IGNORE INTO spatial_overlay_scope_key(location_id,audience,perspective,timeline) "
+                           "SELECT DISTINCT location_id,audience,perspective,timeline "
+                           "FROM spatial_overlay_lens_location WHERE lifecycle!='static'")
+        largest_scope = connection.execute("SELECT max(id) FROM spatial_overlay_scope_key").fetchone()[0]
+        if largest_scope is not None and largest_scope > 1 << 24:
+            raise sqlite3.OperationalError("spatial temporal scope exceeds exact RTree key range")
+        connection.execute("CREATE VIRTUAL TABLE spatial_overlay_time_rtree USING rtree(segment_id,min_scope,max_scope,min_t3,max_t3,min_t2,max_t2,min_t1,max_t1,min_t0,max_t0)")
+
+        def temporal_segments() -> Iterable[tuple[Any, ...]]:
+            rows = connection.execute("SELECT lens.rowid,key.id,"
+                                      "lens.start_tick,lens.start_order,lens.end_tick,lens.end_order "
+                                      "FROM spatial_overlay_lens_location AS lens "
+                                      "JOIN spatial_overlay_scope_key AS key ON key.location_id=lens.location_id "
+                                      "AND key.audience=lens.audience AND key.perspective=lens.perspective "
+                                      "AND key.timeline=lens.timeline "
+                                      "WHERE lens.lifecycle!='static'")
+            for membership_id, scope_key, first_tick, first_order, last_tick, last_order in rows:
+                lower = _story_time_digits(first_tick, first_order)
+                upper = _story_time_digits(last_tick, last_order)
+                for segment, rectangle in enumerate(_time_rectangles(lower, upper)):
+                    if segment >= 16:
+                        raise sqlite3.OperationalError("spatial temporal interval needs too many RTree boxes")
+                    yield (membership_id * 16 + segment, scope_key, scope_key,
+                           *(coordinate for pair in rectangle for coordinate in pair))
+
+        connection.executemany(
+            "INSERT INTO spatial_overlay_time_rtree VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+            temporal_segments(),
         )
     except sqlite3.OperationalError:
+        # A failed population must not leave an incomplete virtual table that
+        # an explorer read could mistake for a usable candidate index.
+        connection.execute("DROP TABLE IF EXISTS spatial_overlay_time_rtree")
+        connection.execute("DROP TABLE IF EXISTS spatial_location_rtree")
         return "btree"
     return "rtree"

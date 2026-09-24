@@ -8,7 +8,8 @@ import yaml
 
 from wedl.compiler import DDL, INDEX_DDL
 from wedl.model import Record, StoryTime, World
-from wedl.spatial_index import build_spatial_projection, insert_spatial_index
+from wedl.spatial_index import (_story_time_digits, _time_rectangles, build_spatial_projection,
+                                insert_spatial_index, install_optional_spatial_index)
 from wedl.spatial_query import (BoundingBox, MapPosition, SpatialOutcomeKind,
     SpatialReason, SpatialStore, SpatialSubreason)
 
@@ -16,8 +17,161 @@ from wedl.spatial_query import (BoundingBox, MapPosition, SpatialOutcomeKind,
 ROOT = Path(__file__).parents[1]
 
 
-def _store() -> SpatialStore:
+def test_explorer_page_queries_use_existing_indexes_without_unbounded_sorts() -> None:
+    connection = sqlite3.connect(":memory:")
+    connection.executescript(DDL)
+    connection.executescript(INDEX_DDL)
+    connection.execute("CREATE VIRTUAL TABLE spatial_location_rtree USING rtree(source_ordinal,min_x,max_x,min_y,max_y,min_map,max_map)")
+    plans = {
+        "children": ("SELECT id,source_ordinal FROM spatial_location WHERE parent_id=? ORDER BY id LIMIT ?", ("parent", 11), "spatial_location_parent_idx"),
+        "viewport": ("SELECT loc.id,loc.source_ordinal FROM spatial_location_rtree AS box "
+                     "CROSS JOIN spatial_location AS loc ON loc.source_ordinal=box.source_ordinal "
+                     "WHERE box.min_map<=? AND box.max_map>=? AND box.min_x<=? AND box.max_x>=? "
+                     "AND box.min_y<=? AND box.max_y>=? AND loc.map_id=? AND loc.min_x<=? "
+                     "AND loc.max_x>=? AND loc.min_y<=? AND loc.max_y>=? LIMIT ?",
+                     (1, 1, 1, 0, 1, 0, "map", 1, 0, 1, 0, 10001), "VIRTUAL TABLE INDEX"),
+    }
+    for query, params, expected_index in plans.values():
+        detail = " ".join(row[3] for row in connection.execute("EXPLAIN QUERY PLAN " + query, params))
+        assert expected_index in detail
+        assert "USE TEMP B-TREE FOR ORDER BY" not in detail
+    connection.close()
+
+
+def test_explorer_bbox_requires_map_scoped_rtree_but_legacy_bbox_stays_available() -> None:
+    store = _store()
+    assert {row[1] for row in store.connection.execute("PRAGMA table_info(spatial_location_rtree)")} >= {
+        "min_map", "max_map"}
+    box = BoundingBox((-1, -1), (1, 1))
+    result = store.bbox("map:town", box, candidate_budget=10)
+    assert result.kind is SpatialOutcomeKind.OK and result.value.ids == ("location:gate",)
+    store.connection.execute("DROP TABLE spatial_location_rtree")
+    assert store.bbox("map:town", box, candidate_budget=10).kind is SpatialOutcomeKind.UNAVAILABLE
+    assert store.bbox("map:town", box).kind is SpatialOutcomeKind.OK
+    store.connection.close()
+
+
+def test_failed_rtree_population_leaves_no_partial_explorer_index() -> None:
+    store = _store()
+    connection = store.connection
+    connection.execute("DROP TABLE spatial_location_rtree")
+
+    class FailAfterFirstRow:
+        def execute(self, *args):
+            return connection.execute(*args)
+
+        def executemany(self, statement, rows):
+            first = next(iter(rows))
+            connection.execute(statement, first)
+            raise sqlite3.OperationalError("simulated population failure")
+
+    assert install_optional_spatial_index(FailAfterFirstRow()) == "btree"
+    assert connection.execute("SELECT 1 FROM sqlite_master WHERE name='spatial_location_rtree'").fetchone() is None
+    assert store.bbox("map:town", BoundingBox((-1, -1), (1, 1)), candidate_budget=10).kind is SpatialOutcomeKind.UNAVAILABLE
+    connection.close()
+
+
+def test_failed_temporal_index_population_removes_both_explorer_rtrees() -> None:
+    store = _store()
+    connection = store.connection
+    connection.execute("DROP TABLE spatial_overlay_time_rtree")
+    connection.execute("DROP TABLE spatial_location_rtree")
+
+    class FailTemporalInsert:
+        def execute(self, *args):
+            return connection.execute(*args)
+
+        def executemany(self, statement, rows):
+            if statement.startswith("INSERT INTO spatial_overlay_time_rtree"):
+                raise sqlite3.OperationalError("simulated temporal population failure")
+            return connection.executemany(statement, rows)
+
+    assert install_optional_spatial_index(FailTemporalInsert()) == "btree"
+    assert connection.execute("SELECT name FROM sqlite_master WHERE name IN "
+                              "('spatial_location_rtree','spatial_overlay_time_rtree')").fetchall() == []
+    connection.close()
+
+
+def test_story_time_rtree_boxes_cover_exact_signed_tick_order_ranges() -> None:
+    cases = (
+        ((-(2**63), -(2**31)), (-(2**63), -(2**31) + 1),
+         ((-(2**63), -(2**31)), (-(2**63), -(2**31) + 1), (-(2**63), -(2**31) + 2))),
+        ((-1, 0), (1, 0), ((-1, -1), (-1, 0), (0, 0), (1, 0), (1, 1))),
+        (((2**63) - 2, 0), ((2**63) - 1, 0),
+         (((2**63) - 3, 0), ((2**63) - 2, 0), ((2**63) - 1, 0), ((2**63) - 1, 1))),
+        ((5, -1), (5, 1), ((5, -2), (5, -1), (5, 0), (5, 1), (5, 2))),
+    )
+    for start, end, probes in cases:
+        rectangles = list(_time_rectangles(_story_time_digits(*start), _story_time_digits(*end)))
+        assert 1 <= len(rectangles) <= 15
+        for rectangle in rectangles:
+            assert all(0 <= low <= high < 2**24 for low, high in rectangle)
+        for point in probes:
+            digits = _story_time_digits(*point)
+            covered = sum(all(low <= digit <= high for digit, (low, high) in zip(digits, rectangle))
+                          for rectangle in rectangles)
+            assert covered == int(start <= point <= end), (start, end, point, covered)
+
+
+def test_explorer_sparse_viewport_work_does_not_grow_with_map_size() -> None:
+    store = _store()
+    connection = store.connection
+    map_key = connection.execute("SELECT rowid FROM spatial_map WHERE id='map:town'").fetchone()[0]
+
+    def insert_noise(start: int, stop: int) -> None:
+        connection.executemany("INSERT INTO entity VALUES (?,?,?,?,?,?,?,?,?)", (
+            (f"noise:{index:05d}", "location", f"Noise {index}", "world", "canonical",
+             f"story/noise-{index:05d}.md", None, "", "{}")
+            for index in range(start, stop)))
+        connection.executemany("INSERT INTO spatial_location VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)", (
+            (f"noise:{index:05d}", 1000 + index, 1, None, "map:town", "point",
+             -40000 + index, 0, None, -40000 + index, 0, None, None, "{}")
+            for index in range(start, stop)))
+        connection.executemany("INSERT INTO spatial_location_rtree VALUES (?,?,?,?,?,?,?)", (
+            (1000 + index, -40000 + index, -40000 + index, 0, 0, map_key, map_key)
+            for index in range(start, stop)))
+
+    connection.executemany("INSERT INTO entity VALUES (?,?,?,?,?,?,?,?,?)", (
+        (f"hit:{index:02d}", "location", f"Hit {index}", "world", "canonical",
+         f"story/hit-{index:02d}.md", None, "", "{}")
+        for index in range(10)))
+    connection.executemany("INSERT INTO spatial_location VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)", (
+        (f"hit:{index:02d}", 200000 + index, 1, None, "map:town", "point",
+         49990 + index, 0, None, 49990 + index, 0, None, None, "{}")
+        for index in range(10)))
+    connection.executemany("INSERT INTO spatial_location_rtree VALUES (?,?,?,?,?,?,?)", (
+        (200000 + index, 49990 + index, 49990 + index, 0, 0, map_key, map_key)
+        for index in range(10)))
+
+    def vm_steps() -> int:
+        steps = [0]
+
+        def count_steps() -> int:
+            steps[0] += 10
+            return 0
+
+        connection.set_progress_handler(count_steps, 10)
+        try:
+            result = store.bbox("map:town", BoundingBox((49990, -1), (50000, 1)),
+                                limit=100, candidate_budget=10000)
+        finally:
+            connection.set_progress_handler(None, 0)
+        assert result.kind is SpatialOutcomeKind.OK
+        assert result.value.ids == tuple(f"hit:{index:02d}" for index in range(10))
+        return steps[0]
+
+    insert_noise(0, 1000)
+    small = vm_steps()
+    insert_noise(1000, 10000)
+    large = vm_steps()
+    assert large <= 2 * small + 100, (small, large)
+    connection.close()
+
+
+def _store(*, overlay_valid: dict | None = None) -> SpatialStore:
     value = yaml.safe_load((ROOT / "tests/fixtures/spatial_v07/valid-multimap.yaml").read_text())
+    if overlay_valid is not None:
+        value["overlay"]["valid"] = overlay_valid
     records = [value["world"], *value["maps"], *value["locations"], value["anchor"], value["portal"], value["route"], value["overlay"]]
     typed = [Record(item, "", f"story/{index}.md", b"") for index, item in enumerate(records)]
     world = World("component", "tree", {record.id: record for record in typed}, ROOT)

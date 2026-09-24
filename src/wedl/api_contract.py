@@ -416,6 +416,62 @@ _CONTROL_ENDPOINTS: tuple[ControlEndpoint, ...] = (
 )
 
 
+def _explorer_descriptor(operation: str) -> DiscoveryDescriptor:
+    stem = operation.capitalize()
+    common = {"protocol": "wedl-spatial-explorer/v1", "revision": "0" * 40,
+              "capabilities": ["spatial-core-v1", "geometry-v1", "route-v1", "overlay-v1"],
+              "limit": 10, "cursor": None}
+    body = {
+        "catalog": {"protocol": common["protocol"], "limit": 10},
+        "places": {**common, "mode": "roots"},
+        "viewport": {**common, "mapId": "map_X", "bounds": {"min": [0, 0], "max": [10, 10]}, "relation": "intersects"},
+        "layers": {**common, "mapId": "map_X", "bounds": {"min": [0, 0], "max": [10, 10]}, "relation": "intersects", "asOf": {"timeline": "main", "tick": "0", "order": "0"}, "audience": "author", "perspective": "author"},
+    }[operation]
+    results = {
+        "catalog": {"spatialAvailable": True, "maps": [{"id": "map_X", "label": "Example map", "crs": "local-planar", "axes": ["x", "y"], "unit": "pace", "bounds": {"min": [0, 0], "max": [10, 10]}}], "nextCursor": None},
+        "places": {"mode": "roots", "places": [{"id": "location_X", "label": "Example place", "parentId": None, "mapId": "map_X", "geometryAvailable": True, "basis": "authored-location"}], "basis": "authored-parent-id", "nextCursor": None},
+        "viewport": {"mapId": "map_X", "crs": "local-planar", "axes": ["x", "y"], "unit": "pace", "relation": "intersects", "features": [{"id": "location_X", "label": "Example place", "mapId": "map_X", "geometry": {"kind": "point", "coordinates": [1, 1]}, "basis": "authored-geometry"}], "basis": "authored-geometry-bounds", "nextCursor": None},
+        "layers": {"mapId": "map_X", "crs": "local-planar", "unit": "pace", "asOf": {"timeline": "main", "tick": "0", "order": "0"}, "audience": "author", "perspective": "author", "layers": [{"overlayId": "overlay_X", "label": "Example layer", "locationId": "location_X", "geometry": {"kind": "point", "coordinates": [1, 1]}, "basis": "authorized-authored-overlay-membership"}], "basis": "authorized-authored-overlay-membership", "nextCursor": None},
+    }
+    path = f"/api/spatial/explorer/{operation}"
+    request = {"method": "GET" if operation == "catalog" else "POST", "path": path,
+               "query": {"limit": 10} if operation == "catalog" else None,
+               "body": None if operation == "catalog" else body}
+    response = {"protocol": common["protocol"], "operation": operation, "revision": common["revision"],
+                "sourceSchema": "wedl/v0.7", "capabilities": common["capabilities"],
+                "cache": {"state": "ready", "revision": common["revision"], "treeOid": common["revision"], "sourceSchema": "wedl/v0.7", "fingerprint": "compiler"},
+                "state": "ok", "result": results[operation]}
+    requests = [request]
+    responses = [response]
+    if operation == "places":
+        for mode, fields, basis in (
+            ("children", {"parentId": "location_parent"}, "authored-parent-id"),
+            ("search", {"query": "Example place"}, "compiled-title-search"),
+            ("select", {"ids": ["location_X"]}, "authored-location-id"),
+        ):
+            requests.append({"method": "POST", "path": path, "query": None,
+                             "body": {**common, "mode": mode, **fields}})
+            place = {**results[operation]["places"][0],
+                     "parentId": "location_parent" if mode == "children" else None}
+            responses.append({**response, "result": {**results[operation], "mode": mode,
+                                                       "places": [place], "basis": basis}})
+    return DiscoveryDescriptor(f"Explore spatial {operation}",
+        "Read one bounded, revision-pinned wedl-spatial-explorer/v1 compiled projection. Selected audience and perspective are local-author presentation filters, not trusted identity.",
+        ("Spatial", "Spatial Explorer"), "Spatial explorer outcome.",
+        ("usage_error", "compile_required", "validation_failed", "parse_error", "repository_error"),
+        examples=tuple({"summary": f"{operation} request" if index == 0 else f"{operation} {value['body']['mode']} request",
+                        "value": value} for index, value in enumerate(requests)),
+        success_schema=f"SpatialExplorer{stem}OkOutcome",
+        success_examples=tuple({"summary": f"{operation} outcome" if index == 0 else f"{operation} {value['result']['mode']} outcome",
+                                "value": value} for index, value in enumerate(responses)),
+        request_schema=f"SpatialExplorer{stem}Request")
+
+
+_EXPLORER_ENDPOINTS = tuple(ControlEndpoint("GET" if action == "catalog" else "POST",
+    f"/api/spatial/explorer/{action}", AuthPolicy.PUBLIC, _explorer_descriptor(action))
+    for action in ("catalog", "places", "viewport", "layers"))
+
+
 def _request_example(command: tuple[str, ...], binding: RouteBinding) -> tuple[dict[str, Any], ...]:
     """Return one small, transport-focused example without claiming result shapes."""
 
@@ -746,6 +802,29 @@ def control_endpoint(method: str, path: str) -> ControlEndpoint:
     raise KeyError(f"no control endpoint contract for {method} {path}")
 
 
+def explorer_endpoints() -> tuple[ControlEndpoint, ...]:
+    """Explicit HTTP-only adjuncts; never inferred from parser leaves."""
+    expected = {("GET", "/api/spatial/explorer/catalog"), *(("POST", f"/api/spatial/explorer/{name}") for name in ("places", "viewport", "layers"))}
+    keys = [(endpoint.method, endpoint.path) for endpoint in _EXPLORER_ENDPOINTS]
+    existing = [(endpoint.method, endpoint.path) for endpoint in control_endpoints()]
+    existing.extend((contract.binding.method, contract.binding.path) for contract in route_contracts() if contract.binding is not None)
+    if len(keys) != len(set(keys)) or set(keys) != expected or set(keys).intersection(existing):
+        raise RuntimeError("spatial explorer endpoint registry is missing, duplicated, or conflicts with a mounted route")
+    return _EXPLORER_ENDPOINTS
+
+
+def explorer_request_body(descriptor: DiscoveryDescriptor) -> dict[str, Any]:
+    if descriptor.request_schema is None:
+        raise RuntimeError("spatial explorer endpoint has no request schema")
+    value = descriptor.examples[0]["value"]["body"]
+    if not isinstance(value, dict):
+        raise RuntimeError("spatial explorer POST example needs a raw body")
+    return {"required": True, "content": {"application/json": {
+        "schema": {"$ref": f"#/components/schemas/{descriptor.request_schema}"},
+        "examples": {"request": {"summary": descriptor.examples[0]["summary"], "value": value}},
+    }}}
+
+
 def discovery_openapi_extra(
     descriptor: DiscoveryDescriptor,
     *,
@@ -857,6 +936,15 @@ def discovery_responses(descriptor: DiscoveryDescriptor) -> dict[int, dict[str, 
                 "x-wedl-spatial-state": state,
                 "content": {"application/json": {"schema": schema}},
             }
+            if "Spatial Explorer" in descriptor.tags:
+                example = dict(descriptor.success_examples[0]["value"])
+                example.pop("result")
+                example["state"] = state
+                example["code"] = {"invalid": "SPATIAL-CURSOR-001", "unavailable": "SPATIAL-GEOMETRY-001",
+                                   "forbidden": "SPATIAL-OVERLAY-001", "limit": "SPATIAL-LIMIT-001"}[state]
+                responses[status]["content"]["application/json"]["examples"] = {
+                    state: {"summary": f"{state} explorer outcome", "value": example}
+                }
     if "Generational" in descriptor.tags and descriptor.success_schema.endswith("AvailableOutcome"):
         for status, state in ((200, "unknown"), (400, "invalid"), (409, "unavailable"), (422, "limit")):
             suffix = descriptor.success_schema.removesuffix("AvailableOutcome")
@@ -943,6 +1031,15 @@ def normalize_discovery_openapi(document: dict[str, Any]) -> dict[str, Any]:
                 operation["responses"]["200"]["content"]["application/json"]["examples"] = {
                     "success": example for example in contract.discovery.success_examples
                 }
+    for endpoint in explorer_endpoints():
+        operation = document.get("paths", {}).get(endpoint.path, {}).get(endpoint.method.lower())
+        if isinstance(operation, dict):
+            operation["x-wedl-examples"] = list(endpoint.descriptor.examples)
+            operation["responses"]["200"]["content"]["application/json"]["examples"] = {
+                "success": example for example in endpoint.descriptor.success_examples
+            }
+            if endpoint.method == "POST":
+                operation["requestBody"] = explorer_request_body(endpoint.descriptor)
     # These are introduced solely by FastAPI's default 422 schema.  Removing
     # the unreachable response must also remove its unreachable components so
     # the document has one explicit structural vocabulary.
@@ -995,6 +1092,7 @@ def validate_discovery_descriptors() -> None:
     schemas = discovery_components()["schemas"]
     descriptors = [contract.discovery for contract in route_contracts()]
     descriptors.extend(endpoint.descriptor for endpoint in control_endpoints())
+    descriptors.extend(endpoint.descriptor for endpoint in explorer_endpoints())
     for descriptor in descriptors:
         if descriptor is None or not descriptor.success_schema or descriptor.success_schema not in schemas:
             raise RuntimeError("mounted discovery descriptor has no registered success schema")
@@ -1031,6 +1129,13 @@ def _path_matches(template: str, path: str) -> bool:
 def validate_request_fields(method: str, path: str, fields: Iterable[str]) -> None:
     """Reject transport fields absent from the parser-derived API binding."""
 
+    for endpoint in explorer_endpoints():
+        if endpoint.method == method and endpoint.path == path:
+            allowed = {"limit", "cursor", "revision", "capabilities"} if method == "GET" else set()
+            unexpected = sorted(set(fields).difference(allowed))
+            if unexpected:
+                raise UsageError("unknown API request field", details={"unexpected": unexpected, "allowed": sorted(allowed)})
+            return
     contract = contract_for_route(method, path)
     if contract is None or contract.binding is None:
         return

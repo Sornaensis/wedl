@@ -42,7 +42,7 @@ CHRONOLOGY_INDEX_GENERATION_TOKEN = "wedl-chronology-index/v3"
 # enables generic compilation.  It still participates in the cache contract:
 # a database created before its DDL must never be mistaken for a compatible
 # read model by a later opt-in caller.
-SPATIAL_INDEX_GENERATION_TOKEN = "wedl-spatial-index/v1"
+SPATIAL_INDEX_GENERATION_TOKEN = "wedl-spatial-index/v3"
 GENERATIONAL_INDEX_GENERATION_TOKEN = "wedl-generational-index/v4"
 COMPILER_FINGERPRINT_PREFIX = f"{DOCUMENT_GENERATION_TOKEN}:{CHRONOLOGY_INDEX_GENERATION_TOKEN}:{SPATIAL_INDEX_GENERATION_TOKEN}:{GENERATIONAL_INDEX_GENERATION_TOKEN}:"
 
@@ -105,6 +105,8 @@ CREATE TABLE spatial_overlay(id TEXT PRIMARY KEY REFERENCES entity(id),source_or
 CREATE TABLE spatial_overlay_location(overlay_id TEXT NOT NULL REFERENCES spatial_overlay(id),location_id TEXT NOT NULL REFERENCES spatial_location(id),source_ordinal INTEGER NOT NULL,PRIMARY KEY(overlay_id,location_id));
 CREATE TABLE spatial_overlay_audience(overlay_id TEXT NOT NULL REFERENCES spatial_overlay(id),audience TEXT NOT NULL,source_ordinal INTEGER NOT NULL,PRIMARY KEY(overlay_id,audience));
 CREATE TABLE spatial_overlay_perspective(overlay_id TEXT NOT NULL REFERENCES spatial_overlay(id),perspective TEXT NOT NULL,source_ordinal INTEGER NOT NULL,PRIMARY KEY(overlay_id,perspective));
+CREATE TABLE spatial_overlay_lens_location(location_id TEXT NOT NULL REFERENCES spatial_location(id),audience TEXT NOT NULL,perspective TEXT NOT NULL,overlay_id TEXT NOT NULL REFERENCES spatial_overlay(id),lifecycle TEXT NOT NULL,timeline TEXT,start_tick INTEGER,start_order INTEGER,end_tick INTEGER,end_order INTEGER,PRIMARY KEY(location_id,audience,perspective,overlay_id));
+CREATE TABLE spatial_overlay_scope_key(id INTEGER PRIMARY KEY,location_id TEXT NOT NULL REFERENCES spatial_location(id),audience TEXT NOT NULL,perspective TEXT NOT NULL,timeline TEXT NOT NULL,UNIQUE(location_id,audience,perspective,timeline));
 CREATE TABLE generational_record(id TEXT PRIMARY KEY REFERENCES entity(id),kind TEXT NOT NULL,source_ordinal INTEGER NOT NULL UNIQUE,source_path TEXT NOT NULL,blob_oid TEXT,status TEXT NOT NULL,capability TEXT NOT NULL,timeline TEXT NOT NULL,audience_json TEXT NOT NULL,perspectives_json TEXT NOT NULL);
 CREATE TABLE generational_organization(id TEXT PRIMARY KEY REFERENCES generational_record(id),organization_kind TEXT NOT NULL,parent_id TEXT,location_id TEXT);
 CREATE TABLE generational_parentage(id TEXT PRIMARY KEY REFERENCES generational_record(id),child_id TEXT NOT NULL,parent_id TEXT NOT NULL,timeline TEXT NOT NULL,start_tick INTEGER NOT NULL,start_order INTEGER NOT NULL,source_ordinal INTEGER NOT NULL);
@@ -162,6 +164,7 @@ CREATE INDEX spatial_overlay_reverse_idx ON spatial_overlay(timeline,end_tick,en
 CREATE INDEX spatial_overlay_location_location_idx ON spatial_overlay_location(location_id,overlay_id);
 CREATE INDEX spatial_overlay_audience_audience_idx ON spatial_overlay_audience(audience,overlay_id);
 CREATE INDEX spatial_overlay_perspective_perspective_idx ON spatial_overlay_perspective(perspective,overlay_id);
+CREATE INDEX spatial_overlay_static_lens_idx ON spatial_overlay_lens_location(location_id,audience,perspective,overlay_id) WHERE lifecycle='static';
 CREATE INDEX generational_record_kind_idx ON generational_record(kind,timeline,source_ordinal,id);
 CREATE INDEX generational_organization_parent_idx ON generational_organization(parent_id,id);
 CREATE INDEX generational_parentage_child_idx ON generational_parentage(child_id,parent_id,id);
@@ -184,7 +187,7 @@ _REQUIRED_SPATIAL_TABLES = frozenset({
     "spatial_route", "spatial_route_edge", "spatial_route_mode",
     "spatial_anchor", "spatial_portal", "spatial_portal_mode",
     "spatial_overlay", "spatial_overlay_location", "spatial_overlay_audience",
-    "spatial_overlay_perspective",
+    "spatial_overlay_perspective", "spatial_overlay_lens_location", "spatial_overlay_scope_key",
 })
 _REQUIRED_SPATIAL_INDEXES = frozenset({
     "spatial_location_parent_idx", "spatial_location_map_bounds_idx",
@@ -196,7 +199,7 @@ _REQUIRED_SPATIAL_INDEXES = frozenset({
     "spatial_portal_mode_mode_idx", "spatial_overlay_candidate_idx",
     "spatial_overlay_reverse_idx", "spatial_overlay_location_location_idx",
     "spatial_overlay_audience_audience_idx",
-    "spatial_overlay_perspective_perspective_idx",
+    "spatial_overlay_perspective_perspective_idx", "spatial_overlay_static_lens_idx",
 })
 _REQUIRED_GENERATIONAL_TABLES = frozenset({
     "generational_record", "generational_organization", "generational_parentage",

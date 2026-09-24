@@ -157,6 +157,35 @@ to be represented.
 
 ### Performance envelope and rollout
 
+The `wedl-spatial-explorer/v1` HTTP adjunct has four explicit compiled reads:
+catalog, places, viewport, and layers. Catalog bootstraps the selected
+revision and canonical capabilities. Subsequent closed requests pin them;
+opaque cursors bind operation, normalized filters, limit, map scope, horizon,
+audience, and perspective. Place roots and children follow authored parent
+links, place search uses bounded compiled title candidates, and viewport
+features preserve their declared native map CRS and unit. Layers filter
+authorized overlay membership at exact StoryTime before counting or paging.
+The explorer viewport probes a map-scoped compiled RTree before exact
+geometry checks. A bounded B-tree `map_id,min_x` prefix scan still visited
+proportionally more rows on sparse high-end viewports, so the compiler
+fingerprint rebuilds old compiled caches with the map dimension added to the
+RTree. A cache missing the index yields `unavailable` for this adjunct read.
+Catalog cursors seek unique source ordinals. Place search caps matching title
+documents before joining locations; a broad match closes with `limit`.
+Layer queries probe bounded public viewport geometry and seek the selected
+audience/perspective through a compiled location-to-lens membership index,
+so offscreen authorized overlays and hidden memberships do not determine
+candidate work or layer counts. Static memberships have a partial index;
+changing memberships additionally probe a scope-bound StoryTime RTree.
+Four exact 24-bit digits cover signed tick and order with at most 15
+disjoint boxes per interval before exact StoryTime filtering. These
+projections rebuild with the compiler
+fingerprint.
+The selected local-author lens does not confer trusted character identity or
+confidentiality against a caller who can choose another lens. An unknown
+explicit overlay and a hidden one have the same forbidden outcome. Geometry
+and candidate budgets close with `limit`, without partial feature data.
+
 Before implementation, CI vectors must cover 100,000 locations, depth 128,
 10,000 siblings, 32 maps/CRSs, signed large coordinates, 250,000 route edges,
 100 portals, 10,000 changing overlays, and hostile text/assets.  A request may
