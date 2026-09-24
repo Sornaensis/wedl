@@ -1,14 +1,77 @@
 from __future__ import annotations
 
+import base64
+import json
 from pathlib import Path
 import subprocess
 import os
 import stat
+from types import SimpleNamespace
 
 import pytest
 
 from wedl.repository import DirtyManagedTree, Repository, RepositoryError
 from wedl import repository as repository_module
+from wedl import transaction_recovery as journal_module
+
+
+def _previous_string_wire_bound(value: str) -> int:
+    total = 2
+    for character in value:
+        codepoint = ord(character)
+        width = (2 if character in {'"', '\\'} else 6 if codepoint < 0x20 else
+                 1 if codepoint < 0x80 else 6 if codepoint <= 0xffff else 12)
+        total = journal_module._checked_live_sum(total, width)
+    return total
+
+
+@pytest.mark.parametrize("value", [
+    "", "plain ASCII", 'quoted "text" \\ slash /',
+    "".join(chr(codepoint) for codepoint in range(32)),
+    "\x00\t\n\r\x1f" * 100,
+    base64.b64encode(bytes(range(256)) * 256).decode("ascii"),
+    "é", "\ud800", "\udfff", "𝄞", "text é / \ud800 𝄞",
+], ids=[
+    "empty", "plain", "quotes-and-slashes", "all-controls", "repeated-controls",
+    "long-base64", "latin-one", "high-surrogate", "low-surrogate", "astral", "mixed-unicode",
+])
+def test_json_string_wire_bound_matches_previous_and_canonical_json(value: str) -> None:
+    bound = journal_module._json_string_wire_upper_bound(value)
+    assert bound == _previous_string_wire_bound(value)
+    assert bound >= len(json.dumps(value, ensure_ascii=True).encode("utf-8"))
+
+
+def test_json_string_wire_bound_ignores_overridden_str_methods() -> None:
+    class Misleading(str):
+        def isascii(self) -> bool:
+            return True
+
+        def count(self, *_args: object) -> int:
+            return 0
+
+        def __len__(self) -> int:
+            return 0
+
+    for value in (Misleading('"\\\x00'), Misleading("é\x00")):
+        bound = journal_module._json_string_wire_upper_bound(value)
+        assert bound == _previous_string_wire_bound(value)
+        assert bound >= len(json.dumps(value, ensure_ascii=True).encode("utf-8"))
+
+
+def test_json_wire_bound_rejects_malformed_values_and_overflow(monkeypatch: pytest.MonkeyPatch) -> None:
+    for value in ({1: "not a string key"}, {"key": object()}, [object()]):
+        with pytest.raises(RepositoryError, match="live-byte budget exceeded"):
+            journal_module._json_wire_upper_bound(value)
+    malformed_image = {"base64": "not\\base64", "sha256": "0" * 64}
+    assert journal_module._budgeted_journal_wire_upper_bound(malformed_image) >= len(
+        json.dumps(malformed_image, ensure_ascii=True, separators=(",", ":")).encode("utf-8")
+    )
+    monkeypatch.setattr(journal_module, "sys", SimpleNamespace(maxsize=10))
+    assert journal_module._json_string_wire_upper_bound("a" * 8) == 10
+    with pytest.raises(RepositoryError, match="live-byte budget exceeded"):
+        journal_module._json_string_wire_upper_bound("a" * 9)
+    with pytest.raises(RepositoryError, match="live-byte budget exceeded"):
+        journal_module._json_string_wire_upper_bound("é" * 2)
 
 
 def _git(root: Path, *args: str) -> subprocess.CompletedProcess[str]:

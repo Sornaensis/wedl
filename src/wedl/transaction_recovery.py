@@ -893,6 +893,11 @@ def _budgeted_candidate_payload_upper_bound(*, current_bytes: int, version: int,
 
 def _json_string_wire_upper_bound(value: str) -> int:
     """Bound one ensure_ascii JSON string without constructing its escape text."""
+    if type(value) is str and value.isascii():
+        return _checked_live_sum(
+            2, len(value), value.count('"'), value.count("\\"),
+            5 * sum(value.count(chr(codepoint)) for codepoint in range(32)),
+        )
     total = 2
     for character in value:
         codepoint = ord(character)
