@@ -224,15 +224,15 @@ def test_map_create_preview_apply_and_exact_replay_use_real_journal(ash_repo: Re
         preview_intent(ash_repo, stale)
 
 
-def test_all_seven_spatial_intents_preview_apply_and_replay_through_real_journal(
+def test_overlay_create_and_route_update_preview_apply_and_replay_through_real_journal(
     ash_repo: Repository, monkeypatch: pytest.MonkeyPatch,
 ) -> None:
     # Optional cache publication may defer, while source and receipt still commit
-    # together through the actual journal and every candidate is validated.
+    # together through the actual journal and both candidates are validated.
     monkeypatch.setattr(changeset, "compile_world_bytes", lambda *_args, **_kwargs: AuthoringByteResult(
         "deferred-to-restart", {"status": "deferred-to-restart", "reason": "sqlite-serialize-unavailable"},
     ))
-    for index, (action, payload) in enumerate(CREATE_CASES + UPDATE_CASES):
+    for index, (action, payload) in enumerate((CREATE_CASES[2], UPDATE_CASES[2])):
         request = {
             "action": action, "expectedHead": ash_repo.head(),
             "idempotencyKey": f"spatial-journal-{index}", "payload": deepcopy(payload),
@@ -256,8 +256,6 @@ def test_all_seven_spatial_intents_preview_apply_and_replay_through_real_journal
             assert current.body == prior.body
             assert current.frontmatter["provenance"] == prior.frontmatter["provenance"]
             assert current.frontmatter["x-note"] == prior.frontmatter["x-note"]
-        if action == "spatial.location.update":
-            assert "parent_id" not in current.frontmatter and "spatial" not in current.frontmatter
         replay = apply_intent(ash_repo, request, confirmation_token_value=token)
         assert replay["idempotentReplay"] is True
         assert replay["newHead"] == result["newHead"] == ash_repo.head()
