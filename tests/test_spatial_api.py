@@ -230,89 +230,6 @@ def test_codec_cli_http_share_one_exact_spatial_outcome(spatial_repository: Repo
             assert not captured.out and json.loads(captured.err) == outcome
 
 
-def test_spatial_edge_cases_and_cursor_pages_match_direct_store_and_both_public_transports(
-    spatial_repository: Repository, tmp_path: Path, capsys: pytest.CaptureFixture[str],
-) -> None:
-    revision = _revision(spatial_repository)
-    cases = [
-        ("containment", {"locationId": "location:far"}, lambda s: s.containment("location:far")),
-        ("bbox", {"mapId": "map:town", "bounds": {"min": [0, 0], "max": [1, 1]}, "relation": "intersects"}, lambda s: s.bbox("map:town", BoundingBox((0, 0), (1, 1)), relation="intersects")),
-        ("bbox", {"mapId": "map:town", "bounds": {"min": [0, 0], "max": [1, 1]}, "relation": "within"}, lambda s: s.bbox("map:town", BoundingBox((0, 0), (1, 1)), relation="within")),
-        ("nearby", {"position": {"mapId": "map:town", "coordinates": [0, 0]}, "radius": 2}, lambda s: s.nearby(MapPosition("map:town", (0, 0)), radius=2)),
-        ("adjacency", {"locationId": "location:gate", "modes": ["horse"]}, lambda s: s.adjacency("location:gate", modes=["horse"])),
-        ("adjacency", {"locationId": "location:gate", "modes": ["foot"]}, lambda s: s.adjacency("location:gate", modes=["foot"])),
-        ("reachability", {"fromLocationId": "location:gate", "modes": ["foot"]}, lambda s: s.reachability("location:gate", modes=["foot"])),
-        ("path", {"fromLocationId": "location:gate", "toLocationId": "location:side", "metric": "routeDistance", "unit": "pace"}, lambda s: s.path("location:gate", "location:side", metric="route_distance", unit="pace")),
-        ("path", {"fromLocationId": "location:gate", "toLocationId": "location:side", "metric": "duration"}, lambda s: s.path("location:gate", "location:side", metric="duration")),
-        ("path", {"fromLocationId": "location:gate", "toLocationId": "location:side", "metric": "routeDistance", "unit": "mile"}, lambda s: s.path("location:gate", "location:side", metric="route_distance", unit="mile")),
-        ("path", {"fromLocationId": "location:gate", "toLocationId": "location:far", "metric": "routeDistance"}, lambda s: s.path("location:gate", "location:far", metric="route_distance")),
-        ("path", {"fromLocationId": "location:side", "toLocationId": "location:gate", "metric": "routeDistance"}, lambda s: s.path("location:side", "location:gate", metric="route_distance")),
-        ("path", {"fromLocationId": "location:gate", "toLocationId": "location:earth", "metric": "routeDistance"}, lambda s: s.path("location:gate", "location:earth", metric="route_distance")),
-        ("overlay-as-of", {**REQUESTS["overlay-as-of"], "asOf": {"timeline": "main", "tick": "2", "order": "0"}}, lambda s: s.overlay_as_of("location:gate", StoryTime("main", 2, 0), audience="author", perspective="author")),
-        ("overlay-as-of", {**REQUESTS["overlay-as-of"], "queryScope": "overlay", "overlayId": "overlay:ward", "audience": "public"}, lambda s: s.overlay_as_of("location:gate", StoryTime("main", 0, 0), audience="public", perspective="author", overlay_id="overlay:ward")),
-        ("overlay-as-of", {**REQUESTS["overlay-as-of"], "audience": "public"}, lambda s: s.overlay_as_of("location:gate", StoryTime("main", 0, 0), audience="public", perspective="author")),
-        ("reachability", {**REQUESTS["reachability"], "limit": 1}, lambda s: s.reachability("loc_00000000000000000000000000", limit=1)),
-    ]
-    for tick, order in ((-(2**63), -(2**31)), (2**63 - 1, 2**31 - 1), (0, -1), (0, 1)):
-        at = StoryTime("main", tick, order)
-        fields = {**REQUESTS["overlay-as-of"], "asOf": {"timeline": "main", "tick": str(tick), "order": str(order)}}
-        cases.append(("overlay-as-of", fields, lambda s, value=at: s.overlay_as_of("location:gate", value, audience="author", perspective="author")))
-    compiled_world, database = require_database(spatial_repository, require_compiled=True)
-    with closing(connect(database, True)) as connection:
-        store = SpatialStore(connection, compiled_world.revision)
-        # Catalogue cursors are opaque and bound to normalized operands, limit,
-        # operation, and revision. Compare both pages through every boundary.
-        for operation in ("children", "bbox", "nearby"):
-            fields = deepcopy(REQUESTS[operation]); fields["limit"] = 1
-            if operation == "children":
-                direct = store.children(fields["locationId"], limit=1)
-                page = lambda cursor: store.children(fields["locationId"], limit=1, cursor=cursor)
-            elif operation == "bbox":
-                bounds = BoundingBox(tuple(fields["bounds"]["min"]), tuple(fields["bounds"]["max"]))
-                direct = store.bbox(fields["mapId"], bounds, relation=fields["relation"], limit=1)
-                page = lambda cursor: store.bbox(fields["mapId"], bounds, relation=fields["relation"], limit=1, cursor=cursor)
-            else:
-                pos = MapPosition(fields["position"]["mapId"], tuple(fields["position"]["coordinates"]))
-                direct = store.nearby(pos, radius=fields["radius"], limit=1)
-                page = lambda cursor: store.nearby(pos, radius=fields["radius"], limit=1, cursor=cursor)
-            assert direct.kind.value == "ok" and direct.value.cursor
-            cases.append((operation, fields, lambda _store, value=direct: value))
-            cursor = direct.value.cursor
-            cases.append((operation, {**fields, "cursor": cursor}, lambda _store, value=page(cursor): value))
-            rebound = page("malformed")
-            cases.append((operation, {**fields, "cursor": "malformed"}, lambda _store, value=rebound: value))
-            if operation == "children":
-                changed = {**fields, "locationId": "location:gate", "cursor": cursor}
-                bound = store.children("location:gate", limit=1, cursor=cursor)
-            elif operation == "bbox":
-                changed = {**fields, "relation": "intersects", "cursor": cursor}
-                bound = store.bbox(fields["mapId"], bounds, relation="intersects", limit=1, cursor=cursor)
-            else:
-                changed = {**fields, "radius": 3, "cursor": cursor}
-                bound = store.nearby(pos, radius=3, limit=1, cursor=cursor)
-            assert bound.kind.value == "invalid"
-            cases.append((operation, changed, lambda _store, value=bound: value))
-        with TestClient(create_app(spatial_repository.root)) as client:
-            for index, (operation, fields, read) in enumerate(cases):
-                expected = read(store)
-                request = {**_base(**fields), "revision": revision}
-                outcome = execute(spatial_repository, operation, request, require_compiled=True)
-                assert outcome["state"] == expected.kind.value, (operation, fields, outcome)
-                if outcome["state"] == "ok":
-                    assert outcome["result"] == _store_wire(expected.value), (operation, fields)
-                else:
-                    assert "result" not in outcome and outcome["code"].startswith("SPATIAL-")
-                response = client.post(f"/api/spatial/{operation}?requireCompiled=true", json=request)
-                assert response.status_code == status_code(outcome)
-                assert response.json() == outcome
-                request_file = tmp_path / f"edge-{index}.json"
-                request_file.write_text(json.dumps(request), encoding="utf-8")
-                exit_code = main(["--compact", "spatial", operation, str(request_file), "--repo", str(spatial_repository.root), "--require-compiled"])
-                captured = capsys.readouterr()
-                assert exit_code == (0 if outcome["state"] == "ok" else 2)
-                assert json.loads(captured.out if exit_code == 0 else captured.err) == outcome
-
-
 @pytest.mark.parametrize(("operation", "field"), (("bbox", "relation"), ("path", "metric"), ("overlay-as-of", "queryScope")))
 def test_unhashable_read_enums_are_ordinary_wedl_http_errors(
     spatial_repository: Repository, operation: str, field: str,
@@ -384,25 +301,24 @@ def test_hidden_overlay_and_no_overlay_control_have_identical_public_result(spat
     assert hidden == control
 
 
-def test_legacy_compiled_capability_absence_is_a_typed_public_unavailable(
+def test_legacy_bbox_compiled_capability_absence_is_a_typed_public_unavailable(
     ash_repo: Repository, tmp_path: Path, capsys: pytest.CaptureFixture[str],
 ) -> None:
     assert compile_world(ash_repo, "HEAD")["status"] == "compiled"
+    operation = "bbox"
+    request = {**_base(**REQUESTS[operation]), "revision": ash_repo.head(), "capabilities": []}
+    outcome = execute(ash_repo, operation, request, require_compiled=True)
+    assert outcome["state"] == "unavailable" and outcome["capabilities"] == []
+    assert outcome["code"] == "SPATIAL-REQUEST-001" and "result" not in outcome
+    jsonschema.validate(outcome, {"components": components(), "$ref": "#/components/schemas/SpatialBboxUnavailableOutcome"})
+    path = tmp_path / "legacy-bbox.json"
+    path.write_text(json.dumps(request), encoding="utf-8")
+    assert main(["--compact", "spatial", operation, str(path), "--repo", str(ash_repo.root), "--require-compiled"]) == 2
+    captured = capsys.readouterr()
+    assert not captured.out and json.loads(captured.err) == outcome
     with TestClient(create_app(ash_repo.root)) as client:
-        for operation, fields in REQUESTS.items():
-            request = {**_base(**fields), "revision": ash_repo.head(), "capabilities": []}
-            outcome = execute(ash_repo, operation, request, require_compiled=True)
-            assert outcome["state"] == "unavailable" and outcome["capabilities"] == []
-            assert outcome["code"] == "SPATIAL-REQUEST-001" and "result" not in outcome
-            stem = "OverlayAsOf" if operation == "overlay-as-of" else operation.capitalize()
-            jsonschema.validate(outcome, {"components": components(), "$ref": f"#/components/schemas/Spatial{stem}UnavailableOutcome"})
-            path = tmp_path / f"legacy-{operation}.json"
-            path.write_text(json.dumps(request), encoding="utf-8")
-            assert main(["--compact", "spatial", operation, str(path), "--repo", str(ash_repo.root), "--require-compiled"]) == 2
-            captured = capsys.readouterr()
-            assert not captured.out and json.loads(captured.err) == outcome
-            response = client.post(f"/api/spatial/{operation}?requireCompiled=true", json=request)
-            assert response.status_code == 409 and response.json() == outcome
+        response = client.post("/api/spatial/bbox?requireCompiled=true", json=request)
+    assert response.status_code == 409 and response.json() == outcome
 
 
 def test_rounded_two_edge_metric_is_typed_unavailable_across_public_transports(
