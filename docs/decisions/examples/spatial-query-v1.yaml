@@ -1,4 +1,10 @@
 protocol: wedl-spatial/v1
+outcome_common: &outcome_common
+  protocol: wedl-spatial/v1
+  revision: 797688d9cab694e5c9099f48719630fe4fb659b4
+  sourceSchema: wedl/v0.7
+  capabilities: [spatial-core-v1, geometry-v1, route-v1, overlay-v1]
+  cache: {state: ready, revision: 797688d9cab694e5c9099f48719630fe4fb659b4, treeOid: 9f1cd391d3f44fcb1f728df20e8e9b5588c0d1d5, sourceSchema: wedl/v0.7, fingerprint: wedl-v07-example}
 common:
   revision: 797688d9cab694e5c9099f48719630fe4fb659b4
   capabilities: [spatial-core-v1, geometry-v1, route-v1, overlay-v1]
@@ -18,32 +24,45 @@ common:
     cursor_mismatch: SPATIAL-CURSOR-001
 queries:
   containment:
-    request: {protocol: wedl-spatial/v1, revision: 797688d9cab694e5c9099f48719630fe4fb659b4, capabilities: [spatial-core-v1, geometry-v1, route-v1, overlay-v1], limit: 10, cursor: null, location_id: location:archive}
-    response: {state: ok, parent_path: [location:city, location:archive]}
+    request: {protocol: wedl-spatial/v1, revision: 797688d9cab694e5c9099f48719630fe4fb659b4, capabilities: [spatial-core-v1, geometry-v1, route-v1, overlay-v1], limit: 10, cursor: null, locationId: location:archive}
+    response: {<<: *outcome_common, operation: containment, state: ok, result: {ids: [location:city, location:archive], basis: authored-parent-id}}
+  children:
+    request: {protocol: wedl-spatial/v1, revision: 797688d9cab694e5c9099f48719630fe4fb659b4, capabilities: [spatial-core-v1, geometry-v1, route-v1, overlay-v1], limit: 10, cursor: null, locationId: location:city}
+    response: {<<: *outcome_common, operation: children, state: ok, result: {ids: [location:archive], basis: authored-parent-id, units: null, filters: {parentId: location:city}, partial: false, unknown: false, nextCursor: null}}
   bbox:
-    request: {protocol: wedl-spatial/v1, revision: 797688d9cab694e5c9099f48719630fe4fb659b4, capabilities: [spatial-core-v1, geometry-v1, route-v1, overlay-v1], limit: 10, cursor: null, map_id: map:riverward, bounds: {min: [0, 0], max: [100, 100]}}
-    response: {state: ok, ids: [location:archive, location:shore-gate], order: [source_ordinal, stable_id]}
-  nearby_incompatible:
-    request: {protocol: wedl-spatial/v1, revision: 797688d9cab694e5c9099f48719630fe4fb659b4, capabilities: [spatial-core-v1, geometry-v1, route-v1, overlay-v1], limit: 10, cursor: null, from: {map_id: map:riverward, coordinates: [0, 0]}, to: {map_id: map:coast, coordinates: [12.0, 55.0]}}
-    response: {state: unavailable, code: SPATIAL-METRIC-001}
+    request: {protocol: wedl-spatial/v1, revision: 797688d9cab694e5c9099f48719630fe4fb659b4, capabilities: [spatial-core-v1, geometry-v1, route-v1, overlay-v1], limit: 10, cursor: null, mapId: map:riverward, bounds: {min: [0, 0], max: [100, 100]}, relation: intersects}
+    response: {<<: *outcome_common, operation: bbox, state: ok, result: {ids: [location:archive, location:shore-gate], basis: authored-geometry-bounds, units: pace, filters: {mapId: map:riverward, relation: intersects}, partial: false, unknown: false, nextCursor: null}}
+  nearby:
+    request: {protocol: wedl-spatial/v1, revision: 797688d9cab694e5c9099f48719630fe4fb659b4, capabilities: [spatial-core-v1, geometry-v1, route-v1, overlay-v1], limit: 10, cursor: null, position: {mapId: map:riverward, coordinates: [0, 0]}, radius: 10}
+    response: {<<: *outcome_common, operation: nearby, state: unavailable, code: SPATIAL-METRIC-001, detail: compiled metric is unavailable}
+  adjacency:
+    request: {protocol: wedl-spatial/v1, revision: 797688d9cab694e5c9099f48719630fe4fb659b4, capabilities: [spatial-core-v1, geometry-v1, route-v1, overlay-v1], limit: 10, cursor: null, locationId: location:archive, modes: [foot]}
+    response: {<<: *outcome_common, operation: adjacency, state: ok, result: {fromLocationId: location:archive, routeIds: [route:archive-gate], portalIds: [], targetLocationIds: [location:shore-gate], positionPortalIds: [], filters: {modes: [foot], availability: [open]}, basis: authored-directed-route-and-portal-edges, partial: false, unknown: false}}
+  reachability:
+    request: {protocol: wedl-spatial/v1, revision: 797688d9cab694e5c9099f48719630fe4fb659b4, capabilities: [spatial-core-v1, geometry-v1, route-v1, overlay-v1], limit: 10, cursor: null, fromLocationId: location:archive, modes: [foot]}
+    response: {<<: *outcome_common, operation: reachability, state: ok, result: {fromLocationId: location:archive, ids: [location:archive, location:shore-gate], expansions: 1, filters: {modes: [foot], availability: [open]}, basis: authored-directed-route-and-location-portal-edges, partial: false, unknown: false}}
   path_one_way_reverse:
-    request: {protocol: wedl-spatial/v1, revision: 797688d9cab694e5c9099f48719630fe4fb659b4, capabilities: [spatial-core-v1, geometry-v1, route-v1, overlay-v1], limit: 10, cursor: null, from_location_id: location:shore-gate, to_location_id: location:archive, metric: route_distance}
-    response: {state: unavailable, code: SPATIAL-PATH-001}
+    request: {protocol: wedl-spatial/v1, revision: 797688d9cab694e5c9099f48719630fe4fb659b4, capabilities: [spatial-core-v1, geometry-v1, route-v1, overlay-v1], limit: 10, cursor: null, fromLocationId: location:shore-gate, toLocationId: location:archive, metric: routeDistance}
+    response: {<<: *outcome_common, operation: path, state: unavailable, code: SPATIAL-PATH-001, subreason: unreachable, detail: no authored path reaches the endpoint}
   overlay_as_of_public_hidden:
-    request: {protocol: wedl-spatial/v1, revision: 797688d9cab694e5c9099f48719630fe4fb659b4, capabilities: [spatial-core-v1, geometry-v1, route-v1, overlay-v1], limit: 10, cursor: null, query_scope: location-catalogue, location_id: location:archive, at: {timeline: main, tick: "12", order: "0"}, audience: public, perspective: ordinary}
-    response: {state: ok, overlays: [], story_time: {timeline: main, tick: "12", order: "0"}}
+    request: {protocol: wedl-spatial/v1, revision: 797688d9cab694e5c9099f48719630fe4fb659b4, capabilities: [spatial-core-v1, geometry-v1, route-v1, overlay-v1], limit: 10, cursor: null, queryScope: location, locationId: location:archive, asOf: {timeline: main, tick: "12", order: "0"}, audience: public, perspective: ordinary}
+    response: {<<: *outcome_common, operation: overlay-as-of, state: ok, result: {ids: [], storyTime: {timeline: main, tick: "12", order: "0"}, filters: {audience: public, perspective: ordinary, horizon: {timeline: main, tick: "12", order: "0"}}, basis: authored-overlay-membership, partial: false, unknown: false, nextCursor: null}}
   overlay_as_of_no_overlay_control:
-    request: {protocol: wedl-spatial/v1, revision: 797688d9cab694e5c9099f48719630fe4fb659b4, capabilities: [spatial-core-v1, geometry-v1, route-v1, overlay-v1], limit: 10, cursor: null, query_scope: location-catalogue, location_id: location:city, at: {timeline: main, tick: "12", order: "0"}, audience: public, perspective: ordinary}
-    response: {state: ok, overlays: [], story_time: {timeline: main, tick: "12", order: "0"}}
-  overlay_by_id_forbidden:
-    request: {protocol: wedl-spatial/v1, revision: 797688d9cab694e5c9099f48719630fe4fb659b4, capabilities: [spatial-core-v1, geometry-v1, route-v1, overlay-v1], limit: 10, cursor: null, query_scope: explicit-overlay-id, overlay_id: overlay:ward, at: {timeline: main, tick: "12", order: "0"}, audience: public, perspective: ordinary}
-    response: {state: forbidden, code: SPATIAL-OVERLAY-001}
+    request: {protocol: wedl-spatial/v1, revision: 797688d9cab694e5c9099f48719630fe4fb659b4, capabilities: [spatial-core-v1, geometry-v1, route-v1, overlay-v1], limit: 10, cursor: null, queryScope: location, locationId: location:city, asOf: {timeline: main, tick: "12", order: "0"}, audience: public, perspective: ordinary}
+    response: {<<: *outcome_common, operation: overlay-as-of, state: ok, result: {ids: [], storyTime: {timeline: main, tick: "12", order: "0"}, filters: {audience: public, perspective: ordinary, horizon: {timeline: main, tick: "12", order: "0"}}, basis: authored-overlay-membership, partial: false, unknown: false, nextCursor: null}}
+  overlay_by_id_public_hidden:
+    request: {protocol: wedl-spatial/v1, revision: 797688d9cab694e5c9099f48719630fe4fb659b4, capabilities: [spatial-core-v1, geometry-v1, route-v1, overlay-v1], limit: 10, cursor: null, queryScope: overlay, locationId: location:archive, overlayId: overlay:ward, asOf: {timeline: main, tick: "12", order: "0"}, audience: public, perspective: ordinary}
+    response: {<<: *outcome_common, operation: overlay-as-of, state: forbidden, code: SPATIAL-OVERLAY-001, detail: explicit overlay is not authorized in this scope}
+  overlay_by_id_missing_control:
+    request: {protocol: wedl-spatial/v1, revision: 797688d9cab694e5c9099f48719630fe4fb659b4, capabilities: [spatial-core-v1, geometry-v1, route-v1, overlay-v1], limit: 10, cursor: null, queryScope: overlay, locationId: location:archive, overlayId: overlay:missing, asOf: {timeline: main, tick: "12", order: "0"}, audience: public, perspective: ordinary}
+    response: {<<: *outcome_common, operation: overlay-as-of, state: forbidden, code: SPATIAL-OVERLAY-001, detail: explicit overlay is not authorized in this scope}
   overlay_as_of_authorized:
-    request: {protocol: wedl-spatial/v1, revision: 797688d9cab694e5c9099f48719630fe4fb659b4, capabilities: [spatial-core-v1, geometry-v1, route-v1, overlay-v1], limit: 10, cursor: null, query_scope: location-catalogue, location_id: location:archive, at: {timeline: main, tick: "12", order: "0"}, audience: council, perspective: council-archive}
-    response: {state: ok, overlays: [overlay:ward], story_time: {timeline: main, tick: "12", order: "0"}}
+    request: {protocol: wedl-spatial/v1, revision: 797688d9cab694e5c9099f48719630fe4fb659b4, capabilities: [spatial-core-v1, geometry-v1, route-v1, overlay-v1], limit: 10, cursor: null, queryScope: location, locationId: location:archive, asOf: {timeline: main, tick: "12", order: "0"}, audience: council, perspective: council-archive}
+    response: {<<: *outcome_common, operation: overlay-as-of, state: ok, result: {ids: [overlay:ward], storyTime: {timeline: main, tick: "12", order: "0"}, filters: {audience: council, perspective: council-archive, horizon: {timeline: main, tick: "12", order: "0"}}, basis: authored-overlay-membership, partial: false, unknown: false, nextCursor: null}}
   limit:
-    request: {protocol: wedl-spatial/v1, revision: 797688d9cab694e5c9099f48719630fe4fb659b4, capabilities: [spatial-core-v1, geometry-v1, route-v1, overlay-v1], limit: 101, cursor: null, map_id: map:riverward, bounds: {min: [-1000000, -1000000], max: [1000000, 1000000]}}
-    response: {state: limit, code: SPATIAL-LIMIT-001, records: []}
+    precondition: map:budget contains 10001 authored geometry candidates intersecting the requested bounds
+    request: {protocol: wedl-spatial/v1, revision: 797688d9cab694e5c9099f48719630fe4fb659b4, capabilities: [spatial-core-v1, geometry-v1, route-v1, overlay-v1], limit: 100, cursor: null, mapId: map:budget, bounds: {min: [-1000000, -1000000], max: [1000000, 1000000]}, relation: intersects}
+    response: {<<: *outcome_common, operation: bbox, state: limit, code: SPATIAL-LIMIT-001, detail: geometry candidate budget exceeded}
 budgets:
   returned_records: 100
   route_expansions: 1000

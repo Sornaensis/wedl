@@ -9,6 +9,7 @@ the command/query implementations.
 from __future__ import annotations
 
 from copy import deepcopy
+from itertools import combinations
 from typing import Any
 
 
@@ -217,6 +218,8 @@ _CHANGESET_REQUEST = _object(
 
 _AUTHORING_TIME = _object("tick", properties={"timeline": _STRING, "tick": _INTEGER, "order": _INTEGER})
 _NONBLANK_STRING = {"type": "string", "minLength": 1}
+_SPATIAL_NONBLANK_STRING = {"type": "string", "minLength": 1, "maxLength": 256, "pattern": "\\S"}
+_SPATIAL_SUMMARY = {"type": "string", "minLength": 1, "maxLength": 1024, "pattern": "\\S"}
 _CHRONOLOGY_NONBLANK_STRING = {"type": "string", "minLength": 1, "pattern": ".*\\S.*"}
 _AUTHORING_COMMON = {
     "time": _AUTHORING_TIME, "title": _STRING, "location": _STRING, "scene": _STRING,
@@ -228,6 +231,51 @@ _AUTHORING_COMMON = {
     "alternatives": {"type": "array", "items": _STRING}, "context": _STRING, "event": _STRING,
     "timeline": _STRING, "canonicalRecords": {"type": "array", "items": _STRING}, "note": _STRING,
 }
+_SPATIAL_SAFE_NUMBER = {"type": "number", "minimum": -(2 ** 53 - 1), "maximum": 2 ** 53 - 1}
+_SPATIAL_COORDINATES = {"type": "array", "minItems": 2, "maxItems": 3, "items": _SPATIAL_SAFE_NUMBER}
+_SPATIAL_BOUNDS = _strict_object("min", "max", properties={"min": _SPATIAL_COORDINATES, "max": _SPATIAL_COORDINATES})
+_SPATIAL_TIME = _strict_object("timeline", "tick", "order", properties={"timeline": _SPATIAL_NONBLANK_STRING, "tick": _bounded_decimal_string(2 ** 63 - 1, 2 ** 63), "order": _bounded_decimal_string(2 ** 31 - 1, 2 ** 31)})
+_SPATIAL_METRIC = _strict_object("value", "unit", properties={"value": {**_SPATIAL_SAFE_NUMBER, "minimum": 0}, "unit": _SPATIAL_NONBLANK_STRING})
+_SPATIAL_VERTEX_LIST = {"type": "array", "minItems": 2, "maxItems": 10000, "items": _SPATIAL_COORDINATES}
+_SPATIAL_GEOMETRY = {"oneOf": [
+    _strict_object("kind", "coordinates", properties={"kind": {"const": "point"}, "coordinates": _SPATIAL_COORDINATES}),
+    _strict_object("kind", "coordinates", properties={"kind": {"const": "line"}, "coordinates": _SPATIAL_VERTEX_LIST}),
+    _strict_object("kind", "coordinates", properties={"kind": {"const": "polygon"}, "coordinates": {**_SPATIAL_VERTEX_LIST, "minItems": 4}}),
+]}
+_SPATIAL_PLACEMENT = _strict_object("mapId", "geometry", properties={"mapId": _SPATIAL_NONBLANK_STRING, "geometry": _SPATIAL_GEOMETRY})
+_SPATIAL_MEMBERSHIP = _strict_object("locationIds", properties={"locationIds": {"type": "array", "minItems": 1, "maxItems": 10000, "uniqueItems": True, "items": _SPATIAL_NONBLANK_STRING}})
+_SPATIAL_VALID = _strict_object("start", "end", properties={"start": _SPATIAL_TIME, "end": _SPATIAL_TIME})
+_SPATIAL_MAP_FIELDS = {"id": _SPATIAL_NONBLANK_STRING, "title": _SPATIAL_NONBLANK_STRING, "crs": _SPATIAL_NONBLANK_STRING, "axisOrder": {"type": "array", "minItems": 2, "maxItems": 2, "uniqueItems": True, "items": _SPATIAL_NONBLANK_STRING}, "unit": _SPATIAL_NONBLANK_STRING, "bounds": _SPATIAL_BOUNDS, "zPolicy": {"enum": ["forbidden", "optional-level", "required"]}}
+_SPATIAL_LOCATION_FIELDS = {"id": _SPATIAL_NONBLANK_STRING, "parentId": {"anyOf": [_SPATIAL_NONBLANK_STRING, {"type": "null"}]}, "spatial": {"oneOf": [_SPATIAL_PLACEMENT, {"type": "null"}]}}
+_SPATIAL_ROUTE_FIELDS = {"id": _SPATIAL_NONBLANK_STRING, "title": _SPATIAL_NONBLANK_STRING, "fromLocationId": _SPATIAL_NONBLANK_STRING, "toLocationId": _SPATIAL_NONBLANK_STRING, "direction": {"enum": ["one-way", "two-way"]}, "modes": {"type": "array", "minItems": 1, "maxItems": 100, "uniqueItems": True, "items": _SPATIAL_NONBLANK_STRING}, "routeDistance": _SPATIAL_METRIC, "travelCost": _SPATIAL_METRIC, "duration": _SPATIAL_METRIC, "availability": {"enum": ["open", "closed", "restricted", "unknown"]}, "uncertainty": {"enum": ["exact", "estimated", "unknown"]}}
+_SPATIAL_OVERLAY_FIELDS = {"id": _SPATIAL_NONBLANK_STRING, "title": _SPATIAL_NONBLANK_STRING, "lifecycle": {"enum": ["static", "time-bounded"]}, "membership": _SPATIAL_MEMBERSHIP, "audience": {"type": "array", "minItems": 1, "maxItems": 100, "uniqueItems": True, "items": _SPATIAL_NONBLANK_STRING}, "perspectives": {"type": "array", "minItems": 1, "maxItems": 100, "uniqueItems": True, "items": _SPATIAL_NONBLANK_STRING}, "valid": _SPATIAL_VALID}
+
+
+def _spatial_authoring(action: str, required: tuple[str, ...], fields: dict[str, Any]) -> dict[str, Any]:
+    return _strict_object("action", "expectedHead", "idempotencyKey", "payload", properties={"action": {"const": action}, "expectedHead": {"type": "string", "pattern": "^[0-9a-f]{40}$"}, "idempotencyKey": _SPATIAL_NONBLANK_STRING, "summary": _SPATIAL_SUMMARY, "payload": _strict_object(*required, properties=fields)})
+
+
+def _spatial_update_authoring(action: str, fields: dict[str, Any]) -> dict[str, Any]:
+    payload = _strict_object("id", properties=fields)
+    payload["anyOf"] = [{"required": [name]} for name in fields if name != "id"]
+    return _strict_object("action", "expectedHead", "idempotencyKey", "payload", properties={"action": {"const": action}, "expectedHead": {"type": "string", "pattern": "^[0-9a-f]{40}$"}, "idempotencyKey": _SPATIAL_NONBLANK_STRING, "summary": _SPATIAL_SUMMARY, "payload": payload})
+
+
+_SPATIAL_OVERLAY_CREATE = {"oneOf": [
+    _strict_object("id", "title", "lifecycle", "membership", "audience", "perspectives", properties={**{key: value for key, value in _SPATIAL_OVERLAY_FIELDS.items() if key != "valid"}, "lifecycle": {"const": "static"}}),
+    _strict_object("id", "title", "lifecycle", "membership", "audience", "perspectives", "valid", properties={**_SPATIAL_OVERLAY_FIELDS, "lifecycle": {"const": "time-bounded"}}),
+]}
+
+
+_SPATIAL_AUTHORING = [
+    _spatial_authoring("spatial.map.create", ("id", "title", "crs", "axisOrder", "unit", "bounds"), _SPATIAL_MAP_FIELDS),
+    _spatial_update_authoring("spatial.map.update", {key: value for key, value in _SPATIAL_MAP_FIELDS.items() if key != "title"}),
+    _spatial_update_authoring("spatial.location.update", _SPATIAL_LOCATION_FIELDS),
+    _spatial_authoring("spatial.route.create", ("id", "title", "fromLocationId", "toLocationId", "direction", "modes"), _SPATIAL_ROUTE_FIELDS),
+    _spatial_update_authoring("spatial.route.update", {key: value for key, value in _SPATIAL_ROUTE_FIELDS.items() if key != "title"}),
+    _strict_object("action", "expectedHead", "idempotencyKey", "payload", properties={"action": {"const": "spatial.overlay.create"}, "expectedHead": {"type": "string", "pattern": "^[0-9a-f]{40}$"}, "idempotencyKey": _SPATIAL_NONBLANK_STRING, "summary": _SPATIAL_SUMMARY, "payload": _SPATIAL_OVERLAY_CREATE}),
+    _spatial_update_authoring("spatial.overlay.update", {key: value for key, value in _SPATIAL_OVERLAY_FIELDS.items() if key != "title"}),
+]
 _AUTHORING_REQUEST = {"oneOf": [
     _object("action", "time", properties={**_AUTHORING_COMMON, "action": {"const": "current-time.set"}}),
     _object("action", "title", "location", "characters", properties={**_AUTHORING_COMMON, "action": {"const": "scene.create"}}),
@@ -240,6 +288,7 @@ _AUTHORING_REQUEST = {"oneOf": [
     _object("action", "hypothesis", "canonicalRecords", properties={**_AUTHORING_COMMON, "action": {"const": "hypothesis.adopt"}}),
     _object("action", "hypothesis", "note", properties={**_AUTHORING_COMMON, "action": {"const": "hypothesis.reject"}, "note": _NONBLANK_STRING}),
     {"$ref": "#/components/schemas/ChronologyAuthoringRequest"},
+    *_SPATIAL_AUTHORING,
 ]}
 
 _AUTHOR_IMPACT_ITEM = _object(
@@ -275,7 +324,71 @@ def _chronology_outcome(operation: str, result: str) -> dict[str, Any]:
     ]}
 
 
+_CAPABILITY_ORDER = ("generational-core-v1", "spatial-core-v1", "geometry-v1", "route-v1", "overlay-v1")
+_CANONICAL_CAPABILITY_LISTS = [[]] + [list(choice) for size in range(1, len(_CAPABILITY_ORDER) + 1) for choice in combinations(_CAPABILITY_ORDER, size) if ({"generational-core-v1", "spatial-core-v1"} & set(choice)) and all("spatial-core-v1" in choice for item in ("geometry-v1", "route-v1", "overlay-v1") if item in choice)]
+_SPATIAL_COMMON_FIELDS = {
+    "protocol": {"const": "wedl-spatial/v1"},
+    "revision": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+    "capabilities": {"oneOf": [{"const": value} for value in _CANONICAL_CAPABILITY_LISTS]},
+    "limit": {"type": "integer", "minimum": 1, "maximum": 100},
+    "cursor": {"type": ["string", "null"], "minLength": 1, "maxLength": 2048},
+}
+
+
+def _spatial_request(*required: str, properties: dict[str, Any]) -> dict[str, Any]:
+    return _strict_object("protocol", "revision", "capabilities", "limit", "cursor", *required, properties={**_SPATIAL_COMMON_FIELDS, **properties})
+
+
+def _spatial_outcome(operation: str, result: str, state: str) -> dict[str, Any]:
+    common = {"protocol": {"const": "wedl-spatial/v1"}, "operation": {"const": operation}, "revision": {"type": "string", "pattern": "^[0-9a-f]{40}$"}, "sourceSchema": _STRING, "capabilities": {"oneOf": [{"const": value} for value in _CANONICAL_CAPABILITY_LISTS]}, "cache": {"$ref": "#/components/schemas/SpatialCache"}}
+    if state == "ok":
+        return _strict_object("protocol", "operation", "revision", "sourceSchema", "capabilities", "cache", "state", "result", properties={**common, "state": {"const": "ok"}, "result": {"$ref": f"#/components/schemas/{result}"}})
+    return _strict_object("protocol", "operation", "revision", "sourceSchema", "capabilities", "cache", "state", "code", properties={**common, "state": {"const": state}, "code": {"enum": ["SPATIAL-REQUEST-001", "SPATIAL-GEOMETRY-001", "SPATIAL-METRIC-001", "SPATIAL-PATH-001", "SPATIAL-OVERLAY-001", "SPATIAL-LIMIT-001", "SPATIAL-CURSOR-001"]}, "subreason": {"enum": ["unknown-coordinate", "unknown-metric", "incompatible-unit", "ambiguous-unit", "unavailable-edge", "closed-edge", "cross-map-discontinuity", "unreachable"]}, "detail": _STRING})
+
+
+def _spatial_outcome_schemas(operation: str, result: str) -> dict[str, dict[str, Any]]:
+    stem = "OverlayAsOf" if operation == "overlay-as-of" else "".join(part.capitalize() for part in operation.split("-"))
+    return {f"Spatial{stem}{state.capitalize()}Outcome": _spatial_outcome(operation, result, state) for state in ("ok", "invalid", "unavailable", "forbidden", "limit")}
+
+
 SCHEMAS: dict[str, dict[str, Any]] = {
+    "SpatialCache": _strict_object("state", "revision", "treeOid", "sourceSchema", "fingerprint", properties={"state": {"enum": ["missing", "stale", "incompatible", "ready"]}, "revision": _STRING, "treeOid": {"type": ["string", "null"]}, "sourceSchema": _STRING, "fingerprint": {"type": ["string", "null"]}}),
+    "SpatialContainmentRequest": _spatial_request("locationId", properties={"locationId": _SPATIAL_NONBLANK_STRING, "cursor": {"const": None}}),
+    "SpatialChildrenRequest": _spatial_request("locationId", properties={"locationId": _SPATIAL_NONBLANK_STRING}),
+    "SpatialBboxRequest": _spatial_request("mapId", "bounds", "relation", properties={"mapId": _SPATIAL_NONBLANK_STRING, "bounds": _SPATIAL_BOUNDS, "relation": {"enum": ["intersects", "within"]}}),
+    "SpatialNearbyRequest": _spatial_request("position", "radius", properties={"position": _strict_object("mapId", "coordinates", properties={"mapId": _SPATIAL_NONBLANK_STRING, "coordinates": _SPATIAL_COORDINATES}), "radius": {**_SPATIAL_SAFE_NUMBER, "minimum": 0}}),
+    "SpatialAdjacencyRequest": _spatial_request("locationId", properties={"locationId": _SPATIAL_NONBLANK_STRING, "cursor": {"const": None}, "modes": {"type": ["array", "null"], "minItems": 1, "maxItems": 100, "uniqueItems": True, "items": _SPATIAL_NONBLANK_STRING}}),
+    "SpatialReachabilityRequest": _spatial_request("fromLocationId", properties={"fromLocationId": _SPATIAL_NONBLANK_STRING, "cursor": {"const": None}, "modes": {"type": ["array", "null"], "minItems": 1, "maxItems": 100, "uniqueItems": True, "items": _SPATIAL_NONBLANK_STRING}}),
+    "SpatialPathRequest": _spatial_request("fromLocationId", "toLocationId", "metric", properties={"fromLocationId": _SPATIAL_NONBLANK_STRING, "toLocationId": _SPATIAL_NONBLANK_STRING, "metric": {"enum": ["routeDistance", "travelCost", "duration"]}, "unit": {"anyOf": [_SPATIAL_NONBLANK_STRING, {"type": "null"}]}, "modes": {"type": ["array", "null"], "minItems": 1, "maxItems": 100, "uniqueItems": True, "items": _SPATIAL_NONBLANK_STRING}, "cursor": {"const": None}}),
+    "SpatialOverlayAsOfRequest": {"oneOf": [
+        _spatial_request("queryScope", "locationId", "audience", "perspective", "asOf", properties={"queryScope": {"const": "location"}, "locationId": _SPATIAL_NONBLANK_STRING, "audience": _SPATIAL_NONBLANK_STRING, "perspective": _SPATIAL_NONBLANK_STRING, "asOf": _SPATIAL_TIME}),
+        _spatial_request("queryScope", "locationId", "overlayId", "audience", "perspective", "asOf", properties={"queryScope": {"const": "overlay"}, "locationId": _SPATIAL_NONBLANK_STRING, "overlayId": _SPATIAL_NONBLANK_STRING, "audience": _SPATIAL_NONBLANK_STRING, "perspective": _SPATIAL_NONBLANK_STRING, "asOf": _SPATIAL_TIME}),
+    ]},
+    "SpatialContainmentResult": _strict_object("ids", "basis", properties={"ids": {"type": "array", "items": _STRING}, "basis": _STRING}),
+    "SpatialCatalogueFilters": {"oneOf": [
+        _strict_object("parentId", properties={"parentId": _NONBLANK_STRING}),
+        _strict_object("mapId", "relation", properties={"mapId": _NONBLANK_STRING, "relation": {"enum": ["intersects", "within"]}}),
+        _strict_object("mapId", "radius", properties={"mapId": _NONBLANK_STRING, "radius": {**_SPATIAL_SAFE_NUMBER, "minimum": 0}}),
+    ]},
+    # FastAPI omits null members from generated OpenAPI examples. ``modes``
+    # therefore remains closed and nullable when present, but is not required;
+    # ``availability`` is the invariant filter every route result carries.
+    "SpatialRouteFilters": _strict_object("availability", properties={"modes": {"type": ["array", "null"], "items": _NONBLANK_STRING}, "availability": {"const": ["open"]}}),
+    "SpatialOverlayFilters": _strict_object("audience", "perspective", "horizon", properties={"audience": _NONBLANK_STRING, "perspective": _NONBLANK_STRING, "horizon": _SPATIAL_TIME}),
+    "SpatialCatalogueResult": _strict_object("ids", "basis", "units", "filters", "partial", "unknown", "nextCursor", properties={"ids": {"type": "array", "items": _STRING}, "basis": _STRING, "units": {"type": ["string", "null"]}, "filters": {"$ref": "#/components/schemas/SpatialCatalogueFilters"}, "partial": _BOOLEAN, "unknown": _BOOLEAN, "nextCursor": {"type": ["string", "null"]}}),
+    "SpatialAdjacencyResult": _strict_object("fromLocationId", "routeIds", "portalIds", "targetLocationIds", "positionPortalIds", "filters", "basis", "partial", "unknown", properties={"fromLocationId": _STRING, "routeIds": {"type": "array", "items": _STRING}, "portalIds": {"type": "array", "items": _STRING}, "targetLocationIds": {"type": "array", "items": _STRING}, "positionPortalIds": {"type": "array", "items": _STRING}, "filters": {"$ref": "#/components/schemas/SpatialRouteFilters"}, "basis": _STRING, "partial": _BOOLEAN, "unknown": _BOOLEAN}),
+    "SpatialReachabilityResult": _strict_object("fromLocationId", "ids", "expansions", "filters", "basis", "partial", "unknown", properties={"fromLocationId": _STRING, "ids": {"type": "array", "items": _STRING}, "expansions": {"type": "integer"}, "filters": {"$ref": "#/components/schemas/SpatialRouteFilters"}, "basis": _STRING, "partial": _BOOLEAN, "unknown": _BOOLEAN}),
+    "SpatialPathMetric": _strict_object("metric", "computedTotal", "unit", "complete", "unknownEdges", "partial", "unknown", properties={"metric": {"enum": ["routeDistance", "travelCost", "duration"]}, "computedTotal": {"anyOf": [_SPATIAL_SAFE_NUMBER, {"type": "null"}]}, "unit": {"type": ["string", "null"]}, "complete": _BOOLEAN, "unknownEdges": {"type": "array", "items": _STRING}, "partial": _BOOLEAN, "unknown": _BOOLEAN}),
+    "SpatialPathResult": _strict_object("ids", "routeIds", "metric", "expansions", "basis", "filters", "partial", "unknown", properties={"ids": {"type": "array", "items": _STRING}, "routeIds": {"type": "array", "items": _STRING}, "metric": {"$ref": "#/components/schemas/SpatialPathMetric"}, "expansions": {"type": "integer"}, "basis": _STRING, "filters": {"anyOf": [{"$ref": "#/components/schemas/SpatialRouteFilters"}, {"type": "null"}]}, "partial": _BOOLEAN, "unknown": _BOOLEAN}),
+    "SpatialOverlayResult": _strict_object("ids", "storyTime", "filters", "basis", "partial", "unknown", "nextCursor", properties={"ids": {"type": "array", "items": _STRING}, "storyTime": _SPATIAL_TIME, "filters": {"$ref": "#/components/schemas/SpatialOverlayFilters"}, "basis": _STRING, "partial": _BOOLEAN, "unknown": _BOOLEAN, "nextCursor": {"type": ["string", "null"]}}),
+    **_spatial_outcome_schemas("containment", "SpatialContainmentResult"),
+    **_spatial_outcome_schemas("children", "SpatialCatalogueResult"),
+    **_spatial_outcome_schemas("bbox", "SpatialCatalogueResult"),
+    **_spatial_outcome_schemas("nearby", "SpatialCatalogueResult"),
+    **_spatial_outcome_schemas("adjacency", "SpatialAdjacencyResult"),
+    **_spatial_outcome_schemas("reachability", "SpatialReachabilityResult"),
+    **_spatial_outcome_schemas("path", "SpatialPathResult"),
+    **_spatial_outcome_schemas("overlay-as-of", "SpatialOverlayResult"),
     "ChronologyDecimalI64": _bounded_decimal_string(2 ** 63 - 1, 2 ** 63),
     "ChronologyDecimalI32": _bounded_decimal_string(2 ** 31 - 1, 2 ** 31),
     "ChronologyTagExtensions": _extension_object(),

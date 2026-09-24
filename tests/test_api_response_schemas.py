@@ -3,7 +3,7 @@ from __future__ import annotations
 import jsonschema
 import pytest
 
-from wedl.api_contract import control_endpoints, discovery_components, route_contracts
+from wedl.api_contract import Transport, control_endpoints, discovery_components, discovery_responses, route_contracts
 from wedl.api_schemas import components, operation_example
 
 
@@ -23,6 +23,52 @@ def test_every_contract_success_example_validates_against_its_component() -> Non
         assert descriptor.success_examples
         for example in descriptor.success_examples:
             _validate(descriptor.success_schema, example["value"])
+
+
+def test_spatial_route_filters_allow_omitted_nullable_modes_but_remain_closed() -> None:
+    # FastAPI removes null-valued fields while encoding OpenAPI examples.  The
+    # nullable optional member therefore may be absent in a published example,
+    # while any supplied value still has the closed route-filter shape.
+    _validate("SpatialRouteFilters", {"availability": ["open"]})
+    _validate("SpatialRouteFilters", {"modes": None, "availability": ["open"]})
+    _validate("SpatialRouteFilters", {"modes": ["foot"], "availability": ["open"]})
+    with pytest.raises(jsonschema.ValidationError):
+        _validate("SpatialRouteFilters", {"availability": ["open"], "unexpected": True})
+    with pytest.raises(jsonschema.ValidationError):
+        _validate("SpatialRouteFilters", {"availability": ["closed"]})
+
+
+def test_spatial_command_http_request_and_status_matrix_is_exact() -> None:
+    actions = ("containment", "children", "bbox", "nearby", "adjacency", "reachability", "path", "overlay-as-of")
+    spatial = [contract for contract in route_contracts() if contract.command[0] == "spatial"]
+    assert tuple(contract.command[1] for contract in spatial) == actions
+    assert len({contract.binding.path for contract in spatial}) == len(actions)
+    for contract in spatial:
+        assert contract.binding.method == "POST"
+        assert contract.binding.path == f"/api/spatial/{contract.command[1]}"
+        assert contract.binding.parameters == (("require_compiled", "requireCompiled"),)
+        body, = (argument for argument in contract.arguments if argument.transport == Transport.BODY)
+        assert body.dest == "file" and body.transport_name == "payload"
+        descriptor = contract.discovery
+        assert descriptor is not None and descriptor.request_schema == f"Spatial{''.join(part.capitalize() for part in contract.command[1].split('-'))}Request"
+        responses = discovery_responses(descriptor)
+        assert {200, 400, 403, 409, 422} <= set(responses)
+        for status, state in ((400, "invalid"), (403, "forbidden"), (409, "unavailable"), (422, "limit")):
+            assert responses[status]["x-wedl-spatial-state"] == state
+
+
+def test_spatial_authoring_union_rejects_title_update_and_static_validity() -> None:
+    common = {"expectedHead": "a" * 40, "idempotencyKey": "request-1"}
+    update = {"action": "spatial.map.update", **common, "payload": {"id": "map:town", "unit": "league"}}
+    _validate("AuthoringRequest", update)
+    with pytest.raises(jsonschema.ValidationError):
+        _validate("AuthoringRequest", {**update, "payload": {**update["payload"], "title": "Renamed"}})
+    with pytest.raises(jsonschema.ValidationError):
+        _validate("AuthoringRequest", {**update, "payload": {**update["payload"], "unit": "x" * 257}})
+    static = {"action": "spatial.overlay.create", **common, "payload": {"id": "overlay:new", "title": "New", "lifecycle": "static", "membership": {"locationIds": ["location:gate"]}, "audience": ["author"], "perspectives": ["author"]}}
+    _validate("AuthoringRequest", static)
+    with pytest.raises(jsonschema.ValidationError):
+        _validate("AuthoringRequest", {**static, "payload": {**static["payload"], "valid": {"start": {"timeline": "main", "tick": "0", "order": "0"}, "end": {"timeline": "main", "tick": "1", "order": "0"}}}})
 
 
 def test_every_declared_error_has_a_structured_example() -> None:

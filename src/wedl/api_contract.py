@@ -78,6 +78,35 @@ class DiscoveryDescriptor:
     request_schema: str | None = None
 
 
+_SPATIAL_EXAMPLES: dict[str, dict[str, Any]] = {
+    "containment": {"locationId": "location_X"},
+    "children": {"locationId": "location_X"},
+    "bbox": {"mapId": "map_X", "bounds": {"min": [0, 0], "max": [1, 1]}, "relation": "intersects"},
+    "nearby": {"position": {"mapId": "map_X", "coordinates": [0, 0]}, "radius": 1},
+    "adjacency": {"locationId": "location_X"},
+    "reachability": {"fromLocationId": "location_X"},
+    "path": {"fromLocationId": "location_X", "toLocationId": "location_Y", "metric": "routeDistance"},
+    "overlay-as-of": {"queryScope": "location", "locationId": "location_X", "audience": "author", "perspective": "author", "asOf": {"timeline": "main", "tick": "0", "order": "0"}},
+}
+
+
+def _spatial_descriptor(action: str) -> DiscoveryDescriptor:
+    stem = "OverlayAsOf" if action == "overlay-as-of" else "".join(part.capitalize() for part in action.split("-"))
+    body = {"protocol": "wedl-spatial/v1", "revision": "0" * 40, "capabilities": ["spatial-core-v1", "geometry-v1", "route-v1", "overlay-v1"], "limit": 10, "cursor": None, **_SPATIAL_EXAMPLES[action]}
+    result_examples: dict[str, dict[str, Any]] = {
+        "containment": {"ids": ["location_X"], "basis": "authored-parent-id"},
+        "children": {"ids": [], "basis": "authored-parent-id", "units": "none", "filters": {"parentId": "location_X"}, "partial": False, "unknown": False, "nextCursor": "opaque-page-cursor"},
+        "bbox": {"ids": [], "basis": "authored-geometry-bounds", "units": "pace", "filters": {"mapId": "map_X", "relation": "intersects"}, "partial": False, "unknown": False, "nextCursor": "opaque-page-cursor"},
+        "nearby": {"ids": [], "basis": "same-map-authored-geometry", "units": "pace", "filters": {"mapId": "map_X", "radius": 1}, "partial": False, "unknown": False, "nextCursor": "opaque-page-cursor"},
+        "adjacency": {"fromLocationId": "location_X", "routeIds": [], "portalIds": [], "targetLocationIds": [], "positionPortalIds": [], "filters": {"modes": [], "availability": ["open"]}, "basis": "authored-directed-route-and-portal-edges", "partial": False, "unknown": False},
+        "reachability": {"fromLocationId": "location_X", "ids": ["location_X"], "expansions": 1, "filters": {"modes": [], "availability": ["open"]}, "basis": "authored-directed-route-and-location-portal-edges", "partial": False, "unknown": False},
+        "path": {"ids": ["location_X", "location_Y"], "routeIds": ["route_X"], "metric": {"metric": "routeDistance", "computedTotal": 1, "unit": "pace", "complete": True, "unknownEdges": [], "partial": False, "unknown": False}, "expansions": 1, "basis": "authored-directed-routes", "filters": {"modes": [], "availability": ["open"]}, "partial": False, "unknown": False},
+        "overlay-as-of": {"ids": [], "storyTime": {"timeline": "main", "tick": "0", "order": "0"}, "filters": {"audience": "author", "perspective": "author", "horizon": {"timeline": "main", "tick": "0", "order": "0"}}, "basis": "authored-overlay-membership", "partial": False, "unknown": False, "nextCursor": "opaque-page-cursor"},
+    }
+    result: dict[str, Any] = {"protocol": "wedl-spatial/v1", "operation": action, "revision": "0" * 40, "sourceSchema": "wedl/v0.7", "capabilities": ["spatial-core-v1", "geometry-v1", "route-v1", "overlay-v1"], "cache": {"state": "ready", "revision": "0" * 40, "treeOid": "0" * 40, "sourceSchema": "wedl/v0.7", "fingerprint": "compiler"}, "state": "ok", "result": result_examples[action]}
+    return DiscoveryDescriptor(f"Read spatial {action}", "Read one strict wedl-spatial/v1 compiled-projection operation. Spatial semantic states use the documented 200/400/403/409/422 matrix; ordinary WEDL failures retain their normal envelopes.", ("Spatial",), "Spatial outcome.", ("usage_error", "compile_required", "validation_failed", "parse_error", "repository_error"), examples=({"summary": f"{action} request", "value": {"method": "POST", "path": f"/api/spatial/{action}", "body": body}},), success_schema=f"Spatial{stem}OkOutcome", success_examples=({"summary": f"{action} outcome", "value": result},), request_schema=f"Spatial{stem}Request")
+
+
 @dataclass(frozen=True)
 class ControlEndpoint:
     """A non-CLI endpoint that shares the discovery vocabulary."""
@@ -162,6 +191,14 @@ _POLICY: dict[tuple[str, ...], tuple[ApiClass, str, str, RouteBinding | None, st
     ("chronology", "convert"): (ApiClass.QUERY, "read", "mounted", RouteBinding("POST", "/api/chronology/convert", (("require_compiled", "requireCompiled"),)), None),
     ("chronology", "search"): (ApiClass.QUERY, "read", "mounted", RouteBinding("POST", "/api/chronology/search", (("require_compiled", "requireCompiled"),)), None),
     ("chronology", "story-times"): (ApiClass.QUERY, "read", "mounted", RouteBinding("POST", "/api/chronology/story-times", (("require_compiled", "requireCompiled"),)), None),
+    ("spatial", "containment"): (ApiClass.QUERY, "read", "mounted", RouteBinding("POST", "/api/spatial/containment", (("require_compiled", "requireCompiled"),)), None),
+    ("spatial", "children"): (ApiClass.QUERY, "read", "mounted", RouteBinding("POST", "/api/spatial/children", (("require_compiled", "requireCompiled"),)), None),
+    ("spatial", "bbox"): (ApiClass.QUERY, "read", "mounted", RouteBinding("POST", "/api/spatial/bbox", (("require_compiled", "requireCompiled"),)), None),
+    ("spatial", "nearby"): (ApiClass.QUERY, "read", "mounted", RouteBinding("POST", "/api/spatial/nearby", (("require_compiled", "requireCompiled"),)), None),
+    ("spatial", "adjacency"): (ApiClass.QUERY, "read", "mounted", RouteBinding("POST", "/api/spatial/adjacency", (("require_compiled", "requireCompiled"),)), None),
+    ("spatial", "reachability"): (ApiClass.QUERY, "read", "mounted", RouteBinding("POST", "/api/spatial/reachability", (("require_compiled", "requireCompiled"),)), None),
+    ("spatial", "path"): (ApiClass.QUERY, "read", "mounted", RouteBinding("POST", "/api/spatial/path", (("require_compiled", "requireCompiled"),)), None),
+    ("spatial", "overlay-as-of"): (ApiClass.QUERY, "read", "mounted", RouteBinding("POST", "/api/spatial/overlay-as-of", (("require_compiled", "requireCompiled"),)), None),
     ("threads",): (ApiClass.QUERY, "read", "mounted", RouteBinding("GET", "/api/threads", (("require_compiled", "requireCompiled"),)), None),
     ("thread-memberships",): (ApiClass.QUERY, "read", "mounted", RouteBinding("GET", "/api/thread-memberships", (("record_ids", "recordId"), ("thread_ids", "threadId"), ("require_compiled", "requireCompiled"))), None),
     ("whereabouts",): (ApiClass.QUERY, "read", "mounted", RouteBinding("GET", "/api/whereabouts", (("character", "character"), ("tick", "tick"), ("timeline", "timeline"), ("order", "order"), ("require_compiled", "requireCompiled"))), None),
@@ -212,6 +249,7 @@ _DISCOVERY: dict[tuple[str, ...], DiscoveryDescriptor] = {
     ("chronology", "convert"): DiscoveryDescriptor("Convert chronology date", "Convert one non-conflicting chronology value from an unwrapped wedl-chronology/v1 request.", ("Chronology",), "Chronology outcome.", ("usage_error", "compile_required", "validation_failed", "parse_error", "repository_error"), examples=({"summary": "Convert", "value": {"method": "POST", "path": "/api/chronology/convert", "body": {"protocol": "wedl-chronology/v1", "value": {"kind": "civil", "calendarId": "calendar_X", "year": "0"}, "target": {"calendarId": "calendar_X"}}}},), success_schema="ChronologyConvertOutcome", success_examples=({"summary": "Converted", "value": {"protocol": "wedl-chronology/v1", "operation": "convert", "revision": "0" * 40, "outcome": "ok", "advisories": [], "result": {"source": {"kind": "civil", "calendarId": "calendar_X", "year": "0"}, "target": {"kind": "civil", "calendarId": "calendar_X", "year": "0"}, "formatted": "0", "axisDay": "0"}}},), request_schema="ChronologyConvertRequest"),
     ("chronology", "search"): DiscoveryDescriptor("Search chronology annotations", "Search annotations from an unwrapped wedl-chronology/v1 request.", ("Chronology",), "Chronology outcome.", ("usage_error", "compile_required", "validation_failed", "parse_error", "repository_error"), examples=({"summary": "Search", "value": {"method": "POST", "path": "/api/chronology/search", "body": {"protocol": "wedl-chronology/v1", "predicate": "on_date", "value": {"kind": "civil", "calendarId": "calendar_X", "year": "0"}}}},), success_schema="ChronologySearchOutcome", success_examples=({"summary": "Matches", "value": {"protocol": "wedl-chronology/v1", "operation": "search", "revision": "0" * 40, "outcome": "ok", "advisories": [], "result": {"request": {"predicate": "on_date", "limit": 100}, "matches": []}}},), request_schema="ChronologySearchRequest"),
     ("chronology", "story-times"): DiscoveryDescriptor("Map chronology date to story times", "Map through explicit anchors only from an unwrapped wedl-chronology/v1 request.", ("Chronology",), "Chronology outcome.", ("usage_error", "compile_required", "validation_failed", "parse_error", "repository_error"), examples=({"summary": "Map", "value": {"method": "POST", "path": "/api/chronology/story-times", "body": {"protocol": "wedl-chronology/v1", "value": {"kind": "civil", "calendarId": "calendar_X", "year": "0"}}}},), success_schema="ChronologyStoryTimesOutcome", success_examples=({"summary": "Mapping", "value": {"protocol": "wedl-chronology/v1", "operation": "story-times", "revision": "0" * 40, "outcome": "ok", "advisories": [], "result": {"mapping": "none", "storyTimes": []}}},), request_schema="ChronologyStoryTimesRequest"),
+    **{("spatial", action): _spatial_descriptor(action) for action in _SPATIAL_EXAMPLES},
     ("threads",): DiscoveryDescriptor("List narrative thread labels", "Return only declared optional narrative grouping labels for the shared world; memberships, state, time, and retrieval data are not exposed.", ("Queries",), "Narrative thread catalog.", ("compile_required", "validation_failed", "parse_error", "repository_error")),
     ("thread-memberships",): DiscoveryDescriptor("Project selected narrative memberships", "Return the selected narrative-group intersection for supplied canonical records only. It exposes neither unselected membership nor state, time, or retrieval data.", ("Queries",), "Selected narrative membership projection.", ("usage_error", "compile_required", "validation_failed", "parse_error", "repository_error")),
     ("whereabouts",): DiscoveryDescriptor("Read character whereabouts", "Return canonical and retired characters' explicit location state and journey history plus a calculated, noncanonical prominence breakdown at one author horizon. The result does not infer routes, travel, group membership, or knowledge.", ("Queries",), "Character whereabouts.", ("usage_error", "not_found", "compile_required", "validation_failed", "parse_error", "repository_error")),
@@ -264,6 +302,7 @@ def _request_example(command: tuple[str, ...], binding: RouteBinding) -> tuple[d
         ("chronology", "convert"): {"body": {"protocol": "wedl-chronology/v1", "value": {"kind": "civil", "calendarId": "calendar_X", "year": "0"}, "target": {"calendarId": "calendar_X"}}},
         ("chronology", "search"): {"body": {"protocol": "wedl-chronology/v1", "predicate": "on_date", "value": {"kind": "civil", "calendarId": "calendar_X", "year": "0"}}},
         ("chronology", "story-times"): {"body": {"protocol": "wedl-chronology/v1", "value": {"kind": "civil", "calendarId": "calendar_X", "year": "0"}}},
+        **{("spatial", action): {"body": {"protocol": "wedl-spatial/v1", "revision": "0" * 40, "capabilities": ["spatial-core-v1", "geometry-v1", "route-v1", "overlay-v1"], "limit": 10, "cursor": None, **({"locationId": "location_X"} if action in {"containment", "children", "adjacency"} else {"fromLocationId": "location_X"} if action == "reachability" else {"fromLocationId": "location_X", "toLocationId": "location_Y", "metric": "routeDistance"} if action == "path" else {"mapId": "map_X", "bounds": {"min": [0, 0], "max": [1, 1]}, "relation": "intersects"} if action == "bbox" else {"position": {"mapId": "map_X", "coordinates": [0, 0]}, "radius": 1} if action == "nearby" else {"queryScope": "location", "locationId": "location_X", "audience": "author", "perspective": "author", "asOf": {"timeline": "main", "tick": "0", "order": "0"}})}} for action in ("containment", "children", "bbox", "nearby", "adjacency", "reachability", "path", "overlay-as-of")},
         ("threads",): {},
         ("thread-memberships",): {"query": {"recordId": "event_0123456789ABCDEFGHJKMNPQRS", "threadId": "thread_0123456789ABCDEFGHJKMNPQRS"}},
         ("whereabouts",): {"query": {"character": "Mara Vale", "tick": 12}},
@@ -655,6 +694,23 @@ def discovery_responses(descriptor: DiscoveryDescriptor) -> dict[int, dict[str, 
                 }
             },
         }
+    if "Spatial" in descriptor.tags:
+        # Spatial query results have their own closed state machine.  Keep the
+        # ordinary WEDL error alternative on 400 so malformed HTTP requests
+        # remain documented without relabelling a semantic `invalid` result.
+        for status, state in ((400, "invalid"), (403, "forbidden"), (409, "unavailable"), (422, "limit")):
+            if not descriptor.success_schema.endswith("OkOutcome"):
+                raise RuntimeError(f"spatial descriptor has no status-specific success schema: {descriptor.success_schema}")
+            spatial = {"$ref": f"#/components/schemas/{descriptor.success_schema.removesuffix('OkOutcome')}{state.capitalize()}Outcome"}
+            existing = responses.get(status)
+            schema: dict[str, Any] = spatial
+            if existing is not None:
+                schema = {"oneOf": [spatial, {"$ref": "#/components/schemas/WedlError"}]}
+            responses[status] = {
+                "description": f"Spatial `{state}` outcome." + (" Ordinary WEDL errors may also use this status." if existing is not None else ""),
+                "x-wedl-spatial-state": state,
+                "content": {"application/json": {"schema": schema}},
+            }
     return responses
 
 
@@ -700,7 +756,7 @@ def normalize_discovery_openapi(document: dict[str, Any]) -> dict[str, Any]:
     methods = {"get", "post", "put", "patch", "delete", "head", "options", "trace"}
     for path_item in document.get("paths", {}).values():
         for method, operation in path_item.items():
-            if method in methods and isinstance(operation, dict):
+            if method in methods and isinstance(operation, dict) and "Spatial" not in operation.get("tags", ()):
                 operation.get("responses", {}).pop("422", None)
     # FastAPI merges ``openapi_extra`` with its generated body schema.  That
     # is helpful for ordinary models but would leave a misleading hybrid here
@@ -715,6 +771,11 @@ def normalize_discovery_openapi(document: dict[str, Any]) -> dict[str, Any]:
         operation = document.get("paths", {}).get(contract.binding.path, {}).get(contract.binding.method.lower())
         if isinstance(operation, dict):
             operation["requestBody"] = discovery_request_body(contract.discovery, body)
+            # FastAPI's OpenAPI encoder drops ``None`` from extension example
+            # objects. Raw protocol requests use explicit JSON null (notably
+            # the required spatial cursor), so restore the contract-owned
+            # examples verbatim after framework normalization.
+            operation["x-wedl-examples"] = list(contract.discovery.examples)
     # These are introduced solely by FastAPI's default 422 schema.  Removing
     # the unreachable response must also remove its unreachable components so
     # the document has one explicit structural vocabulary.

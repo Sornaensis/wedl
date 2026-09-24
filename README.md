@@ -43,6 +43,10 @@ interface.
   qualitative uncertainty, and a 500-year packaged conformance fixture. Ticks
   order replay and never imply elapsed calendar time; see
   [Chronology rollout](docs/CHRONOLOGY_ROLLOUT.md).
+- Compiled-only `wedl-spatial/v1` reads for authored containment, geometry,
+  directed routes, and horizon-authorized overlays; see the
+  [spatial transport contract](docs/HTTP_API.md#spatial-reads). Seven closed
+  spatial source intents use the existing preview-confirmed authoring workflow.
 
 ## Install
 
@@ -557,7 +561,8 @@ the cursor advances that shared horizon too. Speech appends support `--addressee
 action appends use `--kind action --actor NAME` (repeat `--actor` as needed).
 Authoring preview and apply responses include an `authorImpact` name-only
 summary; the raw changeset payload and response fields remain available for
-automation. Use `--yes` only for deliberate CLI automation.
+automation. Use `--yes` only for deliberate CLI automation; spatial source
+intents always require their exact preview confirmation.
 
 ## Performance and profile benchmarking
 

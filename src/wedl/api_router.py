@@ -13,6 +13,7 @@ import inspect
 from typing import Any, Awaitable, Callable, Literal
 
 from fastapi import APIRouter, Body, Depends, Header, Path, Query
+from fastapi.responses import JSONResponse
 
 from .api_contract import (
     ArgumentContract,
@@ -32,6 +33,7 @@ from .authoring import apply_intent, preview_intent
 from .compiler import compile_world
 from .context import build_context
 from .chronology_api import catalog as chronology_catalog, convert_date as chronology_convert, format_date as chronology_format, search_annotations as chronology_search, story_times as chronology_story_times
+from .spatial_api import execute as spatial_execute, status_code as spatial_status_code
 from .query import (
     causality,
     conversation_view,
@@ -544,6 +546,10 @@ def create_api_router(runtime: Any, authorize: Authorize) -> APIRouter:
     async def chronology_story_times_handler(**arguments: Any) -> dict[str, Any]:
         return await asyncio.to_thread(chronology_story_times, runtime.repository, arguments["file"], require_compiled=arguments["require_compiled"])
 
+    async def spatial_handler(operation: str, **arguments: Any) -> Any:
+        value = await asyncio.to_thread(spatial_execute, runtime.repository, operation, arguments["file"], require_compiled=arguments["require_compiled"])
+        return JSONResponse(value, status_code=spatial_status_code(value))
+
     async def threads_handler(**arguments: Any) -> dict[str, Any]:
         return await asyncio.to_thread(
             thread_catalog,
@@ -653,6 +659,14 @@ def create_api_router(runtime: Any, authorize: Authorize) -> APIRouter:
         ("chronology", "convert"): chronology_convert_handler,
         ("chronology", "search"): chronology_search_handler,
         ("chronology", "story-times"): chronology_story_times_handler,
+        ("spatial", "containment"): lambda **arguments: spatial_handler("containment", **arguments),
+        ("spatial", "children"): lambda **arguments: spatial_handler("children", **arguments),
+        ("spatial", "bbox"): lambda **arguments: spatial_handler("bbox", **arguments),
+        ("spatial", "nearby"): lambda **arguments: spatial_handler("nearby", **arguments),
+        ("spatial", "adjacency"): lambda **arguments: spatial_handler("adjacency", **arguments),
+        ("spatial", "reachability"): lambda **arguments: spatial_handler("reachability", **arguments),
+        ("spatial", "path"): lambda **arguments: spatial_handler("path", **arguments),
+        ("spatial", "overlay-as-of"): lambda **arguments: spatial_handler("overlay-as-of", **arguments),
         ("threads",): threads_handler,
         ("thread-memberships",): thread_memberships_handler,
         ("whereabouts",): whereabouts_handler,

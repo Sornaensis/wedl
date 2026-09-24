@@ -295,6 +295,12 @@ inclusive, and ticks do not convert to elapsed duration.""",
         command = chronology_sub.add_parser(name, help=help_text, description=help_text.capitalize() + ".")
         command.add_argument("file", metavar="FILE", help="raw wedl-chronology/v1 JSON file, or - for stdin")
         _add_repo_argument(command); _add_require_compiled_argument(command)
+    spatial = commands.add_parser("spatial", help="read the compiled spatial protocol", description="Read only the compiled wedl-spatial/v1 projection. Requests are raw JSON files or stdin and never select source paths.")
+    spatial_sub = spatial.add_subparsers(dest="spatial_command", required=True, metavar="ACTION", title="spatial actions", parser_class=WedlArgumentParser)
+    for name, help_text in (("containment", "read authored containment"), ("children", "list authored child locations"), ("bbox", "query geometry bounds"), ("nearby", "query same-map geometry"), ("adjacency", "read authored outbound edges"), ("reachability", "traverse authored directed edges"), ("path", "find an authored metric path"), ("overlay-as-of", "read authorized overlays at an exact StoryTime")):
+        command = spatial_sub.add_parser(name, help=help_text, description=help_text.capitalize() + ".")
+        command.add_argument("file", metavar="FILE", help="raw wedl-spatial/v1 JSON file, or - for stdin")
+        _add_repo_argument(command); _add_require_compiled_argument(command)
     threads = commands.add_parser("threads", help="list optional narrative thread labels", description="List declared narrative grouping labels for the one shared world. Thread labels never create alternate canon, time, state, or search corpora.")
     _add_repo_argument(threads); _add_require_compiled_argument(threads)
     thread_memberships = commands.add_parser("thread-memberships", help="project selected narrative membership for supplied records", description="Return only the selected narrative-group membership intersection for supplied canonical records. Narrative grouping never changes the shared world, time, state, or retrieval ranking.")

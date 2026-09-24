@@ -10,13 +10,14 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 import re
 from copy import deepcopy
 from typing import Any
 
 from .errors import ConfirmationMismatch, ConfirmationRequired, ConflictError, UsageError
 from .errors import ChronologyUpgradeRequired
-from . import CHRONOLOGY_SOURCE_SCHEMA
+from . import CHRONOLOGY_SOURCE_SCHEMA, V07_SOURCE_SCHEMA
 from .conversation import participant_at
 from .ids import id_from_seed
 from .model import ORDER_MAX, ORDER_MIN, StoryTime, World
@@ -102,6 +103,12 @@ def apply_intent(
 
     if not isinstance(intent, dict) or not isinstance(intent.get("action"), str):
         raise UsageError("authoring request requires an action")
+    # Spatial source changes are never allowed to skip the preview handshake.
+    # This also protects receipt replay: a caller must present the original
+    # confirmation token instead of turning an idempotency key into a write
+    # capability.
+    if intent["action"].startswith("spatial.") and allow_unconfirmed:
+        raise ConfirmationRequired("spatial authoring apply requires a preview confirmation token")
     _validate_intent_types(intent)
     key = str(intent.get("idempotencyKey") or _stable_key(intent))
     receipt_path = repository.root / ".wedl" / "idempotency.json"
@@ -493,7 +500,9 @@ def author_impact(repository: Repository, intent: dict[str, Any], payload: dict[
     intentionally contains no source IDs, temporary IDs, paths, or revisions.
     """
 
-    world = repository.load_world(repository.head())
+    # Preview and failed authoring requests are source-only planning.  Do not
+    # make their parser-cache side effect observable as a partial mutation.
+    world = repository.load_world(repository.head(), cache_write=False)
     action = str(intent.get("action") or "")
     payload = payload or compile_intent(repository, intent)
     operations = payload.get("operations") or []
@@ -560,7 +569,7 @@ def preview_intent(repository: Repository, intent: dict[str, Any]) -> dict[str, 
     from .changeset import preview as preview_changeset
 
     payload = compile_intent(repository, intent)
-    plan = preview_changeset(repository, payload)
+    plan = preview_changeset(repository, payload, cache_write=not str(intent.get("action", "")).startswith("spatial."))
     plan.pop("_changes", None)
     return {
         "protocol": "wedl-author-preview/v1", "intent": intent, "changeset": payload,
@@ -824,6 +833,208 @@ def _chronology_annotation(value: Any) -> dict[str, Any]:
     return result
 
 
+_SPATIAL_INTENT_FIELDS = {
+    "map": {"id", "title", "crs", "axisOrder", "unit", "bounds", "zPolicy"},
+    "location": {"id", "parentId", "spatial"},
+    "route": {"id", "title", "fromLocationId", "toLocationId", "direction", "modes", "routeDistance", "travelCost", "duration", "availability", "uncertainty"},
+    "overlay": {"id", "title", "lifecycle", "membership", "audience", "perspectives", "valid"},
+}
+_SPATIAL_SOURCE_KEYS = {
+    "axisOrder": "axis_order", "zPolicy": "z_policy", "parentId": "parent_id",
+    "mapId": "map_id", "locationIds": "location_ids",
+    "fromLocationId": "from_location_id", "toLocationId": "to_location_id",
+    "routeDistance": "route_distance", "travelCost": "travel_cost",
+}
+_SPATIAL_CREATE_REQUIRED = {
+    "map": {"id", "title", "crs", "axisOrder", "unit", "bounds"},
+    "route": {"id", "title", "fromLocationId", "toLocationId", "direction", "modes"},
+    "overlay": {"id", "title", "lifecycle", "membership", "audience", "perspectives"},
+}
+_SPATIAL_DECIMAL = re.compile(r"^-?(0|[1-9][0-9]*)$")
+_SPATIAL_SAFE_INTEGER = 2**53 - 1
+
+
+def _spatial_number(value: Any, field: str) -> None:
+    """Reject values which JSON cannot faithfully carry before changesets."""
+
+    if type(value) is int and abs(value) <= _SPATIAL_SAFE_INTEGER:
+        return
+    if type(value) is float and math.isfinite(value) and abs(value) <= _SPATIAL_SAFE_INTEGER:
+        return
+    raise UsageError(f"{field} must be a finite JSON-safe number")
+
+
+def _spatial_strings(value: Any, field: str, *, minimum: int = 1, maximum: int = 100) -> None:
+    if (not isinstance(value, list) or not minimum <= len(value) <= maximum
+            or any(not isinstance(item, str) or not item.strip() or len(item) > 256 for item in value)
+            or len(set(value)) != len(value)):
+        raise UsageError(f"{field} must contain {minimum}..{maximum} unique nonblank strings")
+
+
+def _spatial_coordinates(value: Any, field: str) -> int:
+    if not isinstance(value, list) or len(value) not in (2, 3):
+        raise UsageError(f"{field} must be a 2D or 3D coordinate")
+    for item in value:
+        _spatial_number(item, field)
+    return len(value)
+
+
+def _spatial_geometry(value: Any, field: str) -> None:
+    if not isinstance(value, dict) or set(value) != {"kind", "coordinates"}:
+        raise UsageError(f"{field} must be a closed geometry")
+    kind, coordinates = value.get("kind"), value.get("coordinates")
+    if kind == "point":
+        _spatial_coordinates(coordinates, f"{field}.coordinates")
+        return
+    if not isinstance(kind, str) or kind not in {"line", "polygon"} or not isinstance(coordinates, list):
+        raise UsageError(f"{field}.kind is invalid")
+    minimum = 2 if kind == "line" else 4
+    if not minimum <= len(coordinates) <= 10_000:
+        raise UsageError(f"{field}.coordinates has an invalid vertex count")
+    dimensions = {_spatial_coordinates(point, f"{field}.coordinates") for point in coordinates}
+    if len(dimensions) != 1 or (kind == "polygon" and coordinates[0] != coordinates[-1]):
+        raise UsageError(f"{field}.coordinates is malformed")
+
+
+def _spatial_metric(value: Any, field: str) -> None:
+    if not isinstance(value, dict) or set(value) != {"value", "unit"}:
+        raise UsageError(f"{field} must be a closed metric")
+    _spatial_number(value["value"], f"{field}.value")
+    if value["value"] < 0 or not isinstance(value["unit"], str) or not value["unit"].strip() or len(value["unit"]) > 256:
+        raise UsageError(f"{field} must use a non-negative value and nonblank unit")
+
+
+def _spatial_story_time(value: Any, field: str) -> StoryTime:
+    if not isinstance(value, dict) or set(value) != {"timeline", "tick", "order"}:
+        raise UsageError(f"{field} must be a closed StoryTime")
+    timeline, tick, order = value.get("timeline"), value.get("tick"), value.get("order")
+    if (not isinstance(timeline, str) or not timeline.strip() or len(timeline) > 256
+            or any(not isinstance(part, str) or part == "-0" or not _SPATIAL_DECIMAL.fullmatch(part) for part in (tick, order))):
+        raise UsageError(f"{field} requires canonical decimal tick and order strings")
+    try:
+        return StoryTime(timeline, int(tick), int(order))
+    except ValueError as exc:
+        raise UsageError(f"{field} is outside supported bounds") from exc
+
+
+def _validate_spatial_payload(kind: str, verb: str, payload: dict[str, Any]) -> None:
+    """Mirror the public schema's nested safety rules before a changeset exists."""
+
+    for field in ("id", "title", "crs", "unit", "parentId", "fromLocationId", "toLocationId", "direction", "availability", "uncertainty", "lifecycle"):
+        if field in payload and payload[field] is not None and (not isinstance(payload[field], str) or not payload[field].strip() or len(payload[field]) > 256):
+            raise UsageError(f"spatial.{kind}.{verb} payload field {field} must be a nonblank string")
+    if "axisOrder" in payload:
+        _spatial_strings(payload["axisOrder"], "axisOrder", minimum=2, maximum=2)
+    if "bounds" in payload:
+        bounds = payload["bounds"]
+        if not isinstance(bounds, dict) or set(bounds) != {"min", "max"}:
+            raise UsageError("bounds must be a closed min/max object")
+        low, high = _spatial_coordinates(bounds["min"], "bounds.min"), _spatial_coordinates(bounds["max"], "bounds.max")
+        if low != high or any(left >= right for left, right in zip(bounds["min"], bounds["max"])):
+            raise UsageError("bounds must be strictly ordered coordinates of matching dimensionality")
+    if "zPolicy" in payload and (not isinstance(payload["zPolicy"], str) or payload["zPolicy"] not in {"forbidden", "optional-level", "required"}):
+        raise UsageError("zPolicy is invalid")
+    if "spatial" in payload and payload["spatial"] is not None:
+        spatial = payload["spatial"]
+        if not isinstance(spatial, dict) or set(spatial) != {"mapId", "geometry"} or not isinstance(spatial.get("mapId"), str) or not spatial["mapId"].strip() or len(spatial["mapId"]) > 256:
+            raise UsageError("spatial must be a closed placement")
+        _spatial_geometry(spatial["geometry"], "spatial.geometry")
+    for field in ("routeDistance", "travelCost", "duration"):
+        if field in payload:
+            _spatial_metric(payload[field], field)
+    if "modes" in payload:
+        _spatial_strings(payload["modes"], "modes")
+    if kind == "route":
+        if "direction" in payload and payload["direction"] not in {"one-way", "two-way"}: raise UsageError("direction is invalid")
+        if "availability" in payload and payload["availability"] not in {"open", "closed", "restricted", "unknown"}: raise UsageError("availability is invalid")
+        if "uncertainty" in payload and payload["uncertainty"] not in {"exact", "estimated", "unknown"}: raise UsageError("uncertainty is invalid")
+    if kind == "overlay":
+        if "membership" in payload:
+            membership = payload["membership"]
+            if not isinstance(membership, dict) or set(membership) != {"locationIds"}: raise UsageError("membership must be a closed locationIds object")
+            _spatial_strings(membership["locationIds"], "membership.locationIds", maximum=10_000)
+        for field in ("audience", "perspectives"):
+            if field in payload: _spatial_strings(payload[field], field)
+        if "valid" in payload:
+            valid = payload["valid"]
+            if not isinstance(valid, dict) or set(valid) != {"start", "end"}: raise UsageError("valid must be a closed start/end object")
+            start, end = _spatial_story_time(valid["start"], "valid.start"), _spatial_story_time(valid["end"], "valid.end")
+            if start.timeline != end.timeline or (start.tick, start.order) > (end.tick, end.order): raise UsageError("valid must be ordered on one timeline")
+
+
+def _spatial_source(value: Any) -> Any:
+    """Convert the closed public payload to canonical v0.7 source values."""
+    if isinstance(value, list):
+        return [_spatial_source(item) for item in value]
+    if not isinstance(value, dict): return deepcopy(value)
+    # Spatial public JSON never carries Python/SQLite integers for StoryTime.
+    # Source validation remains the semantic authority, but convert this exact
+    # wire form before preview/apply/replay reaches the changeset transaction.
+    if set(value) == {"timeline", "tick", "order"}:
+        timeline, tick, order = value["timeline"], value["tick"], value["order"]
+        if not isinstance(timeline, str) or not timeline.strip() or any(not isinstance(part, str) or part == "-0" or not _SPATIAL_DECIMAL.fullmatch(part) for part in (tick, order)):
+            raise UsageError("spatial StoryTime requires canonical decimal tick and order strings")
+        try:
+            point = StoryTime(timeline, int(tick), int(order))
+        except ValueError as exc:
+            raise UsageError("spatial StoryTime is outside supported bounds") from exc
+        return point.to_dict()
+    return {_SPATIAL_SOURCE_KEYS.get(key, key): _spatial_source(item) for key, item in value.items()}
+
+
+def _spatial_intent(world: World, intent: dict[str, Any], action: str) -> list[dict[str, Any]]:
+    """Compile one ID-only spatial create/update intent to ordinary changesets."""
+    parts = action.split(".")
+    if len(parts) != 3 or parts[0] != "spatial" or parts[1] not in _SPATIAL_INTENT_FIELDS or parts[2] not in {"create", "update"}:
+        raise UsageError("unsupported spatial authoring action")
+    kind, verb = parts[1], parts[2]
+    if world.schema != V07_SOURCE_SCHEMA:
+        raise ChronologyUpgradeRequired("spatial authoring requires wedl/v0.7", details={"code": "WDL-MIG-V07-001", "sourceSchema": world.schema, "upgradeAvailable": False})
+    allowed = {"action", "expectedHead", "idempotencyKey", "summary", "payload"}
+    if set(intent).difference(allowed) or any(field not in intent for field in ("expectedHead", "idempotencyKey", "payload")):
+        raise UsageError(f"{action} contains unsupported or missing fields")
+    if not isinstance(intent["expectedHead"], str) or not re.fullmatch(r"[0-9a-f]{40}", intent["expectedHead"]):
+        raise UsageError(f"{action} requires a 40-character expectedHead")
+    if not isinstance(intent["idempotencyKey"], str) or not intent["idempotencyKey"].strip() or len(intent["idempotencyKey"]) > 256:
+        raise UsageError(f"{action} requires a nonblank idempotencyKey")
+    if "summary" in intent and (not isinstance(intent["summary"], str) or not intent["summary"].strip() or len(intent["summary"]) > 1024):
+        raise UsageError(f"{action} summary must be a nonblank string of at most 1024 characters")
+    payload = intent["payload"]
+    allowed_payload = _SPATIAL_INTENT_FIELDS[kind]
+    if not isinstance(payload, dict) or set(payload).difference(allowed_payload) or not isinstance(payload.get("id"), str) or not payload["id"].strip() or len(payload["id"]) > 256:
+        raise UsageError(f"{action} payload is malformed")
+    if verb == "create" and not _SPATIAL_CREATE_REQUIRED.get(kind, {"id"}).issubset(payload):
+        raise UsageError(f"{action} payload is missing required spatial fields")
+    _validate_spatial_payload(kind, verb, payload)
+    if kind == "overlay" and verb == "create":
+        lifecycle = payload.get("lifecycle")
+        if lifecycle == "static" and "valid" in payload:
+            raise UsageError("spatial.overlay.create static lifecycle forbids valid")
+        if lifecycle == "time-bounded" and "valid" not in payload:
+            raise UsageError("spatial.overlay.create time-bounded lifecycle requires valid")
+        if lifecycle not in {"static", "time-bounded"}:
+            raise UsageError("spatial.overlay.create lifecycle must be static or time-bounded")
+    if verb == "update" and set(payload) == {"id"}:
+        raise UsageError(f"{action} payload must patch one spatial field")
+    if verb == "update" and "title" in payload:
+        raise UsageError(f"{action} cannot change title; update only authored spatial fields")
+    entity_id = payload["id"]
+    record = world.records.get(entity_id)
+    if verb == "create":
+        if record is not None:
+            raise UsageError(f"{action} refuses an existing ID")
+        if not isinstance(payload.get("title"), str) or not payload["title"].strip():
+            raise UsageError(f"{action} payload requires title")
+        frontmatter = {"schema": world.schema, "kind": kind, **_spatial_source(payload)}
+        return [{"type": "entity.create", "value": {"frontmatter": frontmatter, "bodyMarkdown": f"# {payload['title']}\n"}}]
+    if record is None or record.kind != kind:
+        raise UsageError(f"{action} requires an existing {kind} record")
+    patch = _spatial_source({key: value for key, value in payload.items() if key != "id"})
+    if not patch:
+        raise UsageError(f"{action} payload must patch one spatial field")
+    return [{"type": "entity.update", "entity": entity_id, "frontmatterPatch": patch}]
+
+
 def compile_intent(repository: Repository, intent: dict[str, Any]) -> dict[str, Any]:
     """Resolve a small author intent into a canonical raw changeset.
 
@@ -835,7 +1046,12 @@ def compile_intent(repository: Repository, intent: dict[str, Any]) -> dict[str, 
         raise UsageError("authoring request requires an action")
     _validate_intent_types(intent)
     action = intent["action"]
-    world = repository.load_world(repository.head())
+    # Compilation is also used by preview/refusal paths; it must not create a
+    # parser-cache side effect before the confirmed transaction begins.
+    world = repository.load_world(repository.head(), cache_write=False)
+
+    if action.startswith("spatial."):
+        return _envelope(repository, intent, _spatial_intent(world, intent, action))
 
     if action == "chronology.replace":
         if set(intent).difference({"action", "expectedHead", "change", "summary", "idempotencyKey"}):

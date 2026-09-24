@@ -42,6 +42,14 @@ call.
 | POST | `/api/chronology/convert` | no | Convert an unwrapped `wedl-chronology/v1` date request. |
 | POST | `/api/chronology/search` | no | Search an unwrapped `wedl-chronology/v1` annotation request. |
 | POST | `/api/chronology/story-times` | no | Map an unwrapped `wedl-chronology/v1` date request through anchors. |
+| POST | `/api/spatial/containment` | no | Read authored spatial containment from an unwrapped `wedl-spatial/v1` request. |
+| POST | `/api/spatial/children` | no | List authored child locations from an unwrapped `wedl-spatial/v1` request. |
+| POST | `/api/spatial/bbox` | no | Query compiled authored geometry bounds. |
+| POST | `/api/spatial/nearby` | no | Query same-map authored geometry candidates. |
+| POST | `/api/spatial/adjacency` | no | Read authored directed route and portal edges. |
+| POST | `/api/spatial/reachability` | no | Traverse bounded authored directed route and portal edges. |
+| POST | `/api/spatial/path` | no | Read one authored metric path without inferring travel. |
+| POST | `/api/spatial/overlay-as-of` | no | Read authorized overlays at an exact StoryTime horizon. |
 | GET | `/api/threads` | no | Declared optional narrative grouping labels only. |
 | GET | `/api/thread-memberships` | no | Selected grouping membership projection for supplied records. |
 | GET | `/api/whereabouts` | no | Horizon-bounded character locations and explicit journeys. |
@@ -61,6 +69,46 @@ Query names preserve the established aliases where applicable: `q`,
 `requireCompiled`, `includeText`, `includeHypotheses`, `allTime`, `maxCharacters`, and `maxItems`.
 Use `/openapi.json` for the full current parameter list, parser defaults,
 enums, numeric bounds, and descriptions.
+
+## Spatial reads
+
+The eight `/api/spatial/*` endpoints accept the raw, closed `wedl-spatial/v1`
+JSON body; a CLI file path is never part of the HTTP body. Every request names
+the exact compiled revision and canonical capability list, has `limit` from 1
+through 100, and supplies `cursor` as null or an opaque response cursor.
+Responses use the same envelope with `state` `ok`, `invalid`, `unavailable`,
+`forbidden`, or `limit`; those states map to HTTP 200, 400, 409, 403, and 422
+respectively. Cache metadata contains readiness and revision facts only, never
+repository, source, or database paths. StoryTime `tick` and `order` are
+canonical signed decimal strings. Overlay authorization occurs before result
+selection or pagination.
+
+Each spatial answer is bound to one verified open compiled projection: its
+result rows, response revision, and cache metadata are read from the same
+SQLite file. If a concurrent compile replaces that file before the read binds,
+the server retries rather than mixing revisions. `compile_required` remains an
+ordinary WEDL error (HTTP 400 / CLI exit 2), but its spatial transport details
+contain only the rebuild hint and never raw cache paths.
+
+| Operation | Required operation members | `ok` result |
+| --- | --- | --- |
+| containment | `locationId` | authored containment `ids` and `basis`; cursor must be null |
+| children | `locationId` | catalogue `ids`, `basis`, `filters`, `nextCursor` |
+| bbox | `mapId`, ordered `bounds`, `relation` | geometry catalogue with `units` and `nextCursor` |
+| nearby | `position`, nonnegative `radius` | same-map catalogue with `units` and `nextCursor` |
+| adjacency | `locationId`, optional `modes` | authored route/portal edges; cursor must be null |
+| reachability | `fromLocationId`, optional `modes` | bounded directed `ids` and `expansions`; cursor must be null |
+| path | `fromLocationId`, `toLocationId`, `metric`, optional exact `unit`/`modes` | route IDs and labelled `metric.computedTotal`; cursor must be null |
+| overlay-as-of | exact `queryScope`, `locationId`, audience, perspective, `asOf` | authorized overlay IDs and `nextCursor` |
+
+`overlay-as-of` is a discriminated union: `queryScope: "location"` forbids
+`overlayId`; `queryScope: "overlay"` requires it. This happens before the
+store call. An explicit hidden or nonexistent overlay ID is the same closed
+`forbidden` result (`SPATIAL-OVERLAY-001`, HTTP 403, CLI exit 2). A catalogue
+read without an explicit ID remains an `ok` empty result when no overlay is
+visible. Non-StoryTime numeric operands are finite
+and limited to JSON's exact integer range; source/SQLite-sized integers are not
+accepted as lossy JSON numbers.
 
 ## Entity-detail chronology annotations
 
@@ -245,7 +293,10 @@ normal changeset preview and apply requires that preview token in
 `X-Wedl-Confirmation`. Supported `action` values are `current-time.set`,
 `scene.create`, `scene.advance`, `scene.close`, `character.move`,
 `conversation.create`, `conversation.append`, `hypothesis.create`,
-`hypothesis.adopt`, `hypothesis.reject`, and `chronology.replace`.
+`hypothesis.adopt`, `hypothesis.reject`, `chronology.replace`,
+`spatial.map.create`, `spatial.map.update`, `spatial.location.update`,
+`spatial.route.create`, `spatial.route.update`, `spatial.overlay.create`, and
+`spatial.overlay.update`.
 `chronology.replace` requires the exact audited `expectedHead`, replaces each
 supplied catalogue or record annotation array completely, previews before any
 write, and applies through the ordinary confirmed changeset workflow. A hypothesis create takes a
@@ -257,6 +308,21 @@ and an optional independently present character selection; otherwise it uses
 the scene's location/current time and all present characters. The generated OpenAPI schema documents the action
 variants and request examples show representative payloads. There is no party/group action: `characters` is only a convenient list
 of independent character references, expanded to individual effects.
+
+Spatial actions have closed ID-only payloads and require a 40-character
+`expectedHead`, a nonblank `idempotencyKey`, and an exact preview confirmation.
+Spatial request and intent identifiers, labels, modes, and other text members
+are limited to 256 characters; authoring summaries are limited to 1024.
+They cannot use the CLI `--yes` bypass. Maps use `crs`, `axisOrder`, `unit`,
+and ordered `bounds`; location updates patch `parentId` and/or `spatial`
+(`null` clears only that authored field); routes use endpoint IDs, direction,
+modes and authored metrics; overlays use `membership.locationIds`, audience,
+perspectives and `valid.start/end`. Public overlay StoryTime ticks/orders are
+canonical decimal strings and become bounded source integers only inside the
+confirmed authoring transaction.
+Create requires a title for maps, routes, and overlays. Updates preserve the
+existing title, body, provenance, extensions, and unrelated frontmatter;
+`title` is not an update field or a selector.
 
 Ergonomic `conversation.append` targets active conversations only. Historical
 or closed transcripts are deliberate source-history edits and must use a raw

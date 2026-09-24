@@ -28,6 +28,7 @@ from .model import Record
 from .migration import PROTOCOL as MIGRATION_PROTOCOL, apply as apply_migration, preview as preview_migration
 from .query import causality, conversation_view, entity_state, hypotheses, interactions_between, knowledge, list_entities, search_world, show_entity, status, story_points, thread_catalog, thread_memberships, timeline, validation_report, whereabouts
 from .chronology_api import catalog as chronology_catalog, convert_date as chronology_convert_date, format_date as chronology_format_date, search_annotations as chronology_search_annotations, story_times as chronology_story_times
+from .spatial_api import execute as spatial_execute
 from .repository import Repository
 from .server import local_server_url, open_local_browser, preflight_local_server, run_local_server
 from .source import serialize_record
@@ -228,6 +229,8 @@ def dispatch(args: argparse.Namespace) -> Any:
                 "search": chronology_search_annotations,
                 "story-times": chronology_story_times,
             }[args.chronology_command](repository, request, require_compiled=args.require_compiled)
+    elif args.command == "spatial":
+        value = spatial_execute(repository, args.spatial_command, _json_file(args.file), require_compiled=args.require_compiled)
     elif args.command == "threads": value = thread_catalog(repository, require_compiled=args.require_compiled)
     elif args.command == "thread-memberships": value = thread_memberships(repository, tuple(args.record_ids), tuple(args.thread_ids), require_compiled=args.require_compiled)
     elif args.command == "whereabouts": value = whereabouts(repository, args.character, args.tick, args.timeline, args.order, require_compiled=args.require_compiled)
@@ -241,6 +244,8 @@ def dispatch(args: argparse.Namespace) -> Any:
             intent = _json_file(args.file)
             if args.author_subject_command == "preview":
                 return preview_intent(repository, intent)
+            if args.yes and isinstance(intent, dict) and str(intent.get("action", "")).startswith("spatial."):
+                raise UsageError("--yes cannot bypass preview confirmation for spatial authoring")
             value = apply_intent(repository, intent, confirmation_token_value=args.confirm, allow_unconfirmed=args.yes)
             return value
         action = {
@@ -321,6 +326,14 @@ def main(argv: list[str] | None = None) -> int:
         args = parser().parse_args(argument_list)
         value = dispatch(args)
         if value is not None:
+            # Spatial semantic failures are valid protocol envelopes rather
+            # than malformed CLI invocations, but remain non-successful CLI
+            # outcomes.  Keep their exact envelope on stderr for parity with
+            # the HTTP status mapping instead of pretending an empty result
+            # succeeded.
+            if args.command == "spatial" and isinstance(value, dict) and value.get("state") != "ok":
+                print(json.dumps(value, ensure_ascii=False, separators=(",", ":")) if args.compact else pretty_json(value), file=sys.stderr)
+                return 2
             if args.command == "completion":
                 print(value, end="")
             else:

@@ -72,9 +72,10 @@ perspective are separately authored opaque IDs; both must match exactly.
 Restricted overlays are filtered before counts, ordering, pagination, and
 serialization.  A location-catalogue `overlay-as-of` query returns successful
 visible-only results: an otherwise identical location with no overlays and a
-location with only hidden overlays are observationally identical.  `forbidden`
-is reserved for an explicit overlay-ID query-scope authorization failure, where
-the caller has already named that ID; it is never returned by a catalogue query.
+location with only hidden overlays are observationally identical. `forbidden`
+is reserved for an explicit overlay-ID query-scope authorization failure,
+including an unknown ID, where the caller has already named that ID; it is
+never returned by a catalogue query.
 Membership is only an authored reference or geometry predicate declared by the
 overlay; geometry alone never invents political, geographic, or structural
 membership.
@@ -94,8 +95,9 @@ empty success or best effort.
 
 ### Query and transport contract
 
-The `wedl-spatial/v1` request/response vectors define five reads: `containment`,
-`bbox`, `nearby`, `path`, and `overlay-as-of`.  Every concrete request vector
+The `wedl-spatial/v1` request/response vectors define eight reads: `containment`,
+`children`, `bbox`, `nearby`, `adjacency`, `reachability`, `path`, and
+`overlay-as-of`. Every concrete request vector
 is self-contained and explicitly includes `protocol`, `revision`,
 `capabilities`, a `limit` (bounded 1..100 for valid requests), and `cursor`
 (`null` where no next page is requested).  The sole out-of-range limit vector
@@ -113,6 +115,10 @@ HTTP and CLI must preserve the same code, JSON shape, StoryTime tuple, order,
 cursor semantics, and exit classification; they may not turn an unavailable
 spatial answer into a 200 empty result.  Future compiled reads must agree with
 normalized source on the same revision and return the source ID/provenance.
+The transport binds one read connection to its compiled revision metadata;
+if atomic cache replacement races that binding, it retries instead of labeling
+newer rows with an older revision. Ordinary compile-required diagnostics retain
+their WEDL envelope but redact repository and database paths.
 
 ### Offline, renderer, and asset trust boundary
 

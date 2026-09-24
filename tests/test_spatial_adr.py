@@ -5,6 +5,9 @@ from __future__ import annotations
 from pathlib import Path
 
 import yaml
+import jsonschema
+
+from wedl.api_schemas import components
 
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -79,28 +82,40 @@ def test_query_vectors_close_states_budgets_time_and_audience() -> None:
         assert request["capabilities"] == vector["common"]["capabilities"]
         assert request["cursor"] is None
         assert isinstance(request["limit"], int)
-        if name == "limit":
-            assert request["limit"] > vector["common"]["limit"]["maximum"]
-        else:
-            assert vector["common"]["limit"]["minimum"] <= request["limit"] <= vector["common"]["limit"]["maximum"]
-    assert vector["queries"]["nearby_incompatible"]["response"] == {"state": "unavailable", "code": "SPATIAL-METRIC-001"}
+        assert vector["common"]["limit"]["minimum"] <= request["limit"] <= vector["common"]["limit"]["maximum"]
+        response = query["response"]
+        assert response["protocol"] == vector["protocol"]
+        assert response["revision"] == vector["common"]["revision"]
+        assert response["capabilities"] == vector["common"]["capabilities"]
+        assert set(response["cache"]) == {"state", "revision", "treeOid", "sourceSchema", "fingerprint"}
+        stem = "OverlayAsOf" if response["operation"] == "overlay-as-of" else "".join(part.capitalize() for part in response["operation"].split("-"))
+        state = response["state"].capitalize()
+        jsonschema.validate(response, {"components": components(), "$ref": f"#/components/schemas/Spatial{stem}{state}Outcome"})
+    assert vector["queries"]["nearby"]["response"]["code"] == "SPATIAL-METRIC-001"
     assert vector["queries"]["path_one_way_reverse"]["response"]["code"] == "SPATIAL-PATH-001"
     public_hidden = vector["queries"]["overlay_as_of_public_hidden"]
     public_control = vector["queries"]["overlay_as_of_no_overlay_control"]
-    assert public_hidden["request"]["query_scope"] == public_control["request"]["query_scope"] == "location-catalogue"
-    assert public_hidden["response"] == public_control["response"] == {"state": "ok", "overlays": [], "story_time": {"timeline": "main", "tick": "12", "order": "0"}}
-    forbidden = vector["queries"]["overlay_by_id_forbidden"]
-    assert forbidden["request"]["query_scope"] == "explicit-overlay-id"
-    assert forbidden["response"] == {"state": "forbidden", "code": "SPATIAL-OVERLAY-001"}
+    assert public_hidden["request"]["queryScope"] == public_control["request"]["queryScope"] == "location"
+    assert public_hidden["response"] == public_control["response"]
+    hidden_id = vector["queries"]["overlay_by_id_public_hidden"]
+    missing_id = vector["queries"]["overlay_by_id_missing_control"]
+    assert hidden_id["request"]["queryScope"] == missing_id["request"]["queryScope"] == "overlay"
+    assert hidden_id["response"] == missing_id["response"]
+    assert hidden_id["response"] == missing_id["response"]
+    assert hidden_id["response"]["code"] == "SPATIAL-OVERLAY-001"
     authorized = vector["queries"]["overlay_as_of_authorized"]["response"]
-    assert authorized["story_time"] == {"timeline": "main", "tick": "12", "order": "0"}
+    assert authorized["result"]["storyTime"] == {"timeline": "main", "tick": "12", "order": "0"}
     for query in vector["queries"].values():
-        for wire_time in (query["request"].get("at"), query["response"].get("story_time")):
+        response = query["response"]
+        result = response.get("result", {})
+        for wire_time in (query["request"].get("asOf"), result.get("storyTime"), result.get("filters", {}).get("horizon")):
             if wire_time is None:
                 continue
             for field in ("tick", "order"):
                 value = wire_time[field]
                 assert isinstance(value, str), "public transport must reject numeric StoryTime fields"
                 assert value == str(int(value)), "public transport requires canonical signed decimal strings"
-    assert vector["queries"]["limit"]["response"] == {"state": "limit", "code": "SPATIAL-LIMIT-001", "records": []}
+    assert vector["queries"]["limit"]["response"]["code"] == "SPATIAL-LIMIT-001"
+    assert vector["queries"]["limit"]["request"]["limit"] == 100
+    assert vector["queries"]["limit"]["precondition"] == "map:budget contains 10001 authored geometry candidates intersecting the requested bounds"
     assert vector["budgets"] == {"returned_records": 100, "route_expansions": 1000, "overlay_candidates_after_authorization": 2000, "geometry_vertices": 10000}

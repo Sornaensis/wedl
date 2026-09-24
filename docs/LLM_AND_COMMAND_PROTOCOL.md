@@ -77,8 +77,23 @@ wedl conversation show CONVERSATION [--repo PATH] [--require-compiled]
   [--timeline NAME] [--order N] [--all-time]
 wedl chronology catalog [--repo PATH] [--require-compiled]
 wedl chronology format|convert|search|story-times FILE [--repo PATH] [--require-compiled]
+wedl spatial containment|children|bbox|nearby|adjacency|reachability|path|overlay-as-of FILE [--repo PATH] [--require-compiled]
 wedl serve [--repo PATH] [--host LOOPBACK] [--port N]
 ```
+
+`wedl spatial` reads one raw closed `wedl-spatial/v1` JSON document from FILE
+or standard input and prints the same result as its matching local HTTP POST.
+The document carries revision/capabilities/limit/cursor plus only that action's
+members; StoryTime tick/order are signed decimal strings. Semantic spatial
+states are `ok` (exit 0), `invalid`, `unavailable`, `forbidden`, or `limit`
+(stderr and exit 2). See the HTTP contract for the exact action/result matrix.
+For explicit overlay-ID reads, a hidden overlay and an unknown ID both return
+the same `forbidden` `SPATIAL-OVERLAY-001` envelope (HTTP 403; CLI exit 2).
+Catalogue reads without an explicit ID still return an empty `ok` result when
+no overlay is visible.
+When `--require-compiled` finds a missing or stale cache, the ordinary
+`compile_required` error keeps its normal exit classification but exposes only
+the compile hint; it never includes a local cache or repository path.
 
 The parser rejects invalid option values before it opens a repository or starts
 the local server. `entity list --kind` accepts only canonical entity kinds:
@@ -180,7 +195,8 @@ and the resolved Git HEAD. Supply that exact value out-of-band through
 `apply --confirm TOKEN`; a missing, changed-payload, or stale-HEAD token is
 rejected before writes. The checksum is proof of preview, not authorization.
 `--yes` is the mutually-exclusive explicit unsafe bypass for deliberate
-non-interactive one-shot automation. `apply` validates, writes canonical
+non-interactive one-shot automation, except for all `spatial.*` authoring
+intents: those always require their exact preview confirmation. `apply` validates, writes canonical
 Markdown, creates one Git commit, and recompiles the resulting revision. See the current changeset
 examples under [`examples/`](../examples/) for the file format. A changeset file
 uses the current `wedl-changeset/v1` input document version. The older
