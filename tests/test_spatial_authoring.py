@@ -3,7 +3,12 @@
 from __future__ import annotations
 
 from copy import deepcopy
+import hashlib
+import os
 from pathlib import Path
+import shutil
+import stat
+import subprocess
 
 import pytest
 import yaml
@@ -24,6 +29,71 @@ from wedl import changeset
 
 ROOT = Path(__file__).resolve().parents[1]
 HEAD = "a" * 40
+
+
+def _git(root: Path, *args: str) -> str:
+    return subprocess.run(["git", "-C", str(root), *args], check=True,
+                          capture_output=True, text=True).stdout.strip()
+
+
+def _file_hashes(root: Path) -> dict[str, str]:
+    return {path.relative_to(root).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest()
+            for path in root.rglob("*") if path.is_file()}
+
+
+def _assert_source_only(root: Path) -> None:
+    assert not (root / ".wedl").exists()
+    assert not (root / ".git" / "objects" / "info" / "alternates").exists()
+    assert not (root / ".git" / "commondir").exists()
+    assert not (root / ".git" / "worktrees").exists()
+    assert not (root / ".git" / "index.lock").exists()
+    for path in root.rglob("*"):
+        assert not path.is_symlink()
+        assert not (getattr(os.lstat(path), "st_file_attributes", 0)
+                    & getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0))
+
+
+@pytest.fixture(scope="module")
+def _spatial_authoring_seed(tmp_path_factory: pytest.TempPathFactory,
+                            _task91_seed: Path) -> tuple[Path, dict[str, str], str]:
+    root = tmp_path_factory.mktemp("spatial-authoring-seed") / "repo"
+    shutil.copytree(_task91_seed, root, copy_function=shutil.copy2)
+    repository = Repository(root)
+    world = _world()
+    expected = {record.source_path: record.raw_bytes for record in world.records.values()}
+    repository.commit_files(expected_head=repository.head(), files=expected,
+                            message="seed v0.7 spatial authoring")
+    actual = {path.relative_to(root).as_posix(): path.read_bytes()
+              for path in (root / "story").rglob("*.md")}
+    assert actual == expected
+    _assert_source_only(root)
+    assert _git(root, "status", "--porcelain") == ""
+    image = _file_hashes(root)
+    yield root, image, repository.head()
+    assert _file_hashes(root) == image
+    _assert_source_only(root)
+
+
+@pytest.fixture()
+def ash_repo(tmp_path: Path,
+             _spatial_authoring_seed: tuple[Path, dict[str, str], str]) -> Repository:
+    seed, image, head = _spatial_authoring_seed
+    assert _file_hashes(seed) == image
+    root = tmp_path / "ash"
+    shutil.copytree(seed, root, copy_function=shutil.copy2)
+    assert _file_hashes(root) == image
+    _assert_source_only(root)
+    for source in seed.rglob("*"):
+        target = root / source.relative_to(seed)
+        assert target.exists() and not os.path.samefile(source, target)
+    repository = Repository(root)
+    assert repository.head() == head
+    if _git(root, "status", "--porcelain"):
+        _git(root, "update-index", "--refresh")
+    assert _git(root, "status", "--porcelain") == ""
+    yield repository
+    assert _file_hashes(seed) == image
+    _assert_source_only(seed)
 
 
 def _world() -> World:
@@ -114,13 +184,6 @@ def test_spatial_apply_refuses_unconfirmed_bypass_before_repository_access() -> 
 
 
 def test_map_create_preview_apply_and_exact_replay_use_real_journal(ash_repo: Repository) -> None:
-    world = _world()
-    changes: dict[str, bytes | None] = {
-        path.relative_to(ash_repo.root).as_posix(): None
-        for path in (ash_repo.root / "story").rglob("*.md")
-    }
-    changes.update({record.source_path: record.raw_bytes for record in world.records.values()})
-    ash_repo.commit_files(expected_head=ash_repo.head(), files=changes, message="seed v0.7 spatial authoring")
     request = _intent("spatial.map.create", CREATE_CASES[0][1])
     request["expectedHead"] = ash_repo.head()
     before = ash_repo.head()
@@ -164,14 +227,6 @@ def test_map_create_preview_apply_and_exact_replay_use_real_journal(ash_repo: Re
 def test_all_seven_spatial_intents_preview_apply_and_replay_through_real_journal(
     ash_repo: Repository, monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    world = _world()
-    changes: dict[str, bytes | None] = {
-        path.relative_to(ash_repo.root).as_posix(): None
-        for path in (ash_repo.root / "story").rglob("*.md")
-    }
-    changes.update({record.source_path: record.raw_bytes for record in world.records.values()})
-    ash_repo.commit_files(expected_head=ash_repo.head(), files=changes, message="seed v0.7 spatial journal matrix")
-
     # Optional cache publication may defer, while source and receipt still commit
     # together through the actual journal and every candidate is validated.
     monkeypatch.setattr(changeset, "compile_world_bytes", lambda *_args, **_kwargs: AuthoringByteResult(
@@ -211,13 +266,6 @@ def test_all_seven_spatial_intents_preview_apply_and_replay_through_real_journal
 def test_spatial_source_and_receipt_roll_back_on_journal_publication_failure(
     ash_repo: Repository, monkeypatch: pytest.MonkeyPatch,
 ) -> None:
-    world = _world()
-    changes: dict[str, bytes | None] = {
-        path.relative_to(ash_repo.root).as_posix(): None
-        for path in (ash_repo.root / "story").rglob("*.md")
-    }
-    changes.update({record.source_path: record.raw_bytes for record in world.records.values()})
-    ash_repo.commit_files(expected_head=ash_repo.head(), files=changes, message="seed v0.7 spatial rollback")
     monkeypatch.setattr(changeset, "compile_world_bytes", lambda *_args, **_kwargs: AuthoringByteResult(
         "deferred-to-restart", {"status": "deferred-to-restart", "reason": "sqlite-serialize-unavailable"},
     ))
@@ -246,12 +294,6 @@ def test_spatial_source_and_receipt_roll_back_on_journal_publication_failure(
 
 def test_malformed_spatial_authoring_enums_and_numbers_are_wedl_http_errors(ash_repo: Repository) -> None:
     world = _world()
-    changes: dict[str, bytes | None] = {
-        path.relative_to(ash_repo.root).as_posix(): None
-        for path in (ash_repo.root / "story").rglob("*.md")
-    }
-    changes.update({record.source_path: record.raw_bytes for record in world.records.values()})
-    ash_repo.commit_files(expected_head=ash_repo.head(), files=changes, message="seed v0.7 malformed spatial requests")
     huge = 10**400
     cases = (
         ("spatial.map.update", {"id": "map:town", "zPolicy": ["required"]}),
@@ -273,12 +315,6 @@ def test_malformed_spatial_authoring_enums_and_numbers_are_wedl_http_errors(ash_
 
 def test_spatial_preview_is_read_only_for_source_cache_receipt_and_head(ash_repo: Repository) -> None:
     world = _world()
-    changes: dict[str, bytes | None] = {
-        path.relative_to(ash_repo.root).as_posix(): None
-        for path in (ash_repo.root / "story").rglob("*.md")
-    }
-    changes.update({record.source_path: record.raw_bytes for record in world.records.values()})
-    ash_repo.commit_files(expected_head=ash_repo.head(), files=changes, message="seed v0.7 preview-read-only")
     repository = Repository(ash_repo.root)
     request = {"action": "spatial.map.create", "expectedHead": repository.head(),
                "idempotencyKey": "spatial-read-only", "payload": deepcopy(CREATE_CASES[0][1])}
@@ -309,11 +345,8 @@ def test_spatial_location_update_keeps_detail_context_and_whereabouts_compatible
     body = "# Spatial watch\n\nA watcher.\n"
     path = generated_path("story", "character", character["title"], character["id"], character)
     world.records[character["id"]] = Record(character, body, path, serialize_record(character, body))
-    changes: dict[str, bytes | None] = {
-        path.relative_to(ash_repo.root).as_posix(): None
-        for path in (ash_repo.root / "story").rglob("*.md")
-    }
-    changes.update({record.source_path: record.raw_bytes for record in world.records.values()})
+    changes = {root.source_path: world.records[root.id].raw_bytes,
+               path: world.records[character["id"]].raw_bytes}
     ash_repo.commit_files(expected_head=ash_repo.head(), files=changes, message="seed v0.7 compatibility")
     request = {"action": "spatial.location.update", "expectedHead": ash_repo.head(),
                "idempotencyKey": "spatial-compat", "payload": deepcopy(UPDATE_CASES[1][1])}
