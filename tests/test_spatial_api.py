@@ -3,6 +3,11 @@
 from __future__ import annotations
 
 import json
+import hashlib
+import os
+import shutil
+import stat
+import subprocess
 from contextlib import closing
 from copy import deepcopy
 from dataclasses import fields, is_dataclass
@@ -76,8 +81,7 @@ def _store_wire(value: object) -> object:
     return value
 
 
-@pytest.fixture()
-def spatial_repository(ash_repo: Repository) -> Repository:
+def _seed_spatial_records(repository: Repository) -> None:
     fixture = yaml.safe_load((ROOT / "tests/fixtures/spatial_v07/valid-multimap.yaml").read_text(encoding="utf-8"))
     authored_route = deepcopy(fixture["route"])
     authored_route["route_distance"] = {"value": 1, "unit": "pace"}
@@ -89,16 +93,78 @@ def spatial_repository(ash_repo: Repository) -> Repository:
         {"schema": "wedl/v0.7", "kind": "route", "id": "route:side-far", "title": "Side to far", "from_location_id": "location:side", "to_location_id": "location:far", "direction": "one-way", "modes": ["foot"], "availability": "closed", "route_distance": {"value": 3, "unit": "pace"}},
     ]
     changes: dict[str, bytes | None] = {
-        path.relative_to(ash_repo.root).as_posix(): None
-        for path in (ash_repo.root / "story").rglob("*.md")
+        path.relative_to(repository.root).as_posix(): None
+        for path in (repository.root / "story").rglob("*.md")
     }
     for record in records:
         path = generated_path("story", record["kind"], record["title"], record["id"], record)
         changes[path] = serialize_record(record, f"# {record['title']}\n")
-    ash_repo.commit_files(expected_head=ash_repo.head(), files=changes, message="seed spatial transport fixture")
-    repository = Repository(ash_repo.root)
+    repository.commit_files(expected_head=repository.head(), files=changes, message="seed spatial transport fixture")
     assert compile_world(repository, "HEAD")["status"] == "compiled"
-    return repository
+
+
+def _git(root: Path, *args: str) -> str:
+    return subprocess.run(["git", "-C", str(root), *args], check=True,
+                          capture_output=True, text=True).stdout.strip()
+
+
+def _file_hashes(root: Path) -> dict[str, str]:
+    return {path.relative_to(root).as_posix(): hashlib.sha256(path.read_bytes()).hexdigest()
+            for path in root.rglob("*") if path.is_file()}
+
+
+def _no_active_state(root: Path) -> None:
+    for path in root.rglob("*"):
+        assert not path.is_symlink()
+        assert not (getattr(os.lstat(path), "st_file_attributes", 0)
+                    & getattr(stat, "FILE_ATTRIBUTE_REPARSE_POINT", 0))
+        if path.is_file() and ".wedl" in path.parts:
+            name = path.name.lower()
+            assert not (name.endswith(("-wal", "-shm", ".lock", "-journal"))
+                        or any(word in name for word in ("session", "receipt", "transaction")))
+
+
+@pytest.fixture(scope="module")
+def _spatial_seed(tmp_path_factory: pytest.TempPathFactory,
+                  _task91_seed: Path) -> tuple[Path, dict[str, str], str]:
+    root = tmp_path_factory.mktemp("spatial-api-seed") / "repository"
+    shutil.copytree(_task91_seed, root, copy_function=shutil.copy2)
+    repository = Repository(root)
+    _seed_spatial_records(repository)
+    _no_active_state(root)
+    compiled_world, database = require_database(repository, require_compiled=True)
+    assert compiled_world.revision == repository.head()
+    assert database == root / ".wedl" / "world.sqlite"
+    assert _git(root, "status", "--porcelain") == ""
+    image = _file_hashes(root)
+    yield root, image, repository.head()
+    assert _file_hashes(root) == image
+    _no_active_state(root)
+
+
+@pytest.fixture()
+def spatial_repository(tmp_path: Path,
+                       _spatial_seed: tuple[Path, dict[str, str], str]) -> Repository:
+    seed, image, head = _spatial_seed
+    assert _file_hashes(seed) == image
+    root = tmp_path / "ash"
+    shutil.copytree(seed, root, copy_function=shutil.copy2)
+    _no_active_state(root)
+    for source in seed.rglob("*"):
+        target = root / source.relative_to(seed)
+        assert target.exists() and not os.path.samefile(source, target)
+    repository = Repository(root)
+    assert repository.head() == head
+    if _git(root, "status", "--porcelain"):
+        _git(root, "update-index", "--refresh")
+    assert _git(root, "status", "--porcelain") == ""
+    database = root / ".wedl" / "world.sqlite"
+    before = hashlib.sha256(database.read_bytes()).hexdigest(), database.stat().st_mtime_ns
+    compiled_world, copied_database = require_database(repository, require_compiled=True)
+    assert compiled_world.revision == head and copied_database == database
+    assert (hashlib.sha256(database.read_bytes()).hexdigest(), database.stat().st_mtime_ns) == before
+    yield repository
+    assert _file_hashes(seed) == image
 
 
 def _revision(repository: Repository) -> str:
