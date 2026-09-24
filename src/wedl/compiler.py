@@ -43,7 +43,7 @@ CHRONOLOGY_INDEX_GENERATION_TOKEN = "wedl-chronology-index/v3"
 # a database created before its DDL must never be mistaken for a compatible
 # read model by a later opt-in caller.
 SPATIAL_INDEX_GENERATION_TOKEN = "wedl-spatial-index/v1"
-GENERATIONAL_INDEX_GENERATION_TOKEN = "wedl-generational-index/v1"
+GENERATIONAL_INDEX_GENERATION_TOKEN = "wedl-generational-index/v4"
 COMPILER_FINGERPRINT_PREFIX = f"{DOCUMENT_GENERATION_TOKEN}:{CHRONOLOGY_INDEX_GENERATION_TOKEN}:{SPATIAL_INDEX_GENERATION_TOKEN}:{GENERATIONAL_INDEX_GENERATION_TOKEN}:"
 
 DDL = r"""
@@ -107,7 +107,7 @@ CREATE TABLE spatial_overlay_audience(overlay_id TEXT NOT NULL REFERENCES spatia
 CREATE TABLE spatial_overlay_perspective(overlay_id TEXT NOT NULL REFERENCES spatial_overlay(id),perspective TEXT NOT NULL,source_ordinal INTEGER NOT NULL,PRIMARY KEY(overlay_id,perspective));
 CREATE TABLE generational_record(id TEXT PRIMARY KEY REFERENCES entity(id),kind TEXT NOT NULL,source_ordinal INTEGER NOT NULL UNIQUE,source_path TEXT NOT NULL,blob_oid TEXT,status TEXT NOT NULL,capability TEXT NOT NULL,timeline TEXT NOT NULL,audience_json TEXT NOT NULL,perspectives_json TEXT NOT NULL);
 CREATE TABLE generational_organization(id TEXT PRIMARY KEY REFERENCES generational_record(id),organization_kind TEXT NOT NULL,parent_id TEXT,location_id TEXT);
-CREATE TABLE generational_parentage(id TEXT PRIMARY KEY REFERENCES generational_record(id),child_id TEXT NOT NULL,parent_id TEXT NOT NULL);
+CREATE TABLE generational_parentage(id TEXT PRIMARY KEY REFERENCES generational_record(id),child_id TEXT NOT NULL,parent_id TEXT NOT NULL,timeline TEXT NOT NULL,start_tick INTEGER NOT NULL,start_order INTEGER NOT NULL,source_ordinal INTEGER NOT NULL);
 CREATE TABLE generational_union(id TEXT PRIMARY KEY REFERENCES generational_record(id));
 CREATE TABLE generational_union_participant(union_id TEXT NOT NULL REFERENCES generational_union(id),transition_id TEXT NOT NULL REFERENCES generational_transition(id),participant_id TEXT NOT NULL,source_ordinal INTEGER NOT NULL,PRIMARY KEY(transition_id,participant_id));
 CREATE TABLE generational_affiliation(id TEXT PRIMARY KEY REFERENCES generational_record(id),character_id TEXT NOT NULL,organization_id TEXT NOT NULL);
@@ -118,6 +118,7 @@ CREATE TABLE generational_vital(id TEXT PRIMARY KEY REFERENCES generational_reco
 CREATE TABLE generational_transition(id TEXT PRIMARY KEY,record_id TEXT NOT NULL REFERENCES generational_record(id),source_ordinal INTEGER NOT NULL,transition_kind TEXT NOT NULL,applicability_kind TEXT NOT NULL,timeline TEXT NOT NULL,start_tick INTEGER NOT NULL,start_order INTEGER NOT NULL,end_tick INTEGER,end_order INTEGER,payload_json TEXT NOT NULL,cause_event_id TEXT,cause_citation_json TEXT,replaces_transition_id TEXT,citation_json TEXT NOT NULL,UNIQUE(record_id,source_ordinal));
 CREATE TABLE generational_current(record_id TEXT PRIMARY KEY REFERENCES generational_record(id),timeline TEXT NOT NULL,at_tick INTEGER NOT NULL,at_order INTEGER NOT NULL,state TEXT NOT NULL,value_json TEXT NOT NULL);
 CREATE TABLE generational_candidate(record_id TEXT NOT NULL REFERENCES generational_record(id),transition_id TEXT NOT NULL REFERENCES generational_transition(id),source_ordinal INTEGER NOT NULL,capability TEXT NOT NULL,timeline TEXT NOT NULL,start_tick INTEGER NOT NULL,start_order INTEGER NOT NULL,end_tick INTEGER,end_order INTEGER,audience_json TEXT NOT NULL,perspectives_json TEXT NOT NULL,citation_json TEXT NOT NULL,structural_json TEXT NOT NULL,PRIMARY KEY(record_id,transition_id));
+CREATE TABLE generational_search_prefix(prefix TEXT NOT NULL,audience TEXT NOT NULL,perspective TEXT NOT NULL,timeline TEXT NOT NULL,start_tick INTEGER NOT NULL,start_order INTEGER NOT NULL,source_ordinal INTEGER NOT NULL,record_id TEXT NOT NULL REFERENCES generational_record(id),transition_id TEXT NOT NULL REFERENCES generational_transition(id),PRIMARY KEY(prefix,audience,perspective,timeline,record_id));
 """
 INDEX_DDL = r"""
 CREATE INDEX entity_kind_idx ON entity(kind,status,title);
@@ -164,6 +165,9 @@ CREATE INDEX spatial_overlay_perspective_perspective_idx ON spatial_overlay_pers
 CREATE INDEX generational_record_kind_idx ON generational_record(kind,timeline,source_ordinal,id);
 CREATE INDEX generational_organization_parent_idx ON generational_organization(parent_id,id);
 CREATE INDEX generational_parentage_child_idx ON generational_parentage(child_id,parent_id,id);
+CREATE INDEX generational_parentage_parent_idx ON generational_parentage(parent_id,child_id,id);
+CREATE INDEX generational_parentage_child_time_idx ON generational_parentage(child_id,timeline,start_tick,start_order,source_ordinal,id,parent_id);
+CREATE INDEX generational_parentage_parent_time_idx ON generational_parentage(parent_id,timeline,start_tick,start_order,source_ordinal,id,child_id);
 CREATE INDEX generational_union_participant_idx ON generational_union_participant(participant_id,union_id);
 CREATE INDEX generational_affiliation_organization_idx ON generational_affiliation(organization_id,character_id,id);
 CREATE INDEX generational_tenure_legacy_idx ON generational_tenure(legacy_id,id);
@@ -171,6 +175,7 @@ CREATE INDEX generational_claim_legacy_idx ON generational_claim(legacy_id,id);
 CREATE INDEX generational_vital_character_idx ON generational_vital(character_id,id);
 CREATE INDEX generational_transition_asof_idx ON generational_transition(record_id,timeline,start_tick,start_order,source_ordinal,id);
 CREATE INDEX generational_candidate_asof_idx ON generational_candidate(timeline,start_tick,start_order,record_id,source_ordinal);
+CREATE INDEX generational_search_lookup_idx ON generational_search_prefix(audience,perspective,timeline,prefix,start_tick,start_order,source_ordinal,record_id);
 """
 
 _REQUIRED_SPATIAL_TABLES = frozenset({
@@ -198,14 +203,17 @@ _REQUIRED_GENERATIONAL_TABLES = frozenset({
     "generational_union", "generational_union_participant", "generational_affiliation",
     "generational_legacy", "generational_tenure", "generational_claim",
     "generational_vital", "generational_transition", "generational_current",
-    "generational_candidate",
+    "generational_candidate", "generational_search_prefix",
 })
 _REQUIRED_GENERATIONAL_INDEXES = frozenset({
     "generational_record_kind_idx", "generational_organization_parent_idx",
-    "generational_parentage_child_idx", "generational_union_participant_idx",
+    "generational_parentage_child_idx", "generational_parentage_parent_idx",
+    "generational_parentage_child_time_idx", "generational_parentage_parent_time_idx",
+    "generational_union_participant_idx",
     "generational_affiliation_organization_idx", "generational_tenure_legacy_idx",
     "generational_claim_legacy_idx", "generational_vital_character_idx",
     "generational_transition_asof_idx", "generational_candidate_asof_idx",
+    "generational_search_lookup_idx",
 })
 
 

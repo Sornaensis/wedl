@@ -340,3 +340,41 @@ def test_missing_or_malformed_generational_shape_rejects_cache(tmp_path: Path) -
     finally:
         connection.close()
     assert _compiled_database_issues(database) == ("missingIndex:generational_parentage_child_idx",)
+
+
+def test_reverse_parentage_index_is_required_and_has_parent_lead(tmp_path: Path) -> None:
+    database = tmp_path / "reverse.sqlite"
+    connection = sqlite3.connect(database)
+    try:
+        _bootstrap_compiled_connection(connection)
+        connection.executescript(INDEX_DDL)
+        columns = [row[2] for row in connection.execute(
+            "PRAGMA index_info(generational_parentage_parent_idx)")]
+        assert columns == ["parent_id", "child_id", "id"]
+        ordered = [row[2] for row in connection.execute(
+            "PRAGMA index_info(generational_parentage_parent_time_idx)")]
+        assert ordered == ["parent_id", "timeline", "start_tick", "start_order",
+                           "source_ordinal", "id", "child_id"]
+        connection.execute("DROP INDEX generational_parentage_parent_idx")
+        connection.commit()
+    finally:
+        connection.close()
+    assert _compiled_database_issues(database) == (
+        "missingIndex:generational_parentage_parent_idx",)
+
+
+def test_private_structural_search_shape_is_required(tmp_path: Path) -> None:
+    database = tmp_path / "search-shape.sqlite"
+    connection = sqlite3.connect(database)
+    try:
+        _bootstrap_compiled_connection(connection)
+        connection.executescript(INDEX_DDL)
+        assert [row[2] for row in connection.execute(
+            "PRAGMA index_info(generational_search_lookup_idx)")] == [
+                "audience", "perspective", "timeline", "prefix", "start_tick",
+                "start_order", "source_ordinal", "record_id"]
+        connection.execute("ALTER TABLE generational_search_prefix RENAME COLUMN prefix TO wrong_prefix")
+        connection.commit()
+    finally:
+        connection.close()
+    assert "tableShape:generational_search_prefix" in _compiled_database_issues(database)

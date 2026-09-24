@@ -88,17 +88,29 @@ The v0.7 generational component stores one row per authored record in
 `generational_record`, typed endpoint rows for each of the eight kinds, ordered
 `generational_union_participant` rows, and exact authored transitions in
 `generational_transition`. Btree indexes support child-to-parent, organization
-containment, legacy-to-tenure/claim, character-to-vital, and per-record as-of
+parent-to-child reverse traversal, containment, legacy-to-tenure/claim,
+character-to-vital, and per-record as-of
 replay. `generational_current` is a disposable fold at the world cursor.
+The two covering parentage endpoint/time indexes let ancestry, descendants,
+and relative paths merge each breadth-first level in authored order and stop
+work at the item bound.
 
 `generational_candidate` holds private structural search material with timeline,
-applicability, audience, perspective, and citation fields. Generational source
+applicability, audience, perspective, and citation fields.
+`generational_search_prefix` stores distinct per-record normalized structural
+token prefixes with first authorized audience/perspective/timeline applicability;
+`generational_search_lookup_idx` supports bounded prefix discovery without
+scanning unrelated transitions or the generic search corpus. Withheld vital
+records and nonaffirmative vital initialization are excluded. Generational source
 records are excluded from generic `search_document`, FTS5, and vector models;
-the future viewer-aware query layer must filter private candidates before
+the viewer-aware query layer filters private candidates before
 ranking. See [GENERATIONAL_COMPILATION.md](GENERATIONAL_COMPILATION.md) for
 ordering, replay, citations, and the internal query boundary.
 
-The disposable schema is `wedl-sqlite/v8`. Readiness checks require the
+The disposable schema is `wedl-sqlite/v11`; the generational generation token is
+`wedl-generational-index/v4`. The parent-led
+`generational_parentage_parent_idx(parent_id,child_id,id)` is required for
+reverse descendant reads. Readiness checks require the
 generational tables and indexes, their exact column/foreign-key/index shapes,
 as well as the spatial shape, SQLite integrity,
 and foreign-key integrity. A stale or damaged cache is rebuilt atomically.

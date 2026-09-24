@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import json
 from heapq import merge
+import re
 import sqlite3
 from typing import Any, Collection
 
@@ -14,6 +15,17 @@ from .generational import GENERATIONAL_KINDS, generational_record
 from .model import StoryTime, World
 from .semantics import effective_time
 from .util import canonical_json
+
+
+_STRUCTURAL_TOKEN = re.compile(r"\w+", re.UNICODE)
+_MAX_SEARCH_PREFIX = 32
+
+
+def _search_prefixes(structure: dict[str, Any]) -> set[str]:
+    """Normalize only literal structural fields, never source prose or title."""
+    tokens = _STRUCTURAL_TOKEN.findall(canonical_json(structure).casefold())
+    return {token[:length] for token in tokens
+            for length in range(1, min(len(token), _MAX_SEARCH_PREFIX) + 1)}
 
 
 def _citation(row: sqlite3.Row) -> dict[str, Any]:
@@ -139,18 +151,13 @@ def _bounded_paths(
     result: list[dict[str, Any]] = []
 
     def ordered_edges(node: str, path: tuple[dict[str, Any], ...], nodes: frozenset[str]):
-        # Each cursor uses its indexed source node. Merge the cursors at the
-        # whole depth so a later frontier node can still have an earlier
-        # authored applicability point.
+        # Each covering endpoint/time index yields its node's authored order.
+        # Merge across the whole depth before choosing the next path.
         rows = connection.execute(
-            f"SELECT edge.id,edge.{to_column} AS target,"
-            "initial.start_tick,initial.start_order,source.source_ordinal "
-            f"FROM {edge_table} AS edge "
-            "JOIN generational_record AS source ON source.id=edge.id "
-            "JOIN generational_transition AS initial "
-            "ON initial.record_id=edge.id AND initial.source_ordinal=0 "
-            f"WHERE edge.{from_column}=? AND initial.timeline=? "
-            "ORDER BY initial.start_tick,initial.start_order,source.source_ordinal,edge.id",
+            f"SELECT id,{to_column} AS target,start_tick,start_order,source_ordinal "
+            f"FROM {edge_table} "
+            f"WHERE {from_column}=? AND timeline=? "
+            "ORDER BY start_tick,start_order,source_ordinal,id",
             (node, at.timeline),
         )
         for row in rows:
@@ -197,6 +204,77 @@ def cited_ancestors(
     )
 
 
+def cited_descendants(
+    connection: sqlite3.Connection, parent_id: str, *, at: StoryTime,
+    candidate_ids: Collection[str], max_depth: int, max_items: int,
+) -> dict[str, Any]:
+    """Reverse authored parentage through the parent-side Btree."""
+    return _bounded_paths(
+        connection, parent_id, at=at, candidate_ids=candidate_ids,
+        max_depth=max_depth, max_items=max_items,
+        edge_table="generational_parentage", from_column="parent_id",
+        to_column="child_id", active_states=frozenset({"asserted", "confirmed"}),
+    )
+
+
+def cited_relative_path(
+    connection: sqlite3.Connection, first_id: str, second_id: str, *,
+    at: StoryTime, candidate_ids: Collection[str], max_depth: int, max_items: int,
+) -> dict[str, Any]:
+    """Find one continuous cited kinship path in either authored direction."""
+    if max_depth < 0 or max_items < 1:
+        raise ValueError("positive item bound and nonnegative depth bound required")
+    if first_id == second_id:
+        return {"status": "ok", "paths": []}
+    frontier: list[tuple[str, tuple[dict[str, Any], ...]]] = [(first_id, ())]
+    seen = {first_id}
+    expanded = 0
+
+    def neighbor_stream(node: str, path: tuple[dict[str, Any], ...],
+                        source: str, target: str, index: str):
+        # The covering endpoint/time index yields the authored order without
+        # sorting or folding the rest of a high-degree node's edges.
+        rows = connection.execute(
+            f"SELECT id,{target} AS target,start_tick,start_order,source_ordinal "
+            f"FROM generational_parentage INDEXED BY {index} "
+            f"WHERE {source}=? AND timeline=? "
+            "ORDER BY start_tick,start_order,source_ordinal,id",
+            (node, at.timeline),
+        )
+        for row in rows:
+            edge_id = str(row["id"])
+            key = (int(row["start_tick"]), int(row["start_order"]),
+                   int(row["source_ordinal"]), edge_id)
+            yield key, node, path, str(row["target"]), edge_id
+
+    while frontier:
+        next_frontier = []
+        streams = [neighbor_stream(node, path, source, target, index)
+                   for node, path in frontier
+                   for source, target, index in (
+                       ("child_id", "parent_id", "generational_parentage_child_time_idx"),
+                       ("parent_id", "child_id", "generational_parentage_parent_time_idx"))]
+        for _key, node, path, target, edge_id in merge(*streams, key=lambda item: item[0]):
+            if target in seen or edge_id not in candidate_ids:
+                continue
+            folded = fold_record(connection, edge_id, at=at, candidate_ids=candidate_ids)
+            if folded is None or folded["state"] not in {"asserted", "confirmed"}:
+                continue
+            if len(path) == max_depth or expanded == max_items:
+                return {"status": "limit", "paths": []}
+            step = {"from": node, "to": target, "edgeId": edge_id,
+                    "citations": folded["citations"]}
+            new_path = (*path, step)
+            expanded += 1
+            if target == second_id:
+                return {"status": "ok", "paths": [{"targetId": target,
+                                                   "edges": list(new_path)}]}
+            seen.add(target)
+            next_frontier.append((target, new_path))
+        frontier = next_frontier
+    return {"status": "ok", "paths": []}
+
+
 def cited_containment(
     connection: sqlite3.Connection, organization_id: str, *, at: StoryTime,
     candidate_ids: Collection[str], max_depth: int, max_items: int,
@@ -220,7 +298,7 @@ def cited_containment(
         parent_fold = fold_record(connection, parent, at=at, candidate_ids=candidate_ids)
         if parent_fold is None or parent_fold["state"] not in {"active", "dormant"}:
             break
-        if depth == max_depth or len(seen) >= max_items:
+        if depth == max_depth or len(result) >= max_items:
             return {"status": "limit", "paths": []}
         seen.add(parent)
         steps.append({"from": node, "to": parent, "edgeId": node,
@@ -267,12 +345,14 @@ def insert_generational_index(
              canonical_json(fields["perspectives"])),
         )
         kind = record.kind
+        postings: dict[tuple[str, str, str, str], tuple[int, int, str]] = {}
         if kind == "organization":
             connection.execute("INSERT INTO generational_organization VALUES (?,?,?,?)",
                                (record.id, fields["organization_kind"], fields.get("parent_id"), fields.get("location_id")))
         elif kind == "parentage":
-            connection.execute("INSERT INTO generational_parentage VALUES (?,?,?)",
-                               (record.id, fields["child_id"], fields["parent_id"]))
+            connection.execute("INSERT INTO generational_parentage VALUES (?,?,?,?,?,?,?)",
+                               (record.id, fields["child_id"], fields["parent_id"],
+                                point.timeline, point.tick, point.order, source_ordinal))
         elif kind == "union":
             connection.execute("INSERT INTO generational_union VALUES (?)", (record.id,))
         elif kind == "affiliation":
@@ -330,6 +410,27 @@ def insert_generational_index(
                  end.tick if end else None, end.order if end else None,
                  canonical_json(fields["audience"]), canonical_json(fields["perspectives"]),
                  canonical_json(citation), canonical_json(structure)),
+            )
+            # Keep one earliest indexed posting per structural prefix and
+            # authorized audience/perspective lane. A later transition cannot
+            # make its token visible before its own applicability instant.
+            if (record.status == "canonical" and
+                    (kind != "vital-history" or
+                     (fields["disclosure"] == "known" and transition.kind != "vital-initialize"))):
+                for prefix in _search_prefixes(structure):
+                    for audience in fields["audience"]:
+                        for perspective in fields["perspectives"]:
+                            key = (prefix, audience, perspective, start.timeline)
+                            point = (start.tick, start.order, transition.id)
+                            if key not in postings or point < postings[key]:
+                                postings[key] = point
+        if postings:
+            connection.executemany(
+                "INSERT INTO generational_search_prefix VALUES (?,?,?,?,?,?,?,?,?)",
+                [(prefix, audience, perspective, timeline, tick, order,
+                  source_ordinal, record.id, transition_id)
+                 for (prefix, audience, perspective, timeline), (tick, order, transition_id)
+                 in sorted(postings.items())],
             )
     candidates = frozenset(record.id for record in records)
     for record in records:
