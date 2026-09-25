@@ -426,12 +426,14 @@ def _explorer_descriptor(operation: str) -> DiscoveryDescriptor:
         "places": {**common, "mode": "roots"},
         "viewport": {**common, "mapId": "map_X", "bounds": {"min": [0, 0], "max": [10, 10]}, "relation": "intersects"},
         "layers": {**common, "mapId": "map_X", "bounds": {"min": [0, 0], "max": [10, 10]}, "relation": "intersects", "asOf": {"timeline": "main", "tick": "0", "order": "0"}, "audience": "author", "perspective": "author"},
+        "routes": {**common, "locationId": "location_X", "direction": "outgoing", "modes": ["foot"]},
     }[operation]
     results = {
         "catalog": {"spatialAvailable": True, "maps": [{"id": "map_X", "label": "Example map", "crs": "local-planar", "axes": ["x", "y"], "unit": "pace", "bounds": {"min": [0, 0], "max": [10, 10]}}], "nextCursor": None},
         "places": {"mode": "roots", "places": [{"id": "location_X", "label": "Example place", "parentId": None, "mapId": "map_X", "geometryAvailable": True, "basis": "authored-location"}], "basis": "authored-parent-id", "nextCursor": None},
         "viewport": {"mapId": "map_X", "crs": "local-planar", "axes": ["x", "y"], "unit": "pace", "relation": "intersects", "features": [{"id": "location_X", "label": "Example place", "mapId": "map_X", "geometry": {"kind": "point", "coordinates": [1, 1]}, "basis": "authored-geometry"}], "basis": "authored-geometry-bounds", "nextCursor": None},
         "layers": {"mapId": "map_X", "crs": "local-planar", "unit": "pace", "asOf": {"timeline": "main", "tick": "0", "order": "0"}, "audience": "author", "perspective": "author", "layers": [{"overlayId": "overlay_X", "label": "Example layer", "locationId": "location_X", "geometry": {"kind": "point", "coordinates": [1, 1]}, "basis": "authorized-authored-overlay-membership"}], "basis": "authorized-authored-overlay-membership", "nextCursor": None},
+        "routes": {"locationId": "location_X", "direction": "outgoing", "modes": ["foot"], "routes": [{"kind": "route", "id": "route_X", "label": "Example route", "fromLocationId": "location_X", "toLocationId": "location_Y", "authoredDirection": "one-way", "reverseOfAuthored": False, "modes": ["foot"], "availability": "open", "uncertainty": "exact", "routeDistance": {"value": 1, "unit": "pace"}, "travelCost": None, "duration": None}], "basis": "authored-directed-route-and-portal-edges", "nextCursor": None},
     }
     path = f"/api/spatial/explorer/{operation}"
     request = {"method": "GET" if operation == "catalog" else "POST", "path": path,
@@ -469,7 +471,7 @@ def _explorer_descriptor(operation: str) -> DiscoveryDescriptor:
 
 _EXPLORER_ENDPOINTS = tuple(ControlEndpoint("GET" if action == "catalog" else "POST",
     f"/api/spatial/explorer/{action}", AuthPolicy.PUBLIC, _explorer_descriptor(action))
-    for action in ("catalog", "places", "viewport", "layers"))
+    for action in ("catalog", "places", "viewport", "layers", "routes"))
 
 
 def _request_example(command: tuple[str, ...], binding: RouteBinding) -> tuple[dict[str, Any], ...]:
@@ -804,7 +806,7 @@ def control_endpoint(method: str, path: str) -> ControlEndpoint:
 
 def explorer_endpoints() -> tuple[ControlEndpoint, ...]:
     """Explicit HTTP-only adjuncts; never inferred from parser leaves."""
-    expected = {("GET", "/api/spatial/explorer/catalog"), *(("POST", f"/api/spatial/explorer/{name}") for name in ("places", "viewport", "layers"))}
+    expected = {("GET", "/api/spatial/explorer/catalog"), *(("POST", f"/api/spatial/explorer/{name}") for name in ("places", "viewport", "layers", "routes"))}
     keys = [(endpoint.method, endpoint.path) for endpoint in _EXPLORER_ENDPOINTS]
     existing = [(endpoint.method, endpoint.path) for endpoint in control_endpoints()]
     existing.extend((contract.binding.method, contract.binding.path) for contract in route_contracts() if contract.binding is not None)

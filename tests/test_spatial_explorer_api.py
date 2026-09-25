@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import base64
+from contextlib import closing
 import json
 import math
 import sqlite3
@@ -18,10 +19,11 @@ from wedl import spatial_explorer_api as explorer_module
 from wedl.api_contract import explorer_endpoints
 from wedl.api_router import openapi_contract_errors
 from wedl.api_schemas import components
-from wedl.compiler import compile_world
+from wedl.compiler import compile_world, connect, require_database
 from wedl.errors import CompileRequired, RepositoryError, UsageError
 from wedl.repository import Repository
 from wedl.server import create_app
+from wedl.source import generated_path, serialize_record
 from wedl.spatial_index import install_optional_spatial_index
 from wedl.spatial_explorer_api import PROTOCOL, _common, _geometry, _layers, execute, status_code
 from test_spatial_query import _entity, _location, _store
@@ -79,7 +81,7 @@ def explorer_repository(tmp_path_factory: pytest.TempPathFactory,
     return Repository(root)
 
 
-def test_four_http_only_routes_openapi_and_examples(explorer_repository: Repository) -> None:
+def test_five_http_only_routes_openapi_and_examples(explorer_repository: Repository) -> None:
     app = create_app(explorer_repository.root)
     schema = app.openapi()
     assert openapi_contract_errors(schema) == ()
@@ -88,6 +90,7 @@ def test_four_http_only_routes_openapi_and_examples(explorer_repository: Reposit
         ("POST", "/api/spatial/explorer/places"),
         ("POST", "/api/spatial/explorer/viewport"),
         ("POST", "/api/spatial/explorer/layers"),
+        ("POST", "/api/spatial/explorer/routes"),
     ]
     for endpoint in explorer_endpoints():
         descriptor = endpoint.descriptor
@@ -108,6 +111,124 @@ def test_four_http_only_routes_openapi_and_examples(explorer_repository: Reposit
                     "$ref": f"#/components/schemas/{descriptor.request_schema}"})
             for example in descriptor.success_examples:
                 _validate("places", example["value"])
+
+
+def test_routes_direct_http_direction_modes_closed_and_cursor(explorer_repository: Repository) -> None:
+    repository = explorer_repository
+    _, database = require_database(repository)
+    with TestClient(create_app(repository.root)) as client:
+        outgoing = _request(repository, locationId="location:gate", direction="outgoing")
+        first = _http_parity(client, repository, "routes", outgoing, "ok")
+        assert [(card["kind"], card["id"]) for card in first["result"]["routes"]] == [("route", "route:gate-side")]
+        assert first["result"]["nextCursor"]
+        incoming = _http_parity(client, repository, "routes", {**outgoing, "direction": "incoming", "limit": 10}, "ok")
+        assert [(card["kind"], card["id"]) for card in incoming["result"]["routes"]] == [("route", "route:place-gate")]
+        with closing(connect(database, True)) as connection:
+            def read(**change):
+                request = explorer_module._common({**outgoing, **change}, "routes")
+                return explorer_module._routes(connection, request, repository.head())
+            state, next_page, _, _ = read(cursor=first["result"]["nextCursor"])
+            assert state == "ok"
+            assert [(card["kind"], card["id"]) for card in next_page["routes"]] == [("portal", "portal:gate-place")]
+            assert next_page["nextCursor"] is None
+            state, closed, _, _ = read(locationId="location:side", limit=10)
+            assert state == "ok" and closed["routes"][0]["availability"] == "closed"
+            assert closed["routes"][0]["routeDistance"] == {"value": 3, "unit": "pace"}
+            assert read(locationId="absent")[0] == "unavailable"
+            assert read(modes=["horse"])[1]["routes"] == []
+            for change in ({"direction": "incoming"}, {"locationId": "location:side"},
+                           {"modes": ["horse"]}, {"limit": 2}):
+                assert read(cursor=first["result"]["nextCursor"], **change)[0] == "invalid"
+            binding, _ = explorer_module._page({"operation": "routes", **explorer_module._common(outgoing, "routes")}, repository.head())
+            for key in ((0, '["absent","route:absent",0]'), (2**63, '["absent"]'),
+                        (0, '["\\ud800","route:absent",0]')):
+                assert read(cursor=explorer_module._cursor(binding, key))[0] == "invalid"
+        assert _http_parity(client, repository, "routes", {**outgoing, "cursor": first["result"]["nextCursor"],
+                                                       "direction": "incoming"}, "invalid")["code"] == "SPATIAL-CURSOR-001"
+        valid_cursor = first["result"]["nextCursor"]
+        raw_cursor = base64.urlsafe_b64decode(valid_cursor + "=" * (-len(valid_cursor) % 4))
+        assert len(valid_cursor) % 4 == 2
+        alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-_"
+        noncanonical_bits = valid_cursor[:-1] + alphabet[alphabet.index(valid_cursor[-1]) ^ 1]
+        assert base64.urlsafe_b64decode(noncanonical_bits + "==") == raw_cursor
+        noncanonical_json = base64.urlsafe_b64encode(raw_cursor + b" ").decode("ascii").rstrip("=")
+        for malformed in (valid_cursor + "!!!!", valid_cursor + "=",
+                          noncanonical_bits, noncanonical_json):
+            assert _http_parity(client, repository, "routes", {**outgoing, "cursor": malformed},
+                                "invalid")["code"] == "SPATIAL-CURSOR-001"
+        assert client.get("/api/spatial/explorer/routes").status_code == 405
+        assert client.post("/api/spatial/explorer/routes", json={**outgoing, "extra": True}).status_code == 400
+
+
+def test_routes_two_way_self_loop_and_position_portal_compiled_cards() -> None:
+    store = _store()
+    from test_spatial_query import _route
+    _route(store, "route:self", 500, "location:gate", "location:gate", 7)
+    store.connection.execute("UPDATE spatial_route SET direction='two-way' WHERE id='route:self'")
+    store.connection.execute("INSERT INTO spatial_route_edge VALUES (?,?,?,1)",
+                             ("route:self", "location:gate", "location:gate"))
+    _entity(store, "portal:position", "portal", 501)
+    store.connection.execute("INSERT INTO spatial_portal VALUES (?,?,?,?,?,?,?,?,?)",
+                             ("portal:position", 501, "location:gate", "position", None, "map:town", "[2,3]", '["foot"]', "{}"))
+    store.connection.execute("INSERT INTO spatial_portal_mode VALUES (?,?,?)", ("portal:position", "foot", 0))
+    request = {"protocol": PROTOCOL, "revision": store.revision, "capabilities": list(store.capabilities),
+               "limit": 1, "cursor": None, "locationId": "location:gate", "direction": "outgoing"}
+    cards = []
+    for _ in range(10):
+        state, result, _, _ = explorer_module._routes(store.connection, {**request, "modes": []}, store.revision)
+        assert state == "ok"
+        cards.extend(result["routes"])
+        if result["nextCursor"] is None:
+            break
+        request = {**request, "cursor": result["nextCursor"]}
+    assert [(card["kind"], card["id"], card.get("reverseOfAuthored")) for card in cards] == [
+        ("route", "route:self", False), ("route", "route:self", True),
+        ("portal", "portal:gate-place", None),
+        ("portal", "portal:position", None)]
+    assert cards[-1]["target"] == {"kind": "position", "mapId": "map:town", "coordinates": [2, 3],
+                                   "crs": "local-planar:town", "axes": ["east", "north"], "unit": "pace"}
+    inbound = {**request, "direction": "incoming", "cursor": None, "limit": 10}
+    state, result, _, _ = explorer_module._routes(store.connection, {**inbound, "modes": []}, store.revision)
+    assert state == "ok"
+    assert {card["id"] for card in result["routes"]} == {"route:place-gate", "route:self"}
+    assert all(card["id"] != "portal:position" for card in result["routes"])
+    store.connection.close()
+
+
+def test_routes_nonself_two_way_directed_cards_and_mounted_http(
+        tmp_path: Path, _spatial_seed: tuple[Path, dict[str, str], str]) -> None:
+    root = tmp_path / "two-way-repository"
+    shutil.copytree(_spatial_seed[0], root, copy_function=shutil.copy2)
+    repository = Repository(root)
+    record = {"schema": "wedl/v0.7", "kind": "route", "id": "route:two-way-review",
+              "title": "Two-way review route", "from_location_id": "location:gate",
+              "to_location_id": "location:side", "direction": "two-way", "modes": ["horse"]}
+    path = generated_path("story", record["kind"], record["title"], record["id"], record)
+    repository.commit_files(expected_head=repository.head(),
+                            files={path: serialize_record(record, "# Two-way review route\n")},
+                            message="add two-way route inspection fixture")
+    assert compile_world(repository, "HEAD")["status"] == "compiled"
+    with TestClient(create_app(repository.root)) as client:
+        for location, direction, source, target, reverse in (
+                ("location:gate", "outgoing", "location:gate", "location:side", False),
+                ("location:side", "incoming", "location:gate", "location:side", False),
+                ("location:side", "outgoing", "location:side", "location:gate", True),
+                ("location:gate", "incoming", "location:side", "location:gate", True)):
+            response = _http_parity(
+                client, repository, "routes",
+                _request(repository, locationId=location, direction=direction,
+                         modes=["horse"], limit=20), "ok")
+            card = next(card for card in response["result"]["routes"]
+                        if card["id"] == "route:two-way-review")
+            assert (card["fromLocationId"], card["toLocationId"], card["reverseOfAuthored"]) == (
+                source, target, reverse)
+        portal = _http_parity(
+            client, repository, "routes",
+            _request(repository, locationId="loc_00000000000000000000000000",
+                     direction="incoming", limit=20), "ok")
+        card = next(card for card in portal["result"]["routes"] if card["id"] == "portal:gate-place")
+        assert card["fromLocationId"] == "location:gate"
+        assert card["target"] == {"kind": "location", "locationId": "loc_00000000000000000000000000"}
 
 
 def test_catalog_places_viewport_layers_direct_http_and_selected_cursor(explorer_repository: Repository) -> None:

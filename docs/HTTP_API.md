@@ -56,6 +56,7 @@ call.
 | POST | `/api/spatial/explorer/places` | no | Page bounded hierarchy, title search, or exact-ID place cards. |
 | POST | `/api/spatial/explorer/viewport` | no | Page native same-map authored geometry. |
 | POST | `/api/spatial/explorer/layers` | no | Page authorized as-of overlay membership in one viewport. |
+| POST | `/api/spatial/explorer/routes` | no | Page authored incoming or outgoing route and portal cards. |
 | POST | `/api/generational/{operation}` | yes | Read named, cited generational history; operations: parents, ancestors, descendants, relatives, union, organization, legacy, vital, search, context. |
 | POST | `/api/generational/scaffold` | yes | Current-HEAD generational organization starter intent. |
 | GET | `/api/generational/schema` | yes | Closed generational intent variant catalogue. |
@@ -96,7 +97,7 @@ and [Generational authoring](GENERATIONAL_AUTHORING.md).
 
 ### Spatial explorer adjunct
 
-The four `/api/spatial/explorer/*` reads use `wedl-spatial-explorer/v1` and
+The five `/api/spatial/explorer/*` reads use `wedl-spatial-explorer/v1` and
 are HTTP-only. They consume the compiled projection and do not add CLI
 commands. Call `GET /api/spatial/explorer/catalog?limit=20` first. It returns
 the exact `revision`, ordered `capabilities`, source schema, map descriptors
@@ -106,7 +107,7 @@ pages, send that revision and each capability as a repeated `capabilities`
 query parameter, with the cursor and unchanged limit. The first page takes no
 revision or capability guess.
 
-The other three routes accept one raw, closed JSON request with `protocol`,
+The other four routes accept one raw, closed JSON request with `protocol`,
 catalog `revision`, ordered `capabilities`, `limit` (1–100), and nullable
 `cursor`. Examples:
 
@@ -131,6 +132,33 @@ It does not send all records to the browser.
 
 The OpenAPI document includes a request and a bounded result example for
 each mode.
+
+`routes` inspects authored directed edges for one `locationId`. Set
+`direction` to `incoming` or `outgoing` and optionally provide `modes` as an
+array of authored mode names; an empty or omitted array accepts every mode.
+It requires `route-v1` in the selected capabilities. For example:
+
+```json
+{"protocol":"wedl-spatial-explorer/v1","revision":"0000000000000000000000000000000000000000","capabilities":["spatial-core-v1","geometry-v1","route-v1","overlay-v1"],"limit":20,"cursor":null,"locationId":"location:gate","direction":"outgoing","modes":["foot"]}
+```
+
+Results order directed route edges by the other endpoint ID, route ID, and
+explicit reverse-edge flag, then portals by portal ID. A two-way route has
+an explicit reverse card; a one-way route has only its authored direction.
+Self-loops follow the same rule. Closed routes remain visible as inspection
+cards with their authored availability, while traversal rules remain as
+before. Each route card has directed endpoint IDs, authored direction, modes,
+availability, uncertainty, and separate nullable `routeDistance`,
+`travelCost`, and `duration` metrics with value and unit when known. Each
+portal card has its authored source and either a target location ID or an
+authored target position with native map ID, coordinates, CRS, axes, and unit.
+Position-target portals occur only on their source's outgoing page. No card
+infers reverse access, geometry distance, travel time, or map conversion.
+Coordinate-free locations remain valid. A missing place returns `unavailable`.
+The cursor is bound to revision, location, direction, normalized modes, and
+limit; invalid or fabricated keys return `invalid`. Reads seek the compiled
+edge indexes and cap mode-filter inspection at 2,000 candidates per page,
+returning `limit` if that budget is exceeded.
 
 `viewport` adds `mapId`, finite same-dimensional `bounds` (`min`/`max`), and
 `relation` (`within` or `intersects`). It returns only that map's authored

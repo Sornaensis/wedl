@@ -157,8 +157,8 @@ to be represented.
 
 ### Performance envelope and rollout
 
-The `wedl-spatial-explorer/v1` HTTP adjunct has four explicit compiled reads:
-catalog, places, viewport, and layers. Catalog bootstraps the selected
+The `wedl-spatial-explorer/v1` HTTP adjunct has five explicit compiled reads:
+catalog, places, viewport, layers, and routes. Catalog bootstraps the selected
 revision and canonical capabilities. Subsequent closed requests pin them;
 opaque cursors bind operation, normalized filters, limit, map scope, horizon,
 audience, and perspective. Place roots and children follow authored parent
@@ -177,6 +177,13 @@ audience/perspective through a compiled location-to-lens membership index,
 so offscreen authorized overlays and hidden memberships do not determine
 candidate work or layer counts. Static memberships have a partial index;
 changing memberships additionally probe a scope-bound StoryTime RTree.
+Routes inspect authored directed route edges and portals from or into one
+location. Closed routes are visible for inspection without changing traversal.
+The reverse-edge index supports incoming keyset pages; an indexed portal
+target lookup supplies only location-target incoming portals. Mode filtering
+has a fixed candidate budget and returns `limit` rather than scanning an
+arbitrarily high-degree location. The compiler fingerprint rebuilds caches
+created before the reverse-edge index.
 Four exact 24-bit digits cover signed tick and order with at most 15
 disjoint boxes per interval before exact StoryTime filtering. These
 projections rebuild with the compiler

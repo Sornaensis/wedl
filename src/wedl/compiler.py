@@ -42,7 +42,7 @@ CHRONOLOGY_INDEX_GENERATION_TOKEN = "wedl-chronology-index/v3"
 # enables generic compilation.  It still participates in the cache contract:
 # a database created before its DDL must never be mistaken for a compatible
 # read model by a later opt-in caller.
-SPATIAL_INDEX_GENERATION_TOKEN = "wedl-spatial-index/v3"
+SPATIAL_INDEX_GENERATION_TOKEN = "wedl-spatial-index/v4"
 GENERATIONAL_INDEX_GENERATION_TOKEN = "wedl-generational-index/v4"
 COMPILER_FINGERPRINT_PREFIX = f"{DOCUMENT_GENERATION_TOKEN}:{CHRONOLOGY_INDEX_GENERATION_TOKEN}:{SPATIAL_INDEX_GENERATION_TOKEN}:{GENERATIONAL_INDEX_GENERATION_TOKEN}:"
 
@@ -152,7 +152,8 @@ CREATE INDEX spatial_location_vertex_location_idx ON spatial_location_vertex(loc
 CREATE INDEX spatial_hierarchy_parent_idx ON spatial_hierarchy(parent_id,location_id);
 CREATE INDEX spatial_location_link_target_idx ON spatial_location_link(target_location_id,location_id,source_ordinal);
 CREATE INDEX spatial_route_from_idx ON spatial_route(from_location_id,to_location_id,id);
-CREATE INDEX spatial_route_edge_from_idx ON spatial_route_edge(from_location_id,to_location_id,route_id);
+CREATE INDEX spatial_route_edge_from_idx ON spatial_route_edge(from_location_id,to_location_id,route_id,reverse_of_authored);
+CREATE INDEX spatial_route_edge_to_idx ON spatial_route_edge(to_location_id,from_location_id,route_id,reverse_of_authored);
 CREATE INDEX spatial_route_mode_mode_idx ON spatial_route_mode(mode,route_id);
 CREATE INDEX spatial_anchor_maps_idx ON spatial_anchor(from_map_id,to_map_id,id);
 CREATE INDEX spatial_portal_from_idx ON spatial_portal(from_location_id,id);
@@ -193,7 +194,7 @@ _REQUIRED_SPATIAL_INDEXES = frozenset({
     "spatial_location_parent_idx", "spatial_location_map_bounds_idx",
     "spatial_location_vertex_location_idx", "spatial_hierarchy_parent_idx",
     "spatial_location_link_target_idx", "spatial_route_from_idx",
-    "spatial_route_edge_from_idx", "spatial_route_mode_mode_idx",
+    "spatial_route_edge_from_idx", "spatial_route_edge_to_idx", "spatial_route_mode_mode_idx",
     "spatial_anchor_maps_idx", "spatial_portal_from_idx",
     "spatial_portal_target_location_idx", "spatial_portal_target_map_idx",
     "spatial_portal_mode_mode_idx", "spatial_overlay_candidate_idx",

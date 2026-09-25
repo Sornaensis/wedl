@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import base64
+import binascii
 from contextlib import closing
 import hashlib
 import json
@@ -22,10 +23,11 @@ from .v07 import CAPABILITY_ORDER
 
 
 PROTOCOL = "wedl-spatial-explorer/v1"
-OPERATIONS = ("catalog", "places", "viewport", "layers")
+OPERATIONS = ("catalog", "places", "viewport", "layers", "routes")
 _SHA = re.compile(r"^[0-9a-f]{40}$")
 _MAX_VERTICES = 10_000
 _MAX_SEARCH_CANDIDATES = 2_000
+_MAX_ROUTE_CANDIDATES = 2_000
 _STATUSES = {"ok": 200, "invalid": 400, "unavailable": 409, "forbidden": 403, "limit": 422}
 
 
@@ -45,7 +47,11 @@ def _page(request: dict[str, Any], revision: str) -> tuple[str, tuple[int, str] 
     if cursor is None:
         return binding, None
     try:
-        raw = base64.urlsafe_b64decode(cursor + "=" * (-len(cursor) % 4))
+        if re.fullmatch(r"[A-Za-z0-9_-]+", cursor) is None:
+            return None
+        raw = base64.b64decode(cursor + "=" * (-len(cursor) % 4), altchars=b"-_", validate=True)
+        if base64.urlsafe_b64encode(raw).decode("ascii").rstrip("=") != cursor:
+            return None
         value = json.loads(raw)
         last = value["last"]
         if (set(value) != {"binding", "last"} or value["binding"] != binding
@@ -54,8 +60,10 @@ def _page(request: dict[str, Any], revision: str) -> tuple[str, tuple[int, str] 
                 or not isinstance(last[1], str) or not last[1]):
             return None
         last[1].encode("utf-8")
+        if raw != canonical_json(value).encode("utf-8"):
+            return None
         return binding, (last[0], last[1])
-    except (ValueError, KeyError, TypeError, UnicodeDecodeError):
+    except (ValueError, KeyError, TypeError, UnicodeError, binascii.Error):
         return None
 
 
@@ -67,6 +75,7 @@ def _common(request: Any, operation: str) -> dict[str, Any]:
         "catalog": set(), "places": {"mode", "parentId", "query", "ids"},
         "viewport": {"mapId", "bounds", "relation"},
         "layers": {"mapId", "bounds", "relation", "asOf", "audience", "perspective", "overlayId"},
+        "routes": {"locationId", "direction", "modes"},
     }[operation]
     required = {"protocol", "limit"} if operation == "catalog" else common
     item = _closed(request, common | fields, required, f"{operation} explorer request")
@@ -109,6 +118,28 @@ def _common(request: Any, operation: str) -> dict[str, Any]:
             ids = item["ids"]
             if not isinstance(ids, list) or not 1 <= len(ids) <= 100 or any(not isinstance(value, str) or not value.strip() or len(value) > 256 for value in ids) or len(ids) != len(set(ids)):
                 raise UsageError("ids must contain 1..100 unique place IDs")
+        return item
+    if operation == "routes":
+        if "locationId" not in item or "direction" not in item:
+            raise UsageError("locationId and direction are required")
+        _text(item["locationId"], "locationId")
+        try:
+            item["locationId"].encode("utf-8")
+        except UnicodeError as exc:
+            raise UsageError("locationId must be valid UTF-8") from exc
+        if item["direction"] not in ("incoming", "outgoing"):
+            raise UsageError("direction must be incoming or outgoing")
+        modes = item.get("modes", [])
+        if (not isinstance(modes, list) or len(modes) > 100 or
+                any(not isinstance(mode, str) or not mode.strip() or len(mode) > 256 for mode in modes) or
+                len(modes) != len(set(modes))):
+            raise UsageError("modes must be a bounded array of authored modes")
+        try:
+            for mode in modes:
+                mode.encode("utf-8")
+        except UnicodeError as exc:
+            raise UsageError("modes must be valid UTF-8") from exc
+        item["modes"] = sorted(set(modes))
         return item
     for key in ("mapId", "relation", "bounds"):
         if key not in item:
@@ -417,6 +448,146 @@ def _layers(connection: Any, item: dict[str, Any], revision: str) -> tuple[str, 
                   "layers": layers, "basis": "authorized-authored-overlay-membership", "nextCursor": next_cursor}, "", None
 
 
+def _route_metric(value: Any, unit: str | None) -> dict[str, Any] | None:
+    if value is None:
+        return None
+    try:
+        return {"value": _number(value, "compiled route metric"), "unit": unit}
+    except UsageError as exc:
+        raise ValueError("unsafe compiled route metric") from exc
+
+
+def _routes(connection: Any, item: dict[str, Any], revision: str) -> tuple[str, Any, str, str | None]:
+    page = _page({"operation": "routes", **item}, revision)
+    if page is None:
+        return "invalid", None, "SPATIAL-CURSOR-001", "cursor is not bound to this routes request"
+    binding, last = page
+    location, direction, modes = item["locationId"], item["direction"], item["modes"]
+    if connection.execute("SELECT 1 FROM spatial_location WHERE id=?", (location,)).fetchone() is None:
+        return "unavailable", None, "SPATIAL-REQUEST-001", "place is unavailable"
+    source = "from_location_id" if direction == "outgoing" else "to_location_id"
+    other = "to_location_id" if direction == "outgoing" else "from_location_id"
+    index = "spatial_route_edge_from_idx" if direction == "outgoing" else "spatial_route_edge_to_idx"
+    portal_source = "from_location_id" if direction == "outgoing" else "target_location_id"
+    portal_index = "spatial_portal_from_idx" if direction == "outgoing" else "spatial_portal_target_location_idx"
+    route_after: tuple[str, str, int] | None = None
+    portal_after: str | None = None
+    if last is not None:
+        try:
+            kind, encoded = last
+            key = json.loads(encoded)
+            if kind == 0 and (not isinstance(key, list) or len(key) != 3 or
+                    any(not isinstance(part, str) or not part or len(part) > 256 for part in key[:2]) or
+                    type(key[2]) is not int or key[2] not in (0, 1)):
+                raise ValueError
+            if kind == 1 and (not isinstance(key, list) or len(key) != 1 or
+                    not isinstance(key[0], str) or not key[0] or len(key[0]) > 256):
+                raise ValueError
+            if kind not in (0, 1):
+                raise ValueError
+            for part in key[:2] if kind == 0 else key:
+                part.encode("utf-8")
+            if kind == 0:
+                route_after = (key[0], key[1], key[2])
+                exists = connection.execute(
+                    f"SELECT modes_json FROM spatial_route_edge AS e JOIN spatial_route AS r ON r.id=e.route_id "
+                    f"WHERE e.{source}=? AND e.{other}=? AND e.route_id=? AND e.reverse_of_authored=?",
+                    (location, *route_after)).fetchone()
+            else:
+                portal_after = key[0]
+                exists = connection.execute(
+                    f"SELECT modes_json FROM spatial_portal WHERE {portal_source}=? AND id=?",
+                    (location, portal_after)).fetchone()
+            if exists is None or (modes and not set(modes).intersection(json.loads(exists[0]))):
+                raise ValueError
+        except (ValueError, TypeError, UnicodeError, sqlite3.Error):
+            return "invalid", None, "SPATIAL-CURSOR-001", "cursor key is unavailable in this routes request"
+
+    wanted = item["limit"] + 1
+    found: list[tuple[int, tuple[Any, ...]]] = []
+    inspected = 0
+    route_exhausted = last is not None and last[0] == 1
+    while not route_exhausted and len(found) < wanted:
+        remaining = _MAX_ROUTE_CANDIDATES - inspected
+        if remaining <= 0:
+            return "limit", None, "SPATIAL-LIMIT-001", "route inspection candidate budget exceeded"
+        batch = min(max(wanted - len(found), 32), remaining + 1)
+        clause = f"e.{source}=?"
+        params: list[Any] = [location]
+        if route_after is not None:
+            clause += f" AND (e.{other},e.route_id,e.reverse_of_authored)>(?,?,?)"
+            params.extend(route_after)
+        rows = connection.execute(
+            f"SELECT e.{other},e.route_id,e.reverse_of_authored,r.from_location_id,r.to_location_id,"
+            "r.direction,r.modes_json,r.availability,r.uncertainty,r.route_distance,r.route_distance_unit,"
+            "r.travel_cost,r.travel_cost_unit,r.duration,r.duration_unit,entity.title "
+            f"FROM spatial_route_edge AS e INDEXED BY {index} "
+            "JOIN spatial_route AS r ON r.id=e.route_id JOIN entity ON entity.id=r.id "
+            f"WHERE {clause} ORDER BY e.{other},e.route_id,e.reverse_of_authored LIMIT ?",
+            (*params, batch)).fetchall()
+        for row in rows:
+            route_after = (row[0], row[1], row[2])
+            inspected += 1
+            if not modes or set(modes).intersection(json.loads(row[6])):
+                found.append((0, row))
+                if len(found) == wanted:
+                    break
+        route_exhausted = len(rows) < batch
+    if len(found) < wanted and route_exhausted:
+        if last is not None and last[0] == 1:
+            portal_after = json.loads(last[1])[0]
+        while len(found) < wanted:
+            remaining = _MAX_ROUTE_CANDIDATES - inspected
+            if remaining <= 0:
+                return "limit", None, "SPATIAL-LIMIT-001", "route inspection candidate budget exceeded"
+            batch = min(max(wanted - len(found), 32), remaining + 1)
+            clause = f"p.{portal_source}=?"
+            params = [location]
+            if portal_after is not None:
+                clause += " AND p.id>?"
+                params.append(portal_after)
+            rows = connection.execute(
+                "SELECT p.id,p.from_location_id,p.target_kind,p.target_location_id,p.target_map_id,"
+                "p.target_coordinates_json,p.modes_json,entity.title,map.crs,map.axis_first,map.axis_second,map.unit "
+                f"FROM spatial_portal AS p INDEXED BY {portal_index} "
+                "JOIN entity ON entity.id=p.id LEFT JOIN spatial_map AS map ON map.id=p.target_map_id "
+                f"WHERE {clause} ORDER BY p.id LIMIT ?", (*params, batch)).fetchall()
+            for row in rows:
+                portal_after = row[0]
+                inspected += 1
+                if not modes or set(modes).intersection(json.loads(row[6])):
+                    found.append((1, row))
+                    if len(found) == wanted:
+                        break
+            if len(rows) < batch:
+                break
+    cards: list[dict[str, Any]] = []
+    for kind, row in found[:item["limit"]]:
+        if kind == 0:
+            cards.append({"kind": "route", "id": row[1], "label": row[15],
+                          "fromLocationId": location if direction == "outgoing" else row[0],
+                          "toLocationId": row[0] if direction == "outgoing" else location,
+                          "authoredDirection": row[5], "reverseOfAuthored": bool(row[2]),
+                          "modes": json.loads(row[6]), "availability": row[7], "uncertainty": row[8],
+                          "routeDistance": _route_metric(row[9], row[10]),
+                          "travelCost": _route_metric(row[11], row[12]),
+                          "duration": _route_metric(row[13], row[14])})
+        else:
+            target = ({"kind": "location", "locationId": row[3]} if row[2] == "location" else
+                      {"kind": "position", "mapId": row[4], "coordinates": list(_coordinates(json.loads(row[5]), "compiled portal position")),
+                       "crs": row[8], "axes": [row[9], row[10]], "unit": row[11]})
+            cards.append({"kind": "portal", "id": row[0], "label": row[7],
+                          "fromLocationId": row[1], "target": target, "modes": json.loads(row[6])})
+    next_cursor = None
+    if len(found) > item["limit"]:
+        kind, row = found[item["limit"] - 1]
+        key = [row[0], row[1], row[2]] if kind == 0 else [row[0]]
+        next_cursor = _cursor(binding, (kind, canonical_json(key)))
+    return "ok", {"locationId": location, "direction": direction, "modes": modes,
+                  "routes": cards, "basis": "authored-directed-route-and-portal-edges",
+                  "nextCursor": next_cursor}, "", None
+
+
 def execute(repository: Any, operation: str, request: dict[str, Any], *, require_compiled: bool = False) -> dict[str, Any]:
     """Execute one selected, compiled-only explorer projection."""
     item = _common(request, operation)
@@ -453,13 +624,15 @@ def execute(repository: Any, operation: str, request: dict[str, Any], *, require
             return _outcome(world, metadata, operation, "unavailable", detail="compiled projection lacks geometry-v1")
         if operation == "layers" and "overlay-v1" not in store.capabilities:
             return _outcome(world, metadata, operation, "unavailable", detail="compiled projection lacks overlay-v1")
+        if operation == "routes" and "route-v1" not in store.capabilities:
+            return _outcome(world, metadata, operation, "unavailable", detail="compiled projection lacks route-v1")
         resolved = dict(item)
         if operation == "catalog":
             resolved["revision"] = world.revision
             resolved["capabilities"] = list(store.capabilities)
         try:
             state, result, code, detail = {
-                "catalog": _catalog, "places": _places, "viewport": _viewport, "layers": _layers,
+                "catalog": _catalog, "places": _places, "viewport": _viewport, "layers": _layers, "routes": _routes,
             }[operation](connection, resolved, world.revision)
         except (ValueError, TypeError, KeyError):
             return _outcome(world, metadata, operation, "unavailable", code="SPATIAL-GEOMETRY-001",
