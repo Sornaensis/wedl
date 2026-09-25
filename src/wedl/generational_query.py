@@ -9,6 +9,7 @@ from dataclasses import dataclass
 from contextlib import closing
 import base64
 import hashlib
+from heapq import merge
 import json
 import re
 import sqlite3
@@ -17,7 +18,7 @@ from typing import Any, Collection, Mapping
 from .compiler import connect, require_database
 from .conversation import scene_context_time
 from .errors import CompileRequired, ValidationFailed
-from .generational_index import cited_ancestors, cited_containment, cited_descendants, cited_relative_path, fold_record
+from .generational_index import _DISCOVERY_INTERVAL_BASE, cited_ancestors, cited_containment, cited_descendants, cited_relative_path, fold_record
 from .ids import valid_id
 from .model import ORDER_MAX, TICK_MAX, StoryTime
 from .repository import Repository
@@ -126,17 +127,167 @@ def _cursor_key(scope: TrustedViewerScope, request: Mapping[str, Any]) -> str:
 def _decode_cursor(value: Any, key: str) -> str | None:
     if value is None:
         return ""
-    if not isinstance(value, str) or len(value) > 1024:
+    if (not isinstance(value, str) or not value or len(value) > 1024
+            or re.fullmatch(r"[A-Za-z0-9_-]+", value) is None):
         return None
     try:
-        data = json.loads(base64.urlsafe_b64decode(value + "=" * (-len(value) % 4)))
+        raw = base64.urlsafe_b64decode(value + "=" * (-len(value) % 4))
+        if base64.urlsafe_b64encode(raw).decode().rstrip("=") != value:
+            return None
+        data = json.loads(raw)
     except (ValueError, UnicodeError):
         return None
-    return data.get("after") if isinstance(data, dict) and data.get("scope") == key and isinstance(data.get("after"), str) else None
+    return data.get("after") if (isinstance(data, dict) and set(data) == {"scope", "after"}
+                                  and data.get("scope") == key and isinstance(data.get("after"), str)) else None
 
 
 def _encode_cursor(key: str, after: str) -> str:
     return base64.urlsafe_b64encode(canonical_json({"scope": key, "after": after}).encode()).decode().rstrip("=")
+
+
+def _prefix_successor(value: str) -> str | None:
+    """Exclusive Unicode upper bound for a prefix, including astral suffixes."""
+    for index in range(len(value) - 1, -1, -1):
+        point = ord(value[index])
+        if point < 0x10FFFF:
+            successor = 0xE000 if point == 0xD7FF else point + 1
+            return value[:index] + chr(successor)
+    return None
+
+
+def discovery_connection(connection: sqlite3.Connection, scope: TrustedViewerScope,
+                         request: Mapping[str, Any]) -> dict[str, Any]:
+    """Read only private, already admitted name rows; never load source prose."""
+    at, failure = _validated_scope(scope)
+    if failure:
+        return failure
+    if at is None or scope.mode != "author-as-of":
+        return _closed("invalid", "GEN-REQUEST-001")
+    if scope.mode == "character":
+        return _closed("unknown")
+    operation = request.get("operation")
+    lanes = sorted((audience, perspective) for audience in scope.audiences
+                   for perspective in scope.perspectives)
+    if operation == "labels":
+        result = []
+        for entity_id in request["ids"]:
+            candidates = []
+            for audience, perspective in lanes:
+                row = connection.execute(
+                    "SELECT kind,title,start_tick,start_order,source_ordinal "
+                    "FROM generational_discovery_name INDEXED BY generational_discovery_label_idx "
+                    "WHERE entity_id=? AND audience=? AND perspective=? AND timeline=? "
+                    "AND name=title AND (start_tick<? OR (start_tick=? AND start_order<=?)) "
+                    "ORDER BY start_tick DESC,start_order DESC,source_ordinal DESC LIMIT 1",
+                    (entity_id, audience, perspective, scope.timeline,
+                     at.tick, at.tick, at.order),
+                ).fetchone()
+                if row is not None:
+                    candidates.append(row)
+            if candidates:
+                chosen = max(candidates, key=lambda row: (row["start_tick"], row["start_order"],
+                                                          row["source_ordinal"], row["title"]))
+                title = chosen["title"]
+                if chosen["kind"] in {"organization", "legacy"}:
+                    transition = connection.execute(
+                        "SELECT payload_json FROM generational_transition "
+                        "INDEXED BY generational_transition_asof_idx "
+                        "WHERE record_id=? AND timeline=? "
+                        "AND (start_tick<? OR (start_tick=? AND start_order<=?)) "
+                        "AND json_type(payload_json,'$.title')='text' "
+                        "ORDER BY start_tick DESC,start_order DESC,source_ordinal DESC LIMIT 1",
+                        (entity_id, scope.timeline, at.tick, at.tick, at.order),
+                    ).fetchone()
+                    if transition is not None:
+                        title = json.loads(transition[0])["title"]
+                if len(title.encode("utf-8")) > 256:
+                    continue
+                result.append({"id": entity_id, "kind": chosen["kind"], "title": title})
+        return {"state": "available", "labels": result}
+    if operation != "discover":
+        return _closed("invalid", "GEN-REQUEST-001")
+    prefix = request["text"].strip().casefold()
+    upper = _prefix_successor(prefix)
+    key = _cursor_key(scope, {**request, "text": prefix})
+    after = _decode_cursor(request.get("cursor"), key)
+    if after is None:
+        return _closed("invalid", "GEN-REQUEST-001")
+    pair: tuple[str, str] = ("", "")
+    if after:
+        try:
+            decoded = json.loads(after)
+            if not isinstance(decoded, list) or len(decoded) != 2 or not all(
+                isinstance(value, str) for value in decoded
+            ) or canonical_json(decoded) != after:
+                return _closed("invalid", "GEN-REQUEST-001")
+            pair = (decoded[0], decoded[1])
+        except (TypeError, ValueError):
+            return _closed("invalid", "GEN-REQUEST-001")
+    limit = request["items"]
+    if after and not pair[0].startswith(prefix):
+        return _closed("invalid", "GEN-REQUEST-001")
+    lane_nodes = {}
+    for audience, perspective in lanes:
+        horizon = connection.execute(
+            "SELECT time_rank FROM generational_discovery_time "
+            "WHERE audience=? AND perspective=? AND timeline=? "
+            "AND (tick<? OR (tick=? AND ordering<=?)) "
+            "ORDER BY tick DESC,ordering DESC LIMIT 1",
+            (audience, perspective, scope.timeline, at.tick, at.tick, at.order),
+        ).fetchone()
+        rank = int(horizon[0]) if horizon is not None else 0
+        nodes = []
+        if rank and request["kind"] in {"organization", "legacy"}:
+            node = _DISCOVERY_INTERVAL_BASE + rank - 1
+            while node:
+                nodes.append(node)
+                node //= 2
+        else:
+            while rank:
+                nodes.append(rank)
+                rank -= rank & -rank
+        lane_nodes[(audience, perspective)] = nodes
+    if after and not any(connection.execute(
+        "SELECT 1 FROM generational_discovery_segment INDEXED BY generational_discovery_segment_idx "
+        "WHERE audience=? AND perspective=? AND timeline=? AND kind=? AND node=? "
+        "AND name_key=? AND entity_id=? LIMIT 1",
+        (audience, perspective, scope.timeline, request["kind"], node, *pair),
+    ).fetchone() for audience, perspective in lanes
+                        for node in lane_nodes[(audience, perspective)]):
+        return _closed("invalid", "GEN-REQUEST-001")
+    # Each Fenwick node contains only rows admitted at or before the horizon.
+    # A page reads at most limit+1 ordered rows per trusted lens and node.
+    candidates = []
+    for audience, perspective in lanes:
+        for node in lane_nodes[(audience, perspective)]:
+            rows = connection.execute(
+                "SELECT name_key,entity_id,kind,name,title FROM generational_discovery_segment "
+                "INDEXED BY generational_discovery_segment_idx WHERE audience=? AND perspective=? "
+                "AND timeline=? AND kind=? AND node=? AND name_key>=? "
+                + ("AND name_key<? " if upper is not None else "") +
+                "AND (name_key,entity_id)>(?,?) "
+                "ORDER BY name_key,entity_id LIMIT ?",
+                (audience, perspective, scope.timeline, request["kind"], node, prefix,
+                 *((upper,) if upper is not None else ()), *pair, limit + 1),
+            ).fetchall()
+            candidates.extend(rows)
+    candidates.sort(key=lambda row: (row["name_key"], row["entity_id"]))
+    unique = []
+    seen = set()
+    for row in candidates:
+        marker = (row["name_key"], row["entity_id"])
+        if marker not in seen:
+            unique.append(row)
+            seen.add(marker)
+    page = unique[:limit]
+    cursor = (_encode_cursor(key, canonical_json([page[-1]["name_key"], page[-1]["entity_id"]]))
+              if len(unique) > limit and page else None)
+    labels = {item["id"]: item["title"] for item in discovery_connection(
+        connection, scope, {"operation": "labels", "ids": list(dict.fromkeys(
+            row["entity_id"] for row in page))})["labels"]} if page else {}
+    return {"state": "available", "results": [
+        {"id": row["entity_id"], "kind": row["kind"], "title": labels[row["entity_id"]],
+         "matchedName": row["name"]} for row in page], "cursor": cursor}
 
 
 def _applicability(row: sqlite3.Row) -> dict[str, Any]:
@@ -478,9 +629,10 @@ def query_connection(connection: sqlite3.Connection, scope: TrustedViewerScope,
             cursor_key = tuple(value)
         except (TypeError, ValueError):
             return _closed("invalid", "GEN-REQUEST-001")
-    # Exact prefix postings are already distinct per record and normalized
-    # audience/perspective lane. Every lane is an indexed, bounded range read.
-    matches: dict[str, tuple[tuple[int, int, int, str], str]] = {}
+    # Canonical record, trusted lens, capability, timeline, and first literal
+    # applicability were admitted while compiling each private posting. Seek
+    # the ordered index in each lane before observing any page or cursor.
+    streams = []
     for audience in sorted(scope.audiences):
         for perspective in sorted(scope.perspectives):
             rows = connection.execute(
@@ -488,28 +640,25 @@ def query_connection(connection: sqlite3.Connection, scope: TrustedViewerScope,
                 "FROM generational_search_prefix INDEXED BY generational_search_lookup_idx "
                 "WHERE audience=? AND perspective=? AND timeline=? AND prefix=? "
                 "AND (start_tick<? OR (start_tick=? AND start_order<=?)) "
-                "ORDER BY start_tick,start_order,source_ordinal,record_id LIMIT 501",
+                "AND (start_tick,start_order,source_ordinal,record_id)>(?,?,?,?) "
+                "ORDER BY start_tick,start_order,source_ordinal,record_id",
                 (audience, perspective, scope.timeline, request["text"].casefold(),
-                 at.tick, at.tick, at.order),
-            ).fetchall()
-            if len(rows) > 500:
-                return _closed("limit", "GEN-LIMIT-001")
-            for row in rows:
-                ident = str(row["record_id"])
-                sort_key = (int(row["start_tick"]), int(row["start_order"]),
-                            int(row["source_ordinal"]), ident)
-                if ident not in matches or sort_key < matches[ident][0]:
-                    matches[ident] = (sort_key, str(row["transition_id"]))
-    if len(matches) > 500:
-        return _closed("limit", "GEN-LIMIT-001")
-    ordered = sorted((sort_key, ident, transition_id)
-                     for ident, (sort_key, transition_id) in matches.items()
-                     if cursor_key is None or sort_key > cursor_key)
-    selected = ordered[:items]
-    page = []
-    for _sort_key, ident, transition_id in selected:
-        if ident not in visible:
+                 at.tick, at.tick, at.order, *(cursor_key or (-2**63, -2**63, -1, ""))),
+            )
+            streams.append(((int(row["start_tick"]), int(row["start_order"]),
+                             int(row["source_ordinal"]), str(row["record_id"]),
+                             str(row["transition_id"])) for row in rows))
+    selected = []
+    seen = set()
+    for tick, order, ordinal, ident, transition_id in merge(*streams):
+        if ident in seen:
             continue
+        seen.add(ident)
+        selected.append(((tick, order, ordinal, ident), ident, transition_id))
+        if len(selected) > items:
+            break
+    page = []
+    for _sort_key, ident, transition_id in selected[:items]:
         row = connection.execute(
             "SELECT r.kind,t.*,c.citation_json FROM generational_record AS r "
             "JOIN generational_transition AS t ON t.record_id=r.id "
@@ -523,8 +672,8 @@ def query_connection(connection: sqlite3.Connection, scope: TrustedViewerScope,
                      "citations": [{"record_id": ident, "path": source["sourcePath"],
                                     "applicability": _applicability(row)}]})
     cursor = None
-    if len(ordered) > items and page:
-        cursor = _encode_cursor(key, canonical_json(list(selected[-1][0])))
+    if len(selected) > items and page:
+        cursor = _encode_cursor(key, canonical_json(list(selected[items - 1][0])))
     return {"state": "available", "results": page, "cursor": cursor}
 
 

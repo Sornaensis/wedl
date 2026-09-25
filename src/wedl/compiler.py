@@ -43,7 +43,7 @@ CHRONOLOGY_INDEX_GENERATION_TOKEN = "wedl-chronology-index/v3"
 # a database created before its DDL must never be mistaken for a compatible
 # read model by a later opt-in caller.
 SPATIAL_INDEX_GENERATION_TOKEN = "wedl-spatial-index/v4"
-GENERATIONAL_INDEX_GENERATION_TOKEN = "wedl-generational-index/v4"
+GENERATIONAL_INDEX_GENERATION_TOKEN = "wedl-generational-index/v7"
 COMPILER_FINGERPRINT_PREFIX = f"{DOCUMENT_GENERATION_TOKEN}:{CHRONOLOGY_INDEX_GENERATION_TOKEN}:{SPATIAL_INDEX_GENERATION_TOKEN}:{GENERATIONAL_INDEX_GENERATION_TOKEN}:"
 
 DDL = r"""
@@ -121,6 +121,10 @@ CREATE TABLE generational_transition(id TEXT PRIMARY KEY,record_id TEXT NOT NULL
 CREATE TABLE generational_current(record_id TEXT PRIMARY KEY REFERENCES generational_record(id),timeline TEXT NOT NULL,at_tick INTEGER NOT NULL,at_order INTEGER NOT NULL,state TEXT NOT NULL,value_json TEXT NOT NULL);
 CREATE TABLE generational_candidate(record_id TEXT NOT NULL REFERENCES generational_record(id),transition_id TEXT NOT NULL REFERENCES generational_transition(id),source_ordinal INTEGER NOT NULL,capability TEXT NOT NULL,timeline TEXT NOT NULL,start_tick INTEGER NOT NULL,start_order INTEGER NOT NULL,end_tick INTEGER,end_order INTEGER,audience_json TEXT NOT NULL,perspectives_json TEXT NOT NULL,citation_json TEXT NOT NULL,structural_json TEXT NOT NULL,PRIMARY KEY(record_id,transition_id));
 CREATE TABLE generational_search_prefix(prefix TEXT NOT NULL,audience TEXT NOT NULL,perspective TEXT NOT NULL,timeline TEXT NOT NULL,start_tick INTEGER NOT NULL,start_order INTEGER NOT NULL,source_ordinal INTEGER NOT NULL,record_id TEXT NOT NULL REFERENCES generational_record(id),transition_id TEXT NOT NULL REFERENCES generational_transition(id),PRIMARY KEY(prefix,audience,perspective,timeline,record_id));
+CREATE TABLE generational_discovery_name(audience TEXT NOT NULL,perspective TEXT NOT NULL,timeline TEXT NOT NULL,name_key TEXT NOT NULL,entity_id TEXT NOT NULL REFERENCES entity(id),kind TEXT NOT NULL,name TEXT NOT NULL,title TEXT NOT NULL,start_tick INTEGER NOT NULL,start_order INTEGER NOT NULL,source_ordinal INTEGER NOT NULL,PRIMARY KEY(audience,perspective,timeline,name_key,entity_id));
+CREATE TABLE generational_discovery_time(audience TEXT NOT NULL,perspective TEXT NOT NULL,timeline TEXT NOT NULL,tick INTEGER NOT NULL,ordering INTEGER NOT NULL,time_rank INTEGER NOT NULL,PRIMARY KEY(audience,perspective,timeline,tick,ordering),UNIQUE(audience,perspective,timeline,time_rank));
+CREATE TABLE generational_discovery_segment(audience TEXT NOT NULL,perspective TEXT NOT NULL,timeline TEXT NOT NULL,kind TEXT NOT NULL,node INTEGER NOT NULL,name_key TEXT NOT NULL,entity_id TEXT NOT NULL REFERENCES entity(id),name TEXT NOT NULL,title TEXT NOT NULL,PRIMARY KEY(audience,perspective,timeline,kind,node,name_key,entity_id));
+CREATE TABLE generational_discovery_lens(audience TEXT NOT NULL,perspective TEXT NOT NULL,PRIMARY KEY(audience,perspective));
 """
 INDEX_DDL = r"""
 CREATE INDEX entity_kind_idx ON entity(kind,status,title);
@@ -180,6 +184,10 @@ CREATE INDEX generational_vital_character_idx ON generational_vital(character_id
 CREATE INDEX generational_transition_asof_idx ON generational_transition(record_id,timeline,start_tick,start_order,source_ordinal,id);
 CREATE INDEX generational_candidate_asof_idx ON generational_candidate(timeline,start_tick,start_order,record_id,source_ordinal);
 CREATE INDEX generational_search_lookup_idx ON generational_search_prefix(audience,perspective,timeline,prefix,start_tick,start_order,source_ordinal,record_id);
+CREATE INDEX generational_discovery_key_idx ON generational_discovery_name(audience,perspective,timeline,kind,name_key,entity_id,start_tick,start_order);
+CREATE INDEX generational_discovery_id_idx ON generational_discovery_name(entity_id,audience,perspective,timeline,start_tick,start_order);
+CREATE INDEX generational_discovery_label_idx ON generational_discovery_name(entity_id,audience,perspective,timeline,start_tick,start_order,source_ordinal) WHERE name=title;
+CREATE INDEX generational_discovery_segment_idx ON generational_discovery_segment(audience,perspective,timeline,kind,node,name_key,entity_id);
 """
 
 _REQUIRED_SPATIAL_TABLES = frozenset({
@@ -207,7 +215,8 @@ _REQUIRED_GENERATIONAL_TABLES = frozenset({
     "generational_union", "generational_union_participant", "generational_affiliation",
     "generational_legacy", "generational_tenure", "generational_claim",
     "generational_vital", "generational_transition", "generational_current",
-    "generational_candidate", "generational_search_prefix",
+    "generational_candidate", "generational_search_prefix", "generational_discovery_name",
+    "generational_discovery_lens", "generational_discovery_time", "generational_discovery_segment",
 })
 _REQUIRED_GENERATIONAL_INDEXES = frozenset({
     "generational_record_kind_idx", "generational_organization_parent_idx",
@@ -217,7 +226,9 @@ _REQUIRED_GENERATIONAL_INDEXES = frozenset({
     "generational_affiliation_organization_idx", "generational_tenure_legacy_idx",
     "generational_claim_legacy_idx", "generational_vital_character_idx",
     "generational_transition_asof_idx", "generational_candidate_asof_idx",
-    "generational_search_lookup_idx",
+    "generational_search_lookup_idx", "generational_discovery_key_idx",
+    "generational_discovery_id_idx", "generational_discovery_label_idx",
+    "generational_discovery_segment_idx",
 })
 
 
@@ -232,9 +243,9 @@ def _generational_shapes(connection: sqlite3.Connection) -> tuple[dict[str, tupl
     }
     indexes = {
         name: (
-            connection.execute(
-                "SELECT tbl_name FROM sqlite_schema WHERE type='index' AND name=?", (name,)
-            ).fetchone()[0],
+            tuple(connection.execute(
+                "SELECT tbl_name,sql FROM sqlite_schema WHERE type='index' AND name=?", (name,)
+            ).fetchone()),
             tuple(tuple(row) for row in connection.execute(f"PRAGMA index_xinfo({name})")),
         )
         for name in _REQUIRED_GENERATIONAL_INDEXES

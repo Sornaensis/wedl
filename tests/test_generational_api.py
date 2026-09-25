@@ -4,6 +4,7 @@ from __future__ import annotations
 from copy import deepcopy
 from pathlib import Path
 import json
+import sqlite3
 import subprocess
 
 from fastapi.testclient import TestClient
@@ -12,7 +13,8 @@ import pytest
 from wedl.api_contract import AuthPolicy, Transport, discovery_responses, route_contracts
 from wedl.api_schemas import components
 from wedl.cli import main
-from wedl.generational_api import OPERATIONS, execute, status_code
+from wedl.compiler import cache_readiness
+from wedl.generational_api import OPERATIONS, bootstrap, execute, status_code
 from wedl.generational_api import _resolve, _visible_name_world
 from wedl.generational_query import TrustedViewerScope
 from wedl.model import StoryTime
@@ -63,6 +65,211 @@ def request(repository: Repository, operation: str, **fields: object) -> dict[st
             "items": 20, "depth": 4, **fields}
 
 
+def discovery_request(repository: Repository, operation: str, **fields: object) -> dict[str, object]:
+    value = request(repository, operation, **fields)
+    value.pop("depth")
+    return value
+
+
+def test_discovery_bootstrap_horizon_labels_and_cursor(
+        generational_repo: tuple[Repository, dict[str, str]]) -> None:
+    repository, mapping = generational_repo
+    client = TestClient(create_app(repository.root))
+    token = client.get("/api/session").json()["token"]
+    headers = {"X-Wedl-Token": token}
+    assert client.get("/api/generational/bootstrap").status_code == 401
+    opened = bootstrap(repository)
+    assert opened == client.get("/api/generational/bootstrap", headers=headers).json()
+    assert opened["state"] == "available" and opened["revision"] == repository.head()
+    assert opened["capabilities"] == ["generational-core-v1"]
+    assert opened["timelines"] == ["main"]
+    assert bootstrap(repository, "invalid")["state"] == "invalid"
+    assert bootstrap(repository, "")["state"] == "invalid"
+    assert client.get("/api/generational/bootstrap?revision=", headers=headers).json()["state"] == "invalid"
+
+    early = {"timeline": "main", "tick": "-10", "order": "0"}
+    base = discovery_request(repository, "discover", kind="character", text="character",
+                             cursor=None, items=1, at=early)
+    page = execute(repository, "discover", base)
+    assert page["state"] == "available" and len(page["results"]) == 1
+    assert page["cursor"]
+    second = execute(repository, "discover", {**base, "cursor": page["cursor"]})
+    assert second["state"] == "available"
+    assert execute(repository, "discover", {**base, "text": "CHARACTER",
+                                            "cursor": page["cursor"]}) == second
+    assert page["results"][0]["id"] != second["results"][0]["id"]
+    for changed in ({"at": {"timeline": "main", "tick": "-9", "order": "0"}},
+                    {"text": "different"}, {"kind": "event"},
+                    {"cursor": page["cursor"][:-1] + "*"}):
+        assert execute(repository, "discover", {**base, "cursor": page["cursor"],
+                                                **changed})["state"] == "invalid"
+    assert execute(repository, "discover", {**base, "revision": "0" * 40})["state"] == "unavailable"
+    assert execute(repository, "discover", {**base, "timeline": "unknown",
+                                             "at": {"timeline": "unknown", "tick": "0", "order": "0"}})["state"] == "invalid"
+    assert execute(repository, "discover", {**base, "capabilities": ["generational-core-v1", "spatial-core-v1"]})["state"] == "unavailable"
+    labels = discovery_request(repository, "labels", ids=[mapping["character_child"],
+                                                     mapping["character_future_lineage"],
+                                                     mapping["character_no_lineage"]], at=early)
+    answer = execute(repository, "labels", labels)
+    assert answer["state"] == "available"
+    assert [row["id"] for row in answer["labels"]] == [mapping["character_child"]]
+    assert client.post("/api/generational/labels", json=labels, headers=headers).json() == answer
+    assert execute(repository, "parents", request(repository, "parents",
+        subject=mapping["character_no_lineage"], at=early))["state"] == "unknown"
+    assert execute(repository, "parents", request(repository, "parents",
+        subject=mapping["character_future_lineage"], at=early))["state"] == "unknown"
+
+    alias = execute(repository, "discover", discovery_request(
+        repository, "discover", kind="organization", text="Aster", cursor=None,
+        at={"timeline": "main", "tick": "-20", "order": "0"}))
+    assert alias["state"] == "available"
+    assert any(row["matchedName"] == "Aster" for row in alias["results"])
+
+
+def test_discovery_request_bounds_match_openapi(
+        generational_repo: tuple[Repository, dict[str, str]]) -> None:
+    repository, _mapping = generational_repo
+    client = TestClient(create_app(repository.root))
+    headers = {"X-Wedl-Token": client.get("/api/session").json()["token"]}
+    schemas = client.get("/openapi.json").json()["components"]["schemas"]
+    discover_schema = jsonschema.Draft202012Validator(schemas["GenerationalDiscoverRequest"])
+    labels_schema = jsonschema.Draft202012Validator(schemas["GenerationalLabelsRequest"])
+    padded = discovery_request(repository, "discover", kind="character",
+                               text=" " * 64 + "A", cursor=None)
+    assert not discover_schema.is_valid(padded)
+    assert execute(repository, "discover", padded)["state"] == "invalid"
+    assert client.post("/api/generational/discover", json=padded,
+                       headers=headers).json()["state"] == "invalid"
+    accepted_ids = discovery_request(repository, "labels", ids=["x" * 129])
+    assert labels_schema.is_valid(accepted_ids)
+    expected = execute(repository, "labels", accepted_ids)
+    assert expected["state"] == "available" and expected["labels"] == []
+    assert client.post("/api/generational/labels", json=accepted_ids,
+                       headers=headers).json() == expected
+    oversized_ids = {**accepted_ids, "ids": ["x" * 257]}
+    assert not labels_schema.is_valid(oversized_ids)
+    assert execute(repository, "labels", oversized_ids)["state"] == "invalid"
+    assert client.post("/api/generational/labels", json=oversized_ids,
+                       headers=headers).json()["state"] == "invalid"
+
+
+def test_discovery_uses_compiled_rows_and_rebuilds_malformed_cache(
+        generational_repo: tuple[Repository, dict[str, str]],
+        monkeypatch: pytest.MonkeyPatch) -> None:
+    repository, mapping = generational_repo
+    payload = discovery_request(repository, "labels", ids=[mapping["character_child"]])
+    expected = execute(repository, "labels", payload)
+    assert expected["state"] == "available"
+    revision = repository.head()
+    with monkeypatch.context() as patch:
+        patch.setattr(repository, "load_world", lambda *args, **kwargs: (_ for _ in ()).throw(
+            AssertionError("discovery loaded whole-world source")))
+        assert execute(repository, "labels", payload) == expected
+        assert bootstrap(repository)["state"] == "available"
+    database = cache_readiness(repository, revision)["database"]
+    connection = sqlite3.connect(database)
+    try:
+        connection.execute("DROP INDEX generational_discovery_segment_idx")
+        connection.commit()
+    finally:
+        connection.close()
+    assert cache_readiness(repository, revision)["state"] == "incompatible"
+    assert execute(repository, "labels", payload) == expected
+    assert repository.head() == revision
+    assert cache_readiness(repository, revision)["state"] == "ready"
+
+
+def test_discovery_prefix_includes_supplementary_unicode_direct_and_http(tmp_path: Path) -> None:
+    world, mapping = _world()
+    subject = world.records[mapping["character_child"]]
+    subject.frontmatter["title"] = "A😀"
+    subject.frontmatter["aliases"] = ["A𐀀"]
+    root = tmp_path / "unicode-generational"
+    root.mkdir()
+    for record in world.records.values():
+        path = root / ("story/world.md" if record.kind == "world" else record.source_path)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(serialize_record(record.frontmatter, f"# {record.title}\n"))
+    (root / ".gitignore").write_text(".wedl/\n", encoding="utf-8")
+    for arguments in (("init", "-q"), ("config", "user.name", "wedl test"),
+                      ("config", "user.email", "wedl@test.invalid"),
+                      ("add", "story", ".gitignore"), ("commit", "-qm", "seed")):
+        subprocess.run(["git", "-C", str(root), *arguments], check=True, capture_output=True)
+    repository = Repository(root)
+    client = TestClient(create_app(root))
+    token = client.get("/api/session").json()["token"]
+    headers = {"X-Wedl-Token": token}
+    first_request = discovery_request(repository, "discover", kind="character", text="A",
+                                      cursor=None, items=1)
+    first = execute(repository, "discover", first_request)
+    assert first["state"] == "available" and first["cursor"]
+    assert client.post("/api/generational/discover", json=first_request,
+                       headers=headers).json() == first
+    second_request = {**first_request, "cursor": first["cursor"]}
+    second = execute(repository, "discover", second_request)
+    assert second["state"] == "available" and second["cursor"] is None
+    assert client.post("/api/generational/discover", json=second_request,
+                       headers=headers).json() == second
+    assert {first["results"][0]["matchedName"], second["results"][0]["matchedName"]} == {
+        "A😀", "A𐀀"}
+    assert first["results"][0]["id"] == second["results"][0]["id"] == subject.id
+
+
+def test_discovery_overlong_names_close_direct_and_http(tmp_path: Path) -> None:
+    world, mapping = _world()
+    subject = world.records[mapping["character_child"]]
+    subject.frontmatter["title"] = "T" * 300
+    subject.frontmatter["aliases"] = ["Short Alias"]
+    organization = next(record for record in world.records.values()
+                        if record.kind == "organization" and record.title == "House Aster")
+    organization.frontmatter["transitions"][0]["payload"]["title"] = "O" * 300
+    root = tmp_path / "overlong-generational"
+    root.mkdir()
+    for record in world.records.values():
+        path = root / ("story/world.md" if record.kind == "world" else record.source_path)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(serialize_record(record.frontmatter, f"# {record.title}\n"))
+    (root / ".gitignore").write_text(".wedl/\n", encoding="utf-8")
+    for arguments in (("init", "-q"), ("config", "user.name", "wedl test"),
+                      ("config", "user.email", "wedl@test.invalid"),
+                      ("add", "story", ".gitignore"), ("commit", "-qm", "seed")):
+        subprocess.run(["git", "-C", str(root), *arguments], check=True, capture_output=True)
+    repository = Repository(root)
+    client = TestClient(create_app(root))
+    headers = {"X-Wedl-Token": client.get("/api/session").json()["token"]}
+    for prefix in ("T" * 300, "short alias"):
+        payload = discovery_request(repository, "discover", kind="character", text=prefix,
+                                    cursor=None)
+        if len(prefix) > 64:
+            payload["text"] = prefix[:64]
+        direct = execute(repository, "discover", payload)
+        assert {key: direct[key] for key in ("state", "results", "cursor")} == {
+            "state": "available", "results": [], "cursor": None}
+        assert client.post("/api/generational/discover", json=payload,
+                           headers=headers).json() == direct
+    payload = discovery_request(repository, "labels", ids=[subject.id])
+    expected_labels = execute(repository, "labels", payload)
+    assert expected_labels["state"] == "available" and expected_labels["labels"] == []
+    assert client.post("/api/generational/labels", json=payload,
+                       headers=headers).json() == expected_labels
+    early = {"timeline": "main", "tick": "-20", "order": "0"}
+    later = {"timeline": "main", "tick": "-5", "order": "0"}
+    for at, expected_titles in ((early, ["House Aster"]), (later, [])):
+        discover = discovery_request(repository, "discover", kind="organization",
+                                     text="Aster", cursor=None, at=at)
+        direct = execute(repository, "discover", discover)
+        assert direct["state"] == "available"
+        assert [row["title"] for row in direct["results"]] == expected_titles
+        assert client.post("/api/generational/discover", json=discover,
+                           headers=headers).json() == direct
+        labels = discovery_request(repository, "labels", ids=[organization.id], at=at)
+        direct_labels = execute(repository, "labels", labels)
+        assert direct_labels["state"] == "available"
+        assert [row["title"] for row in direct_labels["labels"]] == expected_titles
+        assert client.post("/api/generational/labels", json=labels,
+                           headers=headers).json() == direct_labels
+
+
 def test_name_first_parents_horizons_and_character_controls(generational_repo: tuple[Repository, dict[str, str]]) -> None:
     repository, mapping = generational_repo
     child = mapping["character_child"]
@@ -88,10 +295,11 @@ def test_name_first_parents_horizons_and_character_controls(generational_repo: t
     assert character_outcomes[0]["state"] == "unknown"
     for bad in ({"at": {"timeline": "main", "tick": -1, "order": "0"}},
                 {"at": {"timeline": "main", "tick": "-0", "order": "0"}},
-                {"audience": "archivist"}, {"subject": "no such character"},
+                {"audience": "archivist"},
                 {"mode": ["author-as-of"]}):
         value = execute(repository, "parents", {**early, **bad})
         assert value["state"] == "invalid" and status_code(value) == 400
+    assert execute(repository, "parents", {**early, "subject": "no such character"})["state"] == "unknown"
 
 
 def test_read_operations_and_scope_bound_cursor(generational_repo: tuple[Repository, dict[str, str]]) -> None:
@@ -199,12 +407,16 @@ def test_http_cli_contract_and_session_are_identical(
 
     for operation in OPERATIONS:
         fields: dict[str, object] = ({"text": "basis", "cursor": None} if operation == "search"
-                                      else {"subject": subjects[operation]})
+                                      else {"kind": "character", "text": "character", "cursor": None}
+                                      if operation == "discover" else {"ids": [mapping["character_child"]]}
+                                      if operation == "labels" else {"subject": subjects[operation]})
         if operation == "relatives":
             fields["target"] = mapping["character_alpha"]
         if operation == "context":
             fields["maxCharacters"] = 4096
         as_of = request(repository, operation, **fields)
+        if operation in {"discover", "labels"}:
+            as_of.pop("depth")
         assert_parity(operation, as_of)
         if operation == "parents":
             all_time = {key: value for key, value in as_of.items() if key != "at"}

@@ -7,10 +7,10 @@ from pathlib import Path
 import sqlite3
 
 from test_generational_compiler import _add_parentage, _connection as _unindexed_connection, _world
-from wedl.compiler import INDEX_DDL, compile_world, _compiled_database_issues
-from wedl.generational_query import TrustedViewerScope, query_connection, query_generational
+from wedl.compiler import INDEX_DDL, compile_world, _bootstrap_compiled_connection, _insert_entities, _compiled_database_issues
+from wedl.generational_query import TrustedViewerScope, discovery_connection, query_connection, query_generational
 from wedl.ids import id_from_seed
-from wedl.generational_index import cited_ancestors, cited_containment, cited_descendants, cited_relative_path
+from wedl.generational_index import cited_ancestors, cited_containment, cited_descendants, cited_relative_path, insert_generational_index
 from wedl.model import Record, StoryTime
 from wedl.util import canonical_json
 
@@ -33,6 +33,244 @@ def _run(connection: sqlite3.Connection, scope: TrustedViewerScope, operation: s
          subject_id: str, **extra):
     return query_connection(connection, scope,
                             {"operation": operation, "subject_id": subject_id, **extra})
+
+
+def test_discovery_five_thousand_characters_ten_thousand_edges_indexed_work() -> None:
+    world, _mapping = _world()
+    character = next(record for record in world.records.values() if record.kind == "character")
+    parentage = next(record for record in world.records.values() if record.kind == "parentage")
+    generated = []
+    for index in range(5000):
+        data = deepcopy(character.frontmatter)
+        data["id"] = id_from_seed("character", f"scale-{index}")
+        data["title"] = f"Scale Person {index:05d}"
+        data["aliases"] = [f"Scale Alias {index:05d}"]
+        record = Record(data, "", f"story/characters/{data['id']}.md", b"")
+        world.records[record.id] = record
+        generated.append(record.id)
+    for index in range(10000):
+        _add_parentage(world, parentage, seed=f"scale-edge-{index}",
+                       child_id=generated[index % 5000],
+                       parent_id=generated[(index + 1) % 5000], tick=0)
+    connection = sqlite3.connect(":memory:")
+    connection.row_factory = sqlite3.Row
+    try:
+        _bootstrap_compiled_connection(connection)
+        _insert_entities(connection, world)
+        connection.executescript(INDEX_DDL)
+        insert_generational_index(connection, world, StoryTime("main", 0, 0))
+        assert connection.execute("SELECT COUNT(*) FROM entity WHERE kind='character'").fetchone()[0] >= 5000
+        assert connection.execute("SELECT COUNT(*) FROM generational_parentage").fetchone()[0] >= 10000
+        scope = TrustedViewerScope("vector-revision", "author-as-of", "main", StoryTime("main", 0, 0),
+                                   frozenset({"public"}), frozenset({"ordinary"}),
+                                   frozenset({"generational-core-v1"}))
+        request = {"operation": "discover", "kind": "character", "text": "scale",
+                   "items": 20, "cursor": None}
+        work = [0]
+        def count_work() -> int:
+            work[0] += 1000
+            return 0
+        connection.set_progress_handler(count_work, 1000)
+        first = discovery_connection(connection, scope, request)
+        connection.set_progress_handler(None, 0)
+        assert first["state"] == "available" and len(first["results"]) == 20
+        assert first["cursor"] and len(canonical_json(first).encode()) < 16000
+        assert work[0] < 100000, work[0]
+        plan = [row[3] for row in connection.execute(
+            "EXPLAIN QUERY PLAN SELECT name_key,entity_id FROM generational_discovery_segment "
+            "INDEXED BY generational_discovery_segment_idx WHERE audience='public' "
+            "AND perspective='ordinary' AND timeline='main' AND kind='character' "
+            "AND node=1 AND name_key>='scale' AND name_key<'scalf' "
+            "ORDER BY name_key,entity_id LIMIT 21")]
+        assert any("generational_discovery_segment_idx" in step for step in plan)
+    finally:
+        connection.close()
+
+
+def test_discovery_future_dense_name_range_stays_bounded() -> None:
+    world, mapping = _world()
+    connection = _connection(world, StoryTime("main", 0, 0))
+    try:
+        rank = connection.execute(
+            "SELECT MAX(time_rank) FROM generational_discovery_time "
+            "WHERE audience='public' AND perspective='ordinary' AND timeline='main'").fetchone()[0] + 1
+        connection.execute("INSERT INTO generational_discovery_time VALUES (?,?,?,?,?,?)",
+                           ("public", "ordinary", "main", 1000000, 0, rank))
+        connection.executemany(
+            "INSERT INTO generational_discovery_segment VALUES (?,?,?,?,?,?,?,?,?)",
+            [("public", "ordinary", "main", "character", rank,
+              f"future {index:05d}", mapping["character_child"],
+              f"Future {index:05d}", "Character Child") for index in range(20000)],
+        )
+        connection.execute("INSERT INTO generational_discovery_time VALUES (?,?,?,?,?,?)",
+                           ("withheld", "ordinary", "main", -500, 0, 1))
+        connection.executemany(
+            "INSERT INTO generational_discovery_segment VALUES (?,?,?,?,?,?,?,?,?)",
+            [("withheld", "ordinary", "main", "character", 1,
+              f"hidden {index:05d}", mapping["character_child"],
+              f"Hidden {index:05d}", "Character Child") for index in range(20000)],
+        )
+        scope = _scope(audiences=frozenset({"public"}),
+                       perspectives=frozenset({"ordinary"}))
+        def measured(prefix: str) -> tuple[dict, int]:
+            work = [0]
+            def count_work() -> int:
+                work[0] += 1000
+                return 0
+            connection.set_progress_handler(count_work, 1000)
+            try:
+                result = discovery_connection(connection, scope, {
+                    "operation": "discover", "kind": "character", "text": prefix,
+                    "items": 20, "cursor": None})
+            finally:
+                connection.set_progress_handler(None, 0)
+            return result, work[0]
+        future, future_work = measured("future")
+        hidden, hidden_work = measured("hidden")
+        absent, absent_work = measured("absent")
+        assert future == hidden == absent == {"state": "available", "results": [], "cursor": None}
+        assert future_work < 10000 and hidden_work < 10000 and absent_work < 10000
+        assert abs(future_work - absent_work) < 3000
+        assert abs(hidden_work - absent_work) < 3000
+    finally:
+        connection.close()
+
+
+def test_discovery_name_is_admitted_at_exact_same_tick_order() -> None:
+    world, mapping = _world()
+    character = next(record for record in world.records.values() if record.kind == "character")
+    data = deepcopy(character.frontmatter)
+    data["id"] = id_from_seed("character", "same-tick-discovery")
+    data["title"] = "Same Tick Name"
+    data["aliases"] = []
+    subject = Record(data, "", f"story/characters/{data['id']}.md", b"")
+    world.records[subject.id] = subject
+    parentage = next(record for record in world.records.values() if record.kind == "parentage")
+    fact = _add_parentage(world, parentage, seed="same-tick-discovery",
+                          child_id=subject.id, parent_id=mapping["character_biological"], tick=0)
+    fact.frontmatter["initialization"]["applicability"]["point"]["order"] = 1
+    connection = _connection(world, StoryTime("main", 0, 1))
+    try:
+        request = {"operation": "discover", "kind": "character", "text": "same tick",
+                   "items": 20, "cursor": None}
+        earlier = discovery_connection(connection, _scope(at=StoryTime("main", 0, 0)), request)
+        later = discovery_connection(connection, _scope(at=StoryTime("main", 0, 1)), request)
+        assert earlier == {"state": "available", "results": [], "cursor": None}
+        assert later["state"] == "available" and later["cursor"] is None
+        assert [(row["id"], row["matchedName"]) for row in later["results"]] == [
+            (subject.id, "Same Tick Name")]
+    finally:
+        connection.close()
+
+
+def test_discovery_closes_overlong_titles_and_aliases() -> None:
+    world, mapping = _world()
+    oversized = world.records[mapping["character_child"]]
+    oversized.frontmatter["title"] = "T" * 300
+    oversized.frontmatter["aliases"] = ["Short Alias"]
+    safe = world.records[mapping["character_biological"]]
+    safe.frontmatter["title"] = "Safe Title"
+    safe.frontmatter["aliases"] = ["Z" * 300]
+    organization = next(record for record in world.records.values()
+                        if record.kind == "organization" and record.title == "House Aster")
+    organization.frontmatter["transitions"][0]["payload"]["title"] = "O" * 300
+    restored = deepcopy(organization.frontmatter["transitions"][0])
+    restored["transition_id"] = id_from_seed("generational-transition", "restored-title")
+    restored["applicability"]["point"]["tick"] = -4
+    restored["payload"] = {"title": "House Renewed", "aliases": ["Renewed"]}
+    organization.frontmatter["transitions"].append(restored)
+    connection = _connection(world, StoryTime("main", 0, 0))
+    try:
+        scope = _scope()
+        def find(prefix: str) -> dict:
+            return discovery_connection(connection, scope, {
+                "operation": "discover", "kind": "character", "text": prefix,
+                "items": 20, "cursor": None})
+        assert find("short alias") == {"state": "available", "results": [], "cursor": None}
+        assert find("T" * 300) == {"state": "available", "results": [], "cursor": None}
+        assert find("Z" * 300) == {"state": "available", "results": [], "cursor": None}
+        early_organization = discovery_connection(connection, _scope(at=StoryTime("main", -20, 0)), {
+            "operation": "discover", "kind": "organization", "text": "Aster",
+            "items": 20, "cursor": None})
+        assert early_organization["state"] == "available"
+        assert any(row["id"] == organization.id and row["title"] == "House Aster"
+                   for row in early_organization["results"])
+        assert discovery_connection(connection, _scope(at=StoryTime("main", -5, 0)), {
+            "operation": "discover", "kind": "organization", "text": "Aster",
+            "items": 20, "cursor": None}) == {"state": "available", "results": [], "cursor": None}
+        restored_organization = discovery_connection(connection, scope, {
+            "operation": "discover", "kind": "organization", "text": "Aster",
+            "items": 20, "cursor": None})
+        assert any(row["id"] == organization.id and row["title"] == "House Renewed"
+                   for row in restored_organization["results"])
+        assert discovery_connection(connection, _scope(at=StoryTime("main", -20, 0)), {
+            "operation": "labels", "ids": [organization.id]}) == {"state": "available", "labels": [
+                {"id": organization.id, "kind": "organization", "title": "House Aster"}]}
+        labels = discovery_connection(connection, _scope(at=StoryTime("main", -5, 0)), {"operation": "labels", "ids": [
+            oversized.id, safe.id, organization.id]})
+        assert labels == {"state": "available", "labels": [
+            {"id": safe.id, "kind": "character", "title": "Safe Title"}]}
+    finally:
+        connection.close()
+
+
+def test_labels_seek_title_amid_many_aliases() -> None:
+    world, mapping = _world()
+    connection = _connection(world, StoryTime("main", 0, 0))
+    try:
+        subject = mapping["character_child"]
+        connection.executemany(
+            "INSERT INTO generational_discovery_name VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+            [("public", "ordinary", "main", f"many alias {index:05d}", subject,
+              "character", f"Many Alias {index:05d}", "character_child", 0, 0, 0)
+             for index in range(20000)],
+        )
+        work = [0]
+        def count_work() -> int:
+            work[0] += 1000
+            return 0
+        connection.set_progress_handler(count_work, 1000)
+        try:
+            result = discovery_connection(connection, _scope(
+                audiences=frozenset({"public"}), perspectives=frozenset({"ordinary"})),
+                {"operation": "labels", "ids": [subject]})
+        finally:
+            connection.set_progress_handler(None, 0)
+        assert result == {"state": "available", "labels": [
+            {"id": subject, "kind": "character", "title": "character_child"}]}
+        assert work[0] < 10000
+    finally:
+        connection.close()
+
+
+def test_overlong_current_title_closes_dense_alias_range_before_limit() -> None:
+    world, _mapping = _world()
+    organization = next(record for record in world.records.values()
+                        if record.kind == "organization" and record.title == "House Aster")
+    organization.frontmatter["initialization"]["payload"]["aliases"] = [
+        f"Dense Name {index:05d}" for index in range(20000)]
+    organization.frontmatter["transitions"][0]["payload"] = {
+        "title": "O" * 300, "aliases": []}
+    connection = _connection(world, StoryTime("main", -5, 0))
+    try:
+        request = {"operation": "discover", "kind": "organization", "text": "Dense",
+                   "items": 20, "cursor": None}
+        visible = discovery_connection(connection, _scope(at=StoryTime("main", -20, 0)), request)
+        assert visible["state"] == "available" and len(visible["results"]) == 20
+        assert visible["cursor"] and len(canonical_json(visible).encode()) < 16000
+        work = [0]
+        def count_work() -> int:
+            work[0] += 1000
+            return 0
+        connection.set_progress_handler(count_work, 1000)
+        try:
+            closed = discovery_connection(connection, _scope(at=StoryTime("main", -5, 0)), request)
+        finally:
+            connection.set_progress_handler(None, 0)
+        assert closed == {"state": "available", "results": [], "cursor": None}
+        assert work[0] < 10000
+    finally:
+        connection.close()
 
 
 def test_parentage_descendants_and_boundary_order() -> None:
@@ -468,7 +706,7 @@ def test_private_search_pages_distinct_records_after_many_matching_transitions()
         assert first_page["results"][0]["recordId"] != second_page["results"][0]["recordId"]
         assert second_page["cursor"] is None
         assert any("INDEXED BY generational_search_lookup_idx" in sql
-                   and "LIMIT 501" in sql
+                   and "ORDER BY start_tick,start_order,source_ordinal,record_id" in sql
                    for sql in statements)
         assert not any("GROUP BY" in sql for sql in statements)
     finally:
@@ -733,7 +971,8 @@ def test_private_search_index_has_bounded_work_and_distinct_cap() -> None:
                        parent_id=mapping["character_biological"], tick=-9)
     connection = _connection(world, StoryTime("main", 3000, 0))
     try:
-        assert _run(connection, scope, "search", "ignored", text="basis", items=1) == {
-            "state": "limit", "code": "GEN-LIMIT-001"}
+        large = _run(connection, scope, "search", "ignored", text="basis", items=1)
+        assert large["state"] == "available" and len(large["results"]) == 1
+        assert large["cursor"]
     finally:
         connection.close()

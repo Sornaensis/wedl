@@ -26,6 +26,7 @@ from .api_contract import (
     discovery_request_body,
     discovery_responses,
     explorer_endpoints,
+    generational_bootstrap_endpoint,
     explorer_request_body,
     route_contracts,
     validate_discovery_descriptors,
@@ -37,7 +38,7 @@ from .context import build_context
 from .chronology_api import catalog as chronology_catalog, convert_date as chronology_convert, format_date as chronology_format, search_annotations as chronology_search, story_times as chronology_story_times
 from .spatial_api import execute as spatial_execute, status_code as spatial_status_code
 from .spatial_explorer_api import execute as explorer_execute, status_code as explorer_status_code
-from .generational_api import OPERATIONS as GENERATIONAL_OPERATIONS, execute as generational_execute, status_code as generational_status_code
+from .generational_api import OPERATIONS as GENERATIONAL_OPERATIONS, bootstrap as generational_bootstrap, execute as generational_execute, status_code as generational_status_code
 from .generational_authoring import scaffold as generational_scaffold, schema as generational_schema
 from .query import (
     causality,
@@ -170,6 +171,17 @@ def openapi_contract_errors(schema: dict[str, Any]) -> tuple[str, ...]:
             "body": None if endpoint.method == "GET" else explorer_request_body(endpoint.descriptor),
             **discovery_value(endpoint.descriptor, auth=endpoint.auth),
         }
+    bootstrap = generational_bootstrap_endpoint()
+    expected[(bootstrap.path, "get")] = {
+        "operationId": "generational_bootstrap_get", "command": None,
+        "auth": bootstrap.auth.value,
+        "parameters": [parameter_value("revision", "query", False, "string"),
+                       parameter_value("requireCompiled", "query", False, "boolean", default=False),
+                       parameter_value(AuthPolicy.SESSION.header_name or "", "header", False,
+                                       "string", description=AuthPolicy.SESSION.header_description)],
+        "body": None,
+        **discovery_value(bootstrap.descriptor, auth=bootstrap.auth),
+    }
 
     errors: list[str] = []
     try:
@@ -762,5 +774,26 @@ def create_api_router(runtime: Any, authorize: Authorize) -> APIRouter:
                     return JSONResponse(value, status_code=explorer_status_code(value))
                 return handler
             router.add_api_route(endpoint.path, explorer_post(action), **explorer_options(endpoint))
+
+    bootstrap_endpoint = generational_bootstrap_endpoint()
+
+    @router.get(
+        bootstrap_endpoint.path,
+        dependencies=[Depends(authorize)],
+        operation_id="generational_bootstrap_get",
+        summary=bootstrap_endpoint.descriptor.summary,
+        description=bootstrap_endpoint.descriptor.description,
+        tags=list(bootstrap_endpoint.descriptor.tags),
+        responses=discovery_responses(bootstrap_endpoint.descriptor),
+        openapi_extra=discovery_openapi_extra(bootstrap_endpoint.descriptor,
+                                             auth=bootstrap_endpoint.auth),
+    )
+    async def generational_bootstrap_handler(
+        revision: str | None = Query(None),
+        require_compiled: bool = Query(False, alias="requireCompiled"),
+    ) -> Any:
+        value = await asyncio.to_thread(generational_bootstrap, runtime.repository,
+                                        revision, require_compiled=require_compiled)
+        return JSONResponse(value, status_code=generational_status_code(value))
 
     return router

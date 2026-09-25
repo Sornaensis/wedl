@@ -754,7 +754,7 @@ SCHEMAS["GenerationalSchemaResponse"] = _strict_object(
                 "batchLimit": {"const": 32}},
 )
 _GEN_READ_ACTIONS = ("parents", "ancestors", "descendants", "relatives", "union",
-                     "organization", "legacy", "vital", "search", "context")
+                     "organization", "legacy", "vital", "search", "context", "discover", "labels")
 _GEN_APPLICABILITY = {"oneOf": [
     _strict_object("applicability_kind", "point", properties={
         "applicability_kind": {"const": "instant"}, "point": _GEN_TIME}),
@@ -847,6 +847,12 @@ _GEN_SUCCESSION = _strict_object("from", "to", "citations", "causes", properties
 _GEN_SEARCH_RESULT = _strict_object("recordId", "kind", "citations", properties={
     "recordId": _GEN_REF, "kind": {"enum": list(_GEN_FOLD_VALUES)},
     "citations": _GEN_CITATIONS})
+_GEN_DISCOVERY_RESULT = _strict_object("id", "kind", "title", "matchedName", properties={
+    "id": _GEN_REF, "kind": {"enum": ["character", "organization", "legacy", "event"]},
+    "title": _GEN_REF, "matchedName": _GEN_REF})
+_GEN_LABEL = _strict_object("id", "kind", "title", properties={
+    "id": _GEN_REF, "kind": {"enum": ["character", "organization", "legacy", "event"]},
+    "title": _GEN_REF})
 _GEN_READ_RESULTS = {
     "parents": {"relations": {"type": "array", "items": _GEN_PARENT}},
     "ancestors": {"relations": {"type": "array", "items": _GEN_RELATION}},
@@ -867,6 +873,9 @@ _GEN_READ_RESULTS = {
               "history": {"type": "array", "items": _GEN_HISTORY}},
     "search": {"results": {"type": "array", "items": _GEN_SEARCH_RESULT},
                "cursor": {"type": ["string", "null"]}},
+    "discover": {"results": {"type": "array", "maxItems": 100, "items": _GEN_DISCOVERY_RESULT},
+                 "cursor": {"type": ["string", "null"]}},
+    "labels": {"labels": {"type": "array", "maxItems": 100, "items": _GEN_LABEL}},
     "context": {"items": {"type": "array", "items": {"oneOf": [
         _strict_object("kind", "result", properties={
             "kind": {"const": kind},
@@ -886,10 +895,20 @@ _GEN_READ_RESULTS = {
 def _generational_request(action: str) -> dict[str, Any]:
     common = {"protocol": {"const": "wedl-generational/v1"}, "operation": {"const": action},
               "revision": _GEN_SHA, "capabilities": {"oneOf": [{"const": value} for value in _CANONICAL_CAPABILITY_LISTS if "generational-core-v1" in value]},
-              "timeline": _GEN_REF, "items": {"type": "integer", "minimum": 1, "maximum": 100 if action == "context" else 500},
-              "depth": {"type": "integer", "minimum": 0, "maximum": 16 if action == "context" else 32}}
+              "timeline": _GEN_REF, "items": {"type": "integer", "minimum": 1, "maximum": 100 if action in {"context", "discover", "labels"} else 500}}
+    if action not in {"discover", "labels"}:
+        common["depth"] = {"type": "integer", "minimum": 0, "maximum": 16 if action == "context" else 32}
     required = ["protocol", "operation", "revision", "capabilities", "mode", "timeline"]
-    if action == "search":
+    if action == "discover":
+        common["kind"] = {"enum": ["character", "organization", "legacy", "event"]}
+        common["text"] = {"type": "string", "minLength": 1, "maxLength": 64}
+        common["cursor"] = {"type": ["string", "null"], "minLength": 1, "maxLength": 1024}
+        required.extend(("kind", "text", "at"))
+    elif action == "labels":
+        common["ids"] = {"type": "array", "minItems": 1, "maxItems": 100,
+                         "uniqueItems": True, "items": _GEN_REF}
+        required.extend(("ids", "at"))
+    elif action == "search":
         common["text"] = {"type": "string", "pattern": "^\\w{1,32}$"}
         common["cursor"] = {"type": ["string", "null"], "minLength": 1, "maxLength": 1024}
         required.append("text")
@@ -902,11 +921,13 @@ def _generational_request(action: str) -> dict[str, Any]:
     if action == "context":
         common["maxCharacters"] = {"type": "integer", "minimum": 80, "maximum": 65536}
         required.append("maxCharacters")
-    variants = [
-        _strict_object(*required, properties={**common, "mode": {"const": "author-as-of"}, "at": _GEN_TIME}),
+    variants = [_strict_object(*required, properties={**common, "mode": {"const": "author-as-of"}, "at": _GEN_TIME})]
+    if action in {"discover", "labels"}:
+        return variants[0]
+    variants.extend((
         _strict_object(*required, properties={**common, "mode": {"const": "author-all-time"}}),
         _strict_object(*required, "at", properties={**common, "mode": {"const": "character"}, "at": _GEN_TIME}),
-    ]
+    ))
     if action == "organization":
         variants.append(_strict_object(
             *required, "at", "includeFormerRoles",
@@ -932,7 +953,8 @@ for _action in _GEN_READ_ACTIONS:
                         "organization": ("organization", "parentPath", "roles"),
                         "legacy": ("legacy", "tenures", "holders", "claims", "succession"),
                         "vital": ("vital", "citations"), "search": ("results", "cursor"),
-                        "context": ("items", "truncated")}[_action]
+                        "context": ("items", "truncated"), "discover": ("results", "cursor"),
+                        "labels": ("labels",)}[_action]
     SCHEMAS[f"Generational{_stem}AvailableOutcome"] = _strict_object(
         "protocol", "operation", "revision", "state", *_required_result,
         properties={**_base, "state": {"const": "available"}, **_result})
@@ -953,6 +975,20 @@ for _action in _GEN_READ_ACTIONS:
     SCHEMAS[f"Generational{_stem}LimitOutcome"] = _strict_object(
         "protocol", "operation", "revision", "state", "code",
         properties={**_base, "state": {"const": "limit"}, "code": {"const": "GEN-LIMIT-001"}})
+
+_GEN_BOOTSTRAP_BASE = {"protocol": {"const": "wedl-generational/v1"},
+                       "operation": {"const": "bootstrap"},
+                       "revision": {"anyOf": [_GEN_SHA, {"type": "null"}]}}
+SCHEMAS["GenerationalBootstrapAvailableOutcome"] = _strict_object(
+    "protocol", "operation", "revision", "state", "capabilities", "timelines",
+    properties={**_GEN_BOOTSTRAP_BASE, "state": {"const": "available"},
+                "capabilities": {"oneOf": [{"const": value} for value in _CANONICAL_CAPABILITY_LISTS if "generational-core-v1" in value]},
+                "timelines": {"type": "array", "items": _GEN_REF}})
+for _state in ("unknown", "invalid", "unavailable", "limit"):
+    SCHEMAS[f"GenerationalBootstrap{_state.capitalize()}Outcome"] = _strict_object(
+        "protocol", "operation", "revision", "state", *(() if _state in {"unknown", "unavailable"} else ("code",)),
+        properties={**_GEN_BOOTSTRAP_BASE, "state": {"const": _state},
+                    "code": {"enum": ["GEN-REQUEST-001", "GEN-LIMIT-001"]}})
 
 
 _CHANGESET = {
@@ -999,7 +1035,8 @@ _OPERATIONS: dict[str, tuple[str, dict[str, Any]]] = {
            else {"organization": {}, "parentPath": [], "roles": []} if action == "organization"
            else {"legacy": {}, "tenures": [], "holders": [], "claims": [], "succession": []} if action == "legacy"
            else {"vital": "living", "citations": []} if action == "vital"
-           else {"results": [], "cursor": None} if action == "search"
+           else {"results": [], "cursor": None} if action in {"search", "discover"}
+           else {"labels": []} if action == "labels"
            else {"items": [], "truncated": False}),
     }) for action in _GEN_READ_ACTIONS},
     "generational scaffold": ("GenerationalScaffoldResponse", {"action": "generational.create", "expectedHead": "0" * 40, "idempotencyKey": "generational-starter-choose-a-unique-key", "kind": "organization", "title": "New organization", "audience": ["public"], "perspectives": ["ordinary"], "fields": {"organization_kind": "house"}, "payload": {"title": "New organization", "aliases": []}, "at": {"timeline": "main", "tick": "0", "order": "0"}}),

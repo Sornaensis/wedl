@@ -326,6 +326,9 @@ def current_holders(
     return result
 
 
+_DISCOVERY_INTERVAL_BASE = 1 << 40
+
+
 def insert_generational_index(
     connection: sqlite3.Connection, world: World, at: StoryTime | None = None,
 ) -> dict[str, int]:
@@ -333,9 +336,17 @@ def insert_generational_index(
     current = at or effective_time(world)
     records = [record for record in sorted(world.records.values(), key=lambda item: item.source_path)
                if record.kind in GENERATIONAL_KINDS]
+    # These are disposable, private name admissions. A linked entity's source
+    # title is never admitted before a canonical generational fact cites it.
+    names: dict[tuple[str, str, str, str, str], tuple[int, int, int, str, str, str]] = {}
+    title_changes: dict[str, list[tuple[str, int, int, bool]]] = {}
+    title_instants: set[tuple[str, str, str, int, int]] = set()
+    lenses: set[tuple[str, str]] = {("public", "ordinary")}
     for source_ordinal, record in enumerate(records):
         item = generational_record(record.frontmatter)
         fields = item.fields
+        lenses.update((audience, perspective) for audience in fields["audience"]
+                       for perspective in fields["perspectives"])
         point = item.initialization.applicability.start()
         assert point is not None
         connection.execute(
@@ -411,6 +422,58 @@ def insert_generational_index(
                  canonical_json(fields["audience"]), canonical_json(fields["perspectives"]),
                  canonical_json(citation), canonical_json(structure)),
             )
+            if record.status == "canonical" and kind in {"organization", "legacy"}:
+                literal_title = transition.payload.get("title")
+                if isinstance(literal_title, str):
+                    title_changes.setdefault(record.id, []).append(
+                        (start.timeline, start.tick, start.order,
+                         len(literal_title.encode("utf-8")) <= 256))
+                    title_instants.update(
+                        (audience, perspective, start.timeline, start.tick, start.order)
+                        for audience in fields["audience"]
+                        for perspective in fields["perspectives"])
+            if record.status == "canonical" and not (
+                kind == "vital-history" and
+                (fields["disclosure"] != "known" or transition.kind == "vital-initialize")
+            ):
+                linked = [record.id] if kind in {"organization", "legacy"} else []
+                for field in ("child_id", "parent_id", "character_id", "claimant_id",
+                              "holder_id", "organization_id", "legacy_id"):
+                    value = transition.payload.get(field, fields.get(field))
+                    if isinstance(value, str):
+                        linked.append(value)
+                linked.extend(value for value in transition.payload.get("participant_ids", ())
+                              if isinstance(value, str))
+                if transition.cause_event_id:
+                    linked.append(transition.cause_event_id)
+                for entity_id in set(linked):
+                    entity = world.maybe_get(entity_id)
+                    if entity is None or entity.kind not in {"character", "organization", "legacy", "event"}:
+                        continue
+                    if entity.kind in {"organization", "legacy"} and entity_id != record.id:
+                        continue
+                    if entity_id == record.id and entity.kind in {"organization", "legacy"}:
+                        title = transition.payload.get("title")
+                        if not isinstance(title, str):
+                            continue
+                        labels = (title, *transition.payload.get("aliases", ()))
+                    else:
+                        title = entity.title
+                        labels = (title, *entity.aliases)
+                    if len(title.encode("utf-8")) > 256:
+                        continue
+                    for label in labels:
+                        if (not isinstance(label, str) or not label.strip()
+                                or len(label.encode("utf-8")) > 256):
+                            continue
+                        normalized = label.strip().casefold()
+                        for audience in fields["audience"]:
+                            for perspective in fields["perspectives"]:
+                                key = (audience, perspective, start.timeline, normalized, entity_id)
+                                posting = (start.tick, start.order, source_ordinal,
+                                           entity.kind, label, title)
+                                if key not in names or posting[:3] < names[key][:3]:
+                                    names[key] = posting
             # Keep one earliest indexed posting per structural prefix and
             # authorized audience/perspective lane. A later transition cannot
             # make its token visible before its own applicability instant.
@@ -433,6 +496,75 @@ def insert_generational_index(
                  in sorted(postings.items())],
             )
     candidates = frozenset(record.id for record in records)
+    connection.executemany("INSERT INTO generational_discovery_lens VALUES (?,?)",
+                           sorted(lenses))
+    if names:
+        connection.executemany(
+            "INSERT INTO generational_discovery_name VALUES (?,?,?,?,?,?,?,?,?,?,?)",
+            [(audience, perspective, timeline, name_key, entity_id,
+              kind, name, title, tick, order, ordinal)
+             for (audience, perspective, timeline, name_key, entity_id),
+                 (tick, order, ordinal, kind, name, title) in sorted(names.items())],
+        )
+        instants = sorted(title_instants | {
+            (audience, perspective, timeline, tick, order)
+            for (audience, perspective, timeline, _, _),
+                (tick, order, _, _, _, _) in names.items()})
+        ranks: dict[tuple[str, str, str, int, int], int] = {}
+        lengths: dict[tuple[str, str, str], int] = {}
+        for audience, perspective, timeline, tick, order in instants:
+            lane = (audience, perspective, timeline)
+            lengths[lane] = lengths.get(lane, 0) + 1
+            ranks[(audience, perspective, timeline, tick, order)] = lengths[lane]
+        connection.executemany("INSERT INTO generational_discovery_time VALUES (?,?,?,?,?,?)",
+                               [(audience, perspective, timeline, tick, order,
+                                 ranks[(audience, perspective, timeline, tick, order)])
+                                for audience, perspective, timeline, tick, order in instants])
+        valid_ranges = {}
+        for entity_id, changes in title_changes.items():
+            record = world.get(entity_id)
+            item = generational_record(record.frontmatter)
+            for audience in item.fields["audience"]:
+                for perspective in item.fields["perspectives"]:
+                    lane = (audience, perspective, changes[0][0])
+                    spans = []
+                    for index, (timeline, tick, order, valid) in enumerate(changes):
+                        first = ranks[(audience, perspective, timeline, tick, order)]
+                        last = (ranks[(audience, perspective, *changes[index + 1][:3])] - 1
+                                if index + 1 < len(changes) else lengths[lane])
+                        if valid and first <= last:
+                            spans.append((first, last))
+                    valid_ranges[(audience, perspective, entity_id)] = spans
+        segments = []
+        if any(length >= _DISCOVERY_INTERVAL_BASE for length in lengths.values()):
+            raise ValueError("discovery time capacity exceeded")
+        for (audience, perspective, timeline, name_key, entity_id), posting in sorted(names.items()):
+            tick, order, _, kind, name, title = posting
+            admitted = ranks[(audience, perspective, timeline, tick, order)]
+            lane = (audience, perspective, timeline)
+            if kind in {"organization", "legacy"}:
+                for first, last in valid_ranges[(audience, perspective, entity_id)]:
+                    left = _DISCOVERY_INTERVAL_BASE + max(first, admitted) - 1
+                    right = _DISCOVERY_INTERVAL_BASE + last - 1
+                    while left <= right:
+                        if left & 1:
+                            segments.append((audience, perspective, timeline, kind, left,
+                                             name_key, entity_id, name, title))
+                            left += 1
+                        if not right & 1:
+                            segments.append((audience, perspective, timeline, kind, right,
+                                             name_key, entity_id, name, title))
+                            right -= 1
+                        left //= 2
+                        right //= 2
+            else:
+                node = admitted
+                while node <= lengths[lane]:
+                    segments.append((audience, perspective, timeline, kind, node,
+                                     name_key, entity_id, name, title))
+                    node += node & -node
+        connection.executemany(
+            "INSERT INTO generational_discovery_segment VALUES (?,?,?,?,?,?,?,?,?)", segments)
     for record in records:
         folded = fold_record(connection, record.id, at=current, candidate_ids=candidates)
         if folded is not None:

@@ -378,3 +378,52 @@ def test_private_structural_search_shape_is_required(tmp_path: Path) -> None:
     finally:
         connection.close()
     assert "tableShape:generational_search_prefix" in _compiled_database_issues(database)
+
+
+def test_private_discovery_shape_and_generation_reject_old_cache(tmp_path: Path) -> None:
+    from wedl import SQLITE_SCHEMA
+    from wedl.compiler import COMPILER_FINGERPRINT_PREFIX, GENERATIONAL_INDEX_GENERATION_TOKEN
+
+    assert SQLITE_SCHEMA == "wedl-sqlite/v14"
+    assert GENERATIONAL_INDEX_GENERATION_TOKEN == "wedl-generational-index/v7"
+    assert GENERATIONAL_INDEX_GENERATION_TOKEN in COMPILER_FINGERPRINT_PREFIX
+    database = tmp_path / "discovery-shape.sqlite"
+    connection = sqlite3.connect(database)
+    try:
+        _bootstrap_compiled_connection(connection)
+        connection.executescript(INDEX_DDL)
+        assert [row[2] for row in connection.execute(
+            "PRAGMA index_info(generational_discovery_key_idx)")] == [
+                "audience", "perspective", "timeline", "kind", "name_key",
+                "entity_id", "start_tick", "start_order"]
+        assert [row[2] for row in connection.execute(
+            "PRAGMA index_info(generational_discovery_segment_idx)")] == [
+                "audience", "perspective", "timeline", "kind", "node",
+                "name_key", "entity_id"]
+        connection.execute("DROP INDEX generational_discovery_key_idx")
+        connection.execute("DROP INDEX generational_discovery_segment_idx")
+        connection.commit()
+    finally:
+        connection.close()
+    assert set(_compiled_database_issues(database)) == {
+        "missingIndex:generational_discovery_key_idx",
+        "missingIndex:generational_discovery_segment_idx"}
+    connection = sqlite3.connect(database)
+    try:
+        connection.execute("CREATE INDEX generational_discovery_key_idx ON "
+                           "generational_discovery_name(audience,perspective,timeline,kind,"
+                           "name_key,entity_id,start_tick,start_order)")
+        connection.execute("CREATE INDEX generational_discovery_segment_idx ON "
+                           "generational_discovery_segment(audience,perspective,timeline,kind,"
+                           "node,name_key,entity_id)")
+        connection.execute(
+            "ALTER TABLE generational_discovery_time RENAME COLUMN time_rank TO wrong_rank")
+        connection.execute("DROP INDEX generational_discovery_label_idx")
+        connection.execute("CREATE INDEX generational_discovery_label_idx ON "
+                           "generational_discovery_name(entity_id,audience,perspective,timeline,"
+                           "start_tick,start_order,source_ordinal) WHERE name<>title")
+        connection.commit()
+    finally:
+        connection.close()
+    assert "tableShape:generational_discovery_time" in _compiled_database_issues(database)
+    assert "indexShape:generational_discovery_label_idx" in _compiled_database_issues(database)

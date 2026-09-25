@@ -90,7 +90,7 @@ _SPATIAL_EXAMPLES: dict[str, dict[str, Any]] = {
 }
 
 _GENERATIONAL_OPERATIONS = ("parents", "ancestors", "descendants", "relatives", "union",
-                           "organization", "legacy", "vital", "search", "context")
+                           "organization", "legacy", "vital", "search", "context", "discover", "labels")
 
 
 def _generational_example(action: str) -> dict[str, Any]:
@@ -99,7 +99,15 @@ def _generational_example(action: str) -> dict[str, Any]:
                             "mode": "author-as-of", "timeline": "main",
                             "at": {"timeline": "main", "tick": "-7", "order": "2"},
                             "items": 20, "depth": 4}
-    if action == "search":
+    if action in {"discover", "labels"}:
+        body.pop("depth")
+    if action == "discover":
+        body["kind"] = "character"
+        body["text"] = "Mara"
+        body["cursor"] = None
+    elif action == "labels":
+        body["ids"] = ["character_0123456789ABCDEFGHJKMNPQRS"]
+    elif action == "search":
         body["text"] = "aster"
         body["cursor"] = None
     else:
@@ -154,6 +162,10 @@ def _generational_response_example(action: str) -> dict[str, Any]:
         "search": {"results": [{"recordId": citation["record_id"], "kind": "parentage",
                                 "citations": [citation]}],
                    "cursor": None},
+        "discover": {"results": [{"id": "char_0123456789ABCDEFGHJKMNPQRS", "kind": "character",
+                                   "title": "Mara Vale", "matchedName": "Mara Vale"}], "cursor": None},
+        "labels": {"labels": [{"id": "char_0123456789ABCDEFGHJKMNPQRS",
+                              "kind": "character", "title": "Mara Vale"}]},
         "context": {"items": [{"kind": "parents", "result": {"state": "available",
                                                        "relations": [parent]}}],
                     "truncated": False},
@@ -474,6 +486,23 @@ def _explorer_descriptor(operation: str) -> DiscoveryDescriptor:
 _EXPLORER_ENDPOINTS = tuple(ControlEndpoint("GET" if action == "catalog" else "POST",
     f"/api/spatial/explorer/{action}", AuthPolicy.PUBLIC, _explorer_descriptor(action))
     for action in ("catalog", "places", "viewport", "layers", "routes"))
+
+_GENERATIONAL_BOOTSTRAP = ControlEndpoint(
+    "GET", "/api/generational/bootstrap", AuthPolicy.SESSION,
+    DiscoveryDescriptor(
+        "Open a generational read session",
+        "Return the selected compiled revision, capabilities, and timeline IDs without loading whole-world source records.",
+        ("Generational",), "Generational bootstrap outcome.",
+        ("authentication_required", "usage_error", "compile_required", "validation_failed", "parse_error", "repository_error"),
+        examples=({"summary": "Bootstrap request", "value": {"method": "GET",
+                   "path": "/api/generational/bootstrap", "headers": {"X-Wedl-Token": "<session-token>"}}},),
+        success_schema="GenerationalBootstrapAvailableOutcome",
+        success_examples=({"summary": "Compiled generational session", "value": {
+            "protocol": "wedl-generational/v1", "operation": "bootstrap", "revision": "0" * 40,
+            "state": "available", "capabilities": ["generational-core-v1"],
+            "timelines": ["main"]}},),
+    ),
+)
 
 
 def _request_example(command: tuple[str, ...], binding: RouteBinding) -> tuple[dict[str, Any], ...]:
@@ -817,6 +846,10 @@ def explorer_endpoints() -> tuple[ControlEndpoint, ...]:
     return _EXPLORER_ENDPOINTS
 
 
+def generational_bootstrap_endpoint() -> ControlEndpoint:
+    return _GENERATIONAL_BOOTSTRAP
+
+
 def explorer_request_body(descriptor: DiscoveryDescriptor) -> dict[str, Any]:
     if descriptor.request_schema is None:
         raise RuntimeError("spatial explorer endpoint has no request schema")
@@ -1010,7 +1043,9 @@ def normalize_discovery_openapi(document: dict[str, Any]) -> dict[str, Any]:
     for path_item in document.get("paths", {}).values():
         for method, operation in path_item.items():
             semantic_gen_read = (isinstance(operation, dict) and
-                                 operation.get("operationId") in {f"generational_{action}_post" for action in _GENERATIONAL_OPERATIONS})
+                                 operation.get("operationId") in {
+                                     *(f"generational_{action}_post" for action in _GENERATIONAL_OPERATIONS),
+                                     "generational_bootstrap_get"})
             if method in methods and isinstance(operation, dict) and "Spatial" not in operation.get("tags", ()) and not semantic_gen_read:
                 operation.get("responses", {}).pop("422", None)
     # FastAPI merges ``openapi_extra`` with its generated body schema.  That
@@ -1044,6 +1079,16 @@ def normalize_discovery_openapi(document: dict[str, Any]) -> dict[str, Any]:
             }
             if endpoint.method == "POST":
                 operation["requestBody"] = explorer_request_body(endpoint.descriptor)
+    bootstrap = generational_bootstrap_endpoint()
+    operation = document.get("paths", {}).get(bootstrap.path, {}).get("get")
+    if isinstance(operation, dict):
+        operation["x-wedl-examples"] = list(bootstrap.descriptor.examples)
+        operation["responses"]["200"]["content"]["application/json"]["schema"] = (
+            discovery_responses(bootstrap.descriptor)[200]["content"]["application/json"]["schema"]
+        )
+        operation["responses"]["200"]["content"]["application/json"]["examples"] = {
+            "success": bootstrap.descriptor.success_examples[0]
+        }
     # These are introduced solely by FastAPI's default 422 schema.  Removing
     # the unreachable response must also remove its unreachable components so
     # the document has one explicit structural vocabulary.
@@ -1097,6 +1142,7 @@ def validate_discovery_descriptors() -> None:
     descriptors = [contract.discovery for contract in route_contracts()]
     descriptors.extend(endpoint.descriptor for endpoint in control_endpoints())
     descriptors.extend(endpoint.descriptor for endpoint in explorer_endpoints())
+    descriptors.append(generational_bootstrap_endpoint().descriptor)
     for descriptor in descriptors:
         if descriptor is None or not descriptor.success_schema or descriptor.success_schema not in schemas:
             raise RuntimeError("mounted discovery descriptor has no registered success schema")
@@ -1133,6 +1179,13 @@ def _path_matches(template: str, path: str) -> bool:
 def validate_request_fields(method: str, path: str, fields: Iterable[str]) -> None:
     """Reject transport fields absent from the parser-derived API binding."""
 
+    bootstrap = generational_bootstrap_endpoint()
+    if method == bootstrap.method and path == bootstrap.path:
+        unexpected = sorted(set(fields).difference({"revision", "requireCompiled"}))
+        if unexpected:
+            raise UsageError("unknown API request field", details={"unexpected": unexpected,
+                                                                   "allowed": ["revision", "requireCompiled"]})
+        return
     for endpoint in explorer_endpoints():
         if endpoint.method == method and endpoint.path == path:
             allowed = {"limit", "cursor", "revision", "capabilities"} if method == "GET" else set()

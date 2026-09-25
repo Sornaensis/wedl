@@ -30,6 +30,26 @@ later transition.
 Generic metadata, body, titles, aliases, tags, and transitions from these eight
 kinds do not enter `search_document`, FTS5, or vector training/retrieval.
 
+`generational_discovery_name` is a private, disposable title/alias posting
+table for the read-only generational interface. A canonical authored fact
+admits a linked character or cause event only at its first applicable
+StoryTime, under that fact's audience and perspective. Organization and legacy
+names come from their literal initialization or rename payloads, not from a
+later source summary title. The small `generational_discovery_lens` table lets
+the local author adapter derive its trusted lanes without scanning source
+records. `generational_discovery_time` ranks exact `(tick, order)` instants
+separately in each audience/perspective lane;
+`generational_discovery_segment` stores private time-prefix postings for
+character/event names and horizon interval postings for organization/legacy
+names, so each name range is sought only among rows eligible at the requested
+horizon. Interval lookup has a fixed depth independent of later source instants.
+An overlong literal title closes that organization or legacy while
+it is current, without suppressing its earlier bounded title. Static titles
+longer than 256 UTF-8 bytes close their entities; overlong aliases are omitted.
+Ready-cache discovery reads use these compiled rows without building
+a whole-world `World`. If the schema or named index shape is stale, the cache
+is rejected and rebuilt from the unchanged Git source.
+
 ## Internal replay
 
 `fold_record` takes an explicit StoryTime and an already visibility-filtered set

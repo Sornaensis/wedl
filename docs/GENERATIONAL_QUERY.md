@@ -35,8 +35,9 @@ applicability, and character evidence before labels, path expansion, ranking,
 pagination, or serialization. Search uses the private structural projection
 and normalized token-prefix postings indexed by audience, perspective,
 timeline, and first applicability. Matching is prefix-based, not arbitrary
-substring matching. Each authorized lane reads at most 501 distinct records;
-a larger discovery set returns closed `limit` without a partial page. Repeated
+substring matching. Each authorized lane advances an indexed keyset stream
+only until the bounded page is complete; a large authorized set remains
+pageable. Repeated
 transitions on one record consume one slot. Withheld vital histories have no
 postings, and vital initialization alone never produces a result before birth
 or existence start.
@@ -77,9 +78,46 @@ Unknown or ambiguous author names yield bounded suggestions or candidates.
 For union, organization, and legacy selectors, name matching and suggestions
 include only records visible at the selected horizon and trusted scope. A
 future or withheld record has the same name-resolution result as an absent one.
+Character selectors now use the same closed admission rule. A standalone
+character without an admitted generational fact returns `unknown`, including
+when the raw world contains its timeless title. Missing, future, and hidden
+character references share this outcome without suggestions.
 `available` and `unknown` use HTTP 200 and CLI exit 0; `invalid`,
 `unavailable`, and `limit` use HTTP 400, 409, and 422 and CLI exit 2. Nested
 StoryTime coordinates and citations retain decimal-string ticks and orders.
+
+### Bounded discovery for the read-only interface
+
+`GET /api/generational/bootstrap` with the session token returns the current
+compiled revision, canonical capability list, and declared timeline IDs.
+An optional `revision` selects an exact Git commit; `requireCompiled=true`
+requires its cache to be ready. It returns no entity names or counts.
+
+Use `wedl generational discover request.json` or
+`POST /api/generational/discover` to find admitted titles and aliases. The raw
+request uses the common protocol/revision/capabilities, `mode: author-as-of`,
+declared `timeline`, and an explicit signed-string `at`, plus `kind` (character,
+organization, legacy, or event), a nonblank title/alias prefix `text` (at most
+64 characters), optional `items` (1–100), and optional `cursor`. Results have
+`id`, `kind`, current `title`, and `matchedName`; a title and alias may produce
+separate matches. Pagination orders by normalized matched name and ID. The
+cursor binds the normalized filter, horizon, revision, capabilities, and
+trusted viewer lanes. An inapplicable or malformed cursor returns `invalid`.
+No candidate count is returned. The indexed time-prefix seeks admit exact
+signed `(tick, order)` instants before scanning names, including for an empty
+page. Response titles and matched names are bounded to 256 UTF-8 bytes;
+an entity with a current overlong title has no discovery or label result at
+that horizon, and an overlong alias cannot match. An earlier bounded title
+remains available at its earlier horizon.
+
+Use `wedl generational labels request.json` or
+`POST /api/generational/labels` with the same envelope and 1–100 unique `ids`
+to retrieve current display titles for already linked IDs. The `labels` array
+omits absent, future, and hidden IDs. Both operations read indexed private
+postings on a ready cache and never fall back to `/api/entities` or source
+prose. A generated test fixture with at least 5,000 characters and 10,000
+parentage edges checks the name index, 20-result response size, and SQLite
+virtual-machine work for an indexed page.
 
 The current knowledge, scene-observation, and conversation-recollection source
 grammar has no validated exact reference that says a character knows a given
