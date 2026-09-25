@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Generational evidence</title>
+    <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/assets/generational.css">
+  </head>
+  <body>
+    <header class="topbar"><div><p class="eyebrow">Lore compendium</p><h1>Generational evidence</h1></div><nav aria-label="Site"><a href="/">Read the compendium</a></nav></header>
+    <main>
+      <p class="notice">These are local-author reads at the selected StoryTime. They do not establish what any character knows.</p>
+      <p id="gen-status" role="status" aria-live="polite">Opening the author session…</p>
+      <form id="horizon-form" class="panel">
+        <h2>Exact author horizon</h2>
+        <p>Enter an authored signed decimal tick and order. Results remain closed until you apply a horizon.</p>
+        <div class="fields"><label for="gen-timeline">Timeline</label><select id="gen-timeline" required></select><label for="gen-tick">Tick</label><input id="gen-tick" type="text" inputmode="numeric" pattern="(?:0|-?[1-9][0-9]*)" required><label for="gen-order">Order</label><input id="gen-order" type="text" inputmode="numeric" pattern="(?:0|-?[1-9][0-9]*)" required></div>
+        <button type="submit">Apply horizon</button><button id="gen-refresh" type="button">Refresh world</button>
+        <p id="horizon-label" role="status" aria-live="polite">No horizon selected.</p>
+      </form>
+      <div class="layout">
+        <section class="panel" aria-labelledby="browse-title">
+          <h2 id="browse-title">Find evidence</h2>
+          <form id="discover-form"><label for="gen-kind">Kind</label><select id="gen-kind"><option value="character">Character</option><option value="organization">Organization or house</option><option value="legacy">Legacy</option></select><label for="gen-query">Title or alias prefix</label><input id="gen-query" type="search" maxlength="64" required><button type="submit" disabled>Find at horizon</button></form>
+          <p id="discover-status" role="status" aria-live="polite">Apply a horizon to search.</p>
+          <ol id="discover-results" class="cards"></ol>
+          <button id="discover-more" type="button" hidden>Next results page</button>
+        </section>
+        <section class="panel" aria-labelledby="detail-title">
+          <h2 id="detail-title">Evidence at horizon</h2>
+          <p id="detail-status" role="status" aria-live="polite">Choose a search result.</p>
+          <div id="detail-content"></div>
+        </section>
+      </div>
+    </main>
+    <script type="module">import { mountGenerationalExplorer } from "/assets/generational_app.mjs"; mountGenerationalExplorer(document);</script>
+  </body>
+</html>

@@ -1,0 +1,33 @@
+:root { color-scheme: dark; font-family: system-ui, sans-serif; background: #101b25; color: #e5eff5; }
+* { box-sizing: border-box; }
+body { margin: 0; }
+main { max-width: 90rem; margin: auto; padding: 1rem; }
+button, input, select { font: inherit; min-height: 2.7rem; border: 1px solid #7fa6bb; border-radius: .35rem; background: #182e3e; color: #f4faff; padding: .45rem .65rem; max-width: 100%; }
+button { cursor: pointer; margin: .25rem .4rem .25rem 0; }
+button:hover:not(:disabled), a:hover { background: #29516a; }
+button:disabled { cursor: not-allowed; opacity: .6; }
+:focus-visible { outline: 3px solid #ffd479; outline-offset: 3px; }
+a { color: #b6e1ff; }
+.topbar { display: flex; justify-content: space-between; align-items: center; gap: 1rem; padding: 1rem clamp(1rem, 3vw, 2rem); background: #182b38; border-bottom: 1px solid #537188; }
+.eyebrow { color: #c1d8e6; font-size: .8rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; margin: 0; }
+h1, h2, h3, h4 { margin: .25rem 0 .75rem; }
+p, li, dd { line-height: 1.5; overflow-wrap: anywhere; }
+.notice, #gen-status { padding: .6rem 1rem; background: #173044; border-left: 3px solid #78bde6; }
+.error { color: #ffd2ca; }
+.layout { display: grid; grid-template-columns: minmax(16rem, 1fr) minmax(0, 2fr); gap: 1rem; }
+.panel { min-width: 0; margin-bottom: 1rem; padding: 1rem; border: 1px solid #537188; border-radius: .65rem; background: #142532; }
+form { display: grid; gap: .45rem; }
+label { font-weight: 650; color: #d2e3ed; }
+input, select { width: 100%; }
+.fields { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: .45rem; align-items: center; max-width: 32rem; }
+.cards { margin: .6rem 0; padding-left: 1.5rem; display: grid; gap: .6rem; }
+.cards > li, .evidence { border: 1px solid #537188; border-radius: .45rem; padding: .7rem; overflow-wrap: anywhere; }
+.evidence { margin: .75rem 0; }
+.evidence dl { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: .2rem .6rem; margin: .4rem 0; }
+.evidence dt { font-weight: 650; }
+.evidence dd { margin: 0; }
+.meta { color: #c2d9e5; font-size: .9rem; }
+.empty { color: #c2d9e5; }
+@media (max-width: 700px) { .topbar { align-items: flex-start; flex-direction: column; } .layout { display: block; } .fields { grid-template-columns: minmax(0, 1fr); } }
+@media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; animation-duration: 0s !important; transition-duration: 0s !important; } }
+@media (forced-colors: active) { .panel, .cards > li, .evidence, .notice, #gen-status { border-color: CanvasText; } }
