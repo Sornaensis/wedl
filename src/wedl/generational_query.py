@@ -30,7 +30,7 @@ _DECIMAL = re.compile(r"(?:0|-?[1-9][0-9]*)\Z")
 _OPS = frozenset({"parents", "ancestors", "descendants", "relatives", "union",
                   "organization", "legacy", "vital", "search"})
 _REQUEST_KEYS = frozenset({"operation", "subject_id", "target_id", "text",
-                           "depth", "items", "cursor"})
+                           "depth", "items", "cursor", "includeFormerRoles"})
 
 
 @dataclass(frozen=True, slots=True)
@@ -323,6 +323,11 @@ def query_connection(connection: sqlite3.Connection, scope: TrustedViewerScope,
     if (not isinstance(operation, str) or operation not in _OPS
             or (operation != "search" and (not isinstance(subject, str) or not subject))):
         return _closed("invalid", "GEN-REQUEST-001")
+    former_roles = "includeFormerRoles" in request
+    if former_roles and (request["includeFormerRoles"] is not True
+                         or operation != "organization" or scope.mode != "author-as-of"
+                         or scope.at is None or "cursor" in request):
+        return _closed("invalid", "GEN-REQUEST-001")
     target_kind = {"parents": "character", "ancestors": "character",
                    "descendants": "character", "relatives": "character", "vital": "character",
                    "union": "union", "organization": "organization", "legacy": "legacy"}
@@ -415,7 +420,8 @@ def query_connection(connection: sqlite3.Connection, scope: TrustedViewerScope,
         affiliations, limit = _bounded_rows(connection,
             "SELECT id FROM generational_affiliation WHERE organization_id=? ORDER BY id",
             (subject,), visible, at, items,
-            None if scope.mode == "author-all-time" else frozenset({"active"}))
+            None if scope.mode == "author-all-time" else
+            frozenset({"active", "ended"}) if former_roles else frozenset({"active"}))
         if limit:
             return _closed("limit", "GEN-LIMIT-001")
         parent_paths = [{"targetId": path["targetId"], "edges": [
@@ -426,7 +432,9 @@ def query_connection(connection: sqlite3.Connection, scope: TrustedViewerScope,
         return {"state": "available", "organization": item,
                 "parentPath": parent_paths,
                 "roles": [row for row in affiliations if row["state"] == "active"
-                          or scope.mode == "author-all-time"]}
+                          or scope.mode == "author-all-time"],
+                **({"formerRoles": [row for row in affiliations if row["state"] == "ended"]}
+                   if former_roles else {})}
     if operation == "legacy":
         if subject in visible and _history_exceeds(connection, subject, scope, items):
             return _closed("limit", "GEN-LIMIT-001")
@@ -526,6 +534,9 @@ def query_generational(repository: Repository, scope: TrustedViewerScope,
     _at, failure = _validated_scope(scope)
     if failure:
         return failure
+    if (scope.mode == "author-as-of" and scope.at is None
+            and isinstance(request, Mapping) and "includeFormerRoles" in request):
+        return _closed("invalid", "GEN-REQUEST-001")
     try:
         if repository.resolve(scope.revision) != scope.revision:
             return _closed("invalid", "GEN-REQUEST-001")

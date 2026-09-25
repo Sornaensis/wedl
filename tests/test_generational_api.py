@@ -22,6 +22,7 @@ from wedl.source import serialize_record
 from wedl.util import canonical_json
 
 from test_generational_compiler import _world
+from test_generational_query import _former_role_world
 
 
 def seed_generational_repository(repository: Repository) -> tuple[Repository, dict[str, str]]:
@@ -231,3 +232,75 @@ def test_http_cli_contract_and_session_are_identical(
     assert assert_parity("parents", non_search_cursor) == {
         "protocol": "wedl-generational/v1", "operation": "parents",
         "revision": repository.head(), "state": "invalid", "code": "GEN-REQUEST-001"}
+
+
+def test_former_roles_name_first_cli_http_and_openapi(
+        tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    world, organization, ended, null_role, hidden, future = _former_role_world()
+    world.records.pop(hidden)
+    world.records.pop(future)
+    root = tmp_path / "former-roles-repo"
+    root.mkdir()
+    for record in world.records.values():
+        path = root / ("story/world.md" if record.kind == "world" else record.source_path)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(serialize_record(record.frontmatter, f"# {record.title}\n"))
+    (root / ".gitignore").write_text(".wedl/\n", encoding="utf-8")
+    for args in (("init", "-q"), ("config", "core.longpaths", "true"),
+                 ("config", "user.name", "wedl test"),
+                 ("config", "user.email", "wedl@test.invalid"),
+                 ("add", "story", ".gitignore"), ("commit", "-qm", "seed")):
+        subprocess.run(["git", "-C", str(root), *args], check=True, capture_output=True)
+    repository = Repository(root)
+    client = TestClient(create_app(root))
+    token = client.get("/api/session").json()["token"]
+    headers = {"X-Wedl-Token": token}
+    schemas = client.get("/openapi.json").json()["components"]["schemas"]
+    request_schema = jsonschema.Draft202012Validator(schemas["GenerationalOrganizationRequest"])
+    response_schema = jsonschema.Draft202012Validator(schemas["GenerationalOrganizationAvailableOutcome"])
+    payload_file = tmp_path / "former-roles-request.json"
+    base = request(repository, "organization", subject="Cadet House",
+                   at={"timeline": "main", "tick": "0", "order": "1"})
+    opted = {**base, "includeFormerRoles": True}
+    assert request_schema.is_valid(base) and request_schema.is_valid(opted)
+    assert not request_schema.is_valid({key: value for key, value in opted.items() if key != "at"})
+    assert not request_schema.is_valid({**base, "includeFormerRoles": False})
+    assert not request_schema.is_valid({**opted, "cursor": None})
+
+    def parity(operation: str, body: dict[str, object]) -> dict[str, object]:
+        result = execute(repository, operation, body)
+        payload_file.write_text(json.dumps(body), encoding="utf-8")
+        expected_exit = 0 if result["state"] in {"available", "unknown"} else 2
+        assert main(["--compact", "generational", operation, str(payload_file),
+                     "--repo", str(root)]) == expected_exit
+        output = capsys.readouterr()
+        assert json.loads(output.out if expected_exit == 0 else output.err) == result
+        http = client.post(f"/api/generational/{operation}", json=body, headers=headers)
+        assert http.status_code == status_code(result)
+        assert http.json() == result
+        return result
+
+    default = parity("organization", base)
+    offered = parity("organization", opted)
+    response_schema.validate(default)
+    response_schema.validate(offered)
+    assert canonical_json(default) == canonical_json({key: value for key, value in offered.items()
+                                                       if key != "formerRoles"})
+    assert [row["recordId"] for row in offered["formerRoles"]] == sorted((ended, null_role))
+    assert {row["value"]["role"] for row in offered["formerRoles"]} == {None, "steward"}
+    assert all(row["citations"] for row in offered["formerRoles"])
+    assert any(row["causes"] for row in offered["formerRoles"])
+    assert parity("organization", {**opted, "items": 2}) == {
+        "protocol": "wedl-generational/v1", "operation": "organization",
+        "revision": repository.head(), "state": "limit", "code": "GEN-LIMIT-001"}
+    for bad in ({**base, "includeFormerRoles": False},
+                {**base, "includeFormerRoles": "true"},
+                {**opted, "cursor": None},
+                {key: value for key, value in opted.items() if key != "at"},
+                {**opted, "mode": "character"},
+                {**{key: value for key, value in opted.items() if key != "at"},
+                 "mode": "author-all-time"}):
+        assert parity("organization", bad)["code"] == "GEN-REQUEST-001"
+    assert parity("union", {**request(repository, "union", subject="The Threefold Compact"),
+                            "includeFormerRoles": True})["code"] == "GEN-REQUEST-001"
+    assert organization in canonical_json(offered)

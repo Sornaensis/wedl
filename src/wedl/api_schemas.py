@@ -822,6 +822,12 @@ _GEN_FOLD = {"oneOf": [_strict_object(
     properties={**_GEN_FOLD_COMMON, "kind": {"const": kind},
                 "value": _strict_object(*_GEN_FOLD_REQUIRED[kind], properties=fields)})
     for kind, fields in _GEN_FOLD_VALUES.items()]}
+_GEN_FORMER_ROLE = _strict_object(
+    "recordId", "kind", "state", "value", "citations", "causes",
+    properties={**{key: value for key, value in _GEN_FOLD_COMMON.items() if key != "history"},
+                "kind": {"const": "affiliation"}, "state": {"const": "ended"},
+                "value": _strict_object(*_GEN_FOLD_REQUIRED["affiliation"],
+                                        properties=_GEN_FOLD_VALUES["affiliation"])})
 _GEN_EDGE = _strict_object("from", "to", "recordId", "citations", properties={
     "from": _GEN_REF, "to": _GEN_REF, "recordId": _GEN_REF,
     "citations": _GEN_CITATIONS})
@@ -850,7 +856,8 @@ _GEN_READ_RESULTS = {
               "citations": _GEN_CITATIONS,
               "history": {"type": "array", "items": _GEN_HISTORY}},
     "organization": {"organization": _GEN_FOLD, "parentPath": {"type": "array", "items": _GEN_PATH},
-                     "roles": {"type": "array", "items": _GEN_FOLD}},
+                     "roles": {"type": "array", "items": _GEN_FOLD},
+                     "formerRoles": {"type": "array", "items": _GEN_FORMER_ROLE}},
     "legacy": {"legacy": _GEN_FOLD, "tenures": {"type": "array", "items": _GEN_FOLD},
                "holders": {"type": "array", "items": _GEN_FOLD},
                "claims": {"type": "array", "items": _GEN_FOLD},
@@ -895,11 +902,17 @@ def _generational_request(action: str) -> dict[str, Any]:
     if action == "context":
         common["maxCharacters"] = {"type": "integer", "minimum": 80, "maximum": 65536}
         required.append("maxCharacters")
-    return {"oneOf": [
+    variants = [
         _strict_object(*required, properties={**common, "mode": {"const": "author-as-of"}, "at": _GEN_TIME}),
         _strict_object(*required, properties={**common, "mode": {"const": "author-all-time"}}),
         _strict_object(*required, "at", properties={**common, "mode": {"const": "character"}, "at": _GEN_TIME}),
-    ]}
+    ]
+    if action == "organization":
+        variants.append(_strict_object(
+            *required, "at", "includeFormerRoles",
+            properties={**common, "mode": {"const": "author-as-of"}, "at": _GEN_TIME,
+                        "includeFormerRoles": {"const": True}}))
+    return {"oneOf": variants}
 
 
 _GEN_REFERENCE_DETAIL = _strict_object("id", "kind", "title", "reference", properties={

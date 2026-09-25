@@ -43,7 +43,15 @@ or existence start.
 Matches paginate with an `(applicability, source ordinal, record ID)` keyset.
 Cursors bind the normalized request, trusted scope, and revision. The `items`
 bound also applies to union participants and explicit all-time history arrays;
-the roster bound counts active affiliations in as-of mode.
+the roster bound counts active affiliations in as-of mode. For an organization
+author-as-of request with an explicit exact `at`, `includeFormerRoles: true`
+adds a separate `formerRoles` array. Each entry is an ended authored
+affiliation at that horizon with its last authored `value.role` (including
+`null`), admitted citations, and causes. `roles` remains the active roster.
+Both arrays share one `items` cap; exceeding it closes the entire response as
+`GEN-LIMIT-001`. The option rejects `false`, other modes and operations, an
+implicit time cursor, and a request `cursor`. Without the option, the original
+active-only response is unchanged.
 
 ## CLI and HTTP transport
 

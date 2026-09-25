@@ -85,6 +85,148 @@ def test_union_organization_legacy_vital_and_private_search() -> None:
         connection.close()
 
 
+def _former_role_world():
+    world, mapping = _world()
+    template = next(record for record in world.records.values() if record.kind == "affiliation")
+
+    def add(seed, character, *, init_tick=-5, role=None, end_tick=None, end_order=0,
+            audience=None):
+        data = deepcopy(template.frontmatter)
+        data["id"] = id_from_seed("affiliation", seed)
+        data["title"] = seed
+        data["character_id"] = mapping[character]
+        data["initialization"]["transition_id"] = id_from_seed("generational-transition", f"{seed}-init")
+        data["initialization"]["applicability"]["point"]["tick"] = init_tick
+        data["initialization"]["payload"]["role"] = None
+        data["transitions"] = []
+        if audience is not None:
+            data["audience"] = [audience]
+        if role is not None:
+            data["transitions"].append({
+                "transition_id": id_from_seed("generational-transition", f"{seed}-earlier-role"),
+                "transition_kind": "affiliation-role", "applicability": {
+                    "applicability_kind": "instant", "point": {"timeline": "main", "tick": -1, "order": 2}},
+                "payload": {"role": "apprentice"}})
+            data["transitions"].append({
+                "transition_id": id_from_seed("generational-transition", f"{seed}-role"),
+                "transition_kind": "affiliation-role", "applicability": {
+                    "applicability_kind": "instant", "point": {"timeline": "main", "tick": 0, "order": 0}},
+                "payload": {"role": role}, "cause_event_id": mapping["event_appointment"]})
+        if end_tick is not None:
+            data["transitions"].append({
+                "transition_id": id_from_seed("generational-transition", f"{seed}-end"),
+                "transition_kind": "affiliation-end", "applicability": {
+                    "applicability_kind": "instant", "point": {"timeline": "main", "tick": end_tick,
+                                                            "order": end_order}}, "payload": {}})
+        record = Record(data, "", f"story/affiliations/{data['id']}.md", b"")
+        world.records[record.id] = record
+        return record.id
+
+    ended = add("former-role", "character_alpha", role="steward", end_tick=0, end_order=1)
+    null_role = add("former-null", "character_beta", end_tick=-2)
+    hidden = add("former-hidden", "character_gamma", role="secret steward",
+                 end_tick=0, end_order=1, audience="sealed")
+    future = add("former-future", "character_no_lineage", init_tick=5, end_tick=6)
+    template.frontmatter["transitions"].append({
+        "transition_id": id_from_seed("generational-transition", "active-role-churn"),
+        "transition_kind": "affiliation-role", "applicability": {
+            "applicability_kind": "instant", "point": {"timeline": "main", "tick": 0, "order": 1}},
+        "payload": {"role": "warden"}})
+    organization = next(record.id for record in world.records.values() if record.title == "Cadet House")
+    return world, organization, ended, null_role, hidden, future
+
+
+def _seed_former_role_cause(connection: sqlite3.Connection, world) -> None:
+    # The lightweight index fixture omits narrative events from the full cache.
+    event = next(record for record in world.records.values()
+                 if record.kind == "event" and record.frontmatter["time"]["tick"] == 0)
+    connection.execute("INSERT INTO event VALUES (?,?,?,?,?,?)",
+                       (event.id, "main", 0, -1, None, "canonical"))
+
+
+def test_former_roles_exact_horizon_visibility_role_and_combined_cap() -> None:
+    world, organization, ended, null_role, hidden, future = _former_role_world()
+    connection = _connection(world, StoryTime("main", 0, 0))
+    try:
+        _seed_former_role_cause(connection, world)
+        before = _run(connection, _scope(at=StoryTime("main", 0, -1)), "organization",
+                      organization, includeFormerRoles=True)
+        initial = _run(connection, _scope(at=StoryTime("main", -1, 1)), "organization",
+                       organization, includeFormerRoles=True)
+        at_role = _run(connection, _scope(at=StoryTime("main", 0, 0)), "organization",
+                       organization, includeFormerRoles=True)
+        at_end = _run(connection, _scope(at=StoryTime("main", 0, 1)), "organization", organization,
+                      includeFormerRoles=True)
+        assert ended in [row["recordId"] for row in before["roles"]]
+        assert ended not in [row["recordId"] for row in before["formerRoles"]]
+        role_before = next(row for row in before["roles"] if row["recordId"] == ended)
+        role_initial = next(row for row in initial["roles"] if row["recordId"] == ended)
+        role_at = next(row for row in at_role["roles"] if row["recordId"] == ended)
+        former = next(row for row in at_end["formerRoles"] if row["recordId"] == ended)
+        assert role_initial["value"]["role"] is None
+        assert role_before["value"]["role"] == "apprentice" and role_before["causes"] == []
+        assert role_at["value"]["role"] == former["value"]["role"] == "steward"
+        assert len(role_at["citations"]) == 3 and len(former["citations"]) == 4
+        assert len(role_at["causes"]) == len(former["causes"]) == 1
+        assert former["causes"][0]["citation"]["applicability"]["point"] == {
+            "timeline": "main", "tick": "0", "order": "-1"}
+        assert former["state"] == "ended"
+        assert at_role["roles"][0]["value"]["role"] == "heir-apparent"
+        assert at_end["roles"][0]["value"]["role"] == "warden"
+        assert [row["recordId"] for row in at_end["formerRoles"]] == sorted((ended, null_role))
+        assert next(row for row in at_end["formerRoles"] if row["recordId"] == null_role)["value"]["role"] is None
+        assert hidden not in canonical_json(at_end) and future not in canonical_json(at_end)
+        assert "secret steward" not in canonical_json(at_end)
+        default = _run(connection, _scope(at=StoryTime("main", 0, 1)), "organization", organization)
+        assert canonical_json(default) == canonical_json({key: value for key, value in at_end.items()
+                                                         if key != "formerRoles"})
+        assert _run(connection, _scope(at=StoryTime("main", 0, 1)), "organization", organization, items=2,
+                    includeFormerRoles=True) == {"state": "limit", "code": "GEN-LIMIT-001"}
+        assert len(_run(connection, _scope(at=StoryTime("main", 0, 1)), "organization", organization, items=3,
+                        includeFormerRoles=True)["roles"]) == 1
+        assert _run(connection, _scope(at=StoryTime("main", 0, 1)), "organization", organization, items=3,
+                    includeFormerRoles=True)["state"] == "available"
+        world.records.pop(hidden)
+        world.records.pop(future)
+        comparison = _connection(world, StoryTime("main", 0, 0))
+        try:
+            _seed_former_role_cause(comparison, world)
+            assert canonical_json(_run(comparison, _scope(at=StoryTime("main", 0, 1)),
+                                       "organization", organization, includeFormerRoles=True)) == canonical_json(at_end)
+        finally:
+            comparison.close()
+    finally:
+        connection.close()
+
+
+def test_former_roles_request_is_strictly_opt_in() -> None:
+    world, organization, *_ = _former_role_world()
+    connection = _connection(world, StoryTime("main", 0, 0))
+    try:
+        for value in (False, None, 1, "true"):
+            assert _run(connection, _scope(), "organization", organization,
+                        includeFormerRoles=value) == {"state": "invalid", "code": "GEN-REQUEST-001"}
+        assert _run(connection, _scope(), "organization", organization,
+                    includeFormerRoles=True, cursor=None) == {
+                        "state": "invalid", "code": "GEN-REQUEST-001"}
+        assert _run(connection, replace(_scope(), mode="author-all-time", at=None),
+                    "organization", organization, includeFormerRoles=True) == {
+                        "state": "invalid", "code": "GEN-REQUEST-001"}
+        assert _run(connection, replace(_scope(), at=None), "organization", organization,
+                    includeFormerRoles=True) == {"state": "invalid", "code": "GEN-REQUEST-001"}
+        assert _run(connection, _scope(), "union", next(record.id for record in world.records.values()
+                                                        if record.kind == "union"),
+                    includeFormerRoles=True) == {"state": "invalid", "code": "GEN-REQUEST-001"}
+        assert _run(connection, _scope(mode="character"), "organization", organization,
+                    includeFormerRoles=True) == {"state": "invalid", "code": "GEN-REQUEST-001"}
+        for items in (0, 501):
+            assert _run(connection, _scope(), "organization", organization,
+                        includeFormerRoles=True, items=items) == {
+                            "state": "invalid", "code": "GEN-REQUEST-001"}
+    finally:
+        connection.close()
+
+
 def test_character_absent_future_secret_are_identical_and_scope_is_closed() -> None:
     world, mapping = _world()
     connection = _connection(world, StoryTime("main", 0, 0))
@@ -377,16 +519,21 @@ def test_character_and_public_leak_matrix_for_claim_role_vital_and_search() -> N
 
 
 def test_source_compiled_and_rebuilt_query_parity(tmp_path: Path, monkeypatch) -> None:
-    world, mapping = _world()
+    world, organization, *_ = _former_role_world()
+    world.config["current_time"] = {"timeline": "main", "tick": 0, "order": 1}
+    _, mapping = _world()
     at = StoryTime("main", 0, 0)
-    scope = _scope()
+    scope = _scope(at=StoryTime("main", 0, 1))
     requests = [
         {"operation": "parents", "subject_id": mapping["character_child"]},
         {"operation": "vital", "subject_id": mapping["character_child"]},
         {"operation": "search", "text": "basis", "items": 2},
+        {"operation": "organization", "subject_id": organization,
+         "includeFormerRoles": True},
     ]
     source = _connection(world, at)
     try:
+        _seed_former_role_cause(source, world)
         expected = [query_connection(source, scope, request) for request in requests]
     finally:
         source.close()
@@ -418,6 +565,11 @@ def test_source_compiled_and_rebuilt_query_parity(tmp_path: Path, monkeypatch) -
     assert first["buildMode"] == "full"
     database = Path(first["database"])
     assert [query_generational(repository, scope, request) for request in requests] == expected
+    implicit_scope = replace(scope, at=None)
+    assert query_generational(repository, implicit_scope, requests[-1]) == {
+        "state": "invalid", "code": "GEN-REQUEST-001"}
+    assert query_generational(repository, implicit_scope,
+                              {"operation": "organization", "subject_id": organization})["state"] == "available"
 
     repository.revision = "vector-revision-next"
     later_scope = replace(scope, revision=repository.revision)

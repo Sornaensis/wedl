@@ -61,6 +61,8 @@ def _closed_request(operation: str, request: Any) -> tuple[dict[str, Any] | None
         return None, "GEN-REQUEST-001"
     fields = _FIELDS.get(operation, {"subject"})
     allowed = (_COMMON if operation == "search" else _COMMON - {"cursor"}) | fields
+    if operation == "organization":
+        allowed = allowed | {"includeFormerRoles"}
     required = {"protocol", "operation", "revision", "capabilities", "mode", "timeline"} | fields
     if set(request) - allowed or required - set(request):
         return None, "GEN-REQUEST-001"
@@ -88,6 +90,10 @@ def _closed_request(operation: str, request: Any) -> tuple[dict[str, Any] | None
         if point is None or point.timeline != timeline:
             return None, "GEN-TIME-001"
     elif mode == "character":
+        return None, "GEN-REQUEST-001"
+    if "includeFormerRoles" in request and (request["includeFormerRoles"] is not True
+                                            or mode != "author-as-of" or "at" not in request
+                                            or "cursor" in request):
         return None, "GEN-REQUEST-001"
     for key in fields - {"maxCharacters"}:
         if not isinstance(request[key], str) or not request[key].strip() or len(request[key]) > 256:
@@ -215,6 +221,8 @@ def execute(repository: Repository, operation: str, request: Any, *,
                 return _outcome(operation, revision, "invalid", **failure)
             selector["target_id"] = target
     selector.update({"items": parsed.get("items", 100), "depth": parsed.get("depth", 8)})
+    if "includeFormerRoles" in parsed:
+        selector["includeFormerRoles"] = True
     if operation == "search":
         selector["cursor"] = parsed.get("cursor")
     if operation == "context":

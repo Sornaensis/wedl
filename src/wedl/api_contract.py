@@ -105,6 +105,8 @@ def _generational_example(action: str) -> dict[str, Any]:
     else:
         body["subject"] = {"union": "The Threefold Compact", "organization": "House Aster",
                            "legacy": "Keeper of Keys"}.get(action, "Mara Vale")
+        if action == "organization":
+            body["includeFormerRoles"] = True
         if action == "relatives":
             body["target"] = "Ilyra Sorn"
         if action == "context":
@@ -141,7 +143,7 @@ def _generational_response_example(action: str) -> dict[str, Any]:
                                             "value": {"organization_kind": "house", "title": "House Aster",
                                                       "aliases": []},
                                             "citations": [citation], "causes": []},
-                         "parentPath": [], "roles": []},
+                         "parentPath": [], "roles": [], "formerRoles": []},
         "legacy": {"legacy": {"recordId": "legacy_0123456789ABCDEFGHJKMNPQRS",
                               "kind": "legacy", "state": "active",
                               "value": {"legacy_kind": "office", "title": "Keeper of Keys",
