@@ -323,6 +323,219 @@ def test_union_organization_legacy_vital_and_private_search() -> None:
         connection.close()
 
 
+def test_reverse_union_membership_and_organization_legacies_fold_before_budget() -> None:
+    world, mapping = _world()
+    union = next(record for record in world.records.values() if record.kind == "union")
+    legacy = next(record for record in world.records.values() if record.kind == "legacy")
+    organization = legacy.frontmatter["organization_id"]
+    original_members = union.frontmatter["participant_ids"]
+    union.frontmatter["transitions"].extend((
+        {"transition_id": id_from_seed("generational-transition", "reverse-reconcile"),
+         "transition_kind": "union-reconcile", "applicability": {
+             "applicability_kind": "instant", "point": {"timeline": "main", "tick": 0, "order": 0}},
+         "payload": {"participant_ids": original_members[1:]}},
+        {"transition_id": id_from_seed("generational-transition", "reverse-end"),
+         "transition_kind": "union-end", "applicability": {
+             "applicability_kind": "instant", "point": {"timeline": "main", "tick": 0, "order": 2}},
+         "payload": {}},
+    ))
+    legacy.frontmatter["transitions"].extend((
+        {"transition_id": id_from_seed("generational-transition", "linked-dormant"),
+         "transition_kind": "legacy-dormant", "applicability": {
+             "applicability_kind": "instant", "point": {"timeline": "main", "tick": 0, "order": 1}},
+         "payload": {}},
+        {"transition_id": id_from_seed("generational-transition", "linked-dissolved"),
+         "transition_kind": "legacy-dissolve", "applicability": {
+             "applicability_kind": "instant", "point": {"timeline": "main", "tick": 1, "order": 0}},
+         "payload": {}},
+    ))
+    hidden_data = deepcopy(union.frontmatter)
+    hidden_data["id"] = id_from_seed("union", "reverse-hidden")
+    hidden_data["audience"] = ["sealed"]
+    hidden_data["initialization"]["transition_id"] = id_from_seed("generational-transition", "reverse-hidden-init")
+    hidden_data["transitions"] = []
+    hidden = Record(hidden_data, "", f"story/unions/{hidden_data['id']}.md", b"")
+    world.records[hidden.id] = hidden
+    future_data = deepcopy(hidden_data)
+    future_data["id"] = id_from_seed("union", "reverse-future")
+    future_data["audience"] = ["public"]
+    future_data["initialization"]["transition_id"] = id_from_seed("generational-transition", "reverse-future-init")
+    future_data["initialization"]["applicability"]["point"] = {
+        "timeline": "main", "tick": 5, "order": 0}
+    future = Record(future_data, "", f"story/unions/{future_data['id']}.md", b"")
+    world.records[future.id] = future
+    sealed_legacy_data = deepcopy(legacy.frontmatter)
+    sealed_legacy_data["id"] = id_from_seed("legacy", "reverse-hidden")
+    sealed_legacy_data["audience"] = ["sealed"]
+    sealed_legacy_data["initialization"]["transition_id"] = id_from_seed(
+        "generational-transition", "reverse-hidden-legacy-init")
+    sealed_legacy_data["transitions"] = []
+    sealed_legacy = Record(sealed_legacy_data, "", f"story/legacies/{sealed_legacy_data['id']}.md", b"")
+    world.records[sealed_legacy.id] = sealed_legacy
+    future_legacy_data = deepcopy(sealed_legacy_data)
+    future_legacy_data["id"] = id_from_seed("legacy", "reverse-future")
+    future_legacy_data["audience"] = ["public"]
+    future_legacy_data["initialization"]["transition_id"] = id_from_seed(
+        "generational-transition", "reverse-future-legacy-init")
+    future_legacy_data["initialization"]["applicability"]["point"] = {
+        "timeline": "main", "tick": 5, "order": 0}
+    future_legacy = Record(future_legacy_data, "", f"story/legacies/{future_legacy_data['id']}.md", b"")
+    world.records[future_legacy.id] = future_legacy
+    connection = _connection(world, StoryTime("main", 0, 0))
+    try:
+        before = _scope(at=StoryTime("main", -3, 1))
+        assert len(_run(connection, before, "character-unions", original_members[0])["unions"]) == 1
+        current = _scope(at=StoryTime("main", 0, 0))
+        assert _run(connection, current, "character-unions", original_members[0]) == {"state": "unknown"}
+        current_member = _run(connection, current, "character-unions", original_members[1])
+        assert [row["recordId"] for row in current_member["unions"]] == [union.id]
+        assert _run(connection, current, "character-unions", original_members[1], items=0) == {
+            "state": "invalid", "code": "GEN-REQUEST-001"}
+        assert _run(connection, _scope(at=StoryTime("main", 0, 2)),
+                    "character-unions", original_members[1]) == {"state": "unknown"}
+        assert _run(connection, current, "character-unions", mapping["character_unrecorded"]) == {
+            "state": "unknown"}
+        for at, state in ((StoryTime("main", 0, 0), "active"),
+                          (StoryTime("main", 0, 1), "dormant"),
+                          (StoryTime("main", 1, 0), "dissolved")):
+            rows = _run(connection, _scope(at=at), "organization-legacies", organization)["legacies"]
+            assert [(row["recordId"], row["state"]) for row in rows] == [(legacy.id, state)]
+        all_time = replace(current, mode="author-all-time", at=None)
+        assert _run(connection, all_time, "organization-legacies", organization) == {
+            "state": "invalid", "code": "GEN-REQUEST-001"}
+    finally:
+        connection.close()
+
+
+def test_reverse_reads_close_overflow_and_seek_large_unrelated_postings() -> None:
+    world, mapping = _world()
+    legacy = next(record for record in world.records.values() if record.kind == "legacy")
+    extra_data = deepcopy(legacy.frontmatter)
+    extra_data["id"] = id_from_seed("legacy", "reverse-second")
+    extra_data["title"] = "Second linked legacy"
+    extra_data["initialization"]["transition_id"] = id_from_seed(
+        "generational-transition", "reverse-second-init")
+    extra = Record(extra_data, "", f"story/legacies/{extra_data['id']}.md", b"")
+    world.records[extra.id] = extra
+    connection = _connection(world, StoryTime("main", 0, 0))
+    try:
+        organization = legacy.frontmatter["organization_id"]
+        assert _run(connection, _scope(), "organization-legacies", organization, items=1) == {
+            "state": "limit", "code": "GEN-LIMIT-001"}
+        assert len(_run(connection, _scope(), "organization-legacies", organization,
+                        items=2)["legacies"]) == 2
+        union = next(record for record in world.records.values() if record.kind == "union")
+        transition = union.frontmatter["initialization"]["transition_id"]
+        connection.executemany(
+            "INSERT INTO generational_union_participant VALUES (?,?,?,?)",
+            ((union.id, transition, f"char_noise_{index:06d}", index)
+             for index in range(10000)),
+        )
+        # Valid but unrelated private records make a table scan measurable.
+        connection.executemany("INSERT INTO entity VALUES (?,?,?,?,?,?,?,?,?)", (
+            (f"legacy_noise_{index:06d}", "legacy", "noise", "test", "canonical",
+             f"story/legacies/legacy_noise_{index:06d}.md", None, "", "{}")
+            for index in range(5000)))
+        connection.executemany("INSERT INTO generational_record VALUES (?,?,?,?,?,?,?,?,?,?)", (
+            (f"legacy_noise_{index:06d}", "legacy", 100000 + index,
+             f"story/legacies/legacy_noise_{index:06d}.md", None, "canonical",
+             "generational-core-v1", "main", '["public"]', '["ordinary"]')
+            for index in range(5000)))
+        connection.executemany("INSERT INTO generational_legacy VALUES (?,?,?)", (
+            (f"legacy_noise_{index:06d}", "office", "organization_noise")
+            for index in range(5000)))
+        union_plan = " ".join(str(row[3]) for row in connection.execute(
+            "EXPLAIN QUERY PLAN SELECT DISTINCT union_id FROM generational_union_participant "
+            "INDEXED BY generational_union_participant_idx WHERE participant_id=? ORDER BY union_id",
+            (mapping["character_alpha"],)))
+        legacy_plan = " ".join(str(row[3]) for row in connection.execute(
+            "EXPLAIN QUERY PLAN SELECT id FROM generational_legacy "
+            "INDEXED BY generational_legacy_organization_idx WHERE organization_id=? ORDER BY id",
+            (organization,)))
+        assert "generational_union_participant_idx" in union_plan
+        assert "generational_legacy_organization_idx" in legacy_plan
+        steps = [0]
+
+        def progress() -> int:
+            steps[0] += 100
+            return 0
+
+        connection.set_progress_handler(progress, 100)
+        try:
+            assert len(_run(connection, _scope(), "character-unions",
+                            mapping["character_alpha"])["unions"]) == 1
+            union_steps = steps[0]
+            steps[0] = 0
+            assert len(_run(connection, _scope(), "organization-legacies",
+                            organization)["legacies"]) == 2
+            legacy_steps = steps[0]
+        finally:
+            connection.set_progress_handler(None, 0)
+        assert union_steps < 5000, union_steps
+        assert legacy_steps < 5000, legacy_steps
+        base_transition = legacy.frontmatter["initialization"]["transition_id"]
+        for index in range(499):
+            ident = id_from_seed("legacy", f"reverse-cap-{index}")
+            transition_id = id_from_seed("generational-transition", f"reverse-cap-{index}")
+            path = f"story/legacies/{ident}.md"
+            connection.execute(
+                "INSERT INTO entity SELECT ?,kind,title,domain,status,?,blob_oid,body_markdown,frontmatter_json "
+                "FROM entity WHERE id=?", (ident, path, legacy.id))
+            connection.execute(
+                "INSERT INTO generational_record SELECT ?,kind,?, ?,blob_oid,status,capability,timeline,"
+                "audience_json,perspectives_json FROM generational_record WHERE id=?",
+                (ident, 200000 + index, path, legacy.id))
+            connection.execute(
+                "INSERT INTO generational_legacy SELECT ?,legacy_kind,organization_id "
+                "FROM generational_legacy WHERE id=?", (ident, legacy.id))
+            connection.execute(
+                "INSERT INTO generational_transition SELECT ?,?,source_ordinal,transition_kind,"
+                "applicability_kind,timeline,start_tick,start_order,end_tick,end_order,payload_json,"
+                "cause_event_id,cause_citation_json,replaces_transition_id,citation_json "
+                "FROM generational_transition WHERE id=?",
+                (transition_id, ident, base_transition))
+            connection.execute(
+                "INSERT INTO generational_candidate SELECT ?,?,source_ordinal,capability,timeline,"
+                "start_tick,start_order,end_tick,end_order,audience_json,perspectives_json,"
+                "citation_json,structural_json FROM generational_candidate WHERE transition_id=?",
+                (ident, transition_id, base_transition))
+        # Two genuine fixture records plus 499 distinct compiled candidates.
+        assert _run(connection, _scope(), "organization-legacies", organization,
+                    items=500) == {"state": "limit", "code": "GEN-LIMIT-001"}
+        assert _run(connection, _scope(), "organization-legacies", organization,
+                    items=501) == {"state": "invalid", "code": "GEN-REQUEST-001"}
+    finally:
+        connection.close()
+
+
+def test_reverse_single_large_union_obeys_nested_participant_budget() -> None:
+    world, mapping = _world()
+    union = next(record for record in world.records.values() if record.kind == "union")
+    template = world.records[mapping["character_alpha"]]
+    participants = set(union.frontmatter["participant_ids"])
+    for index in range(97):
+        data = deepcopy(template.frontmatter)
+        data["id"] = id_from_seed("character", f"reverse-member-{index}")
+        data["title"] = f"Reverse member {index}"
+        record = Record(data, "", f"story/characters/{data['id']}.md", b"")
+        world.records[record.id] = record
+        participants.add(record.id)
+    members = sorted(participants)
+    assert len(members) == 100
+    union.frontmatter["participant_ids"] = members
+    union.frontmatter["initialization"]["payload"]["participant_ids"] = members
+    union.frontmatter["transitions"][0]["payload"]["participant_ids"] = members
+    connection = _connection(world, StoryTime("main", 0, 0))
+    try:
+        assert _run(connection, _scope(), "character-unions", mapping["character_alpha"],
+                    items=99) == {"state": "limit", "code": "GEN-LIMIT-001"}
+        rows = _run(connection, _scope(), "character-unions", mapping["character_alpha"],
+                    items=100)["unions"]
+        assert len(rows) == 1 and rows[0]["value"]["participant_ids"] == members
+    finally:
+        connection.close()
+
+
 def _former_role_world():
     world, mapping = _world()
     template = next(record for record in world.records.values() if record.kind == "affiliation")

@@ -16,8 +16,9 @@ from wedl.cli import main
 from wedl.compiler import cache_readiness
 from wedl.generational_api import OPERATIONS, bootstrap, execute, status_code
 from wedl.generational_api import _resolve, _visible_name_world
-from wedl.generational_query import TrustedViewerScope
-from wedl.model import StoryTime
+from wedl.generational_query import TrustedViewerScope, query_generational
+from wedl.ids import id_from_seed
+from wedl.model import Record, StoryTime
 from wedl.repository import Repository
 from wedl.server import create_app
 from wedl.source import serialize_record
@@ -381,6 +382,8 @@ def test_http_cli_contract_and_session_are_identical(
         "union": next(record.title for record in world.records.values() if record.kind == "union"),
         "organization": "House Aster",
         "legacy": next(record.title for record in world.records.values() if record.kind == "legacy"),
+        "character-unions": "character_alpha",
+        "organization-legacies": "House Aster",
         "vital": "character_child", "context": "character_child",
     }
     payload_file = tmp_path / "generational-request.json"
@@ -390,7 +393,8 @@ def test_http_cli_contract_and_session_are_identical(
 
     def assert_parity(operation: str, payload: dict[str, object]) -> dict[str, object]:
         direct = execute(repository, operation, payload)
-        schema_name = f"Generational{operation.capitalize()}{direct['state'].capitalize()}Outcome"
+        stem = "".join(part.capitalize() for part in operation.split("-"))
+        schema_name = f"Generational{stem}{direct['state'].capitalize()}Outcome"
         validator = response_validators.setdefault(
             schema_name, jsonschema.Draft202012Validator(response_schemas[schema_name]))
         validator.validate(direct)
@@ -444,6 +448,135 @@ def test_http_cli_contract_and_session_are_identical(
     assert assert_parity("parents", non_search_cursor) == {
         "protocol": "wedl-generational/v1", "operation": "parents",
         "revision": repository.head(), "state": "invalid", "code": "GEN-REQUEST-001"}
+
+
+def test_reverse_read_horizons_stale_revision_and_closed_modes(
+        generational_repo: tuple[Repository, dict[str, str]]) -> None:
+    repository, mapping = generational_repo
+    union = request(repository, "character-unions", subject="character_alpha")
+    early = execute(repository, "character-unions", {
+        **union, "at": {"timeline": "main", "tick": "-4", "order": "0"}})
+    assert early["state"] == "unknown"
+    at_form = execute(repository, "character-unions", {
+        **union, "at": {"timeline": "main", "tick": "-3", "order": "1"}})
+    assert at_form["state"] == "available"
+    assert len(at_form["unions"]) == 1
+    assert at_form["unions"][0]["value"]["participant_ids"] == sorted((
+        mapping["character_alpha"], mapping["character_beta"], mapping["character_gamma"]))
+    assert execute(repository, "character-unions", {
+        **union, "subject": "character_unrecorded"})["state"] == "unknown"
+    linked = request(repository, "organization-legacies", subject="House Aster")
+    assert execute(repository, "organization-legacies", linked)["legacies"][0]["state"] == "active"
+    for operation, body in (("character-unions", union), ("organization-legacies", linked)):
+        for changed in ({**body, "items": 501},
+                        {key: value for key, value in body.items() if key != "at"},
+                        {**body, "mode": "author-all-time"}):
+            value = execute(repository, operation, changed)
+            assert value["state"] == "invalid" and value["code"] == "GEN-REQUEST-001"
+        stale = execute(repository, operation, {**body, "revision": "0" * 40})
+        assert stale["state"] in {"unavailable", "invalid"}
+
+
+def test_reverse_legacy_index_rebuilds_from_unchanged_source(
+        generational_repo: tuple[Repository, dict[str, str]]) -> None:
+    repository, _mapping = generational_repo
+    body = request(repository, "organization-legacies", subject="House Aster")
+    expected = execute(repository, "organization-legacies", body)
+    assert expected["state"] == "available"
+    revision = repository.head()
+    database = cache_readiness(repository, revision)["database"]
+    connection = sqlite3.connect(database)
+    try:
+        connection.execute("DROP INDEX generational_legacy_organization_idx")
+        connection.commit()
+    finally:
+        connection.close()
+    assert cache_readiness(repository, revision)["state"] == "incompatible"
+    assert execute(repository, "organization-legacies", body) == expected
+    assert repository.head() == revision
+    assert cache_readiness(repository, revision)["state"] == "ready"
+
+
+def test_reverse_hidden_and_future_organization_selector_parity(
+        tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> None:
+    world, _mapping = _world()
+    template = next(record for record in world.records.values()
+                    if record.kind == "organization" and record.title == "House Aster")
+    data = deepcopy(template.frontmatter)
+    data["id"] = id_from_seed("organization", "reverse-draft-selector")
+    data["title"] = "Unpublished House"
+    data["status"] = "draft"
+    data["initialization"]["transition_id"] = id_from_seed(
+        "generational-transition", "reverse-draft-selector-init")
+    data["initialization"]["payload"]["title"] = data["title"]
+    data["transitions"] = []
+    draft = Record(data, "", f"story/organizations/{data['id']}.md", b"")
+    world.records[draft.id] = draft
+    root = tmp_path / "selector-repo"
+    root.mkdir()
+    for record in world.records.values():
+        path = root / ("story/world.md" if record.kind == "world" else record.source_path)
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(serialize_record(record.frontmatter, f"# {record.title}\n"))
+    (root / ".gitignore").write_text(".wedl/\n", encoding="utf-8")
+    for args in (("init", "-q"), ("config", "user.name", "wedl test"),
+                 ("config", "user.email", "wedl@test.invalid"),
+                 ("add", "story", ".gitignore"), ("commit", "-qm", "seed")):
+        subprocess.run(["git", "-C", str(root), *args], check=True, capture_output=True)
+    repository = Repository(root)
+    client = TestClient(create_app(root))
+    token = client.get("/api/session").json()["token"]
+    for subject, ident, tick in (("Unpublished House", draft.id, "0"),
+                                 ("Cadet House", next(record.id for record in world.records.values()
+                                                      if record.title == "Cadet House"), "-3")):
+        body = request(repository, "organization-legacies", subject=subject,
+                       at={"timeline": "main", "tick": tick, "order": "0"})
+        scope = TrustedViewerScope(repository.head(), "author-as-of", "main",
+                                   StoryTime("main", int(tick), 0), frozenset({"public"}),
+                                   frozenset({"ordinary"}), frozenset({"generational-core-v1"}))
+        assert query_generational(repository, scope, {
+            "operation": "organization-legacies", "subject_id": ident}) == {"state": "unknown"}
+        outcome = execute(repository, "organization-legacies", body)
+        assert outcome == {"protocol": "wedl-generational/v1", "operation": "organization-legacies",
+                           "revision": repository.head(), "state": "unknown"}
+        jsonschema.Draft202012Validator(components()["schemas"][
+            "GenerationalOrganizationLegaciesUnknownOutcome"]).validate(outcome)
+        payload = tmp_path / f"selector-{tick}.json"
+        payload.write_text(json.dumps(body), encoding="utf-8")
+        assert main(["--compact", "generational", "organization-legacies", str(payload),
+                     "--repo", str(root)]) == 0
+        assert json.loads(capsys.readouterr().out) == outcome
+        response = client.post("/api/generational/organization-legacies", json=body,
+                               headers={"X-Wedl-Token": token})
+        assert response.status_code == 200 and response.json() == outcome
+
+
+def test_reverse_union_nested_limit_direct_cli_http_schema_parity(
+        generational_repo: tuple[Repository, dict[str, str]], tmp_path: Path,
+        capsys: pytest.CaptureFixture[str]) -> None:
+    repository, mapping = generational_repo
+    body = request(repository, "character-unions", subject="character_alpha", items=2)
+    scope = TrustedViewerScope(repository.head(), "author-as-of", "main",
+                               StoryTime("main", 0, 0), frozenset({"public"}),
+                               frozenset({"ordinary"}), frozenset({"generational-core-v1"}))
+    assert query_generational(repository, scope, {
+        "operation": "character-unions", "subject_id": mapping["character_alpha"],
+        "items": 2}) == {"state": "limit", "code": "GEN-LIMIT-001"}
+    outcome = execute(repository, "character-unions", body)
+    assert outcome == {"protocol": "wedl-generational/v1", "operation": "character-unions",
+                       "revision": repository.head(), "state": "limit", "code": "GEN-LIMIT-001"}
+    jsonschema.Draft202012Validator(components()["schemas"][
+        "GenerationalCharacterUnionsLimitOutcome"]).validate(outcome)
+    payload = tmp_path / "union-budget.json"
+    payload.write_text(json.dumps(body), encoding="utf-8")
+    assert main(["--compact", "generational", "character-unions", str(payload),
+                 "--repo", str(repository.root)]) == 2
+    assert json.loads(capsys.readouterr().err) == outcome
+    client = TestClient(create_app(repository.root))
+    token = client.get("/api/session").json()["token"]
+    response = client.post("/api/generational/character-unions", json=body,
+                           headers={"X-Wedl-Token": token})
+    assert response.status_code == 422 and response.json() == outcome
 
 
 def test_former_roles_name_first_cli_http_and_openapi(

@@ -754,7 +754,8 @@ SCHEMAS["GenerationalSchemaResponse"] = _strict_object(
                 "batchLimit": {"const": 32}},
 )
 _GEN_READ_ACTIONS = ("parents", "ancestors", "descendants", "relatives", "union",
-                     "organization", "legacy", "vital", "search", "context", "discover", "labels")
+                     "organization", "legacy", "vital", "search", "context", "discover", "labels",
+                     "character-unions", "organization-legacies")
 _GEN_APPLICABILITY = {"oneOf": [
     _strict_object("applicability_kind", "point", properties={
         "applicability_kind": {"const": "instant"}, "point": _GEN_TIME}),
@@ -876,6 +877,8 @@ _GEN_READ_RESULTS = {
     "discover": {"results": {"type": "array", "maxItems": 100, "items": _GEN_DISCOVERY_RESULT},
                  "cursor": {"type": ["string", "null"]}},
     "labels": {"labels": {"type": "array", "maxItems": 100, "items": _GEN_LABEL}},
+    "character-unions": {"unions": {"type": "array", "maxItems": 500, "items": _GEN_FOLD}},
+    "organization-legacies": {"legacies": {"type": "array", "maxItems": 500, "items": _GEN_FOLD}},
     "context": {"items": {"type": "array", "items": {"oneOf": [
         _strict_object("kind", "result", properties={
             "kind": {"const": kind},
@@ -915,6 +918,8 @@ def _generational_request(action: str) -> dict[str, Any]:
     else:
         common["subject"] = _GEN_REF
         required.append("subject")
+    if action in {"character-unions", "organization-legacies"}:
+        required.append("at")
     if action == "relatives":
         common["target"] = _GEN_REF
         required.append("target")
@@ -922,7 +927,7 @@ def _generational_request(action: str) -> dict[str, Any]:
         common["maxCharacters"] = {"type": "integer", "minimum": 80, "maximum": 65536}
         required.append("maxCharacters")
     variants = [_strict_object(*required, properties={**common, "mode": {"const": "author-as-of"}, "at": _GEN_TIME})]
-    if action in {"discover", "labels"}:
+    if action in {"discover", "labels", "character-unions", "organization-legacies"}:
         return variants[0]
     variants.extend((
         _strict_object(*required, properties={**common, "mode": {"const": "author-all-time"}}),
@@ -942,7 +947,7 @@ _GEN_REFERENCE_DETAIL = _strict_object("id", "kind", "title", "reference", prope
 
 
 for _action in _GEN_READ_ACTIONS:
-    _stem = _action.capitalize()
+    _stem = "".join(part.capitalize() for part in _action.split("-"))
     SCHEMAS[f"Generational{_stem}Request"] = _generational_request(_action)
     _base = {"protocol": {"const": "wedl-generational/v1"}, "operation": {"const": _action},
              "revision": {"anyOf": [_GEN_SHA, {"type": "null"}]}}
@@ -954,7 +959,8 @@ for _action in _GEN_READ_ACTIONS:
                         "legacy": ("legacy", "tenures", "holders", "claims", "succession"),
                         "vital": ("vital", "citations"), "search": ("results", "cursor"),
                         "context": ("items", "truncated"), "discover": ("results", "cursor"),
-                        "labels": ("labels",)}[_action]
+                        "labels": ("labels",), "character-unions": ("unions",),
+                        "organization-legacies": ("legacies",)}[_action]
     SCHEMAS[f"Generational{_stem}AvailableOutcome"] = _strict_object(
         "protocol", "operation", "revision", "state", *_required_result,
         properties={**_base, "state": {"const": "available"}, **_result})
@@ -1027,7 +1033,7 @@ _OPERATIONS: dict[str, tuple[str, dict[str, Any]]] = {
     "changeset apply": ("ChangesetApplyResponse", {"protocol": "wedl-command-result/v1", "status": "committed", "previousHead": _CHANGESET["expectedHead"], "newHead": "fedcba9876543210fedcba9876543210fedcba98", "generatedIds": {}, "touchedEntityIds": [], "compile": {"status": "compiled", "revision": "fedcba9876543210fedcba9876543210fedcba98"}, "idempotentReplay": False}),
     "session": ("SessionResponse", {"token": "session-token", "head": _CHANGESET["expectedHead"]}),
     "root": ("WorkspaceHtmlResponse", "<!doctype html><title>WEDL</title>"),
-    **{f"generational {action}": (f"Generational{action.capitalize()}AvailableOutcome", {
+    **{f"generational {action}": (f"Generational{''.join(part.capitalize() for part in action.split('-'))}AvailableOutcome", {
         "protocol": "wedl-generational/v1", "operation": action,
         "revision": "0" * 40, "state": "available",
         **({"relations": []} if action in {"parents", "ancestors", "descendants", "relatives"}
@@ -1037,6 +1043,8 @@ _OPERATIONS: dict[str, tuple[str, dict[str, Any]]] = {
            else {"vital": "living", "citations": []} if action == "vital"
            else {"results": [], "cursor": None} if action in {"search", "discover"}
            else {"labels": []} if action == "labels"
+           else {"unions": []} if action == "character-unions"
+           else {"legacies": []} if action == "organization-legacies"
            else {"items": [], "truncated": False}),
     }) for action in _GEN_READ_ACTIONS},
     "generational scaffold": ("GenerationalScaffoldResponse", {"action": "generational.create", "expectedHead": "0" * 40, "idempotencyKey": "generational-starter-choose-a-unique-key", "kind": "organization", "title": "New organization", "audience": ["public"], "perspectives": ["ordinary"], "fields": {"organization_kind": "house"}, "payload": {"title": "New organization", "aliases": []}, "at": {"timeline": "main", "tick": "0", "order": "0"}}),

@@ -90,7 +90,8 @@ _SPATIAL_EXAMPLES: dict[str, dict[str, Any]] = {
 }
 
 _GENERATIONAL_OPERATIONS = ("parents", "ancestors", "descendants", "relatives", "union",
-                           "organization", "legacy", "vital", "search", "context", "discover", "labels")
+                           "organization", "legacy", "vital", "search", "context", "discover", "labels",
+                           "character-unions", "organization-legacies")
 
 
 def _generational_example(action: str) -> dict[str, Any]:
@@ -112,6 +113,7 @@ def _generational_example(action: str) -> dict[str, Any]:
         body["cursor"] = None
     else:
         body["subject"] = {"union": "The Threefold Compact", "organization": "House Aster",
+                           "organization-legacies": "House Aster",
                            "legacy": "Keeper of Keys"}.get(action, "Mara Vale")
         if action == "organization":
             body["includeFormerRoles"] = True
@@ -166,6 +168,8 @@ def _generational_response_example(action: str) -> dict[str, Any]:
                                    "title": "Mara Vale", "matchedName": "Mara Vale"}], "cursor": None},
         "labels": {"labels": [{"id": "char_0123456789ABCDEFGHJKMNPQRS",
                               "kind": "character", "title": "Mara Vale"}]},
+        "character-unions": {"unions": []},
+        "organization-legacies": {"legacies": []},
         "context": {"items": [{"kind": "parents", "result": {"state": "available",
                                                        "relations": [parent]}}],
                     "truncated": False},
@@ -214,7 +218,7 @@ def _generational_intent_examples(path: str, *, apply: bool) -> tuple[dict[str, 
 
 
 def _generational_descriptor(action: str) -> DiscoveryDescriptor:
-    stem = action.capitalize()
+    stem = "".join(part.capitalize() for part in action.split("-"))
     return DiscoveryDescriptor(
         f"Read generational {action}",
         "Read selected-revision cited generational evidence. The session is a local author principal; character mode remains closed without a trusted character identity. Semantic states use the 200/400/409/422 matrix.",
@@ -1044,7 +1048,7 @@ def normalize_discovery_openapi(document: dict[str, Any]) -> dict[str, Any]:
         for method, operation in path_item.items():
             semantic_gen_read = (isinstance(operation, dict) and
                                  operation.get("operationId") in {
-                                     *(f"generational_{action}_post" for action in _GENERATIONAL_OPERATIONS),
+                                     *(f"generational_{action.replace('-', '_')}_post" for action in _GENERATIONAL_OPERATIONS),
                                      "generational_bootstrap_get"})
             if method in methods and isinstance(operation, dict) and "Spatial" not in operation.get("tags", ()) and not semantic_gen_read:
                 operation.get("responses", {}).pop("422", None)

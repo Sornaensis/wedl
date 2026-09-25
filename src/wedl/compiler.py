@@ -43,7 +43,7 @@ CHRONOLOGY_INDEX_GENERATION_TOKEN = "wedl-chronology-index/v3"
 # a database created before its DDL must never be mistaken for a compatible
 # read model by a later opt-in caller.
 SPATIAL_INDEX_GENERATION_TOKEN = "wedl-spatial-index/v4"
-GENERATIONAL_INDEX_GENERATION_TOKEN = "wedl-generational-index/v7"
+GENERATIONAL_INDEX_GENERATION_TOKEN = "wedl-generational-index/v8"
 COMPILER_FINGERPRINT_PREFIX = f"{DOCUMENT_GENERATION_TOKEN}:{CHRONOLOGY_INDEX_GENERATION_TOKEN}:{SPATIAL_INDEX_GENERATION_TOKEN}:{GENERATIONAL_INDEX_GENERATION_TOKEN}:"
 
 DDL = r"""
@@ -177,6 +177,7 @@ CREATE INDEX generational_parentage_parent_idx ON generational_parentage(parent_
 CREATE INDEX generational_parentage_child_time_idx ON generational_parentage(child_id,timeline,start_tick,start_order,source_ordinal,id,parent_id);
 CREATE INDEX generational_parentage_parent_time_idx ON generational_parentage(parent_id,timeline,start_tick,start_order,source_ordinal,id,child_id);
 CREATE INDEX generational_union_participant_idx ON generational_union_participant(participant_id,union_id);
+CREATE INDEX generational_legacy_organization_idx ON generational_legacy(organization_id,id);
 CREATE INDEX generational_affiliation_organization_idx ON generational_affiliation(organization_id,character_id,id);
 CREATE INDEX generational_tenure_legacy_idx ON generational_tenure(legacy_id,id);
 CREATE INDEX generational_claim_legacy_idx ON generational_claim(legacy_id,id);
@@ -223,6 +224,7 @@ _REQUIRED_GENERATIONAL_INDEXES = frozenset({
     "generational_parentage_child_idx", "generational_parentage_parent_idx",
     "generational_parentage_child_time_idx", "generational_parentage_parent_time_idx",
     "generational_union_participant_idx",
+    "generational_legacy_organization_idx",
     "generational_affiliation_organization_idx", "generational_tenure_legacy_idx",
     "generational_claim_legacy_idx", "generational_vital_character_idx",
     "generational_transition_asof_idx", "generational_candidate_asof_idx",

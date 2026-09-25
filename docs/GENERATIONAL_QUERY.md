@@ -22,7 +22,8 @@ Requests select `operation`, `subject_id`, optional `target_id` or structural
 `text` (one normalized word of at most 32 characters), `depth` (0–32),
 `items` (1–500), and an opaque scope/revision-bound
 cursor. The operations are `parents`, `ancestors`, `descendants`, `relatives`,
-`union`, `organization`, `legacy`, `vital`, and `search`. Traversal is
+`union`, `organization`, `legacy`, `vital`, `search`, `character-unions`, and
+`organization-legacies`. Traversal is
 cycle-safe and indexed. If depth or item bounds would cut off a derived path,
 the whole result is `limit` (`GEN-LIMIT-001`) with no partial inference.
 Missing affirmative evidence is `unknown`; an empty authorized private search
@@ -54,17 +55,34 @@ Both arrays share one `items` cap; exceeding it closes the entire response as
 implicit time cursor, and a request `cursor`. Without the option, the original
 active-only response is unchanged.
 
+`character-unions` and `organization-legacies` require explicit author-as-of
+`at` and return `unions` or `legacies` as cited, folded records. The former
+uses the literal union-participant reverse posting only to find candidates;
+current membership and a declared or formed union state are checked at the
+exact signed `(tick, order)` before the shared `items` bound or any result is
+formed. Reconciled former participants and ended or annulled unions are absent.
+The latter follows only explicit `legacy.organization_id` links and returns
+visible applicable records with their authored state, including dormant and
+dissolved. It does not derive succession or an office holder from the link.
+An overflow closes the whole response as `GEN-LIMIT-001` without a partial
+list. For `character-unions`, each current union's participant list also
+shares the `items` bound. A selector with no admitted evidence returns
+`unknown` across direct, CLI, and HTTP reads.
+
 ## CLI and HTTP transport
 
 Use `wedl generational parents request.json` or send the same raw JSON body to
 `POST /api/generational/parents` with `X-Wedl-Token`. The other leaf actions are
 `ancestors`, `descendants`, `relatives`, `union`, `organization`, `legacy`,
-`vital`, `search`, and `context`; each has a matching route. The body must
+`vital`, `search`, `context`, `character-unions`, and
+`organization-legacies`; each has a matching route. The body must
 include `protocol: wedl-generational/v1`, the operation, an exact 40-character
 Git revision, the canonical capability array from that world, `mode`, and a
 declared `timeline`. Author as-of may supply `at` with exact signed decimal
 string `tick` and `order`, or use the current world/scene cursor. Explicit
-author all-time forbids `at`. Character mode requires `at` and currently
+author all-time forbids `at`. `character-unions` and `organization-legacies`
+require an explicit author-as-of `at`; they do not accept all-time or character
+mode. Other character-mode reads require `at` and currently
 returns closed `unknown`: the repository session token is not a character
 identity, and the current evidence grammar cannot prove a positive structural
 grant. The request cannot supply a viewer, audience, or perspective.

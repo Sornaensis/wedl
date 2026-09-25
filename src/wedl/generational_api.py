@@ -22,10 +22,12 @@ from .v07 import CAPABILITY_ORDER
 
 
 OPERATIONS = ("parents", "ancestors", "descendants", "relatives", "union",
-              "organization", "legacy", "vital", "search", "context", "discover", "labels")
+              "organization", "legacy", "vital", "search", "context", "discover", "labels",
+              "character-unions", "organization-legacies")
 _KINDS = {"parents": "character", "ancestors": "character", "descendants": "character",
           "relatives": "character", "vital": "character", "context": "character",
-          "union": "union", "organization": "organization", "legacy": "legacy"}
+          "union": "union", "organization": "organization", "legacy": "legacy",
+          "character-unions": "character", "organization-legacies": "organization"}
 _SHA = re.compile(r"[0-9a-f]{40}\Z")
 _DECIMAL = re.compile(r"(?:0|-?[1-9][0-9]*)\Z")
 _WORD = re.compile(r"\w{1,32}\Z", re.UNICODE)
@@ -87,6 +89,10 @@ def _closed_request(operation: str, request: Any) -> tuple[dict[str, Any] | None
     if any(key in request for key in ("viewer", "characterId", "audience", "perspective")):
         return None, "GEN-REQUEST-001"
     if operation in {"discover", "labels"} and (mode != "author-as-of" or "at" not in request):
+        return None, "GEN-REQUEST-001"
+    if operation in {"character-unions", "organization-legacies"} and (
+        mode != "author-as-of" or "at" not in request
+    ):
         return None, "GEN-REQUEST-001"
     if mode == "author-all-time":
         if "at" in request:
@@ -285,7 +291,7 @@ def execute(repository: Repository, operation: str, request: Any, *,
         if repository.resolve(revision) != revision:
             return _outcome(operation, revision, "invalid", code="GEN-REQUEST-001")
         world = repository.load_world(revision, cache_write=False)
-    except (OSError, ValueError):
+    except (OSError, ValueError, RepositoryError):
         return _outcome(operation, revision, "unavailable")
     if world.revision != revision or parsed["timeline"] not in world.timeline_ids:
         return _outcome(operation, revision, "invalid", code="GEN-TIME-001")
@@ -318,7 +324,7 @@ def execute(repository: Repository, operation: str, request: Any, *,
             return _outcome(operation, revision, "invalid", code="GEN-TIME-001")
         subject, failure = _resolve(name_world, parsed["subject"], _KINDS[operation])
         if failure:
-            if _KINDS[operation] == "character":
+            if _KINDS[operation] == "character" or operation == "organization-legacies":
                 return _outcome(operation, revision, "unknown")
             return _outcome(operation, revision, "invalid", **failure)
         selector = {"operation": operation, "subject_id": subject}

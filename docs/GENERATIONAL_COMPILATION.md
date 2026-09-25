@@ -13,6 +13,11 @@ directed parentage, n-ary union participants per literal transition,
 affiliations and roles, legacies,
 separate tenures and claims, and optional vital history. No ancestry closure,
 successor, holder from a claim, or spatial topology is inferred or stored.
+The union participant posting is per literal transition and may retain former
+members. Reverse reads deduplicate candidates and fold current membership and
+state at the requested horizon. The `(organization_id,id)` legacy index seeks
+only authored organization links; it does not imply a current holder or
+succession.
 
 `generational_transition` stores every literal initialization and transition,
 including its ID, kind, exact signed tick/order, inclusive interval end when
@@ -75,8 +80,9 @@ ranking.
 
 ## Cache compatibility
 
-The disposable schema identifier and generational compiler generation token
-change when this projection changes. Both direct and in-memory authoring-byte
+The disposable SQLite schema identifier is `wedl-sqlite/v15` and the
+generational compiler generation token is `wedl-generational-index/v8` for
+the reverse legacy index. Both direct and in-memory authoring-byte
 compilation use the same projection insertion path. A schema/token mismatch,
 missing or malformed required table or index, failed SQLite integrity check, or failed
 foreign-key check rejects the cache; a complete validated candidate replaces

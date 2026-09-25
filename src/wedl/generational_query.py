@@ -29,7 +29,8 @@ PROTOCOL = "wedl-generational/v1"
 CAPABILITY = "generational-core-v1"
 _DECIMAL = re.compile(r"(?:0|-?[1-9][0-9]*)\Z")
 _OPS = frozenset({"parents", "ancestors", "descendants", "relatives", "union",
-                  "organization", "legacy", "vital", "search"})
+                  "organization", "legacy", "vital", "search", "character-unions",
+                  "organization-legacies"})
 _REQUEST_KEYS = frozenset({"operation", "subject_id", "target_id", "text",
                            "depth", "items", "cursor", "includeFormerRoles"})
 
@@ -460,6 +461,50 @@ def _ordered_ids(table: str, field: str, condition: str = "") -> str:
     )
 
 
+def _visible_character(connection: sqlite3.Connection, subject: str,
+                       scope: TrustedViewerScope, at: StoryTime) -> bool:
+    """The private title posting is the author-as-of character admission gate."""
+    for audience in scope.audiences:
+        for perspective in scope.perspectives:
+            if connection.execute(
+                "SELECT 1 FROM generational_discovery_name INDEXED BY generational_discovery_label_idx "
+                "WHERE entity_id=? AND audience=? AND perspective=? AND timeline=? "
+                "AND kind='character' AND name=title "
+                "AND (start_tick<? OR (start_tick=? AND start_order<=?)) LIMIT 1",
+                (subject, audience, perspective, scope.timeline, at.tick, at.tick, at.order),
+            ).fetchone() is not None:
+                return True
+    return False
+
+
+def _reverse_folded_rows(connection: sqlite3.Connection, sql: str, subject: str,
+                         visible: _VisibleCandidates, at: StoryTime, items: int,
+                         *, member: str | None = None) -> dict[str, Any]:
+    """Seek typed reverse postings and budget only admitted current folds."""
+    result: list[dict[str, Any]] = []
+    for row in connection.execute(sql, (subject,)):
+        ident = str(row[0])
+        if ident not in visible:
+            continue
+        if _history_exceeds(connection, ident, visible.scope, items):
+            return _closed("limit", "GEN-LIMIT-001")
+        folded = _fold(connection, ident, at, visible)
+        if folded is None:
+            continue
+        if member is not None:
+            participants = folded["value"].get("participant_ids", ())
+            if folded["state"] not in {"declared", "formed"} or member not in participants:
+                continue
+            if len(participants) > items:
+                return _closed("limit", "GEN-LIMIT-001")
+        if len(result) == items:
+            return _closed("limit", "GEN-LIMIT-001")
+        result.append(folded)
+    if not result:
+        return _closed("unknown")
+    return {"state": "available", "unions" if member is not None else "legacies": result}
+
+
 def query_connection(connection: sqlite3.Connection, scope: TrustedViewerScope,
                      request: Mapping[str, Any]) -> dict[str, Any]:
     """Read a pinned compiled connection; only filtered data enters results."""
@@ -481,7 +526,8 @@ def query_connection(connection: sqlite3.Connection, scope: TrustedViewerScope,
         return _closed("invalid", "GEN-REQUEST-001")
     target_kind = {"parents": "character", "ancestors": "character",
                    "descendants": "character", "relatives": "character", "vital": "character",
-                   "union": "union", "organization": "organization", "legacy": "legacy"}
+                   "union": "union", "organization": "organization", "legacy": "legacy",
+                   "character-unions": "character", "organization-legacies": "organization"}
     if operation != "search" and not valid_id(subject, target_kind[operation]):
         return _closed("invalid", "GEN-REQUEST-001")
     depth, items = request.get("depth", 8), request.get("items", 100)
@@ -501,6 +547,23 @@ def query_connection(connection: sqlite3.Connection, scope: TrustedViewerScope,
     visible = _VisibleCandidates(connection, scope, at)
     if scope.mode == "character":
         return _closed("unknown")
+    if operation in {"character-unions", "organization-legacies"}:
+        if scope.mode != "author-as-of" or scope.at is None:
+            return _closed("invalid", "GEN-REQUEST-001")
+        if operation == "character-unions":
+            if not _visible_character(connection, subject, scope, at):
+                return _closed("unknown")
+            return _reverse_folded_rows(connection,
+                "SELECT DISTINCT union_id FROM generational_union_participant "
+                "INDEXED BY generational_union_participant_idx "
+                "WHERE participant_id=? ORDER BY union_id",
+                subject, visible, at, items, member=subject)
+        if subject not in visible or _fold(connection, subject, at, visible) is None:
+            return _closed("unknown")
+        return _reverse_folded_rows(connection,
+            "SELECT id FROM generational_legacy INDEXED BY generational_legacy_organization_idx "
+            "WHERE organization_id=? ORDER BY id",
+            subject, visible, at, items)
     if operation in {"ancestors", "descendants", "relatives"}:
         if operation == "relatives":
             result = cited_relative_path(connection, subject, request["target_id"], at=at,
