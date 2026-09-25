@@ -23,6 +23,7 @@ h2 { font-size: 1.45rem; } h3 { font-size: 1.12rem; } h4 { font-size: 1rem; }
 .compendium-index { border-right: 1px solid #2c4151; }
 .nav-item { background: transparent; border: 0; border-radius: .35rem; color: #d5e4ee; display: block; font-weight: 650; min-height: 2.25rem; padding: .42rem .6rem; text-align: left; width: 100%; }
 .nav-item:hover:not(:disabled), .nav-item[aria-current="page"] { background: #203b4e; }
+.spatial-entry { text-decoration: none; }
 .nav-group { color: #8eacbf; font-size: .75rem; font-weight: 750; letter-spacing: .07em; margin: 1.25rem .6rem .3rem; text-transform: uppercase; }
 .section-heading { margin-bottom: 1rem; }.section-heading h2 { margin-bottom: 0; }
 .index-search { align-items: end; display: flex; flex-wrap: wrap; gap: .5rem; }.index-search button { flex: 0 0 auto; }.index-search select { flex: 0 1 10rem; }.sort-control { color: #c8dbe9; display: grid; font-size: .85rem; font-weight: 700; gap: .2rem; min-width: 10rem; }.sort-control select { min-width: 10rem; }

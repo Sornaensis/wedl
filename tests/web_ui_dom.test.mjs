@@ -76,6 +76,37 @@ async function loadBrowserModule() {
   return import(dataModule(`${app}\n// browser test instance ${++browserModuleNonce}`));
 }
 
+test("spatial lore handoff is consumed once and opens only a registry-backed ID", async () => {
+  const previous = { document: globalThis.document, fetch: globalThis.fetch, history: globalThis.history,
+    location: globalThis.location, requestAnimationFrame: globalThis.requestAnimationFrame,
+    window: globalThis.window, WebSocket: globalThis.WebSocket, sessionStorage: globalThis.sessionStorage };
+  const { document, elements } = makeDom(); const calls = []; const storage = new Map([["wedl.spatial.lore.once", "place:known"]]);
+  globalThis.document = document;
+  globalThis.location = { pathname: "/", protocol: "http:", host: "wedl.test" };
+  globalThis.history = { state: null, pushState() {}, replaceState() {} };
+  globalThis.requestAnimationFrame = (callback) => callback();
+  globalThis.window = { addEventListener() {}, matchMedia: () => ({ matches: false }) };
+  globalThis.WebSocket = undefined;
+  globalThis.sessionStorage = { getItem: (key) => storage.get(key) || null, removeItem: (key) => storage.delete(key) };
+  globalThis.fetch = async (path) => {
+    calls.push(path);
+    const payload = path === "/api/session" ? { token: "test" }
+      : path === "/api/status" ? { revision: "r1", recordCount: 2, timeModel: { timelineDeclarations: [], defaultTimeline: "" } }
+        : path === "/api/entities" ? [{ id: "world:known", kind: "world", title: "Test world" }, { id: "place:known", kind: "location", title: "Known place" }]
+          : path === "/api/threads" ? { revision: "r1", groupingAvailable: false, threads: [] }
+            : path === "/api/entities/place%3Aknown" ? { id: "place:known", kind: "location", title: "Known place", body: "Authored lore", frontmatter: {} }
+              : {};
+    return { ok: true, status: 200, json: async () => payload, text: async () => "" };
+  };
+  try {
+    await loadBrowserModule(); await waitForUi(); await waitForUi();
+    assert.equal(storage.has("wedl.spatial.lore.once"), false);
+    assert.ok(calls.includes("/api/entities/place%3Aknown"));
+    assert.match(elements.article.textContent, /Known place/);
+    assert.equal(globalThis.location.pathname, "/");
+  } finally { Object.assign(globalThis, previous); }
+});
+
 test("narrative group catalog is server-ordered, works in browse and search, and sends sorted ANY selectors", async () => {
   const previous = { document: globalThis.document, fetch: globalThis.fetch, history: globalThis.history, location: globalThis.location, requestAnimationFrame: globalThis.requestAnimationFrame, window: globalThis.window, WebSocket: globalThis.WebSocket };
   const { document, elements } = makeDom(); const calls = []; let revision = "r1";

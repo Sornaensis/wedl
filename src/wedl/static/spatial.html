@@ -1,0 +1,65 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Spatial explorer</title>
+    <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
+    <link rel="stylesheet" href="/assets/spatial.css">
+  </head>
+  <body>
+    <header class="topbar">
+      <div><p class="eyebrow">World atlas</p><h1>Spatial explorer</h1></div>
+      <nav aria-label="Site"><a href="/">Read the compendium</a></nav>
+    </header>
+    <div class="status-row"><p id="spatial-status" role="status" aria-live="polite">Opening the spatial catalog…</p><button id="refresh-catalog" type="button">Refresh catalog</button></div>
+    <main class="layout">
+      <section aria-labelledby="browse-heading" class="panel">
+        <h2 id="browse-heading">Places</h2>
+        <p class="hint">Browse authored containment or search place titles. Places without coordinates remain here.</p>
+        <form id="place-search"><label for="place-query">Find a place</label><div class="row"><input id="place-query" type="search" maxlength="256"><button type="submit">Search</button></div></form>
+        <div class="row"><button id="place-roots" type="button">Roots</button><button id="place-back" type="button" disabled>Parent level</button></div>
+        <p id="place-context" role="status" aria-live="polite"></p>
+        <ul id="place-list" class="cards"></ul>
+        <button id="place-more" type="button" hidden>More places</button>
+      </section>
+      <section aria-labelledby="inspect-heading" class="panel">
+        <h2 id="inspect-heading">Inspect</h2>
+        <p id="selected-place">Choose a place to inspect its authored routes and lore.</p>
+        <div class="row"><button id="route-outgoing" type="button" disabled>Outgoing</button><button id="route-incoming" type="button" disabled>Incoming</button></div>
+        <ul id="route-list" class="cards"></ul><button id="route-more" type="button" hidden>More routes</button>
+        <form id="path-form">
+          <h3>Authored path</h3>
+          <label for="path-target">Destination place ID</label><input id="path-target" maxlength="256" required>
+          <label for="path-metric">Measure</label><select id="path-metric"><option value="routeDistance">Route distance</option><option value="travelCost">Travel cost</option><option value="duration">Duration</option></select>
+          <button type="submit" disabled id="path-submit">Inspect path</button>
+        </form>
+        <p id="path-result" role="status" aria-live="polite"></p>
+      </section>
+      <section aria-labelledby="map-heading" class="panel">
+        <h2 id="map-heading">Maps and layers</h2>
+        <p class="hint">Native map coordinates only. The place list remains available without geometry or a map provider.</p>
+        <label for="map-select">Authored map</label><select id="map-select"></select><button id="map-more" type="button" hidden>More maps</button>
+        <div id="map-native" aria-label="Native map coordinates"></div>
+        <form id="viewport-form">
+          <h3>Bounded viewport</h3>
+          <div class="coordinate-grid"><label for="min-x">Minimum X</label><input id="min-x" type="number" step="any" required><label for="min-y">Minimum Y</label><input id="min-y" type="number" step="any" required><label for="max-x">Maximum X</label><input id="max-x" type="number" step="any" required><label for="max-y">Maximum Y</label><input id="max-y" type="number" step="any" required><label for="min-z" class="z-field" hidden>Minimum Z</label><input id="min-z" class="z-field" type="number" step="any" hidden><label for="max-z" class="z-field" hidden>Maximum Z</label><input id="max-z" class="z-field" type="number" step="any" hidden></div>
+          <button type="submit">Load viewport</button>
+        </form>
+        <div id="map-features"></div><button id="viewport-more" type="button" hidden>More features</button>
+        <form id="layer-form">
+          <h3>Horizon aware layers</h3>
+          <p class="hint">Enter an exact authored StoryTime. Layers remain closed until you choose a timeline, tick, and order.</p>
+          <label for="story-timeline">Timeline ID</label><input id="story-timeline" required maxlength="256">
+          <label for="story-tick">Tick</label><input id="story-tick" required inputmode="numeric" pattern="-?[0-9]+">
+          <label for="story-order">Order</label><input id="story-order" required inputmode="numeric" pattern="-?[0-9]+">
+          <label for="layer-audience">Audience</label><input id="layer-audience" value="author" required maxlength="256">
+          <label for="layer-perspective">Perspective</label><input id="layer-perspective" value="author" required maxlength="256">
+          <button type="submit">Inspect visible layers</button>
+        </form>
+        <ul id="layer-list" class="cards"></ul><button id="layer-more" type="button" hidden>More layers</button>
+      </section>
+    </main>
+    <script type="module">import { mountSpatialExplorer } from "/assets/spatial_app.mjs"; mountSpatialExplorer(document);</script>
+  </body>
+</html>
