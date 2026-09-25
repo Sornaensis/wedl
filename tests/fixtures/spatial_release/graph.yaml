@@ -1,0 +1,14 @@
+# Authored additions to the v0.7 transport seed. The test assigns no inferred
+# coordinates to these places and adds no implicit reverse or cost edges.
+deep_parent_chain:
+  - {id: 'location:release-deep-1', parent: loc_00000000000000000000000000}
+  - {id: 'location:release-deep-2', parent: 'location:release-deep-1'}
+  - {id: 'location:release-deep-3', parent: 'location:release-deep-2'}
+  - {id: 'location:release-deep-4', parent: 'location:release-deep-3'}
+wide_siblings: 8
+hostile_title: '<script>window.exfiltrate()</script> & "private"'
+routes:
+  - {id: 'route:release-side-root', from: 'location:side', to: loc_00000000000000000000000000, direction: two-way, modes: [foot, horse], distance: 4}
+  - {id: 'route:release-gate-wide', from: 'location:gate', to: 'location:release-wide-1', direction: one-way, modes: [foot], distance: 1}
+  - {id: 'route:release-wide-side', from: 'location:release-wide-1', to: 'location:side', direction: one-way, modes: [foot], distance: 1}
+  - {id: 'route:release-unknown', from: 'location:release-deep-4', to: 'location:side', direction: one-way, modes: [foot]}

@@ -1,0 +1,61 @@
+# Stable source facts and public outcomes shared by the compatibility proof.
+# The seed is tests/fixtures/spatial_v07/valid-multimap.yaml plus the documented
+# additions in tests/test_spatial_api.py. No generated SQLite bytes are fixtures.
+source:
+  maps:
+    map:town: {crs: 'local-planar:town', unit: pace}
+    map:earth: {crs: 'EPSG:4326', unit: degree}
+  coordinate_free: [loc_00000000000000000000000000, 'location:far']
+  authored_parent: {child: 'location:gate', parent: loc_00000000000000000000000000}
+transport:
+  - operation: containment
+    fields: {locationId: 'location:gate'}
+    state: ok
+  - operation: children
+    fields: {locationId: loc_00000000000000000000000000}
+    state: ok
+  - operation: children
+    fields: {locationId: loc_00000000000000000000000000, limit: 1}
+    state: ok
+  - operation: bbox
+    fields: {mapId: 'map:town', bounds: {min: [-2, -2], max: [2, 2]}, relation: intersects}
+    state: ok
+  - operation: bbox
+    fields: {mapId: 'map:earth', bounds: {min: [11, 54], max: [13, 56]}, relation: intersects}
+    state: ok
+  - operation: nearby
+    fields: {position: {mapId: 'map:town', coordinates: [0, 0]}, radius: 2}
+    state: ok
+  - operation: adjacency
+    fields: {locationId: 'location:gate'}
+    state: ok
+  - operation: reachability
+    fields: {fromLocationId: loc_00000000000000000000000000}
+    state: ok
+  - operation: reachability
+    fields: {fromLocationId: loc_00000000000000000000000000, limit: 1}
+    state: limit
+  - operation: path
+    fields: {fromLocationId: loc_00000000000000000000000000, toLocationId: 'location:gate', metric: routeDistance}
+    state: ok
+  - operation: path
+    fields: {fromLocationId: 'location:gate', toLocationId: loc_00000000000000000000000000, metric: routeDistance}
+    state: unavailable
+  - operation: overlay-as-of
+    fields: {queryScope: location, locationId: 'location:gate', audience: author, perspective: author, asOf: {timeline: main, tick: '0', order: '0'}}
+    state: ok
+  - operation: overlay-as-of
+    fields: {queryScope: location, locationId: 'location:gate', audience: public, perspective: author, asOf: {timeline: main, tick: '0', order: '0'}}
+    state: ok
+  - operation: overlay-as-of
+    fields: {queryScope: location, locationId: 'location:gate', audience: author, perspective: author, asOf: {timeline: main, tick: '2', order: '0'}}
+    state: ok
+  - operation: bbox
+    fields: {mapId: 'map:town', bounds: {min: [-9007199254740991, -9007199254740991], max: [9007199254740991, 9007199254740991]}, relation: intersects}
+    state: ok
+  - operation: children
+    fields: {locationId: loc_00000000000000000000000000, cursor: malformed}
+    state: invalid
+  - operation: path
+    fields: {fromLocationId: loc_00000000000000000000000000, toLocationId: 'location:far', metric: routeDistance}
+    state: unavailable
