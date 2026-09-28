@@ -77,6 +77,18 @@ function Stop-ExitedDescendants($process, [datetime]$startedAt) {
         }
         if (-not $found) { break }
     }
+    if ($depth -eq 32) {
+        foreach ($item in $snapshot) {
+            $id = [int]$item.ProcessId
+            $parentId = [int]$item.ParentProcessId
+            $created = [datetime]$item.CreationDate
+            if ($known.Contains($parentId) -and -not $known.Contains($id) -and
+                $created -ge $createdById[$parentId] -and ($parentId -ne $process.Id -or $created -le $exitedAt)) {
+                [Console]::Error.WriteLine("Exited PID $($process.Id) descendant sweep reached 32 levels with valid unseen descendant PID $id; cleanup may leave an orphan.")
+                break
+            }
+        }
+    }
     for ($index = $descendants.Count - 1; $index -ge 0; $index--) {
         $child = $descendants[$index]
         $live = Get-Process -Id $child.Id -ErrorAction SilentlyContinue
