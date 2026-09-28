@@ -14,6 +14,7 @@ $started = [System.Diagnostics.Stopwatch]::StartNew()
 $previousPythonPath = $env:PYTHONPATH
 $previousPlugins = $env:PYTEST_PLUGINS
 $previousDiagnostics = $env:WEDL_TEST_DIAGNOSTICS
+$previousOutcomes = $env:WEDL_TEST_OUTCOMES
 $previousTemp = $env:TEMP
 $previousTmp = $env:TMP
 $script:jobs = New-Object System.Collections.ArrayList
@@ -49,8 +50,9 @@ function New-RunnerPaths([string]$name) {
     $stdout = Join-Path $temporaryRoot "wedl-pytest-$runId-$name.stdout"
     $stderr = Join-Path $temporaryRoot "wedl-pytest-$runId-$name.stderr"
     $diagnostics = Join-Path $temporaryRoot "wedl-pytest-$runId-$name.json"
+    $outcomes = Join-Path $temporaryRoot "wedl-pytest-$runId-$name.outcomes.json"
     $null = New-Item -ItemType Directory -Path $temp -Force
-    foreach ($path in @($stdout, $stderr, $diagnostics, ([System.IO.Path]::ChangeExtension($diagnostics, "tmp")))) {
+    foreach ($path in @($stdout, $stderr, $diagnostics, $outcomes, ([System.IO.Path]::ChangeExtension($diagnostics, "tmp")))) {
         $null = $script:artifactPaths.Add($path)
     }
     return [pscustomobject]@{
@@ -60,14 +62,15 @@ function New-RunnerPaths([string]$name) {
         Stdout = $stdout
         Stderr = $stderr
         Diagnostics = $diagnostics
+        Outcomes = $outcomes
     }
 }
 
-function Start-RunnerProcess([string]$name, [string[]]$selection, [bool]$collect) {
+function Start-RunnerProcess([string]$name, [string[]]$selection, [bool]$collect, [string]$suite) {
     Assert-Budget
     if ($selection.Count -eq 0) { throw "The $name selection is empty." }
     $paths = New-RunnerPaths $name
-    $arguments = @("-m", "pytest", "-q", "--durations=25")
+    $arguments = @("-m", "pytest", "-q", "--durations=25", "--strict-markers", "--wedl-strict", "--wedl-suite=$suite")
     if ($collect) { $arguments += "--collect-only" }
     $arguments += $selection
     $arguments += "--basetemp=$($paths.Basetemp)"
@@ -75,62 +78,107 @@ function Start-RunnerProcess([string]$name, [string[]]$selection, [bool]$collect
     $env:TEMP = $paths.Temp
     $env:TMP = $paths.Temp
     $env:WEDL_TEST_DIAGNOSTICS = $paths.Diagnostics
+    $env:WEDL_TEST_OUTCOMES = $paths.Outcomes
     try {
         $process = Start-Process -FilePath $python -ArgumentList $quoted -RedirectStandardOutput $paths.Stdout -RedirectStandardError $paths.Stderr -NoNewWindow -PassThru
     } finally {
         $env:TEMP = $previousTemp
         $env:TMP = $previousTmp
         $env:WEDL_TEST_DIAGNOSTICS = $previousDiagnostics
+        $env:WEDL_TEST_OUTCOMES = $previousOutcomes
     }
     $processHandle = $process.Handle
-    $job = [pscustomobject]@{ Name = $name; Process = $process; Handle = $processHandle; Paths = $paths; Selection = $selection }
+    $job = [pscustomobject]@{ Name = $name; Process = $process; StartTime = $process.StartTime; Handle = $processHandle; Paths = $paths; Selection = $selection }
     $null = $script:jobs.Add($job)
     return $job
 }
 
-function Stop-ProcessTree($process, [bool]$includeExitedDescendants = $false) {
+function Stop-ExitedDescendants($process, [datetime]$startedAt) {
+    $exitedAt = $process.ExitTime
+    if ($null -eq $exitedAt -or $exitedAt -lt $startedAt) {
+        throw "Original process exit time is unavailable; descendant cleanup is ambiguous."
+    }
+    $snapshot = @(Get-CimInstance Win32_Process -Property ProcessId, ParentProcessId, CreationDate -ErrorAction Stop)
+    if (@($snapshot | Where-Object { [int]$_.ProcessId -eq $process.Id }).Count -ne 0) {
+        throw "Exited parent PID was reused before descendant cleanup."
+    }
+    if (@($snapshot | Where-Object {
+        [int]$_.ParentProcessId -eq $process.Id -and [datetime]$_.CreationDate -gt $exitedAt
+    }).Count -ne 0) {
+        throw "A process reports the original parent PID after its exit time; refusing ambiguous cleanup."
+    }
+    $known = [System.Collections.Generic.HashSet[int]]::new()
+    $null = $known.Add($process.Id)
+    $createdById = [System.Collections.Generic.Dictionary[int,datetime]]::new()
+    $createdById[[int]$process.Id] = [datetime]$startedAt
+    $descendants = New-Object System.Collections.ArrayList
+    for ($depth = 0; $depth -lt 32; $depth++) {
+        $found = $false
+        foreach ($item in $snapshot) {
+            $id = [int]$item.ProcessId
+            $parentId = [int]$item.ParentProcessId
+            $created = [datetime]$item.CreationDate
+            if ($known.Contains($parentId) -and -not $known.Contains($id) -and
+                $created -ge $createdById[$parentId] -and ($parentId -ne $process.Id -or $created -le $exitedAt)) {
+                if ($descendants.Count -ge 128) { throw "Exited process descendant bound exceeded." }
+                $null = $known.Add($id)
+                $createdById[$id] = $created
+                $null = $descendants.Add([pscustomobject]@{ Id = $id; Created = $created })
+                $found = $true
+            }
+        }
+        if (-not $found) { break }
+    }
+    for ($index = $descendants.Count - 1; $index -ge 0; $index--) {
+        $child = $descendants[$index]
+        $live = Get-Process -Id $child.Id -ErrorAction SilentlyContinue
+        if ($live) {
+            if ([math]::Abs(($live.StartTime - $child.Created).TotalMilliseconds) -gt 50) {
+                throw "Descendant PID $($child.Id) creation time differs from the process snapshot."
+            }
+            Stop-Process -Id $child.Id -Force -ErrorAction Stop
+            $null = $live.WaitForExit(5000)
+            if (-not $live.HasExited) { throw "Could not confirm descendant termination for PID $($child.Id)." }
+        }
+    }
+}
+
+function Stop-ProcessTree($process, [bool]$includeExitedDescendants, [datetime]$startedAt) {
     if ($null -eq $process) { return }
     $process.Refresh()
     if ($process.HasExited) {
-        if (-not $includeExitedDescendants) { return }
-        try {
-            $startedAt = $process.StartTime
-            $known = [System.Collections.Generic.HashSet[int]]::new()
-            $null = $known.Add($process.Id)
-            $descendants = New-Object System.Collections.Generic.List[int]
-            $snapshot = @(Get-CimInstance Win32_Process -Property ProcessId, ParentProcessId, CreationDate -ErrorAction Stop)
-            do {
-                $found = $false
-                foreach ($item in $snapshot) {
-                    if ($known.Contains([int]$item.ParentProcessId) -and
-                        -not $known.Contains([int]$item.ProcessId) -and
-                        $item.CreationDate -ge $startedAt) {
-                        $null = $known.Add([int]$item.ProcessId)
-                        $descendants.Add([int]$item.ProcessId)
-                        $found = $true
-                    }
-                }
-            } while ($found)
-            foreach ($id in ($descendants.ToArray() | Sort-Object -Descending)) {
-                Stop-Process -Id $id -Force -ErrorAction SilentlyContinue
-            }
-        } catch {
-            [Console]::Error.WriteLine("Could not confirm descendant termination for exited PID $($process.Id): $($_.Exception.Message)")
+        if ($includeExitedDescendants) {
+            try { Stop-ExitedDescendants $process $startedAt }
+            catch { [Console]::Error.WriteLine("Exited PID $($process.Id) descendant cleanup could not be verified: $($_.Exception.Message)") }
         }
         return
     }
     try {
-        $killer = Start-Process -FilePath "taskkill.exe" -ArgumentList @("/pid", $process.Id, "/t", "/f") -NoNewWindow -PassThru
+        $killer = Start-Process -FilePath "taskkill.exe" -ArgumentList @("/pid", $process.Id, "/t", "/f") -WindowStyle Hidden -PassThru
         $null = $killer.WaitForExit(5000)
         $null = $process.WaitForExit(5000)
     } catch {
-        [Console]::Error.WriteLine("Could not confirm process-tree termination for PID $($process.Id): $($_.Exception.Message)")
+        [Console]::Error.WriteLine("Process-tree termination failed for PID $($process.Id): $($_.Exception.Message)")
+    }
+    $process.Refresh()
+    if (-not $process.HasExited) {
+        try {
+            $live = Get-Process -Id $process.Id -ErrorAction Stop
+            if ($live.StartTime -ne $startedAt) { throw "PID was reused" }
+            Stop-Process -Id $process.Id -Force -ErrorAction Stop
+        }
+        catch { [Console]::Error.WriteLine("Could not terminate pytest PID $($process.Id): $($_.Exception.Message)") }
+    }
+    $process.Refresh()
+    if ($includeExitedDescendants -and $process.HasExited) {
+        try { Stop-ExitedDescendants $process $startedAt }
+        catch { [Console]::Error.WriteLine("PID $($process.Id) descendant cleanup could not be verified: $($_.Exception.Message)") }
     }
 }
 
 function Stop-LiveJobs([bool]$includeExitedDescendants = $false) {
     foreach ($job in $script:jobs) {
-        Stop-ProcessTree $job.Process $includeExitedDescendants
+        Stop-ProcessTree $job.Process $includeExitedDescendants $job.StartTime
     }
 }
 
@@ -159,13 +207,14 @@ function Read-Diagnostics($job) {
     catch { return $null }
 }
 
-function Collect-Nodes($job) {
+function Collect-Nodes($job, [bool]$allowEmpty = $false) {
     Wait-RunnerProcess $job
+    $stdout = Read-JobText $job "stdout"
+    if ($allowEmpty -and $job.Process.ExitCode -eq 5 -and $stdout -match 'no tests collected') { return @() }
     if ($job.Process.ExitCode -ne 0) {
         $script:failureExitCode = $job.Process.ExitCode
         throw "$($job.Name) exited $($job.Process.ExitCode) during collection."
     }
-    $stdout = Read-JobText $job "stdout"
     $summary = [regex]::Match($stdout, '(?m)^(?<count>\d+) tests? collected\b')
     if (-not $summary.Success) { throw "$($job.Name) has no parseable collection count." }
     $nodes = New-Object System.Collections.Generic.List[string]
@@ -177,6 +226,38 @@ function Collect-Nodes($job) {
         throw "$($job.Name) collected $($summary.Groups['count'].Value) but exposed $($nodes.Count) node IDs."
     }
     return $nodes.ToArray()
+}
+
+function Assert-Partition([string[]]$all, [string[]]$normal, [string[]]$performance) {
+    $allCounts = New-NodeCounts $all
+    $normalCounts = New-NodeCounts $normal
+    $performanceCounts = New-NodeCounts $performance
+    if ($all.Count -ne $allCounts.Count -or $normal.Count -ne $normalCounts.Count -or
+        $performance.Count -ne $performanceCounts.Count -or
+        $all.Count -ne ($normal.Count + $performance.Count)) {
+        throw "WEDL all/normal/performance collections have a missing, duplicate, or overlapping node ID."
+    }
+    foreach ($node in $allCounts.Keys) {
+        if (($normalCounts.ContainsKey($node)) -eq ($performanceCounts.ContainsKey($node))) {
+            throw "WEDL all/normal/performance partition differs at $node."
+        }
+    }
+}
+
+function Assert-ExactOutcomes($job, [string[]]$expected) {
+    if (-not (Test-Path -LiteralPath $job.Paths.Outcomes)) { throw "$($job.Name) has no exact outcome record." }
+    $records = @(Get-Content -LiteralPath $job.Paths.Outcomes -Raw | ConvertFrom-Json)
+    $nodes = New-NodeCounts $expected
+    if ($records.Count -ne $expected.Count) { throw "$($job.Name) exact outcome count differs from collection." }
+    foreach ($record in $records) {
+        if ($record.Count -ne 2 -or $record[1] -ne "passed" -or -not $nodes.ContainsKey([string]$record[0])) {
+            throw "$($job.Name) has an unknown or non-passing exact outcome."
+        }
+        $nodes[[string]$record[0]]--
+    }
+    if (@($nodes.Values | Where-Object { $_ -ne 0 }).Count -ne 0) {
+        throw "$($job.Name) has missing or duplicate exact outcomes."
+    }
 }
 
 function New-NodeCounts([string[]]$nodes) {
@@ -205,10 +286,10 @@ function Get-AccountedCount([string]$stdout, [string]$name) {
     if (-not $summary.Success) { throw "$name has no parseable pytest outcome summary." }
     $accounted = 0
     foreach ($part in ($summary.Groups["outcomes"].Value -split ', ')) {
-        if ($part -notmatch '^(\d+) (passed|skipped|xfailed|xpassed|warnings?)$') {
+        if ($part -notmatch '^(\d+) (passed|warnings?)$') {
             throw "$name has an unknown outcome token: $part."
         }
-        if ($Matches[2] -ne "warning" -and $Matches[2] -ne "warnings") {
+        if ($Matches[2] -eq "passed") {
             $accounted += [int]$Matches[1]
         }
     }
@@ -255,7 +336,10 @@ try {
     $null = New-Item -ItemType Directory -Path $testTempRoot
 
     $script:phase = "serial collection"
-    $serialNodes = @(Collect-Nodes (Start-RunnerProcess "collect-serial" @("tests") $true))
+    $allNodes = @(Collect-Nodes (Start-RunnerProcess "collect-all" @("tests") $true "all"))
+    $serialNodes = @(Collect-Nodes (Start-RunnerProcess "collect-serial" @("tests") $true "normal"))
+    $performanceNodes = @(Collect-Nodes (Start-RunnerProcess "collect-performance" @("tests") $true "performance") $true)
+    Assert-Partition $allNodes $serialNodes $performanceNodes
     if ($serialNodes.Count -eq 0) { throw "The normal suite collected no test nodes." }
     $files = New-Object System.Collections.Generic.List[string]
     $seenFiles = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
@@ -284,17 +368,17 @@ try {
     if ($aFiles.Count -eq 0 -or $bFiles.Count -eq 0) { throw "The live test inventory cannot form both required shards." }
 
     $script:phase = "shard A collection"
-    $aNodes = @(Collect-Nodes (Start-RunnerProcess "collect-a" $aFiles $true))
+    $aNodes = @(Collect-Nodes (Start-RunnerProcess "collect-a" $aFiles $true "normal"))
     $script:phase = "shard B collection"
-    $bNodes = @(Collect-Nodes (Start-RunnerProcess "collect-b" $bFiles $true))
+    $bNodes = @(Collect-Nodes (Start-RunnerProcess "collect-b" $bFiles $true "normal"))
     Assert-CollectionParity $serialNodes $aNodes $bNodes
     Assert-Budget
     $collectionElapsed = $started.Elapsed.TotalSeconds
     Write-Output "NORMAL TEST COLLECTION: $($serialNodes.Count) nodes; shard A $($aNodes.Count), shard B $($bNodes.Count); exact node-ID parity."
 
     $script:phase = "parallel execution"
-    $runA = Start-RunnerProcess "run-a" $aFiles $false
-    $runB = Start-RunnerProcess "run-b" $bFiles $false
+    $runA = Start-RunnerProcess "run-a" $aFiles $false "normal"
+    $runB = Start-RunnerProcess "run-b" $bFiles $false "normal"
     while ($true) {
         $runA.Process.Refresh()
         $runB.Process.Refresh()
@@ -323,6 +407,8 @@ try {
     if ($aAccounted -ne $aNodes.Count -or $bAccounted -ne $bNodes.Count) {
         throw "Executed outcome counts do not match the collected shard node counts."
     }
+    Assert-ExactOutcomes $runA $aNodes
+    Assert-ExactOutcomes $runB $bNodes
     Assert-Budget
     Write-Output "SHARD A ($aAccounted nodes):"
     if ($aStdout) { Write-Output $aStdout.TrimEnd() }
@@ -355,6 +441,7 @@ try {
     $env:PYTHONPATH = $previousPythonPath
     $env:PYTEST_PLUGINS = $previousPlugins
     $env:WEDL_TEST_DIAGNOSTICS = $previousDiagnostics
+    $env:WEDL_TEST_OUTCOMES = $previousOutcomes
     $env:TEMP = $previousTemp
     $env:TMP = $previousTmp
     if ($script:passed) {

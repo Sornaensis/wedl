@@ -1,15 +1,123 @@
 from __future__ import annotations
 
 from importlib import resources
+import hashlib
+import json
 import os
 from pathlib import Path
 import shutil
 import stat
 import subprocess
+import warnings
 
 import pytest
 
 from wedl.repository import Repository
+
+
+_OVERLAY_FILES = {
+    "tests/test_object_affordances.py": "5b6f3d4244b1330d98a23db64f04d61b0593340983835a048b20fa9146e7dd36",
+    "tests/test_spatial_release_scale.py": "ea16aeb475b6f8fd49432a6e5b406b09950233c8adbe600e0eeed57836563144",
+}
+_INTENT_MARKERS = {"U": "normal_unit", "I": "normal_integration", "P": "performance"}
+_BAD_OUTCOMES: list[str] = []
+_CALL_OUTCOMES: list[tuple[str, str]] = []
+
+
+def pytest_addoption(parser: pytest.Parser) -> None:
+    parser.addini("wedl_registry_version", "Exact test registry version")
+    parser.addini("wedl_registry_v1", "Exact node IDs and audited test intent", type="linelist")
+    parser.addini("wedl_active_performance_v1", "Exact active performance node IDs", type="linelist")
+    parser.addoption("--wedl-suite", choices=("all", "normal", "performance"), default="all")
+    parser.addoption("--wedl-strict", action="store_true", default=False)
+
+
+def _suite_registry(config: pytest.Config) -> tuple[dict[str, str], set[str]]:
+    if config.getini("wedl_registry_version") != "1":
+        raise pytest.UsageError("Unsupported or missing WEDL test registry version")
+    intent: dict[str, str] = {}
+    for entry in config.getini("wedl_registry_v1"):
+        kind, separator, node = entry.partition("|")
+        if not separator or kind not in _INTENT_MARKERS or not node.startswith("tests/") or "::" not in node:
+            raise pytest.UsageError(f"Invalid WEDL registry entry: {entry}")
+        if node in intent:
+            raise pytest.UsageError(f"Duplicate WEDL registry node: {node}")
+        intent[node] = kind
+    if len(intent) != 502 or {kind: list(intent.values()).count(kind) for kind in _INTENT_MARKERS} != {"U": 236, "I": 228, "P": 38}:
+        raise pytest.UsageError("WEDL registry count or intent totals drifted; update the exact registry")
+    active_lines = config.getini("wedl_active_performance_v1")
+    active = set(active_lines)
+    if len(active) != len(active_lines) or not active.issubset(intent) or any(intent[node] != "P" for node in active):
+        raise pytest.UsageError("Invalid or duplicate active performance node")
+    return intent, active
+
+
+def _check_overlay(config: pytest.Config, intent: dict[str, str]) -> set[str]:
+    root = config.rootpath
+    present = {name for name in _OVERLAY_FILES if (root / name).is_file()}
+    if present and present != set(_OVERLAY_FILES):
+        raise pytest.UsageError("Partial test overlay; both hash-bound files are required")
+    if present:
+        for name, expected in _OVERLAY_FILES.items():
+            actual = hashlib.sha256((root / name).read_bytes()).hexdigest()
+            if actual != expected:
+                raise pytest.UsageError(f"Test overlay hash mismatch: {name}")
+        if (root / ".git").exists():
+            for name in _OVERLAY_FILES:
+                tracked = subprocess.run(
+                    ["git", "-C", str(root), "ls-files", "--error-unmatch", "--", name],
+                    stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=False,
+                )
+                if tracked.returncode == 0:
+                    raise pytest.UsageError("Tracked overlay transition requires a registry rebaseline")
+    overlay_ids = {node for node in intent if node.split("::", 1)[0] in _OVERLAY_FILES}
+    if len(overlay_ids) != 8 or sum(node.startswith("tests/test_object_affordances.py::") for node in overlay_ids) != 7:
+        raise pytest.UsageError("Test overlay ID registry is incomplete")
+    return set(intent) if present else set(intent) - overlay_ids
+
+
+def pytest_collection_modifyitems(config: pytest.Config, items: list[pytest.Item]) -> None:
+    intent, active = _suite_registry(config)
+    expected = _check_overlay(config, intent)
+    observed = [item.nodeid.replace("\\", "/") for item in items]
+    if len(observed) != len(set(observed)):
+        raise pytest.UsageError("Duplicate collected WEDL node ID")
+    unknown = set(observed) - expected
+    if unknown:
+        raise pytest.UsageError(f"Unknown collected WEDL node ID: {sorted(unknown)[0]}")
+    if list(config.args) == ["tests"] and set(observed) != expected:
+        raise pytest.UsageError("Full WEDL collection differs from the exact registry snapshot")
+    for item, node in zip(items, observed):
+        declared = {marker.name for marker in item.iter_markers()} & set(_INTENT_MARKERS.values())
+        required = _INTENT_MARKERS[intent[node]]
+        if declared and declared != {required}:
+            raise pytest.UsageError(f"WEDL marker disagrees with exact registry: {node}")
+        item.add_marker(required)
+        if config.getoption("--wedl-strict") and any(any(item.iter_markers(name=name)) for name in ("skip", "skipif", "xfail")):
+            raise pytest.UsageError(f"Skip or expected failure is forbidden in WEDL suite: {node}")
+    suite = config.getoption("--wedl-suite")
+    if suite != "all":
+        selected = [item for item in items if (item.nodeid.replace("\\", "/") in active) == (suite == "performance")]
+        deselected = [item for item in items if item not in selected]
+        if deselected:
+            config.hook.pytest_deselected(items=deselected)
+        items[:] = selected
+
+
+def pytest_runtest_logreport(report: pytest.TestReport) -> None:
+    if report.when == "call":
+        _CALL_OUTCOMES.append((report.nodeid.replace("\\", "/"), report.outcome))
+    if report.skipped or getattr(report, "wasxfail", None):
+        _BAD_OUTCOMES.append(f"{report.nodeid}: {report.outcome}")
+
+
+def pytest_sessionfinish(session: pytest.Session, exitstatus: int) -> None:
+    outcome_path = os.environ.get("WEDL_TEST_OUTCOMES")
+    if outcome_path:
+        Path(outcome_path).write_text(json.dumps(_CALL_OUTCOMES), encoding="utf-8")
+    if session.config.getoption("--wedl-strict") and _BAD_OUTCOMES:
+        session.exitstatus = 1
+        warnings.warn(pytest.PytestWarning("WEDL suite forbids skipped/xfail/xpass outcomes: " + "; ".join(_BAD_OUTCOMES[:3])))
 
 
 def git(root: Path, *args: str, check: bool = True) -> subprocess.CompletedProcess[str]:
