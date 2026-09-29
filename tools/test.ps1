@@ -1,7 +1,7 @@
 [CmdletBinding()]
 param(
-    [ValidateRange(1, 300)]
-    [int]$TimeoutSeconds = 300
+    [ValidateRange(1, 600)]
+    [int]$TimeoutSeconds = 600
 )
 
 $ErrorActionPreference = "Stop"
