@@ -1,0 +1,278 @@
+---
+aliases: []
+domain: conversations.ash-archive.ending
+id: conv_29MYS0M4T32R8Y037TSN5SV9F4
+kind: conversation
+location: loc_0HN48QWYRXF0TYV1EFE3RPA9G5
+participants:
+- character: char_00HBQM4T4CMF11RKMNDBRP92QC
+  from:
+    order: 0
+    tick: 182
+    timeline: main
+  role: archivist
+  to:
+    order: 0
+    tick: 188
+    timeline: main
+- character: char_6KEWZ38RZPGDMJRFY3MY6DV56W
+  from:
+    order: 0
+    tick: 182
+    timeline: main
+  role: route-custodian
+  to:
+    order: 0
+    tick: 188
+    timeline: main
+- character: char_0X4VD0CAGNK7PYKV7C98GS77D9
+  from:
+    order: 0
+    tick: 182
+    timeline: main
+  role: river-guide
+  to:
+    order: 0
+    tick: 188
+    timeline: main
+- character: char_01ZTB51MAG1BYDMKHYPY4Y2Z81
+  from:
+    order: 0
+    tick: 184
+    timeline: main
+  role: pursuing-witness
+  to:
+    order: 0
+    tick: 188
+    timeline: main
+recollections:
+- at:
+    order: 0
+    tick: 188
+    timeline: main
+  character: char_00HBQM4T4CMF11RKMNDBRP92QC
+  confidence: 0.9
+  emotional_impression: exhausted vigilance
+  exact_turns:
+  - turn_5XA5KK92ABVREAR5XGHCBFBSJT
+  - turn_7NE439JSX6BG6JPAGDGVZR5AKA
+  - turn_4ZQHX6NAS70MW1JTQ56GJX3SAV
+  id: recol_1KZJVW7KCX36WD9A2VPXNXQR9G
+  interpretation: He is trying to limit damage after helping create it; that is evidence of choice, not innocence.
+  remembered_quotes: []
+  state: remembered
+  summary: Rusk demanded the route key, then accepted a witness role and returned Sable’s map instead of seizing Ansel’s cord.
+- at:
+    order: 0
+    tick: 188
+    timeline: main
+  character: char_6KEWZ38RZPGDMJRFY3MY6DV56W
+  confidence: 0.95
+  emotional_impression: grim satisfaction
+  exact_turns:
+  - turn_5XA5KK92ABVREAR5XGHCBFBSJT
+  - turn_16XJNJTXDSD9MXXXQ7AK01KZB8
+  id: recol_2NR32CM37TT07161P98F00HHC0
+  interpretation: The custody design survived its first attempt at seizure.
+  remembered_quotes: []
+  state: remembered
+  summary: Mara made Rusk witness a route he could not possess, while Sable recovered the map and Ansel retained the cord.
+- at:
+    order: 0
+    tick: 188
+    timeline: main
+  character: char_0X4VD0CAGNK7PYKV7C98GS77D9
+  confidence: 0.73
+  emotional_impression: skeptical amusement
+  exact_turns:
+  - turn_7NE439JSX6BG6JPAGDGVZR5AKA
+  - turn_4ZQHX6NAS70MW1JTQ56GJX3SAV
+  id: recol_2ZV8Z5SRTFHS97ADVHAP45DWFV
+  interpretation: He may be useful in daylight because he finally fears the dark record more than embarrassment.
+  remembered_quotes: []
+  state: remembered
+  summary: Rusk returned the ash-glass map and agreed to testify without holding the route key.
+- at:
+    order: 0
+    tick: 188
+    timeline: main
+  character: char_01ZTB51MAG1BYDMKHYPY4Y2Z81
+  confidence: 0.86
+  emotional_impression: shame converted into resolve
+  exact_turns:
+  - turn_5XA5KK92ABVREAR5XGHCBFBSJT
+  - turn_16XJNJTXDSD9MXXXQ7AK01KZB8
+  id: recol_3J87KRA46Y3C3CDZP5XG8AWN37
+  interpretation: The only remaining lawful act is to testify to what he did and what Caldrin ordered.
+  remembered_quotes: []
+  state: remembered
+  summary: Mara refused custody but offered him a place in the evidence chain; Ansel and Sable kept the route artifacts separate.
+scene: scene_745E5B2P62ZBGK7BJ0H1MMTPX0
+schema: wedl/v0.7
+status: closed
+tags:
+- river
+- pursuit
+- custody
+time:
+  end:
+    timeline: main
+    tick: 187
+    order: 0
+  start:
+    timeline: main
+    tick: 182
+    order: 10
+title: River Gate Pursuit
+topics:
+- river
+- pursuit
+- custody
+turns:
+- at:
+    order: 10
+    tick: 182
+    timeline: main
+  audience:
+  - participants
+  delivery: immediate
+  id: turn_0N3TMAN6NEJHSVZ9EF50EMM02G
+  speaker: char_0X4VD0CAGNK7PYKV7C98GS77D9
+  text: You brought the cord. Where are the names?
+- at:
+    order: 20
+    tick: 182
+    timeline: main
+  audience:
+  - participants
+  delivery: flat
+  id: turn_39B7PBADZ8ZWSNZZVEJ44RXS29
+  speaker: char_00HBQM4T4CMF11RKMNDBRP92QC
+  text: Somewhere the cord cannot reach.
+- at:
+    order: 30
+    tick: 182
+    timeline: main
+  audience:
+  - participants
+  delivery: urgent
+  id: turn_0P50AES5TGSDMM6JF8T3AMTE05
+  speaker: char_6KEWZ38RZPGDMJRFY3MY6DV56W
+  text: One pressure cycle. Then the lower sluice locks until noon.
+- at:
+    order: 0
+    tick: 184
+    timeline: main
+  audience:
+  - participants
+  delivery: from the fog
+  id: turn_1S8TJA056M4DBFJNQ9QDFGTKKD
+  speaker: char_01ZTB51MAG1BYDMKHYPY4Y2Z81
+  text: Give me the route key.
+- at:
+    order: 10
+    tick: 184
+    timeline: main
+  audience:
+  - participants
+  delivery: formal
+  id: turn_0FA3VVP32GD8D6YMXH1ZDF67ET
+  speaker: char_00HBQM4T4CMF11RKMNDBRP92QC
+  text: Under whose order?
+- at:
+    order: 20
+    tick: 184
+    timeline: main
+  audience:
+  - participants
+  delivery: tired
+  id: turn_4MDNBFVRK95TC7QNPPY5YX0FF2
+  speaker: char_01ZTB51MAG1BYDMKHYPY4Y2Z81
+  text: Mine, this time.
+- at:
+    order: 30
+    tick: 184
+    timeline: main
+  audience:
+  - participants
+  delivery: dry
+  id: turn_1SSTV7XAZ0PCS1P2PQ8K80BCCQ
+  speaker: char_0X4VD0CAGNK7PYKV7C98GS77D9
+  text: That is almost honest.
+- at:
+    order: 0
+    tick: 185
+    timeline: main
+  audience:
+  - participants
+  delivery: controlled
+  id: turn_52QH60CF0SHAEK32YFHH2KQR6R
+  speaker: char_01ZTB51MAG1BYDMKHYPY4Y2Z81
+  text: If the proof reaches Ember Hall without a witnessed route, Caldrin will call it invention.
+- at:
+    order: 10
+    tick: 185
+    timeline: main
+  audience:
+  - participants
+  delivery: precise
+  id: turn_5XA5KK92ABVREAR5XGHCBFBSJT
+  speaker: char_00HBQM4T4CMF11RKMNDBRP92QC
+  text: Then witness the route. Do not hold it.
+- at:
+    order: 20
+    tick: 185
+    timeline: main
+  audience:
+  - participants
+  delivery: quiet
+  id: turn_7NE439JSX6BG6JPAGDGVZR5AKA
+  speaker: char_01ZTB51MAG1BYDMKHYPY4Y2Z81
+  text: Sable. Your map. I should have returned it before I knew what it was.
+- at:
+    order: 30
+    tick: 185
+    timeline: main
+  audience:
+  - participants
+  delivery: dry
+  id: turn_7ZDJ0HDHC2EE4BQNYQZCJA7FK4
+  speaker: char_0X4VD0CAGNK7PYKV7C98GS77D9
+  text: Late honesty still has to row.
+- at:
+    order: 0
+    tick: 186
+    timeline: main
+  audience:
+  - participants
+  delivery: decisive
+  id: turn_16XJNJTXDSD9MXXXQ7AK01KZB8
+  speaker: char_6KEWZ38RZPGDMJRFY3MY6DV56W
+  text: I keep the cord. Sable keeps the map. Rusk keeps the statement he will make in public.
+- at:
+    order: 10
+    tick: 186
+    timeline: main
+  audience:
+  - participants
+  delivery: barely audible
+  id: turn_4ZQHX6NAS70MW1JTQ56GJX3SAV
+  speaker: char_01ZTB51MAG1BYDMKHYPY4Y2Z81
+  text: Agreed.
+- at:
+    order: 0
+    tick: 187
+    timeline: main
+  audience:
+  - participants
+  delivery: command
+  id: turn_37FJAKDK15HFA0JBSMVBQ5238Z
+  speaker: char_00HBQM4T4CMF11RKMNDBRP92QC
+  text: Open the sluice.
+---
+
+# River Gate Pursuit
+
+At the fogged River Gate, Rusk catches the route custodians and is forced to choose between seizure and testimony.
+
+The turn list is canonical verbatim provenance. Recollections remain character-owned interpretations.

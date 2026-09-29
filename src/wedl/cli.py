@@ -64,7 +64,9 @@ def _write_json_file(path: str, value: dict[str, Any]) -> None:
 
 EXAMPLE_PACKAGES = {
     "ash-archive": "ash_archive",
+    "ash-archive-v07": "ash_archive_v07",
     "frontiersmen": "frontiersmen",
+    "frontiersmen-v07": "frontiersmen_v07",
 }
 
 

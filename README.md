@@ -110,6 +110,12 @@ wedl init ash-archive --example ash-archive
 wedl init frontiersmen --example frontiersmen
 ```
 
+To opt into the coordinated v0.7 source envelope for a fresh world, use
+`--example ash-archive-v07` or `--example frontiersmen-v07`. These are separate
+copies; the legacy names and default still use their pinned source versions.
+The [migration guide](docs/MIGRATION_AND_RECOVERY.md#packaged-examples) covers
+reproduction, confirmed conversion of an existing repository, and recovery.
+
 The `--repo` path is resolved from the shell's current working directory. From
 the parent directory, use `--repo frontiersmen`; after `Set-Location
 frontiersmen`, use `--repo .` (or omit it). Do not pass `--repo frontiersmen`

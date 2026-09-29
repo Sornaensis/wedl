@@ -1,0 +1,13 @@
+---
+aliases: []
+domain: cast
+id: char_5123456789ABCDEFGHJKMNPQRS
+kind: character
+schema: wedl/v0.7
+status: canonical
+tags:
+- conformance
+title: Reference B
+---
+
+# Reference B

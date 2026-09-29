@@ -16,3 +16,10 @@ an append-only list of closed transition payloads. Applicability is only
 `static`, `instant`, or `inclusive-interval`; all timed values are exact
 `{timeline,tick,order}` values. This source contract does not derive lineage,
 inheritance, legitimacy, residence, or a successor.
+
+The optional `ash-archive-v07` and `frontiersmen-v07` bootstrap choices carry
+this source envelope, but add no organization, kinship, union, affiliation,
+legacy, tenure, claim, or vital-history records. They preserve the pinned
+worlds' authored history for explicit future authoring. See
+[Migration and recovery](MIGRATION_AND_RECOVERY.md#packaged-examples) for
+reproduction, compatibility, and rollback.

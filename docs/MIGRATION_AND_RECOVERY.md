@@ -42,6 +42,32 @@ lineage, reverse edges, adjacency, or time conversion. The existing
 `upgrade-v03` and `upgrade-v06` modes retain their documented compatibility
 behavior for staged legacy transitions.
 
+## Packaged examples
+
+The original `ash-archive` and `frontiersmen` init choices stay pinned to
+`wedl/v0.3`. Select `ash-archive-v07` or `frontiersmen-v07` explicitly to start
+from separately packaged v0.7 copies. The `chronology_conformance_v07` copy is
+available to conformance tooling; it is not an init choice. No init choice
+upgrades an existing repository, and the empty-world default is unchanged.
+
+Run `python tools/build_v07_packaged_examples.py --check` from a source checkout
+to verify the checked-in copies. `--write` regenerates only the derived package
+trees from their pinned legacy sources. The tool rejects any path or content
+drift from those exact sources, and any linked output path, before writing.
+Each copy retains record paths, IDs, Markdown bodies, and authored facts; the
+v0.7 serializer spells legacy location `parent` as
+`parent_id`. Legacy object `capabilities` map exactly to v0.7
+`object_affordances`, preserving absent fields, explicit empty arrays, token
+order, and duplicates. Only the world declares component `capabilities`. The
+copied worlds declare `[generational-core-v1, spatial-core-v1]` and contain no
+new spatial or generational facts.
+
+For an existing repository, use the preview and confirmation commands above
+on a clean managed tree. Keep the reported backup ref. To restore the pinned
+source, use the forward rollback commands below, then rebuild the disposable
+SQLite cache with `wedl compile --repo .`. Source compatibility is decided by
+the versioned validator; a compiled cache never changes the Markdown version.
+
 ## Quarantined v0.4 recovery
 
 Normal v0.4 load, validation, compile, query, and server paths remain

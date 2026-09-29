@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- Added explicit v0.7 Ash Archive and Frontiersmen bootstrap choices and a
+  v0.7 chronology conformance copy, generated from pinned legacy packages by
+  an offline, checkable conversion tool. Existing examples and init defaults
+  remain pinned to their original schemas.
+
 - Added the public `wedl-chronology/v1` read protocol and confirmed complete
   chronology replacement authoring surface.
 
