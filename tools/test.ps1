@@ -24,6 +24,7 @@ $script:passed = $false
 $script:exitCode = 1
 $script:failureExitCode = 1
 $script:phase = "preparation"
+$script:collectionDeselected = @{}
 
 $runnerPaths = @($PSScriptRoot, (Join-Path $root "src"))
 if ($previousPythonPath) { $runnerPaths += $previousPythonPath }
@@ -219,6 +220,22 @@ function Read-Diagnostics($job) {
     catch { return $null }
 }
 
+function Get-CollectionSummary([string]$stdout, [string]$name, [bool]$allMode = $false) {
+    $matches = [regex]::Matches($stdout, '(?m)^(?<selected>\d+)(?:/(?<total>\d+))? tests? collected(?: \((?<deselected>\d+) deselected\))? in [\d.]+s[ \t]*\r?$')
+    if ($matches.Count -ne 1) { throw "$name has no unique parseable collection count." }
+    $summary = $matches[0]
+    $selected = [int]$summary.Groups["selected"].Value
+    $fraction = $summary.Groups["total"].Success
+    $total = if ($fraction) { [int]$summary.Groups["total"].Value } else { $selected }
+    $deselected = if ($summary.Groups["deselected"].Success) { [int]$summary.Groups["deselected"].Value } else { 0 }
+    if ($selected -gt $total -or $total -ne ($selected + $deselected) -or
+        ($fraction -ne $summary.Groups["deselected"].Success) -or
+        ($allMode -and ($fraction -or $deselected -ne 0))) {
+        throw "$name has an inconsistent selected/total/deselected collection summary."
+    }
+    return [pscustomobject]@{ Selected = $selected; Total = $total; Deselected = $deselected }
+}
+
 function Collect-Nodes($job, [bool]$allowEmpty = $false) {
     Wait-RunnerProcess $job
     $stdout = Read-JobText $job "stdout"
@@ -227,16 +244,16 @@ function Collect-Nodes($job, [bool]$allowEmpty = $false) {
         $script:failureExitCode = $job.Process.ExitCode
         throw "$($job.Name) exited $($job.Process.ExitCode) during collection."
     }
-    $summary = [regex]::Match($stdout, '(?m)^(?<count>\d+) tests? collected\b')
-    if (-not $summary.Success) { throw "$($job.Name) has no parseable collection count." }
+    $summary = Get-CollectionSummary $stdout $job.Name ($job.Name -eq "collect-all")
     $nodes = New-Object System.Collections.Generic.List[string]
     foreach ($line in ($stdout -split '\r?\n')) {
         $node = $line.Trim()
         if ($node -match '^tests[/\\].+::.+$') { $nodes.Add($node.Replace('\', '/')) }
     }
-    if ($nodes.Count -ne [int]$summary.Groups["count"].Value) {
-        throw "$($job.Name) collected $($summary.Groups['count'].Value) but exposed $($nodes.Count) node IDs."
+    if ($nodes.Count -ne $summary.Selected) {
+        throw "$($job.Name) collected $($summary.Selected) but exposed $($nodes.Count) node IDs."
     }
+    $script:collectionDeselected[$job.Name] = $summary.Deselected
     return $nodes.ToArray()
 }
 
@@ -407,17 +424,27 @@ function New-ShardSelections([string[]]$nodes) {
     return $shards
 }
 
-function Get-AccountedCount([string]$stdout, [string]$name) {
-    $summary = [regex]::Match($stdout, '(?m)^(?<outcomes>\d+ [A-Za-z]+(?:, \d+ [A-Za-z]+)*) in [\d.]+s')
-    if (-not $summary.Success) { throw "$name has no parseable pytest outcome summary." }
+function Get-AccountedCount([string]$stdout, [string]$name, [int]$expectedDeselected) {
+    $summaries = [regex]::Matches($stdout, '(?m)^(?<outcomes>\d+ [A-Za-z]+(?:, \d+ [A-Za-z]+)*) in [\d.]+s(?: \([0-9]+:[0-5][0-9]:[0-5][0-9]\))?[ \t]*\r?$')
+    if ($summaries.Count -ne 1) { throw "$name has no unique parseable pytest outcome summary." }
+    $summary = $summaries[0]
     $accounted = 0
+    $deselected = 0
+    $seen = New-Object System.Collections.Generic.HashSet[string]
     foreach ($part in ($summary.Groups["outcomes"].Value -split ', ')) {
-        if ($part -notmatch '^(\d+) (passed|warnings?)$') {
+        if ($part -cnotmatch '^(\d+) (passed|deselected|warnings?)$') {
             throw "$name has an unknown outcome token: $part."
         }
+        if (-not $seen.Add($Matches[2])) { throw "$name has a duplicate outcome token: $part." }
         if ($Matches[2] -eq "passed") {
             $accounted += [int]$Matches[1]
+        } elseif ($Matches[2] -eq "deselected") {
+            $deselected += [int]$Matches[1]
         }
+    }
+    if (-not $seen.Contains("passed") -or $deselected -ne $expectedDeselected -or
+        ($expectedDeselected -gt 0 -and -not $seen.Contains("deselected"))) {
+        throw "$name has an inconsistent passed/deselected outcome summary."
     }
     return $accounted
 }
@@ -466,11 +493,18 @@ try {
     $serialNodes = @(Collect-Nodes (Start-RunnerProcess "collect-serial" @("tests") $true "normal"))
     $performanceNodes = @(Collect-Nodes (Start-RunnerProcess "collect-performance" @("tests") $true "performance") $true)
     Assert-Partition $allNodes $serialNodes $performanceNodes
+    if ($script:collectionDeselected["collect-serial"] -ne $performanceNodes.Count -or
+        $script:collectionDeselected["collect-performance"] -ne $serialNodes.Count) {
+        throw "Full normal/performance deselection counts differ from the exact partition."
+    }
     if ($serialNodes.Count -eq 0) { throw "The normal suite collected no test nodes." }
     $shards = @(New-ShardSelections $serialNodes)
     foreach ($shard in $shards) {
         $script:phase = "shard $($shard.Name.ToUpperInvariant()) collection"
         $shard.Collected = @(Collect-Nodes (Start-RunnerProcess "collect-$($shard.Name)" $shard.Nodes.ToArray() $true "normal"))
+        if ($script:collectionDeselected["collect-$($shard.Name)"] -ne 0) {
+            throw "Explicit normal shard selected a performance node."
+        }
     }
     Assert-CollectionParity $serialNodes $shards
     Assert-Budget
@@ -506,7 +540,7 @@ try {
         $null = $shard.Run.Process.WaitForExit()
         $stdout = Read-JobText $shard.Run "stdout"
         $stderr = Read-JobText $shard.Run "stderr"
-        $accounted = Get-AccountedCount $stdout "Shard $($shard.Name.ToUpperInvariant())"
+        $accounted = Get-AccountedCount $stdout "Shard $($shard.Name.ToUpperInvariant())" $shard.PerformanceCount
         if ($accounted -ne $shard.Collected.Count) {
             throw "Executed outcome count does not match shard $($shard.Name.ToUpperInvariant()) collection."
         }

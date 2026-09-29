@@ -185,11 +185,20 @@ function Invoke-Stage([string]$name, [string[]]$arguments, [string]$resultPath, 
     }
 }
 
-function Get-NodeIds([string]$path) {
+function Get-NodeIds([string]$path, [bool]$allMode = $false) {
     $raw = Get-Content -LiteralPath $path -Raw
     $nodes = @([regex]::Matches($raw, '(?m)^tests[/\\].+::.+$') | ForEach-Object { $_.Value.Trim().Replace('\', '/') })
-    $count = [regex]::Match($raw, '(?m)^(\d+) tests? collected\b')
-    if (-not $count.Success -or $nodes.Count -ne [int]$count.Groups[1].Value -or @($nodes | Select-Object -Unique).Count -ne $nodes.Count) {
+    $summaries = [regex]::Matches($raw, '(?m)^(?<selected>\d+)(?:/(?<total>\d+))? tests? collected(?: \((?<deselected>\d+) deselected\))? in [\d.]+s[ \t]*\r?$')
+    if ($summaries.Count -ne 1) { throw "Collection $path has no unique parseable count." }
+    $summary = $summaries[0]
+    $selected = [int]$summary.Groups['selected'].Value
+    $fraction = $summary.Groups['total'].Success
+    $total = if ($fraction) { [int]$summary.Groups['total'].Value } else { $selected }
+    $deselected = if ($summary.Groups['deselected'].Success) { [int]$summary.Groups['deselected'].Value } else { 0 }
+    if ($nodes.Count -ne $selected -or $selected -gt $total -or $total -ne ($selected + $deselected) -or
+        ($fraction -ne $summary.Groups['deselected'].Success) -or
+        ($allMode -and ($fraction -or $deselected -ne 0)) -or
+        @($nodes | Select-Object -Unique).Count -ne $nodes.Count) {
         throw "Collection $path has missing or duplicate node IDs."
     }
     return $nodes
@@ -242,7 +251,7 @@ try {
         $allStage = Invoke-Stage "collect-all" @("-m", "pytest", "-q", "--collect-only", "--strict-markers", "--wedl-strict", "--wedl-suite=all", "tests", "--basetemp=$(Join-Path $scratch 'all-base')") $allPath $false
         $normalStage = Invoke-Stage "collect-normal" @("-m", "pytest", "-q", "--collect-only", "--strict-markers", "--wedl-strict", "--wedl-suite=normal", "tests", "--basetemp=$(Join-Path $scratch 'normal-base')") $normalPath $false
         $perfStage = Invoke-Stage "collect-performance" @("-m", "pytest", "-q", "--collect-only", "--strict-markers", "--wedl-strict", "--wedl-suite=performance", "tests", "--basetemp=$(Join-Path $scratch 'performance-base')") $perfPath $false
-        $all = @(Get-NodeIds $allPath)
+        $all = @(Get-NodeIds $allPath $true)
         $normal = @(Get-NodeIds $normalPath)
         $performance = @(Get-NodeIds $perfPath)
         if ($performance.Count -eq 0 -or $all.Count -ne ($normal.Count + $performance.Count) -or

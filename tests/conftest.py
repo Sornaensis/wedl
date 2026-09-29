@@ -15,10 +15,6 @@ import pytest
 from wedl.repository import Repository
 
 
-_OVERLAY_FILES = {
-    "tests/test_object_affordances.py": "5b6f3d4244b1330d98a23db64f04d61b0593340983835a048b20fa9146e7dd36",
-    "tests/test_spatial_release_scale.py": "ea16aeb475b6f8fd49432a6e5b406b09950233c8adbe600e0eeed57836563144",
-}
 _INTENT_MARKERS = {"U": "normal_unit", "I": "normal_integration", "P": "performance"}
 _BAD_OUTCOMES: list[str] = []
 _CALL_OUTCOMES: list[tuple[str, str]] = []
@@ -26,59 +22,110 @@ _CALL_OUTCOMES: list[tuple[str, str]] = []
 
 def pytest_addoption(parser: pytest.Parser) -> None:
     parser.addini("wedl_registry_version", "Exact test registry version")
-    parser.addini("wedl_registry_v1", "Exact node IDs and audited test intent", type="linelist")
-    parser.addini("wedl_active_performance_v1", "Exact active performance node IDs", type="linelist")
+    parser.addini("wedl_snapshot_v2", "Exact versioned baseline, transition and overlay metadata", type="linelist")
+    parser.addini("wedl_registry_v2", "Exact node IDs and audited test intent", type="linelist")
+    parser.addini("wedl_active_performance_v2", "Exact active performance node IDs", type="linelist")
     parser.addoption("--wedl-suite", choices=("all", "normal", "performance"), default="all")
     parser.addoption("--wedl-strict", action="store_true", default=False)
 
 
-def _suite_registry(config: pytest.Config) -> tuple[dict[str, str], set[str]]:
-    if config.getini("wedl_registry_version") != "1":
+def _suite_registry(config: pytest.Config) -> tuple[dict[str, str], set[str], dict[str, tuple[str, set[str]]], int]:
+    if config.getini("wedl_registry_version") != "2":
         raise pytest.UsageError("Unsupported or missing WEDL test registry version")
+    counts: dict[str, int] = {}
+    added: dict[str, str] = {}
+    overlays: dict[str, tuple[str, set[str]]] = {}
+    baseline_digest: str | None = None
+    for entry in config.getini("wedl_snapshot_v2"):
+        parts = entry.split("|")
+        tag = parts[0]
+        if tag in {"baseline_clean", "baseline_held"} and len(parts) == 2 and parts[1].isdigit():
+            if tag in counts:
+                raise pytest.UsageError(f"Duplicate WEDL snapshot field: {tag}")
+            counts[tag] = int(parts[1])
+        elif tag == "active_performance" and len(parts) == 2 and parts[1].isdigit():
+            if tag in counts:
+                raise pytest.UsageError("Duplicate WEDL active performance count")
+            counts[tag] = int(parts[1])
+        elif tag == "intent" and len(parts) == 3 and parts[1] in _INTENT_MARKERS and parts[2].isdigit():
+            key = f"intent_{parts[1]}"
+            if key in counts:
+                raise pytest.UsageError(f"Duplicate WEDL snapshot field: {key}")
+            counts[key] = int(parts[2])
+        elif tag == "baseline_registry_sha256" and len(parts) == 2 and len(parts[1]) == 64:
+            if baseline_digest is not None:
+                raise pytest.UsageError("Duplicate WEDL baseline digest")
+            baseline_digest = parts[1]
+        elif tag == "added" and len(parts) == 3 and parts[1] in _INTENT_MARKERS and parts[2].startswith("tests/") and "::" in parts[2]:
+            if parts[2] in added:
+                raise pytest.UsageError(f"Duplicate WEDL added node: {parts[2]}")
+            added[parts[2]] = parts[1]
+        elif tag == "overlay" and len(parts) >= 4 and parts[1].startswith("tests/") and parts[1].endswith(".py") and len(parts[2]) == 64:
+            name, digest, *nodes = parts[1:]
+            if name in overlays or len(nodes) != len(set(nodes)) or not nodes or any(node.split("::", 1)[0] != name for node in nodes):
+                raise pytest.UsageError(f"Invalid WEDL overlay composition: {name}")
+            overlays[name] = (digest, set(nodes))
+        else:
+            raise pytest.UsageError(f"Invalid WEDL snapshot entry: {entry}")
+    if set(counts) != {"baseline_clean", "baseline_held", "intent_U", "intent_I", "intent_P", "active_performance"} or baseline_digest is None or not overlays:
+        raise pytest.UsageError("Incomplete WEDL snapshot metadata")
+    overlay_ids = set().union(*(nodes for _, nodes in overlays.values()))
+    if counts["baseline_held"] - counts["baseline_clean"] != len(overlay_ids):
+        raise pytest.UsageError("WEDL baseline overlay count drifted")
     intent: dict[str, str] = {}
-    for entry in config.getini("wedl_registry_v1"):
+    for entry in config.getini("wedl_registry_v2"):
         kind, separator, node = entry.partition("|")
         if not separator or kind not in _INTENT_MARKERS or not node.startswith("tests/") or "::" not in node:
             raise pytest.UsageError(f"Invalid WEDL registry entry: {entry}")
         if node in intent:
             raise pytest.UsageError(f"Duplicate WEDL registry node: {node}")
         intent[node] = kind
-    if len(intent) != 502 or {kind: list(intent.values()).count(kind) for kind in _INTENT_MARKERS} != {"U": 236, "I": 228, "P": 38}:
+    if any(intent.get(node) != kind for node, kind in added.items()):
+        raise pytest.UsageError("WEDL reviewed transition nodes differ from registry")
+    baseline = sorted(f"{kind}|{node}" for node, kind in intent.items() if node not in added)
+    if hashlib.sha256(("\n".join(baseline) + "\n").encode()).hexdigest() != baseline_digest:
+        raise pytest.UsageError("WEDL baseline registry digest drifted")
+    if any(not nodes.issubset(intent) for _, nodes in overlays.values()) or len(intent) != counts["baseline_held"] + len(added):
+        raise pytest.UsageError("WEDL registry or overlay node total drifted")
+    if {kind: list(intent.values()).count(kind) for kind in _INTENT_MARKERS} != {kind: counts[f"intent_{kind}"] for kind in _INTENT_MARKERS}:
         raise pytest.UsageError("WEDL registry count or intent totals drifted; update the exact registry")
-    active_lines = config.getini("wedl_active_performance_v1")
+    active_lines = config.getini("wedl_active_performance_v2")
     active = set(active_lines)
-    if len(active) != len(active_lines) or not active.issubset(intent) or any(intent[node] != "P" for node in active):
+    performance = {node for node, kind in intent.items() if kind == "P"}
+    if len(active) != len(active_lines) or len(active) != counts["active_performance"] or active != performance:
         raise pytest.UsageError("Invalid or duplicate active performance node")
-    return intent, active
+    return intent, active, overlays, counts["baseline_clean"] + len(added)
 
 
-def _check_overlay(config: pytest.Config, intent: dict[str, str]) -> set[str]:
+def _check_overlay(config: pytest.Config, intent: dict[str, str],
+                   overlays: dict[str, tuple[str, set[str]]], clean_total: int) -> set[str]:
     root = config.rootpath
-    present = {name for name in _OVERLAY_FILES if (root / name).is_file()}
-    if present and present != set(_OVERLAY_FILES):
+    present = {name for name in overlays if (root / name).is_file()}
+    if present and present != set(overlays):
         raise pytest.UsageError("Partial test overlay; both hash-bound files are required")
     if present:
-        for name, expected in _OVERLAY_FILES.items():
+        for name, (expected, _) in overlays.items():
             actual = hashlib.sha256((root / name).read_bytes()).hexdigest()
             if actual != expected:
                 raise pytest.UsageError(f"Test overlay hash mismatch: {name}")
         if (root / ".git").exists():
-            for name in _OVERLAY_FILES:
+            for name in overlays:
                 tracked = subprocess.run(
                     ["git", "-C", str(root), "ls-files", "--error-unmatch", "--", name],
                     stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, check=False,
                 )
                 if tracked.returncode == 0:
                     raise pytest.UsageError("Tracked overlay transition requires a registry rebaseline")
-    overlay_ids = {node for node in intent if node.split("::", 1)[0] in _OVERLAY_FILES}
-    if len(overlay_ids) != 8 or sum(node.startswith("tests/test_object_affordances.py::") for node in overlay_ids) != 7:
-        raise pytest.UsageError("Test overlay ID registry is incomplete")
-    return set(intent) if present else set(intent) - overlay_ids
+    overlay_ids = set().union(*(nodes for _, nodes in overlays.values()))
+    expected = set(intent) if present else set(intent) - overlay_ids
+    if not present and len(expected) != clean_total:
+        raise pytest.UsageError("WEDL clean snapshot count drifted")
+    return expected
 
 
 def pytest_collection_modifyitems(config: pytest.Config, items: list[pytest.Item]) -> None:
-    intent, active = _suite_registry(config)
-    expected = _check_overlay(config, intent)
+    intent, active, overlays, clean_total = _suite_registry(config)
+    expected = _check_overlay(config, intent, overlays, clean_total)
     observed = [item.nodeid.replace("\\", "/") for item in items]
     if len(observed) != len(set(observed)):
         raise pytest.UsageError("Duplicate collected WEDL node ID")
