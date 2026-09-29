@@ -1,0 +1,20 @@
+# Fragments illustrate the field placement; IDs and world declarations are omitted.
+legacy_object:
+  schema: wedl/v0.3
+  kind: object
+  capabilities: [can-be-opened, reveals-water-marks]
+v07_object:
+  schema: wedl/v0.7
+  kind: object
+  object_affordances: [can-be-opened, reveals-water-marks]
+v07_explicit_empty:
+  schema: wedl/v0.7
+  kind: object
+  object_affordances: []
+v07_absent:
+  schema: wedl/v0.7
+  kind: object
+world_component_declaration:
+  schema: wedl/v0.7
+  kind: world
+  capabilities: [generational-core-v1, spatial-core-v1]

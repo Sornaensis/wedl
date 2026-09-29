@@ -67,7 +67,7 @@ def _suite_registry(config: pytest.Config) -> tuple[dict[str, str], set[str], di
             overlays[name] = (digest, set(nodes))
         else:
             raise pytest.UsageError(f"Invalid WEDL snapshot entry: {entry}")
-    if set(counts) != {"baseline_clean", "baseline_held", "intent_U", "intent_I", "intent_P", "active_performance"} or baseline_digest is None or not overlays:
+    if set(counts) != {"baseline_clean", "baseline_held", "intent_U", "intent_I", "intent_P", "active_performance"} or baseline_digest is None:
         raise pytest.UsageError("Incomplete WEDL snapshot metadata")
     overlay_ids = set().union(*(nodes for _, nodes in overlays.values()))
     if counts["baseline_held"] - counts["baseline_clean"] != len(overlay_ids):

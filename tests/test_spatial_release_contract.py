@@ -205,8 +205,10 @@ def test_legacy_upgrade_is_bound_lossless_and_reversible(
         old, old_body = split_envelope(before[path], path)
         new, new_body = split_envelope(after[path], path)
         assert new_body == old_body and new["schema"] == "wedl/v0.7"
-        old_facts = {key: value for key, value in old.items() if key not in {"schema", "capabilities"}}
-        new_facts = {key: value for key, value in new.items() if key not in {"schema", "capabilities"}}
+        old_facts = {key: value for key, value in old.items() if key != "schema" and (old["kind"] != "world" or key != "capabilities")}
+        new_facts = {key: value for key, value in new.items() if key != "schema" and (new["kind"] != "world" or key != "capabilities")}
+        if old["kind"] == "object" and "capabilities" in old_facts:
+            assert new_facts.pop("object_affordances") == old_facts.pop("capabilities")
         if "parent" in old_facts:
             assert new_facts.pop("parent_id") == old_facts.pop("parent")
         assert new_facts == old_facts

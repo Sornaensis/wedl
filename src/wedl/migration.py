@@ -254,6 +254,22 @@ def _v07_candidate(repository: Repository, snapshot: Snapshot, raw: list[tuple[s
     legacy_diagnostics = validate_world(legacy_world)
     if any(item["severity"] == "error" for item in legacy_diagnostics):
         return [], legacy_diagnostics, False
+    for path, frontmatter, _body, _data in raw:
+        kind = frontmatter.get("kind")
+        if "object_affordances" in frontmatter:
+            return [], [_diagnostic(
+                "GEN-AFFORDANCE-001",
+                "object_affordances is reserved for v0.7 object records",
+                path=path, field="object_affordances",
+            )], False
+        if kind != "world" and "capabilities" in frontmatter:
+            capabilities = frontmatter["capabilities"]
+            if kind != "object" or not isinstance(capabilities, list) or not all(isinstance(value, str) for value in capabilities):
+                return [], [_diagnostic(
+                    "GEN-AFFORDANCE-001",
+                    "legacy capabilities must be an array of strings on object records",
+                    path=path, field="capabilities",
+                )], False
     worlds = [(path, frontmatter) for path, frontmatter, _body, _data in raw if frontmatter.get("kind") == "world"]
     if len(worlds) != 1:
         return [], [_diagnostic("GEN-VERSION-001", "upgrade-v07 requires exactly one world record", field="kind")], False
@@ -264,6 +280,8 @@ def _v07_candidate(repository: Repository, snapshot: Snapshot, raw: list[tuple[s
         frontmatter["schema"] = V07_SOURCE_SCHEMA
         if path == world_path:
             frontmatter["capabilities"] = list(V07_DEFAULT_CAPABILITIES)
+        elif frontmatter.get("kind") == "object" and "capabilities" in frontmatter:
+            frontmatter["object_affordances"] = frontmatter.pop("capabilities")
         else:
             frontmatter.pop("capabilities", None)
         candidate.append((path, frontmatter, body))

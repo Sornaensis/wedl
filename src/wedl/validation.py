@@ -402,6 +402,18 @@ def validate_world(world: World) -> list[dict[str, Any]]:
         incompatible_members = _schema_member_paths(record, str(schema))
         for field in incompatible_members:
             result.append(diagnostic("WDL-SRC-009", "member is incompatible with this source schema", record, field))
+        if schema == V07_SOURCE_SCHEMA and "object_affordances" in data:
+            affordances = data["object_affordances"]
+            if record.kind != "object":
+                result.append(diagnostic("GEN-AFFORDANCE-001", "object_affordances is only valid on object records", record, "object_affordances"))
+            elif not isinstance(affordances, list):
+                result.append(diagnostic("GEN-AFFORDANCE-001", "object_affordances must be an array of strings", record, "object_affordances"))
+            else:
+                for index, value in enumerate(affordances):
+                    if not isinstance(value, str):
+                        result.append(diagnostic("GEN-AFFORDANCE-001", "object_affordances entries must be strings", record, f"object_affordances[{index}]"))
+            if "capabilities" in data:
+                result.append(diagnostic("GEN-AFFORDANCE-001", "object_affordances and capabilities cannot be combined", record, "capabilities"))
         if "importance" in data:
             result.append(diagnostic("WDL-SRC-007", "importance is calculated read-model output and is never canonical frontmatter", record, "importance"))
         if schema == V07_SOURCE_SCHEMA and record.kind in {"map", "anchor", "portal", "route", "overlay"}:
