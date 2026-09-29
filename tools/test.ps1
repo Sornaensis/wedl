@@ -275,14 +275,26 @@ function Assert-Partition([string[]]$all, [string[]]$normal, [string[]]$performa
 
 function Assert-ExactOutcomes($job, [string[]]$expected) {
     if (-not (Test-Path -LiteralPath $job.Paths.Outcomes)) { throw "$($job.Name) has no exact outcome record." }
-    $records = @(Get-Content -LiteralPath $job.Paths.Outcomes -Raw | ConvertFrom-Json)
+    $json = Get-Content -LiteralPath $job.Paths.Outcomes -Raw
+    if ($PSVersionTable.PSVersion.Major -ge 7) {
+        $records = ConvertFrom-Json -InputObject $json -NoEnumerate -ErrorAction Stop
+    } else {
+        $records = ConvertFrom-Json -InputObject $json -ErrorAction Stop
+    }
+    if ($records -isnot [array]) { throw "$($job.Name) exact outcome record is not an array." }
     $nodes = New-NodeCounts $expected
     if ($records.Count -ne $expected.Count) { throw "$($job.Name) exact outcome count differs from collection." }
-    foreach ($record in $records) {
-        if ($record.Count -ne 2 -or $record[1] -ne "passed" -or -not $nodes.ContainsKey([string]$record[0])) {
+    for ($index = 0; $index -lt $records.Count; $index++) {
+        $record = $records[$index]
+        if ($record -isnot [array] -or $record.Count -ne 2 -or
+            $record[0] -isnot [string] -or $record[1] -isnot [string] -or
+            $record[1] -cne "passed" -or -not $nodes.ContainsKey($record[0])) {
             throw "$($job.Name) has an unknown or non-passing exact outcome."
         }
-        $nodes[[string]$record[0]]--
+        if ($record[0] -cne $expected[$index]) {
+            throw "$($job.Name) exact outcome order differs from collection."
+        }
+        $nodes[$record[0]]--
     }
     if (@($nodes.Values | Where-Object { $_ -ne 0 }).Count -ne 0) {
         throw "$($job.Name) has missing or duplicate exact outcomes."
