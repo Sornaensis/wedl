@@ -280,10 +280,16 @@ function New-NodeCounts([string[]]$nodes) {
     return $counts
 }
 
-function Assert-CollectionParity([string[]]$serial, [string[]]$a, [string[]]$b) {
+function Assert-CollectionParity([string[]]$serial, [object[]]$shards) {
     $reference = New-NodeCounts $serial
-    $combined = New-NodeCounts (@($a) + @($b))
-    if ($serial.Count -ne ($a.Count + $b.Count) -or $reference.Count -ne $serial.Count -or $combined.Count -ne $serial.Count) {
+    $selected = New-Object System.Collections.Generic.List[string]
+    foreach ($shard in $shards) {
+        if ($shard.Nodes.Count -eq 0) { throw "A normal test shard is empty." }
+        foreach ($node in $shard.Collected) { $selected.Add($node) }
+    }
+    $combined = New-NodeCounts $selected.ToArray()
+    if ($serial.Count -ne $selected.Count -or $reference.Count -ne $serial.Count -or
+        $combined.Count -ne $serial.Count) {
         throw "Serial and shard node counts differ or contain duplicate IDs."
     }
     foreach ($node in $reference.Keys) {
@@ -291,6 +297,114 @@ function Assert-CollectionParity([string[]]$serial, [string[]]$a, [string[]]$b) 
             throw "Serial and shard node-ID multisets differ at $node."
         }
     }
+}
+
+function New-ShardSelections([string[]]$nodes) {
+    if ($nodes.Count -lt 5) { throw "The normal suite cannot form five nonempty shards." }
+    # Representative observed call durations; shorter cases receive a measured-work fallback.
+    $observedSeconds = @{
+        "tests/test_changeset.py::test_changeset_journal_surfaces_deferral_recovery_and_replay" = 18.886
+        "tests/test_changeset.py::test_legacy_receipt_fault_hook_cannot_publish_a_partial_receipt" = 5.146
+        "tests/test_changeset.py::test_mandatory_enrollment_capacity_fails_before_ref[100663296]" = 7.845
+        "tests/test_changeset.py::test_mandatory_enrollment_capacity_fails_before_ref[1]" = 9.488
+        "tests/test_changeset.py::test_non_cache_revision_entries_count_toward_scan_limit" = 9.898
+        "tests/test_changeset.py::test_oversized_existing_cache_defers_before_compiler_construction" = 7.258
+        "tests/test_changeset.py::test_revision_enumeration_limit_defers_without_building_cache" = 7.742
+        "tests/test_changeset.py::test_surface_publication_failure_restores_cache_and_receipt_together" = 12.416
+        "tests/test_chronology_web_ui.py::test_chronology_ui_assets_are_served_and_the_legacy_catalog_has_an_honest_panel" = 5.916
+        "tests/test_generational_api.py::test_discovery_bootstrap_horizon_labels_and_cursor" = 21.223
+        "tests/test_generational_api.py::test_discovery_overlong_names_close_direct_and_http" = 10.045
+        "tests/test_generational_api.py::test_discovery_prefix_includes_supplementary_unicode_direct_and_http" = 6.518
+        "tests/test_generational_api.py::test_discovery_uses_compiled_rows_and_rebuilds_malformed_cache" = 6.775
+        "tests/test_generational_api.py::test_former_roles_name_first_cli_http_and_openapi" = 16.879
+        "tests/test_generational_api.py::test_name_first_parents_horizons_and_character_controls" = 7.530
+        "tests/test_generational_api.py::test_read_operations_and_scope_bound_cursor" = 19.253
+        "tests/test_generational_api.py::test_reverse_hidden_and_future_organization_selector_parity" = 9.763
+        "tests/test_generational_api.py::test_reverse_legacy_index_rebuilds_from_unchanged_source" = 5.969
+        "tests/test_generational_api.py::test_reverse_union_nested_limit_direct_cli_http_schema_parity" = 5.397
+        "tests/test_generational_authoring.py::test_starter_and_eight_kind_batch_share_one_confirmed_compiled_commit" = 71.800
+        "tests/test_object_affordances.py::test_legacy_upgrade_rejects_invalid_affordance_placement[fields0-object-object_affordances]" = 6.210
+        "tests/test_object_affordances.py::test_legacy_upgrade_rejects_invalid_affordance_placement[fields1-object-object_affordances]" = 5.824
+        "tests/test_object_affordances.py::test_legacy_upgrade_rejects_invalid_affordance_placement[fields3-character-capabilities]" = 5.508
+        "tests/test_object_affordances.py::test_upgrade_preview_apply_replay_detail_and_rollback" = 41.506
+        "tests/test_object_affordances.py::test_v07_validation_rejects_mixed_non_object_and_bad_values" = 9.833
+        "tests/test_performance_cache.py::test_in_memory_authoring_cache_matches_direct_compiler_projection" = 5.357
+        "tests/test_performance_cache.py::test_malformed_profile_in_valid_cache_defers_without_losing_source_commit" = 5.910
+        "tests/test_spatial_api.py::test_codec_cli_http_share_one_exact_spatial_outcome" = 19.966
+        "tests/test_spatial_api.py::test_legacy_bbox_compiled_capability_absence_is_a_typed_public_unavailable" = 6.822
+        "tests/test_spatial_api.py::test_rounded_two_edge_metric_is_typed_unavailable_across_public_transports" = 13.982
+        "tests/test_spatial_authoring.py::test_malformed_spatial_authoring_enums_and_numbers_are_wedl_http_errors" = 6.782
+        "tests/test_spatial_authoring.py::test_map_create_preview_apply_and_exact_replay_use_real_journal" = 26.159
+        "tests/test_spatial_authoring.py::test_overlay_create_and_route_update_preview_apply_and_replay_through_real_journal" = 16.551
+        "tests/test_spatial_authoring.py::test_spatial_location_update_keeps_detail_context_and_whereabouts_compatible" = 11.838
+        "tests/test_spatial_authoring.py::test_spatial_source_and_receipt_roll_back_on_journal_publication_failure" = 10.918
+        "tests/test_spatial_explorer_api.py::test_all_place_modes_and_map_features_match_authored_source" = 6.522
+        "tests/test_spatial_explorer_api.py::test_catalog_places_viewport_layers_direct_http_and_selected_cursor" = 9.750
+        "tests/test_spatial_explorer_api.py::test_five_http_only_routes_openapi_and_examples" = 5.285
+        "tests/test_spatial_explorer_api.py::test_forged_cursor_ordinals_and_surrogates_close_as_invalid" = 5.163
+        "tests/test_spatial_explorer_api.py::test_non_ok_state_matrix_and_guard_parity" = 8.887
+        "tests/test_spatial_explorer_api.py::test_routes_direct_http_direction_modes_closed_and_cursor" = 6.364
+        "tests/test_spatial_explorer_api.py::test_routes_nonself_two_way_directed_cards_and_mounted_http" = 6.637
+        "tests/test_spatial_release_contract.py::test_authored_deep_wide_cycle_and_unknown_costs" = 8.380
+        "tests/test_suite_replan_boundaries.py::test_small_generational_transport_matrix_and_closed_revision" = 49.036
+        "tests/test_suite_replan_boundaries.py::test_small_legacy_upgrade_lifecycle_preserves_body_and_rollback[wedl/v0.3]" = 19.877
+        "tests/test_suite_replan_boundaries.py::test_small_legacy_upgrade_lifecycle_preserves_body_and_rollback[wedl/v0.5]" = 22.893
+        "tests/test_suite_replan_boundaries.py::test_small_legacy_upgrade_lifecycle_preserves_body_and_rollback[wedl/v0.6]" = 28.314
+        "tests/test_suite_replan_boundaries.py::test_small_spatial_source_compiled_rebuild_and_closed_transport" = 10.773
+        "tests/test_suite_replan_boundaries.py::test_small_thread_filter_preserves_rank_and_never_backfills" = 0.016
+        "tests/test_thread_compile_integration.py::test_valid_v05_compiles_publishes_threads_and_keeps_search_vector_inputs_stable" = 5.388
+    }
+    $weighted = foreach ($node in $nodes) {
+        $weight = if ($observedSeconds.ContainsKey($node)) { [double]$observedSeconds[$node] } else { 0.5 }
+        [pscustomobject]@{ Node = $node; Weight = $weight }
+    }
+    $ordered = @($weighted | Sort-Object -Property @{ Expression = "Weight"; Descending = $true }, @{ Expression = "Node"; Descending = $false })
+    $shards = @(
+        [pscustomobject]@{ Name = "a"; Nodes = [System.Collections.Generic.List[string]]::new(); Collected = @(); Weight = 0.0; PerformanceCount = 0 },
+        [pscustomobject]@{ Name = "b"; Nodes = [System.Collections.Generic.List[string]]::new(); Collected = @(); Weight = 0.0; PerformanceCount = 0 },
+        [pscustomobject]@{ Name = "c"; Nodes = [System.Collections.Generic.List[string]]::new(); Collected = @(); Weight = 0.0; PerformanceCount = 0 },
+        [pscustomobject]@{ Name = "d"; Nodes = [System.Collections.Generic.List[string]]::new(); Collected = @(); Weight = 0.0; PerformanceCount = 0 },
+        [pscustomobject]@{ Name = "e"; Nodes = [System.Collections.Generic.List[string]]::new(); Collected = @(); Weight = 0.0; PerformanceCount = 0 }
+    )
+    $legacyLifecycle = @($ordered | Where-Object {
+        $_.Node.StartsWith('tests/test_suite_replan_boundaries.py::test_small_legacy_upgrade_lifecycle_preserves_body_and_rollback[')
+    })
+    $generationalTransport = @($ordered | Where-Object {
+        $_.Node -eq 'tests/test_suite_replan_boundaries.py::test_small_generational_transport_matrix_and_closed_revision'
+    })
+    $spatialLocality = @($ordered | Where-Object {
+        $_.Node.StartsWith('tests/test_spatial_api.py::') -or
+        $_.Node.StartsWith('tests/test_spatial_explorer_api.py::') -or
+        $_.Node -eq 'tests/test_suite_replan_boundaries.py::test_small_spatial_source_compiled_rebuild_and_closed_transport'
+    })
+    $other = @($ordered | Where-Object {
+        -not $_.Node.StartsWith('tests/test_spatial_api.py::') -and
+        -not $_.Node.StartsWith('tests/test_spatial_explorer_api.py::') -and
+        -not $_.Node.StartsWith('tests/test_suite_replan_boundaries.py::test_small_legacy_upgrade_lifecycle_preserves_body_and_rollback[') -and
+        $_.Node -ne 'tests/test_suite_replan_boundaries.py::test_small_generational_transport_matrix_and_closed_revision' -and
+        $_.Node -ne 'tests/test_suite_replan_boundaries.py::test_small_spatial_source_compiled_rebuild_and_closed_transport'
+    })
+    # Keep costly S fixture families together while balancing measured work.
+    foreach ($item in $legacyLifecycle) {
+        $shards[0].Nodes.Add($item.Node)
+        $shards[0].Weight += $item.Weight
+    }
+    foreach ($item in $generationalTransport) {
+        $shards[1].Nodes.Add($item.Node)
+        $shards[1].Weight += $item.Weight
+    }
+    foreach ($item in $spatialLocality) {
+        $target = @($shards[2..3] | Sort-Object -Property Weight, Name)[0]
+        $target.Nodes.Add($item.Node)
+        $target.Weight += $item.Weight
+    }
+    foreach ($item in $other) {
+        $target = @($shards | Sort-Object -Property Weight, Name)[0]
+        $target.Nodes.Add($item.Node)
+        $target.Weight += $item.Weight
+    }
+    foreach ($shard in $shards) { $shard.Nodes.Sort([System.StringComparer]::Ordinal) }
+    return $shards
 }
 
 function Get-AccountedCount([string]$stdout, [string]$name) {
@@ -353,81 +467,57 @@ try {
     $performanceNodes = @(Collect-Nodes (Start-RunnerProcess "collect-performance" @("tests") $true "performance") $true)
     Assert-Partition $allNodes $serialNodes $performanceNodes
     if ($serialNodes.Count -eq 0) { throw "The normal suite collected no test nodes." }
-    $files = New-Object System.Collections.Generic.List[string]
-    $seenFiles = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
-    $testsPrefix = [System.IO.Path]::GetFullPath((Join-Path $root "tests")) + [System.IO.Path]::DirectorySeparatorChar
-    foreach ($node in $serialNodes) {
-        $file = ($node -split '::', 2)[0]
-        $full = [System.IO.Path]::GetFullPath((Join-Path $root $file))
-        if (-not $full.StartsWith($testsPrefix, [System.StringComparison]::OrdinalIgnoreCase) -or
-            -not $file.EndsWith(".py", [System.StringComparison]::OrdinalIgnoreCase) -or
-            -not (Test-Path -LiteralPath $full -PathType Leaf)) {
-            throw "A collected node has an invalid test file path: $node"
-        }
-        if ($seenFiles.Add($file)) { $files.Add($file) }
+    $shards = @(New-ShardSelections $serialNodes)
+    foreach ($shard in $shards) {
+        $script:phase = "shard $($shard.Name.ToUpperInvariant()) collection"
+        $shard.Collected = @(Collect-Nodes (Start-RunnerProcess "collect-$($shard.Name)" $shard.Nodes.ToArray() $true "normal"))
     }
-    $heavy = @(
-        "tests/test_changeset.py",
-        "tests/test_generational_api.py",
-        "tests/test_migration_recovery.py",
-        "tests/test_spatial_authoring.py",
-        "tests/test_spatial_explorer_api.py"
-    )
-    $aFiles = @($heavy | Where-Object { $seenFiles.Contains($_) })
-    $heavySet = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
-    foreach ($file in $aFiles) { $null = $heavySet.Add($file) }
-    $bFiles = @($files | Where-Object { -not $heavySet.Contains($_) })
-    if ($aFiles.Count -eq 0 -or $bFiles.Count -eq 0) { throw "The live test inventory cannot form both required shards." }
-
-    $script:phase = "shard A collection"
-    $aNodes = @(Collect-Nodes (Start-RunnerProcess "collect-a" $aFiles $true "normal"))
-    $script:phase = "shard B collection"
-    $bNodes = @(Collect-Nodes (Start-RunnerProcess "collect-b" $bFiles $true "normal"))
-    Assert-CollectionParity $serialNodes $aNodes $bNodes
+    Assert-CollectionParity $serialNodes $shards
     Assert-Budget
     $collectionElapsed = $started.Elapsed.TotalSeconds
-    Write-Output "NORMAL TEST COLLECTION: $($serialNodes.Count) nodes; shard A $($aNodes.Count), shard B $($bNodes.Count); exact node-ID parity."
+    Write-Output "NORMAL TEST COLLECTION: $($serialNodes.Count) nodes; five disjoint exact node-ID shards."
+    foreach ($shard in $shards) {
+        Write-Output "SHARD $($shard.Name.ToUpperInvariant()) COLLECTION: $($shard.Collected.Count) nodes; estimated call weight $([math]::Round($shard.Weight, 3)) seconds."
+    }
 
     $script:phase = "parallel execution"
-    $runA = Start-RunnerProcess "run-a" $aFiles $false "normal"
-    $runB = Start-RunnerProcess "run-b" $bFiles $false "normal"
+    foreach ($shard in $shards) {
+        $shard | Add-Member -NotePropertyName Run -NotePropertyValue (Start-RunnerProcess "run-$($shard.Name)" $shard.Nodes.ToArray() $false "normal")
+    }
     while ($true) {
-        $runA.Process.Refresh()
-        $runB.Process.Refresh()
-        if ($runA.Process.HasExited -and $runA.Process.ExitCode -ne 0) {
-            $script:failureExitCode = $runA.Process.ExitCode
-            throw "Shard A exited $($runA.Process.ExitCode)."
+        $allExited = $true
+        foreach ($shard in $shards) {
+            $shard.Run.Process.Refresh()
+            if ($shard.Run.Process.HasExited) {
+                if ($shard.Run.Process.ExitCode -ne 0) {
+                    $script:failureExitCode = $shard.Run.Process.ExitCode
+                    throw "Shard $($shard.Name.ToUpperInvariant()) exited $($shard.Run.Process.ExitCode)."
+                }
+            } else { $allExited = $false }
         }
-        if ($runB.Process.HasExited -and $runB.Process.ExitCode -ne 0) {
-            $script:failureExitCode = $runB.Process.ExitCode
-            throw "Shard B exited $($runB.Process.ExitCode)."
-        }
-        if ($runA.Process.HasExited -and $runB.Process.HasExited) { break }
+        if ($allExited) { break }
         Assert-Budget
         $remaining = [math]::Floor(($TimeoutSeconds - $started.Elapsed.TotalSeconds) * 1000)
         Start-Sleep -Milliseconds ([math]::Min(250, [math]::Max(1, $remaining)))
     }
-    $null = $runA.Process.WaitForExit()
-    $null = $runB.Process.WaitForExit()
     $executionElapsed = $started.Elapsed.TotalSeconds
-    $aStdout = Read-JobText $runA "stdout"
-    $bStdout = Read-JobText $runB "stdout"
-    $aStderr = Read-JobText $runA "stderr"
-    $bStderr = Read-JobText $runB "stderr"
-    $aAccounted = Get-AccountedCount $aStdout "Shard A"
-    $bAccounted = Get-AccountedCount $bStdout "Shard B"
-    if ($aAccounted -ne $aNodes.Count -or $bAccounted -ne $bNodes.Count) {
-        throw "Executed outcome counts do not match the collected shard node counts."
+    $totalAccounted = 0
+    foreach ($shard in $shards) {
+        $null = $shard.Run.Process.WaitForExit()
+        $stdout = Read-JobText $shard.Run "stdout"
+        $stderr = Read-JobText $shard.Run "stderr"
+        $accounted = Get-AccountedCount $stdout "Shard $($shard.Name.ToUpperInvariant())"
+        if ($accounted -ne $shard.Collected.Count) {
+            throw "Executed outcome count does not match shard $($shard.Name.ToUpperInvariant()) collection."
+        }
+        Assert-ExactOutcomes $shard.Run $shard.Collected
+        $totalAccounted += $accounted
+        $wall = [math]::Round(($shard.Run.Process.ExitTime - $shard.Run.StartTime).TotalSeconds, 3)
+        Write-Output "SHARD $($shard.Name.ToUpperInvariant()) ($accounted nodes; process wall $wall seconds):"
+        if ($stdout) { Write-Output $stdout.TrimEnd() }
+        if ($stderr) { [Console]::Error.WriteLine($stderr.TrimEnd()) }
     }
-    Assert-ExactOutcomes $runA $aNodes
-    Assert-ExactOutcomes $runB $bNodes
     Assert-Budget
-    Write-Output "SHARD A ($aAccounted nodes):"
-    if ($aStdout) { Write-Output $aStdout.TrimEnd() }
-    Write-Output "SHARD B ($bAccounted nodes):"
-    if ($bStdout) { Write-Output $bStdout.TrimEnd() }
-    if ($aStderr) { [Console]::Error.WriteLine($aStderr.TrimEnd()) }
-    if ($bStderr) { [Console]::Error.WriteLine($bStderr.TrimEnd()) }
     $elapsed = [math]::Round($started.Elapsed.TotalSeconds, 3)
     if ($elapsed -ge $TimeoutSeconds) {
         $script:timedOut = $true
@@ -437,7 +527,7 @@ try {
     $executionSeconds = [math]::Round($executionElapsed - $collectionElapsed, 3)
     $aggregationSeconds = [math]::Round($elapsed - $executionElapsed, 3)
     Write-Output "NORMAL TEST PHASES: collection $collectionSeconds seconds; execution $executionSeconds seconds; aggregation $aggregationSeconds seconds."
-    Write-Output "NORMAL TEST SUITE PASSED: $($aAccounted + $bAccounted) accounted nodes; elapsed $elapsed seconds (cap $TimeoutSeconds seconds)."
+    Write-Output "NORMAL TEST SUITE PASSED: $totalAccounted accounted nodes; elapsed $elapsed seconds (cap $TimeoutSeconds seconds)."
     $script:passed = $true
     $script:exitCode = 0
 } catch {
