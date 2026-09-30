@@ -1046,16 +1046,16 @@ def compile_intent(repository: Repository, intent: dict[str, Any]) -> dict[str, 
         raise UsageError("authoring request requires an action")
     _validate_intent_types(intent)
     action = intent["action"]
+    if action.startswith("generational."):
+        from .generational_authoring import compile_operations
+        return _envelope(repository, intent, compile_operations(repository, intent))
+
     # Compilation is also used by preview/refusal paths; it must not create a
     # parser-cache side effect before the confirmed transaction begins.
     world = repository.load_world(repository.head(), cache_write=False)
 
     if action.startswith("spatial."):
         return _envelope(repository, intent, _spatial_intent(world, intent, action))
-
-    if action.startswith("generational."):
-        from .generational_authoring import compile_operations
-        return _envelope(repository, intent, compile_operations(repository, intent))
 
     if action == "chronology.replace":
         if set(intent).difference({"action", "expectedHead", "change", "summary", "idempotencyKey"}):
