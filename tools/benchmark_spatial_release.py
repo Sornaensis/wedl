@@ -7,7 +7,7 @@ repository being measured. Compiled-projection probes are labeled separately.
 from __future__ import annotations
 
 import argparse
-from contextlib import closing
+from contextlib import closing, contextmanager
 import ctypes
 import hashlib
 import json
@@ -19,6 +19,7 @@ import sqlite3
 import statistics
 import subprocess
 import sys
+import threading
 import time
 from typing import Any
 from uuid import uuid4
@@ -46,6 +47,75 @@ VM_BUDGETS = {"children": 50_000, "sparseBbox": 500_000,
               "childrenPage2": 50_000, "sparseHighBbox": 500_000,
               "routesIncoming": 500_000, "routesOutgoing": 500_000,
               "searchBroad": 500_000, "path": 2_000_000, "overlay": 500_000}
+
+
+class PhaseTrace:
+    """Write completed source-stage phases before a long run can be interrupted."""
+
+    def __init__(self, output: Path):
+        self.path = output / "phase-events.jsonl"
+        if self.path.exists() or (output / "manifest.json").exists():
+            raise FileExistsError(f"source-stage evidence already exists: {output}")
+        self.phases: list[dict[str, Any]] = []
+
+    @contextmanager
+    def measure(self, name: str):
+        started = time.perf_counter()
+        cpu_started = time.process_time()
+        before = _process_memory()
+        peak = [before["workingSetBytes"]]
+        stop = threading.Event()
+
+        def sample():
+            while not stop.wait(0.1):
+                observed = _process_memory()["workingSetBytes"]
+                if observed is not None:
+                    peak[0] = observed if peak[0] is None else max(peak[0], observed)
+
+        sampler = threading.Thread(target=sample, daemon=True)
+        sampler.start()
+        try:
+            yield
+        finally:
+            stop.set()
+            sampler.join()
+            after = _process_memory()
+            if after["workingSetBytes"] is not None:
+                peak[0] = (after["workingSetBytes"] if peak[0] is None
+                           else max(peak[0], after["workingSetBytes"]))
+            event = {"phase": name, "wallMs": round((time.perf_counter() - started) * 1000, 3),
+                     "parentCpuMs": round((time.process_time() - cpu_started) * 1000, 3),
+                     "parentWorkingSetStartBytes": before["workingSetBytes"],
+                     "parentWorkingSetEndBytes": after["workingSetBytes"],
+                     "parentPeakWorkingSetBytes": peak[0],
+                     "parentLifetimePeakWorkingSetBytes": after["peakWorkingSetBytes"]}
+            self.phases.append(event)
+            with self.path.open("a", encoding="utf-8") as stream:
+                stream.write(json.dumps(event, sort_keys=True) + "\n")
+
+
+def _finalize_run(trace: PhaseTrace, sandbox: Path, output: Path,
+                  manifest: dict[str, Any] | None, successful: bool) -> None:
+    if sandbox.resolve().parent != output.resolve():
+        raise RuntimeError("refusing to remove a sandbox outside the evidence directory")
+
+    def writable_retry(action, path, error):
+        os.chmod(path, 0o777)
+        action(path)
+
+    with trace.measure("sandbox-teardown"):
+        shutil.rmtree(sandbox, onexc=writable_retry)
+    if successful:
+        if manifest is None:
+            raise RuntimeError("successful source stage has no manifest")
+        manifest["phaseTrace"] = list(trace.phases)
+        temporary = output / f"manifest-{uuid4().hex}.tmp"
+        try:
+            temporary.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n",
+                                 encoding="utf-8")
+            os.replace(temporary, output / "manifest.json")
+        finally:
+            temporary.unlink(missing_ok=True)
 
 
 def _git(root: Path, *args: str) -> str:
@@ -348,6 +418,9 @@ def run(*, base: Path, output: Path, places: int = 256, maps: int = 2,
     base_head = _git(base, "rev-parse", "HEAD")
     provenance = _implementation_provenance(base, required=retained_fixture is not None or places >= 100_000)
     output.mkdir(parents=True, exist_ok=True)
+    trace = PhaseTrace(output)
+    successful = False
+    manifest: dict[str, Any] | None = None
     sandbox = output / f"run-{uuid4().hex}"
     sandbox.mkdir()
     try:
@@ -361,21 +434,26 @@ def run(*, base: Path, output: Path, places: int = 256, maps: int = 2,
                 if clone.resolve().parent != sandbox.resolve():
                     raise RuntimeError("disposable clone is outside the benchmark scratch directory")
                 clone.mkdir()
-                shutil.copytree(base / ".git", clone / ".git", copy_function=shutil.copyfile)
-                _git(clone, "config", "core.longpaths", "true")
-                _git(clone, "sparse-checkout", "init", "--cone")
-                _git(clone, "sparse-checkout", "set", "story")
-                _git(clone, "reset", "--hard", base_head)
+                with trace.measure("git-copy"):
+                    shutil.copytree(base / ".git", clone / ".git", copy_function=shutil.copyfile)
+                with trace.measure("git-sparse-reset"):
+                    _git(clone, "config", "core.longpaths", "true")
+                    _git(clone, "sparse-checkout", "init", "--cone")
+                    _git(clone, "sparse-checkout", "set", "story")
+                    _git(clone, "reset", "--hard", base_head)
                 if _git(clone, "rev-parse", "HEAD") != base_head:
                     raise RuntimeError("disposable clone revision differs from measured commit")
                 status = _git(clone, "status", "--porcelain")
                 if status:
                     raise RuntimeError(f"disposable sparse checkout is not clean: {status[:1000]}")
-                counts = generate(clone, places=places, maps=maps, routes=routes,
-                                  portals=portals, overlays=overlays)
-                _git(clone, "add", "-A", "story")
-                _git(clone, "-c", "user.name=spatial scale", "-c", "user.email=scale@test.invalid",
-                     "commit", "-qm", "generated spatial scale fixture")
+                with trace.measure("source-generation"):
+                    counts = generate(clone, places=places, maps=maps, routes=routes,
+                                      portals=portals, overlays=overlays)
+                with trace.measure("git-add"):
+                    _git(clone, "add", "-A", "story")
+                with trace.measure("git-commit"):
+                    _git(clone, "-c", "user.name=spatial scale", "-c", "user.email=scale@test.invalid",
+                         "commit", "-qm", "generated spatial scale fixture")
             else:
                 clone = retained_fixture.resolve(strict=True)
                 owned = (base / "output" / "spatial-release-scale").resolve(strict=True)
@@ -389,12 +467,14 @@ def run(*, base: Path, output: Path, places: int = 256, maps: int = 2,
                 counts = source_manifest["counts"]
                 places, maps, routes, portals, overlays = (
                     counts[key] for key in ("places", "maps", "routes", "portals", "overlays"))
-            repo = Repository(clone)
-            fixture_head = repo.head()
+            with trace.measure("source-repository-open"):
+                repo = Repository(clone)
+                fixture_head = repo.head()
             compile_runs = []
-            for _ in range(0 if reuse_compiled else 2):
+            for run_number in range(0 if reuse_compiled else 2):
                 started = time.perf_counter()
-                built = compile_world(repo, "HEAD", force=True)
+                with trace.measure(f"forced-compile-{run_number + 1}"):
+                    built = compile_world(repo, "HEAD", force=True)
                 compile_runs.append({"wallMs": round((time.perf_counter()-started)*1000, 3),
                                      "status": built["status"], "recordCount": built.get("recordCount"),
                                      "databaseBytes": built.get("databaseBytes"),
@@ -402,7 +482,8 @@ def run(*, base: Path, output: Path, places: int = 256, maps: int = 2,
                                      "processMemory": _process_memory()})
                 if built["status"] != "compiled":
                     raise RuntimeError(f"source compile failed: {built}")
-            compiled, database = require_database(repo, require_compiled=True)
+            with trace.measure("compiled-database-open"):
+                compiled, database = require_database(repo, require_compiled=True)
             common = {"protocol": EXPLORER_PROTOCOL, "revision": fixture_head,
                       "capabilities": CAPABILITIES, "limit": 20, "cursor": None}
             bounds = {"min": [-50000, -50000], "max": [-49990, -49900]}
@@ -437,7 +518,8 @@ def run(*, base: Path, output: Path, places: int = 256, maps: int = 2,
                     def invoke(method=method, path=path, body=body):
                         response = client.get(path, params=body) if method == "GET" else client.post(path, json=body)
                         return response.json()
-                    api[name] = _sample(invoke, repeats)
+                    with trace.measure(f"api-{name}"):
+                        api[name] = _sample(invoke, repeats)
                     expected_state = "limit" if (places > 2_000 and name == "search") or (
                         routes > 1_000 and name in {"path", "path-beyond-cap"}) else "ok"
                     if api[name]["outcome"]["state"] != expected_state:
@@ -455,14 +537,16 @@ def run(*, base: Path, output: Path, places: int = 256, maps: int = 2,
                     page_body = {**cases["children"][2], "cursor": cursor}
                     def second_page():
                         return client.post(cases["children"][1], json=page_body).json()
-                    api["childrenPage2"] = _sample(second_page, repeats)
+                    with trace.measure("api-childrenPage2"):
+                        api["childrenPage2"] = _sample(second_page, repeats)
                     page = second_page()
                     second_ids = [card["id"] for card in (page.get("result") or {}).get("places", [])]
                     if (page.get("state") != "ok" or page.get("revision") != fixture_head or
                             not second_ids or len(second_ids) > 20 or set(first_ids) & set(second_ids)):
                         raise RuntimeError("authored children second page is not exact-revision disjoint pagination")
                     rebound_body = {**page_body, "parentId": "location:scale-1"}
-                    rebound = _sample(lambda: client.post(cases["children"][1], json=rebound_body).json(), repeats)
+                    with trace.measure("api-childrenCursorRebound"):
+                        rebound = _sample(lambda: client.post(cases["children"][1], json=rebound_body).json(), repeats)
                     if rebound["outcome"]["state"] != "invalid" or rebound["outcome"]["code"] != "SPATIAL-CURSOR-001" or not rebound["outcome"]["noPartialFeatureData"]:
                         raise RuntimeError("authored cursor rebound did not close without partial data")
                     pagination = {"revision": fixture_head, "limit": 20,
@@ -471,7 +555,7 @@ def run(*, base: Path, output: Path, places: int = 256, maps: int = 2,
                                   "firstCount": len(first_ids), "secondCount": len(second_ids),
                                   "disjoint": True, "cursorSha256": hashlib.sha256(cursor.encode()).hexdigest(),
                                   "rebound": rebound}
-            with closing(connect(database, True)) as connection:
+            with trace.measure("query-vm-and-counts"), closing(connect(database, True)) as connection:
                 rows = {table: connection.execute(f"SELECT COUNT(*) FROM {table}").fetchone()[0]
                         for table in ("spatial_map", "spatial_location", "spatial_route_edge",
                                       "spatial_portal", "spatial_overlay")}
@@ -535,10 +619,10 @@ def run(*, base: Path, output: Path, places: int = 256, maps: int = 2,
                     raise FileExistsError(f"retained fixture already exists: {kept}")
                 if clone.resolve().parent != sandbox.resolve() or kept.resolve().parent != output.resolve():
                     raise RuntimeError("retained fixture move is outside benchmark evidence scope")
-                shutil.move(str(clone), str(kept))
+                with trace.measure("fixture-retention"):
+                    shutil.move(str(clone), str(kept))
                 manifest["fixturePath"] = str(kept.resolve())
-            target = output / "manifest.json"
-            target.write_text(json.dumps(manifest, indent=2, sort_keys=True) + "\n", encoding="utf-8")
+            successful = True
             return manifest
         finally:
             if old_temp is None: os.environ.pop("TEMP", None)
@@ -546,12 +630,7 @@ def run(*, base: Path, output: Path, places: int = 256, maps: int = 2,
             if old_tmp is None: os.environ.pop("TMP", None)
             else: os.environ["TMP"] = old_tmp
     finally:
-        if sandbox.resolve().parent != output.resolve():
-            raise RuntimeError("refusing to remove a sandbox outside the evidence directory")
-        def writable_retry(action, path, error):
-            os.chmod(path, 0o777)
-            action(path)
-        shutil.rmtree(sandbox, onexc=writable_retry)
+        _finalize_run(trace, sandbox, output, manifest, successful)
 
 
 def main() -> None:
