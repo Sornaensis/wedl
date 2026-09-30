@@ -1,0 +1,244 @@
+{
+  "answerSha256": "9f2d31cff4a9e0f6de0557a319594e992a0a3757cc06bd3db2679f929f3b202e",
+  "bottleneckProfile": {
+    "operation": "holderLate",
+    "topCumulative": "         17284 function calls (17193 primitive calls) in 1.513 seconds\n\n   Ordered by: cumulative time\n   List reduced from 222 to 12 due to restriction <12>\n\n   ncalls  tottime  percall  cumtime  percall filename:lineno(function)\n      2/1    0.000    0.000    1.473    1.473 D:\\Projects\\wedl-test\\wedl-test\\src\\wedl\\generational_query.py:743(query_generational)\n        1    0.000    0.000    1.451    1.451 D:\\Projects\\wedl-test\\wedl-test\\src\\wedl\\compiler.py:1710(require_database)\n  125/103    1.271    0.010    1.271    0.012 {method 'acquire' of '_thread.lock' objects}\n        3    0.000    0.000    0.582    0.194 D:\\Projects\\wedl-test\\wedl-test\\src\\wedl\\repository.py:278(_git)\n        3    0.000    0.000    0.582    0.194 C:\\Users\\Sornaensis\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\subprocess.py:512(run)\n        2    0.000    0.000    0.542    0.271 D:\\Projects\\wedl-test\\wedl-test\\src\\wedl\\repository.py:319(resolve)\n      901    0.097    0.000    0.097    0.000 {method 'execute' of 'sqlite3.Connection' objects}\n        3    0.000    0.000    0.096    0.032 C:\\Users\\Sornaensis\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\subprocess.py:1178(communicate)\n        3    0.000    0.000    0.096    0.032 C:\\Users\\Sornaensis\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\subprocess.py:1623(_communicate)\n        6    0.000    0.000    0.096    0.016 C:\\Users\\Sornaensis\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\threading.py:1059(join)\n        6    0.001    0.000    0.096    0.016 {method 'join' of '_thread._ThreadHandle' objects}\n      6/3    0.000    0.000    0.095    0.032 C:\\Users\\Sornaensis\\AppData\\Local\\Programs\\Python\\Python313\\Lib\\threading.py:1001(_bootstrap)\n\n\n"
+  },
+  "cacheDamageReason": "compiled database failed structural or integrity checks",
+  "cacheRebuildPassed": true,
+  "cacheState": "ready",
+  "coldCompileMs": 21473.804,
+  "coldStagesMs": {
+    "chronology": 8.643,
+    "derived": 8.236,
+    "entities": 193.132,
+    "generational": 5920.436,
+    "indexes": 1987.373,
+    "loadSource": 4548.719,
+    "narrative": 4.572,
+    "resolveRevision": 901.814,
+    "schema": 4.198,
+    "search": 2052.691,
+    "spatial": 4.401,
+    "threads": 6.207,
+    "total": 21458.119,
+    "validate": 682.932
+  },
+  "compiledRecordKinds": {
+    "affiliation": 13,
+    "character": 5063,
+    "claim": 252,
+    "event": 3,
+    "legacy": 6,
+    "location": 1,
+    "organization": 5,
+    "parentage": 10004,
+    "tenure": 254,
+    "union": 4,
+    "vital-history": 2,
+    "world": 1
+  },
+  "contextCharacters": 48,
+  "contextTruncated": false,
+  "counts": {
+    "characters": 5063,
+    "generations": 101,
+    "kinshipEdges": 10004,
+    "transitions": 504
+  },
+  "generationAndDigestMs": 2608.762,
+  "horizonPassed": true,
+  "independentSourceSha256": "629afb5ffa4345fa4a12f82481f509e1f1a670a06065da660764f2652fa350b4",
+  "kind": "authored-generational",
+  "knownAnswers": {
+    "adoptiveParent": "char_7543N5S7TNVHBEFN4K65BB4NFN",
+    "biologicalChild": "char_2RVY6JVPKK1EMJFSXMTNA962G5",
+    "biologicalParent": "char_3MV0FXRQ21BQ9EPAE22SBH33J0",
+    "boundedLineage": "char_3J4W98W0N1VZG0ETQ3PHCAJW3S",
+    "deFactoHolder": "char_0SPJGEGC9M5B11V4G4P31SWP3P",
+    "dynasty": "organization_66E2E1P30R6V261RJS15MZW4DZ",
+    "first": "char_3Q0WFX60ZW7RSTVWH698T0AKTG",
+    "futureChild": "char_42EDA3CSKYQ5EJNY9WB6VEJS2N",
+    "last": "char_3115NC43QY1BJQ5WF4NBQS65BY",
+    "lastParents": [
+      "char_4MEBDRE3KE0K0XAMDCHXPCC4NG",
+      "char_36W8QP0Q0D7NQNPNT6661FFCBW"
+    ],
+    "legacy": "legacy_3PMWKSH9V56GBY0WHBAGPDM8G5",
+    "legalHolder": "char_0FHGZ2G9JTKXTCVNH058RJ8FK3",
+    "secretChild": "char_60T6WCANK75QRQ2HQ4APSHP92N",
+    "tenureChain": [
+      "tenure_71DX44ZSYHCDHWQVCKMMXH4QNX",
+      "tenure_774YVEG9TV73F22QAJ2YZCWK30",
+      "tenure_4EQX98PK47XP46SVMA2SS8N5R3",
+      "tenure_4FDSAFBTRENHS3M67AAQSMV601",
+      "tenure_3H6PC1DR95QT23AXN853TPT9WT",
+      "tenure_6H63T3J753A0ZZ685W9Y9E1CWW",
+      "tenure_60H3MX5R0VKY7E38S0S2HV37NV",
+      "tenure_376086X0Q4TEEGQWB2ZNS21RZV",
+      "tenure_739DC8SD4BY0YQYTTD5SA2T19H",
+      "tenure_1MSYZKSGF4NH6EYSFQFMZ7ZRTB",
+      "tenure_4NFZNGWDGR2GC0HSGBEQMNR4YG",
+      "tenure_2HH4NBS1VZ5TZM4WQQY5PJPQPF",
+      "tenure_3D3QK5R6MWHS3PFCVWS3PYQW6G",
+      "tenure_72BM0HR20P5R3GFM9CZBCNNKZA",
+      "tenure_0RRVR2TVC25H5PXEFZP4GJCR7J",
+      "tenure_501YRAPVPNWCNNGTDEA0HQM70G",
+      "tenure_1ETX17R3MGXH7AFPEGAD91M48T",
+      "tenure_4RP1BKQ3KAPTZ6P9AF6TF74Y6N",
+      "tenure_7D28W3VT3RG5Z1R8YN958RBBCJ",
+      "tenure_2QES4BKJWW2784808HCMQR40YY",
+      "tenure_20X3T8GQNSB2V7JYJPXX3QJTKE",
+      "tenure_6F1FC7YRAKYNS5MAA3RSDM4VRH",
+      "tenure_1CYHADZRYDGKSY55SQ52T6XET1",
+      "tenure_6FMTX4T7ZEMDETJY05R4M6MRRY",
+      "tenure_1SSREGNAPFZMW8QYCA4QCE5RTQ",
+      "tenure_54QJQXVDK5RYWD8KX36FDNPRHX",
+      "tenure_3FT5M73EVJE51X5ASCXDEPXG9S",
+      "tenure_5BHK5H2HXHBV5XQ5EK9SDTZ2PE",
+      "tenure_7KWN3KXACBQ0W9QG9SKMHZKP21",
+      "tenure_2QGZ7K4AK4A86YETKY7FQN4A36",
+      "tenure_4CM26DKAHKD2BHR2K74354TD3M",
+      "tenure_2EN3PEH8E836TJT0ZE8S3BZ69S",
+      "tenure_6Y9VQVENWWZ1KR52KYAQ0V6MHC",
+      "tenure_3KAW2G0FVZ0GZS0XEH8P5XQ10T",
+      "tenure_320MCSEFHB4P8XXMCF1VENKZV2",
+      "tenure_6KZSZ8JTSVZVP62TFQGA4534G5",
+      "tenure_2S09FG9863MGQ0ARJHNQFCFQPB",
+      "tenure_749KG81VPGM10Y0XJNNEW4J7AV",
+      "tenure_5778KQ5N1S7XD0E7R7VDXG8YEP",
+      "tenure_72QA33XJHZZ16J67AJRMF2SEHV",
+      "tenure_60Q3XVJYJTNG7QTB01011PD8F4",
+      "tenure_5V38H8Q2QDJXW6FQA5G9BZ50W0",
+      "tenure_7YTCZN0V6AGPPHVP40YHHEQQBZ",
+      "tenure_2CSKK2FZMT88CACNT5D0HTB6P4",
+      "tenure_29GZFFEM82SRWRJK802HWEXJ22",
+      "tenure_2JDXRVE6T98CEBHSTJZA8QPFJK",
+      "tenure_0BZ1TZJSVD6JQVHDT2PXAJE1EH",
+      "tenure_0B2H4Q1Q447Z0PGNWZ5D1QHSCC",
+      "tenure_3Q4ZB8JH94FYC1VBDHM9WNXK49",
+      "tenure_6RWGAXYXB4EJP00AB2AJWY6A5T"
+    ]
+  },
+  "peakProcessRssBytes": 777297920,
+  "privacyPassed": true,
+  "profile": {
+    "bounds": {
+      "holderItems": 100,
+      "lineageDepth": 2,
+      "lineageItems": 12,
+      "rosterItems": 24
+    },
+    "platform": "Windows-11-10.0.26200-SP0",
+    "python": "3.13.15",
+    "repeats": 3,
+    "searchProfile": {
+      "ftsCandidateLimit": 120,
+      "ftsEnabled": true,
+      "hybridFtsWeight": 1.0,
+      "hybridRrfK": 60.0,
+      "hybridVectorWeight": 1.0,
+      "name": "hybrid",
+      "vectorCandidateLimit": 120,
+      "vectorDimensions": 192,
+      "vectorEnabled": true,
+      "vectorMaxFeatures": 8192,
+      "vectorModel": "wedl-lsa-v1",
+      "vectorProvider": "lsa"
+    },
+    "sqlite": "3.50.4",
+    "warmupPerOperation": 1
+  },
+  "recordKinds": {
+    "affiliation": 13,
+    "character": 5063,
+    "claim": 252,
+    "event": 3,
+    "legacy": 6,
+    "location": 1,
+    "organization": 5,
+    "parentage": 10004,
+    "tenure": 254,
+    "union": 4,
+    "vital-history": 2,
+    "world": 1
+  },
+  "sourceCompiledParity": true,
+  "sourceSha256": "629afb5ffa4345fa4a12f82481f509e1f1a670a06065da660764f2652fa350b4",
+  "sqliteBytes": 482467840,
+  "wallMs": 176065.531,
+  "warmOperations": {
+    "holderEarly": {
+      "median": 1962.284,
+      "p95": 2322.99,
+      "samples": [
+        1247.427,
+        1962.284,
+        2363.068
+      ],
+      "worst": 2363.068
+    },
+    "holderLate": {
+      "median": 1333.79,
+      "p95": 2626.816,
+      "samples": [
+        1333.79,
+        1247.175,
+        2770.486
+      ],
+      "worst": 2770.486
+    },
+    "lineageEarly": {
+      "median": 1946.87,
+      "p95": 2330.486,
+      "samples": [
+        1247.583,
+        1946.87,
+        2373.11
+      ],
+      "worst": 2373.11
+    },
+    "lineageLate": {
+      "median": 1496.55,
+      "p95": 1994.54,
+      "samples": [
+        1031.695,
+        1496.55,
+        2049.873
+      ],
+      "worst": 2049.873
+    },
+    "rosterEarly": {
+      "median": 1450.473,
+      "p95": 1567.317,
+      "samples": [
+        1050.672,
+        1580.3,
+        1450.473
+      ],
+      "worst": 1580.3
+    },
+    "rosterLate": {
+      "median": 1856.877,
+      "p95": 2296.523,
+      "samples": [
+        1140.343,
+        1856.877,
+        2345.372
+      ],
+      "worst": 2345.372
+    }
+  },
+  "warmQueryMs": 2626.816,
+  "warmStates": {
+    "holderEarly": "available",
+    "holderLate": "available",
+    "lineageEarly": "unknown",
+    "lineageLate": "available",
+    "rosterEarly": "available",
+    "rosterLate": "available"
+  },
+  "warmStatistic": "maximum operation p95",
+  "warmTargetMs": 250,
+  "warmTargetPassed": false
+}
