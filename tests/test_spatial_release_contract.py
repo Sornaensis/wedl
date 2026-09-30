@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
+from contextlib import closing
 import json
+import sqlite3
 from pathlib import Path
 
 import pytest
@@ -12,8 +14,8 @@ from fastapi.testclient import TestClient
 from test_spatial_api import CAPABILITIES, _spatial_seed, spatial_repository
 from wedl import migration
 from wedl.cli import main
-from wedl.compiler import compile_world, require_database
-from wedl.errors import StaleRevision
+from wedl.compiler import SPATIAL_INDEX_GENERATION_TOKEN, cache_readiness, compile_world, require_database
+from wedl.errors import CompileRequired, StaleRevision
 from wedl.repository import Repository
 from wedl.server import create_app
 from wedl.source import serialize_record, split_envelope
@@ -149,6 +151,31 @@ def test_authored_facts_match_compiled_cli_and_http(
                                      if record.kind == "location"
                                      and record.frontmatter.get("parent_id") == request["locationId"]}
                 assert set(direct["result"]["ids"]) == authored_children
+    # Both old fingerprints and a same-name index with obsolete columns must
+    # rebuild from unchanged source rather than survive the cache hit path.
+    for defect in ("fingerprint", "shape"):
+        with closing(sqlite3.connect(database)) as connection:
+            if defect == "fingerprint":
+                connection.execute("UPDATE revision SET compiler_fingerprint=replace(compiler_fingerprint,?,?)",
+                                   (SPATIAL_INDEX_GENERATION_TOKEN, "wedl-spatial-index/v4"))
+            else:
+                connection.executescript("DROP INDEX spatial_location_parent_idx; "
+                                         "CREATE INDEX spatial_location_parent_idx ON spatial_location(parent_id,id);")
+            connection.commit()
+        readiness = cache_readiness(spatial_repository)
+        assert readiness["state"] == "incompatible"
+        assert ("compilerFingerprint" if defect == "fingerprint" else
+                "indexShape:spatial_location_parent_idx") in readiness["incompatibleFields"]
+        with pytest.raises(CompileRequired):
+            require_database(spatial_repository, require_compiled=True)
+        assert compile_world(spatial_repository)["status"] == "compiled"
+        assert cache_readiness(spatial_repository)["state"] == "ready"
+        with closing(sqlite3.connect(database)) as connection:
+            assert [row[2] for row in connection.execute("PRAGMA index_info(spatial_location_parent_idx)")] == [
+                "parent_id", "source_ordinal", "id"]
+        for operation, request, original in observed:
+            if operation == "children":
+                assert execute(spatial_repository, operation, request, require_compiled=True) == original
     database.unlink()
     assert compile_world(spatial_repository)["status"] == "compiled"
     rebuilt_world, rebuilt_database = require_database(spatial_repository, require_compiled=True)

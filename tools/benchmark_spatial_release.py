@@ -262,6 +262,15 @@ def _vm_sql(connection: sqlite3.Connection, action) -> dict[str, Any]:
             "wallMs": elapsed}
 
 
+def _children_page_two_vm(store: SpatialStore, parent: str, limit: int) -> dict[str, Any]:
+    # Cursor preparation is separate from the operation-level page-two cost.
+    first = store.children(parent, limit=limit)
+    if first.value is None or not first.value.cursor:
+        raise RuntimeError("children page-two measurement requires a production cursor")
+    return _vm_case(store.connection, lambda: store.children(
+        parent, limit=limit, cursor=first.value.cursor))
+
+
 def _host() -> dict[str, Any]:
     return {"platform": platform.platform(), "python": sys.version,
             "sqlite": sqlite3.sqlite_version, "cpuCount": os.cpu_count()}
@@ -584,10 +593,7 @@ def run(*, base: Path, output: Path, places: int = 256, maps: int = 2,
                         audience="author", perspective="author", limit=20)),
                 }
                 if pagination:
-                    vm["childrenPage2"] = _vm_sql(connection, lambda: connection.execute(
-                        "SELECT loc.id FROM spatial_location AS loc JOIN entity ON entity.id=loc.id "
-                        "WHERE loc.parent_id=? AND loc.id>? ORDER BY loc.id LIMIT 21",
-                        ("location:scale-0", first_ids[-1])).fetchall())
+                    vm["childrenPage2"] = _children_page_two_vm(store, "location:scale-0", 20)
                 if places >= 100_000 and maps >= 32:
                     vm["sparseHighBbox"] = _vm_case(connection, lambda: store.bbox(
                         "map:scale-31", BoundingBox((49_990, 49_980), (50_000, 50_000)), limit=20))

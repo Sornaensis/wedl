@@ -42,7 +42,7 @@ CHRONOLOGY_INDEX_GENERATION_TOKEN = "wedl-chronology-index/v3"
 # enables generic compilation.  It still participates in the cache contract:
 # a database created before its DDL must never be mistaken for a compatible
 # read model by a later opt-in caller.
-SPATIAL_INDEX_GENERATION_TOKEN = "wedl-spatial-index/v4"
+SPATIAL_INDEX_GENERATION_TOKEN = "wedl-spatial-index/v5"
 GENERATIONAL_INDEX_GENERATION_TOKEN = "wedl-generational-index/v8"
 COMPILER_FINGERPRINT_PREFIX = f"{DOCUMENT_GENERATION_TOKEN}:{CHRONOLOGY_INDEX_GENERATION_TOKEN}:{SPATIAL_INDEX_GENERATION_TOKEN}:{GENERATIONAL_INDEX_GENERATION_TOKEN}:"
 
@@ -150,7 +150,7 @@ CREATE INDEX chronology_annotation_era_basis_order_idx ON chronology_annotation(
 CREATE INDEX chronology_annotation_exclusion_idx ON chronology_annotation(comparison_kind,era_id,calendar_id,record_ordinal,source_ordinal,record_id,annotation_id);
 CREATE INDEX chronology_annotation_basis_scope_idx ON chronology_annotation_basis_scope(basis_id,record_id,annotation_id);
 CREATE INDEX chronology_annotation_era_scope_idx ON chronology_annotation_era_scope(era_id,record_id,annotation_id);
-CREATE INDEX spatial_location_parent_idx ON spatial_location(parent_id,id);
+CREATE INDEX spatial_location_parent_idx ON spatial_location(parent_id,source_ordinal,id);
 CREATE INDEX spatial_location_map_bounds_idx ON spatial_location(map_id,min_x,max_x,min_y,max_y,id);
 CREATE INDEX spatial_location_vertex_location_idx ON spatial_location_vertex(location_id,vertex_ordinal);
 CREATE INDEX spatial_hierarchy_parent_idx ON spatial_hierarchy(parent_id,location_id);
@@ -262,6 +262,24 @@ def _expected_generational_shapes() -> tuple[dict[str, tuple[Any, ...]], dict[st
         connection.executescript(DDL)
         connection.executescript(INDEX_DDL)
         return _generational_shapes(connection)
+
+
+def _spatial_parent_index_shape(connection: sqlite3.Connection) -> tuple[Any, ...]:
+    name = "spatial_location_parent_idx"
+    return (
+        tuple(connection.execute(
+            "SELECT tbl_name,sql FROM sqlite_schema WHERE type='index' AND name=?", (name,)
+        ).fetchone()),
+        tuple(tuple(row) for row in connection.execute(f"PRAGMA index_xinfo({name})")),
+    )
+
+
+@lru_cache(maxsize=1)
+def _expected_spatial_parent_index_shape() -> tuple[Any, ...]:
+    with closing(sqlite3.connect(":memory:")) as connection:
+        connection.executescript(DDL)
+        connection.executescript(INDEX_DDL)
+        return _spatial_parent_index_shape(connection)
 
 
 
@@ -759,6 +777,8 @@ def _compiled_database_issues(path: Path) -> tuple[str, ...]:
             issues.extend(f"missingIndex:{name}" for name in sorted(_REQUIRED_GENERATIONAL_INDEXES - indexes))
             if issues:
                 return tuple(issues)
+            if _spatial_parent_index_shape(connection) != _expected_spatial_parent_index_shape():
+                issues.append("indexShape:spatial_location_parent_idx")
             expected_tables, expected_indexes = _expected_generational_shapes()
             actual_tables, actual_indexes = _generational_shapes(connection)
             issues.extend(f"tableShape:{name}" for name in sorted(expected_tables)

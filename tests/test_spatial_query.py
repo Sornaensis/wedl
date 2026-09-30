@@ -23,7 +23,6 @@ def test_explorer_page_queries_use_existing_indexes_without_unbounded_sorts() ->
     connection.executescript(INDEX_DDL)
     connection.execute("CREATE VIRTUAL TABLE spatial_location_rtree USING rtree(source_ordinal,min_x,max_x,min_y,max_y,min_map,max_map)")
     plans = {
-        "children": ("SELECT id,source_ordinal FROM spatial_location WHERE parent_id=? ORDER BY id LIMIT ?", ("parent", 11), "spatial_location_parent_idx"),
         "viewport": ("SELECT loc.id,loc.source_ordinal FROM spatial_location_rtree AS box "
                      "CROSS JOIN spatial_location AS loc ON loc.source_ordinal=box.source_ordinal "
                      "WHERE box.min_map<=? AND box.max_map>=? AND box.min_x<=? AND box.max_x>=? "
@@ -35,6 +34,29 @@ def test_explorer_page_queries_use_existing_indexes_without_unbounded_sorts() ->
         detail = " ".join(row[3] for row in connection.execute("EXPLAIN QUERY PLAN " + query, params))
         assert expected_index in detail
         assert "USE TEMP B-TREE FOR ORDER BY" not in detail
+    store = _store()
+    _location(store, "location:query-parent", 80)
+    for index, ident in enumerate(("location:z-last", "location:a-first", "location:m-middle")):
+        _location(store, ident, 81 + index, parent="location:query-parent")
+    statements = []
+    store.connection.set_trace_callback(statements.append)
+    first = store.children("location:query-parent", limit=1)
+    second = store.children("location:query-parent", limit=1, cursor=first.value.cursor)
+    final = store.children("location:query-parent", limit=1, cursor=second.value.cursor)
+    store.connection.set_trace_callback(None)
+    assert first.value.ids + second.value.ids + final.value.ids == (
+        "location:z-last", "location:a-first", "location:m-middle")
+    assert final.value.cursor is None
+    page_sql = [sql for sql in statements if "SELECT id,source_ordinal" in sql]
+    assert len(page_sql) == 3
+    for sql in page_sql:
+        detail = " ".join(row[3] for row in store.connection.execute("EXPLAIN QUERY PLAN " + sql))
+        assert "COVERING INDEX spatial_location_parent_idx" in detail
+        assert "TEMP B-TREE" not in detail
+    seek_plan = " ".join(row[3] for row in
+        store.connection.execute("EXPLAIN QUERY PLAN " + page_sql[-1]))
+    assert "source_ordinal>" in seek_plan or "(source_ordinal,id)>" in seek_plan
+    store.connection.close()
     connection.close()
 
 
@@ -600,6 +622,29 @@ def test_positive_keyset_cursor_paging_is_complete_and_request_bound() -> None:
     assert third.value.cursor is None
     rebound = store.bbox("map:town", BoundingBox((-2, -2), (2, 2)), limit=1, cursor=first.value.cursor)
     assert rebound.kind is SpatialOutcomeKind.INVALID and rebound.reason is SpatialReason.CURSOR
+    _location(store, "location:cursor-parent", 90)
+    expected = ("location:z-child", "location:a-child", "location:m-child")
+    for index, ident in enumerate(expected):
+        _location(store, ident, 91 + index, parent="location:cursor-parent")
+    first = store.children("location:cursor-parent", limit=1)
+    second = store.children("location:cursor-parent", limit=1, cursor=first.value.cursor)
+    final = store.children("location:cursor-parent", limit=1, cursor=second.value.cursor)
+    assert first.value.ids + second.value.ids + final.value.ids == expected
+    assert final.value.cursor is None
+    for reader, parent, limit, cursor in (
+        (store, "location:cursor-parent", 1, "malformed"),
+        (store, "location:cursor-parent", 2, first.value.cursor),
+        (store, expected[0], 1, first.value.cursor),
+        (SpatialStore(store.connection, "new-revision"), "location:cursor-parent", 1, first.value.cursor),
+    ):
+        invalid = reader.children(parent, limit=limit, cursor=cursor)
+        assert invalid.kind is SpatialOutcomeKind.INVALID and invalid.reason is SpatialReason.CURSOR
+        assert invalid.value is None
+    assert store.children(expected[0]).value.ids == ()
+    assert store.children("location:missing-parent").kind is SpatialOutcomeKind.UNAVAILABLE
+    for limit in (0, 101):
+        closed = store.children("location:cursor-parent", limit=limit)
+        assert closed.kind is SpatialOutcomeKind.LIMIT and closed.value == ()
 
 
 def test_signed_i64_story_time_boundaries_and_cross_map_discontinuity_are_closed() -> None:

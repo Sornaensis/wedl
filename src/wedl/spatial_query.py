@@ -413,7 +413,7 @@ class SpatialStore:
         params: list[Any] = [location_id]
         clause = "parent_id=?"
         if last is not None:
-            clause += " AND (source_ordinal>? OR (source_ordinal=? AND id>?))"; params += [last[0], last[0], last[1]]
+            clause += " AND (source_ordinal,id)>(?,?)"; params += [last[0], last[1]]
         rows = self.connection.execute("SELECT id,source_ordinal FROM spatial_location WHERE " + clause + " ORDER BY source_ordinal,id LIMIT ?", (*params, limit + 1)).fetchall()
         records = rows[:limit]
         next_cursor = _cursor(binding, (records[-1][1], records[-1][0])) if len(rows) > limit and records else None
