@@ -3,9 +3,11 @@ from __future__ import annotations
 
 from copy import deepcopy
 from contextlib import closing
+import json
 import subprocess
 
 import pytest
+import wedl.authoring as authoring
 
 from wedl.authoring import apply_intent, compile_intent, preview_intent
 from wedl.compiler import compile_world, connect
@@ -145,9 +147,97 @@ def _assert_generational_dispatch(repository: Repository) -> None:
     assert _authoring_bytes(repository) == before
 
 
-def test_starter_and_eight_kind_batch_share_one_confirmed_compiled_commit(ash_repo: Repository) -> None:
+def _assert_generational_impact(repository: Repository) -> None:
+    """Keep compiled summaries source-free and standalone source checks intact."""
+    expected = "a" * 40
+    world, mapping = _world()
+    organization = world.by_kind("organization")[0]
+    create = _create("organization", "Impact house", {"organization_kind": "house"},
+                     {"title": "Impact house", "aliases": []})
+    append = {"action": "generational.append", "kind": "organization", "record": organization.id,
+              "transition": "organization-rename", "payload": {"title": "Renamed house", "aliases": []},
+              "at": _point("10"), "cause": mapping["event_compact"]}
+    correct = {**append, "action": "generational.correct",
+               "replaces": organization.frontmatter["initialization"]["transition_id"]}
+    variants = [create, append, correct, {"action": "generational.batch", "items": [create]}]
+    before = _authoring_bytes(repository)
+
+    class SourceReader:
+        def __init__(self, error=None):
+            self.error, self.loads, self.head_calls = error, [], 0
+
+        def head(self):
+            self.head_calls += 1
+            return expected
+
+        def load_world(self, revision="HEAD", *, cache_write=True):
+            self.loads.append((revision, cache_write))
+            if self.error is not None:
+                raise self.error
+            return world
+
+        def __getattr__(self, name):
+            raise AssertionError(f"unexpected impact repository operation: {name}")
+
+    for variant in variants:
+        for summary in (None, "Custom impact summary", ""):
+            intent = {**variant, "expectedHead": expected, "idempotencyKey": "impact-parity"}
+            if summary is not None:
+                intent["summary"] = summary
+            expected_impact = {"summary": summary or f"Authoring: {variant['action']}", "items": []}
+            reader = SourceReader(ParseError("impact-only source read"))
+            assert authoring._compiled_author_impact(reader, intent, {"operations": []}) == expected_impact
+            assert reader.loads == [] and reader.head_calls == 0
+            reader = SourceReader()
+            assert authoring.author_impact(reader, intent, {"operations": []}) == expected_impact
+            assert reader.loads == [(expected, False)] and reader.head_calls == 1
+            # Both omitted and falsy supplied payloads retain real compilation.
+            for payload in (None, {}):
+                reader = SourceReader()
+                if summary == "":
+                    with pytest.raises(UsageError):
+                        authoring.author_impact(reader, intent, payload)
+                    assert reader.loads == [(expected, False)]
+                else:
+                    assert authoring.author_impact(reader, intent, payload) == expected_impact
+                    assert reader.loads == [(expected, False), (expected, False)]
+            if summary != "":
+                reader = SourceReader()
+                assert preview_intent(reader, intent)["authorImpact"] == expected_impact
+                assert reader.loads == [(expected, False), (expected, False)]
+
+    valid_intent = {**create, "expectedHead": expected, "idempotencyKey": "impact-source-error"}
+    source_error = ParseError("standalone source sentinel")
+    for payload in (None, {}, {"operations": []}):
+        reader = SourceReader(source_error)
+        with pytest.raises(ParseError) as refusal:
+            authoring.author_impact(reader, valid_intent, payload)
+        assert refusal.value is source_error and reader.loads == [(expected, False)]
+    reader = SourceReader(source_error)
+    with pytest.raises(ParseError) as refusal:
+        preview_intent(reader, valid_intent)
+    assert refusal.value is source_error and reader.loads == [(expected, False)]
+    reader = SourceReader()
+    assert authoring._compiled_author_impact(reader, {"action": "current-time.set", "summary": "Cursor"},
+                                             {"operations": []}) == {"summary": "Cursor", "items": []}
+    assert reader.loads == [(expected, False)]
+    assert _authoring_bytes(repository) == before
+
+
+def _without_impact_read(monkeypatch, operation, repository, intent, **kwargs):
+    with monkeypatch.context() as patch:
+        def unexpected_impact(*args, **kwargs):
+            raise AssertionError("compiled generational flow must not load standalone impact source")
+        patch.setattr(authoring, "author_impact", unexpected_impact)
+        return operation(repository, intent, **kwargs)
+
+
+def test_starter_and_eight_kind_batch_share_one_confirmed_compiled_commit(
+    ash_repo: Repository, monkeypatch: pytest.MonkeyPatch,
+) -> None:
     repository, mapping = _small_authoring_repository(ash_repo)
     _assert_generational_dispatch(repository)
+    _assert_generational_impact(repository)
     starter = scaffold(repository)
     assert starter["expectedHead"] == repository.head()
     assert set(schema()["kinds"]) == {"organization", "parentage", "union", "affiliation",
@@ -208,9 +298,12 @@ def test_starter_and_eight_kind_batch_share_one_confirmed_compiled_commit(ash_re
          "at": _point("1", "1"), "cause": mapping["event_transfer"]},
     ]
     intent = {"action": "generational.batch", "expectedHead": repository.head(),
-              "idempotencyKey": "author-eight-kind-batch", "items": items}
+              "idempotencyKey": "author-eight-kind-batch", "items": items,
+              "summary": "Eight kinds at once"}
     before_preview = _authoring_bytes(repository)
-    preview = preview_intent(repository, intent)
+    preview = _without_impact_read(monkeypatch, preview_intent, repository, intent)
+    expected_impact = {"summary": "Eight kinds at once", "items": []}
+    assert preview["authorImpact"] == expected_impact
     assert _authoring_bytes(repository) == before_preview
     assert preview["preview"]["valid"] is True, preview["preview"]["diagnostics"]
     assert len(preview["preview"]["files"]) == sum(item["action"] == "generational.create" for item in items)
@@ -220,7 +313,11 @@ def test_starter_and_eight_kind_batch_share_one_confirmed_compiled_commit(ash_re
         apply_intent(repository, intent, allow_unconfirmed=True)
     assert repository.head() == old
     assert _authoring_bytes(repository) == before_preview
-    result = apply_intent(repository, intent, confirmation_token_value=token)
+    result = _without_impact_read(monkeypatch, apply_intent, repository, intent,
+                                  confirmation_token_value=token)
+    assert result["authorImpact"] == expected_impact
+    receipts = json.loads((repository.root / ".wedl" / "idempotency.json").read_text())
+    assert receipts[intent["idempotencyKey"]]["authorImpact"] == expected_impact
     assert result["newHead"] != old and not result["idempotentReplay"]
     committed_bytes = _authoring_bytes(repository)
     with pytest.raises(ConfirmationMismatch):
@@ -253,6 +350,7 @@ def test_starter_and_eight_kind_batch_share_one_confirmed_compiled_commit(ash_re
     before_replay = _authoring_bytes(repository)
     replay = apply_intent(repository, intent, confirmation_token_value=token)
     assert replay["idempotentReplay"] and replay["newHead"] == result["newHead"]
+    assert replay["authorImpact"] == expected_impact
     assert _folded_current(repository) == byte_folded
     assert _authoring_bytes(repository) == before_replay
     conflicting_items = [{**items[0], "title": "Different title"}, *items[1:]]

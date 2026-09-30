@@ -138,7 +138,7 @@ def apply_intent(
             }
     from .changeset import apply as apply_changeset
     payload = compile_intent(repository, intent)
-    impact = author_impact(repository, intent, payload)
+    impact = _compiled_author_impact(repository, intent, payload)
     result = apply_changeset(
         repository, payload,
         confirmation_token_value=confirmation_token_value, allow_unconfirmed=allow_unconfirmed,
@@ -493,6 +493,14 @@ def _append_advances_horizon(world: World, conversation: Any, intent: dict[str, 
     return cursor is not None and point["timeline"] == cursor.timeline and (point["tick"], point["order"]) > (cursor.tick, cursor.order)
 
 
+def _compiled_author_impact(repository: Repository, intent: dict[str, Any], payload: dict[str, Any]) -> dict[str, Any]:
+    """Summarize a compiled generational intent without another source read."""
+
+    if intent["action"].startswith("generational."):
+        return {"summary": str(intent.get("summary") or f"Authoring: {intent['action']}"), "items": []}
+    return author_impact(repository, intent, payload)
+
+
 def author_impact(repository: Repository, intent: dict[str, Any], payload: dict[str, Any] | None = None) -> dict[str, Any]:
     """Return the small, name-only result intended for human authoring flows.
 
@@ -573,7 +581,7 @@ def preview_intent(repository: Repository, intent: dict[str, Any]) -> dict[str, 
     plan.pop("_changes", None)
     return {
         "protocol": "wedl-author-preview/v1", "intent": intent, "changeset": payload,
-        "preview": plan, "authorImpact": author_impact(repository, intent, payload),
+        "preview": plan, "authorImpact": _compiled_author_impact(repository, intent, payload),
     }
 
 
