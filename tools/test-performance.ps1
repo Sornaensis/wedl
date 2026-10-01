@@ -15,6 +15,9 @@ $previousPlugins = $env:PYTEST_PLUGINS
 $previousTemp = $env:TEMP
 $previousTmp = $env:TMP
 $previousOutcomes = $env:WEDL_TEST_OUTCOMES
+$previousContext = $env:WEDL_PERFORMANCE_CONTEXT
+$previousCodeRoot = $env:WEDL_CODE_ROOT
+$previousBytecode = $env:PYTHONDONTWRITEBYTECODE
 $started = [System.Diagnostics.Stopwatch]::StartNew()
 $script:activeProcess = $null
 $script:activeStartedAt = [datetime]::MinValue
@@ -204,6 +207,16 @@ function Get-NodeIds([string]$path, [bool]$allMode = $false) {
     return $nodes
 }
 
+function Invoke-Contract([string]$name, [string[]]$arguments) {
+    return Invoke-Stage $name (@("tools/benchmark_spatial_browser.py", "--context", $contextPath) + $arguments) (Join-Path $scratch "$name/stdout.txt") $false
+}
+
+function Assert-StageManifest([string]$name, [string]$result) {
+    $arguments = @("--validate-manifest", $result, "--stage", $name)
+    if ($name -eq "object-affordance-corpus") { $arguments += @("--outcomes", $outcomePath) }
+    $null = Invoke-Contract "validate-$name" $arguments
+}
+
 try {
     Push-Location $root
     $null = New-Item -ItemType Directory -Path $scratch
@@ -214,33 +227,98 @@ try {
         "tools/benchmark.py", "tools/benchmark_search_profiles.py", "tools/benchmark_frontiersmen.py",
         "tools/benchmark_frontiersmen_api.py", "tools/benchmark_chronology_index.py",
         "tools/benchmark_spatial_index.py", "tools/benchmark_spatial_query.py",
-        "tools/benchmark_spatial_release.py"
+        "tools/benchmark_spatial_release.py", "tools/benchmark_spatial_browser.py",
+        "tools/benchmark_generational.py", "tools/generate_generational_fixture.py",
+        "tools/benchmark_packaged_examples.py", "tools/build_v07_packaged_examples.py"
     )
     foreach ($file in $requiredFiles) {
         if (-not (Test-Path -LiteralPath (Join-Path $root $file) -PathType Leaf)) {
             throw "Mandatory benchmark entry point missing: $file"
         }
     }
-    # An unset mandatory stage blocks the aggregate before any benchmark runs.
+    if (-not (Test-Path -LiteralPath $venvPython -PathType Leaf)) { throw "Pinned virtualenv Python is required." }
+    $contextPath = Join-Path $evidence "context.json"
+    $sourceResult = Join-Path $evidence "spatial-source"
+    $rawGenerational = Join-Path $evidence "generational-raw.json"
+    $affordanceNode = "tests/test_object_affordances.py::test_legacy_corpus_affordances_survive_candidate_conversion"
+    $nonce = [guid]::NewGuid().ToString("N")
     $futureStages = [ordered]@{
-        "actual-100k-browser" = $null
-        "generational-5k-10k" = $null
-        "object-affordance-corpus" = $null
-        "packaged-example-corpus" = $null
+        "actual-100k-browser" = @{ kind = "executable"; arguments = @("tools/benchmark_spatial_browser.py", "--context", $contextPath); result = (Join-Path $evidence "actual-100k-browser.json") }
+        "generational-5k-10k" = @{ kind = "executable"; arguments = @("tools/benchmark_generational.py", "--output", $rawGenerational, "--work-dir", (Join-Path $scratch "generational-fixture"), "--repeats", "5"); result = (Join-Path $evidence "generational-5k-10k.json") }
+        "object-affordance-corpus" = @{ kind = "pytest-attested"; node = $affordanceNode; result = (Join-Path $evidence "object-affordance-corpus.json") }
+        "packaged-example-corpus" = @{ kind = "executable"; arguments = @("tools/benchmark_packaged_examples.py", "--context", $contextPath); result = (Join-Path $evidence "packaged-example-corpus.json") }
+    }
+    if ($futureStages.Count -ne 4 -or @($futureStages.Values | Where-Object { $_.kind -eq "executable" }).Count -ne 3) {
+        throw "Exactly four mandatory stages and three executable commands are required."
     }
     foreach ($stage in $futureStages.Keys) {
         if ($null -eq $futureStages[$stage]) {
             throw "Mandatory performance stage is not enrolled: $stage"
         }
         $spec = $futureStages[$stage]
-        if (-not $spec.arguments -or -not $spec.result -or
+        if ($spec.kind -eq "pytest-attested") {
+            if ($stage -ne "object-affordance-corpus" -or $spec.node -ne $affordanceNode -or -not $spec.result -or $spec.arguments) {
+                throw "Mandatory affordance once-only attestation wiring is invalid."
+            }
+        } elseif ($spec.kind -ne "executable" -or -not $spec.arguments -or -not $spec.result -or
             $spec.arguments[0] -notlike "tools/*" -or
             -not (Test-Path -LiteralPath (Join-Path $root $spec.arguments[0]) -PathType Leaf)) {
             throw "Mandatory performance stage has no executable command or result path: $stage"
         }
     }
+    $codeHashes = [ordered]@{}
+    foreach ($file in (@($requiredFiles) + @("tools/test-performance.ps1", "tests/test_object_affordances.py", "tests/conftest.py"))) {
+        $codeHashes[$file] = (Get-FileHash -LiteralPath (Join-Path $root $file) -Algorithm SHA256).Hash.ToLowerInvariant()
+    }
+    foreach ($file in Get-ChildItem -LiteralPath (Join-Path $root "src/wedl") -Filter "*.py" -File -Recurse) {
+        $relative = $file.FullName.Substring($root.Length + 1).Replace('\', '/')
+        $codeHashes[$relative] = (Get-FileHash -LiteralPath $file.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
+    }
+    $inputHashes = [ordered]@{}
+    foreach ($package in @("ash_archive", "frontiersmen", "chronology_conformance", "ash_archive_v07", "frontiersmen_v07", "chronology_conformance_v07")) {
+        foreach ($file in Get-ChildItem -LiteralPath (Join-Path $root "src/wedl/data/$package/story") -Filter "*.md" -File -Recurse) {
+            $relative = $file.FullName.Substring($root.Length + 1).Replace('\', '/')
+            $inputHashes[$relative] = (Get-FileHash -LiteralPath $file.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
+        }
+    }
+    $node = if ($env:WEDL_PERFORMANCE_NODE) { $env:WEDL_PERFORMANCE_NODE } else { "C:/Program Files/nodejs/node.exe" }
+    $browser = if ($env:CHROME_PATH) { $env:CHROME_PATH } else { "C:/Program Files/Google/Chrome/Application/chrome.exe" }
+    $playwright = if ($env:PLAYWRIGHT_CORE_PATH) { $env:PLAYWRIGHT_CORE_PATH } else { "D:/Projects/hmem/hmem-server/frontend/node_modules/playwright-core" }
+    $runtime = [ordered]@{}
+    foreach ($binding in @(@("node", $node), @("browser", $browser), @("playwrightPackage", (Join-Path $playwright "package.json")), @("playwrightEntry", (Join-Path $playwright "index.js")))) {
+        if (-not (Test-Path -LiteralPath $binding[1] -PathType Leaf)) { throw "Mandatory browser runtime missing: $($binding[0])" }
+        $runtime[$binding[0]] = @{ path = [IO.Path]::GetFullPath($binding[1]); sha256 = (Get-FileHash -LiteralPath $binding[1] -Algorithm SHA256).Hash.ToLowerInvariant() }
+    }
+    $runtime["playwrightVersion"] = (Get-Content -LiteralPath (Join-Path $playwright "package.json") -Raw | ConvertFrom-Json).version
+    $libraryFiles = [ordered]@{}
+    foreach ($file in Get-ChildItem -LiteralPath $playwright -File -Recurse | Where-Object { $_.Extension -in @(".js", ".mjs", ".json") }) {
+        $relative = $file.FullName.Substring([IO.Path]::GetFullPath($playwright).Length + 1).Replace('\', '/')
+        $libraryFiles[$relative] = (Get-FileHash -LiteralPath $file.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
+    }
+    $runtime["libraryFiles"] = $libraryFiles
+    $runtime["nodeVersion"] = (Get-Item -LiteralPath $node).VersionInfo.ProductVersion
+    $runtime["browserVersion"] = (Get-Item -LiteralPath $browser).VersionInfo.ProductVersion
+    $results = [ordered]@{}
+    $stageSpecs = [ordered]@{}
+    foreach ($name in $futureStages.Keys) {
+        $results[$name] = $futureStages[$name].result
+        $stageSpecs[$name] = $futureStages[$name]
+    }
+    $context = [ordered]@{
+        schemaVersion = 1; runId = $runId; nonce = $nonce; root = $root; scratch = $scratch
+        head = (& git -C $root rev-parse HEAD).Trim()
+        registrySha256 = (Get-FileHash -LiteralPath (Join-Path $root "pytest.ini") -Algorithm SHA256).Hash.ToLowerInvariant()
+        codeHashes = $codeHashes; inputHashes = $inputHashes; results = $results; stageSpecs = $stageSpecs
+        affordanceNode = $affordanceNode; contextPath = $contextPath
+        sourceManifest = (Join-Path $sourceResult "manifest.json"); codeRoot = (Join-Path $scratch "exact-head-code")
+        python = @{ path = $python; sha256 = (Get-FileHash -LiteralPath $python -Algorithm SHA256).Hash.ToLowerInvariant() }
+        browserRuntime = $runtime
+    }
+    $context | ConvertTo-Json -Depth 15 | Set-Content -LiteralPath $contextPath -Encoding UTF8
+    $null = Invoke-Contract "browser-preflight" @("--preflight")
+    $null = Invoke-Stage "package-preflight" @("tools/benchmark_packaged_examples.py", "--context", $contextPath, "--preflight") (Join-Path $scratch "package-preflight/stdout.txt") $false
     if ($ValidateOnly) {
-        Write-Output "All mandatory performance stages enrolled."
+        Write-Output "Exactly four mandatory stages enrolled: actual-100k-browser, generational-5k-10k, object-affordance-corpus (existing P once-only attestation), packaged-example-corpus; three executable commands. Contracts/runtime verified; no performance execution. Context/evidence retained at $evidence"
         $script:success = $true
         $script:exitCode = 0
     } else {
@@ -254,6 +332,7 @@ try {
         $all = @(Get-NodeIds $allPath $true)
         $normal = @(Get-NodeIds $normalPath)
         $performance = @(Get-NodeIds $perfPath)
+        if (@($performance | Where-Object { $_ -eq $affordanceNode }).Count -ne 1) { throw "Exact affordance P node is missing or duplicated." }
         if ($performance.Count -eq 0 -or $all.Count -ne ($normal.Count + $performance.Count) -or
             @($normal | Where-Object { $performance -contains $_ -or $all -notcontains $_ }).Count -ne 0 -or
             @($performance | Where-Object { $all -notcontains $_ }).Count -ne 0) {
@@ -262,14 +341,16 @@ try {
         $script:phase = "performance pytest"
         $outcomePath = Join-Path $evidence "pytest-outcomes.json"
         $env:WEDL_TEST_OUTCOMES = $outcomePath
+        $env:WEDL_PERFORMANCE_CONTEXT = $contextPath
         try {
             $pytestStage = Invoke-Stage "performance-pytest" @("-m", "pytest", "-q", "--strict-markers", "--wedl-strict", "--wedl-suite=performance", "tests", "--basetemp=$(Join-Path $scratch 'pytest-base')") $outcomePath
-        } finally { $env:WEDL_TEST_OUTCOMES = $previousOutcomes }
+        } finally { $env:WEDL_TEST_OUTCOMES = $previousOutcomes; $env:WEDL_PERFORMANCE_CONTEXT = $previousContext }
         $outcomes = @(Get-Content -LiteralPath $outcomePath -Raw | ConvertFrom-Json)
         if ($outcomes.Count -ne $performance.Count -or @($outcomes | Where-Object { $_[1] -ne "passed" -or $performance -notcontains $_[0] }).Count -ne 0 -or
             @($outcomes | ForEach-Object { $_[0] } | Select-Object -Unique).Count -ne $performance.Count) {
             throw "Performance pytest exact node outcomes differ from collection."
         }
+        Assert-StageManifest "object-affordance-corpus" $futureStages["object-affordance-corpus"].result
 
         $generalRepo = Join-Path $scratch "general-medium"
         $profilesRepo = Join-Path $scratch "profiles-medium"
@@ -283,8 +364,17 @@ try {
         $null = $stages.Add((Invoke-Stage "chronology" @("tools/benchmark_chronology_index.py") (Join-Path $scratch "chronology/stdout.txt")))
         $null = $stages.Add((Invoke-Stage "spatial-index" @("-c", "import json; from benchmark_spatial_index import full; print(json.dumps(full(), sort_keys=True))") (Join-Path $scratch "spatial-index/stdout.txt")))
         $null = $stages.Add((Invoke-Stage "spatial-query" @("tools/benchmark_spatial_query.py") (Join-Path $scratch "spatial-query/stdout.txt")))
-        $sourceResult = Join-Path $evidence "spatial-source"
-        $null = $stages.Add((Invoke-Stage "spatial-source" @("tools/benchmark_spatial_release.py", "--output", $sourceResult, "--places", "100000", "--maps", "32", "--routes", "250000", "--portals", "100", "--overlays", "10000", "--repeats", "3", "--retain-fixture") (Join-Path $sourceResult "manifest.json")))
+        $null = $stages.Add((Invoke-Contract "prepare-spatial-code" @("--prepare-code")))
+        $env:WEDL_CODE_ROOT = $context.codeRoot
+        $env:PYTHONPATH = (Join-Path $context.codeRoot "src") + [IO.Path]::PathSeparator + ($runnerPaths -join [IO.Path]::PathSeparator)
+        $env:PYTHONDONTWRITEBYTECODE = "1"
+        try {
+            $null = $stages.Add((Invoke-Stage "spatial-source" @("tools/benchmark_spatial_release.py", "--output", $sourceResult, "--places", "100000", "--maps", "32", "--routes", "250000", "--portals", "100", "--overlays", "10000", "--repeats", "3", "--retain-fixture") (Join-Path $sourceResult "manifest.json")))
+        } finally {
+            $env:WEDL_CODE_ROOT = $previousCodeRoot
+            $env:PYTHONPATH = $runnerPaths -join [IO.Path]::PathSeparator
+            $env:PYTHONDONTWRITEBYTECODE = $previousBytecode
+        }
         $sourceManifest = Get-Content -LiteralPath (Join-Path $sourceResult "manifest.json") -Raw | ConvertFrom-Json
         if ($sourceManifest.kind -ne "authored-source-to-API" -or
             $sourceManifest.counts.places -lt 100000 -or $sourceManifest.counts.hierarchyDepth -lt 128 -or
@@ -296,8 +386,21 @@ try {
         }
         foreach ($stage in $futureStages.Keys) {
             $spec = $futureStages[$stage]
+            if ($spec.kind -eq "pytest-attested") {
+                $null = $stages.Add([pscustomobject]@{ name = $stage; execution = "once in performance pytest"; node = $spec.node; result = $spec.result; result_sha256 = (Get-FileHash -LiteralPath $spec.result -Algorithm SHA256).Hash.ToLowerInvariant() })
+                continue
+            }
             if (-not $spec.arguments -or -not $spec.result) { throw "Mandatory stage $stage lacks a command or result path." }
-            $null = $stages.Add((Invoke-Stage $stage $spec.arguments $spec.result))
+            $resultPath = if ($stage -eq "generational-5k-10k") { $rawGenerational } else { $spec.result }
+            $arguments = $spec.arguments
+            if ($stage -eq "actual-100k-browser") {
+                $remaining = [math]::Floor($TimeoutSeconds - $started.Elapsed.TotalSeconds - 5)
+                if ($remaining -lt 20) { throw "Insufficient browser cleanup reserve." }
+                $arguments += @("--timeout", [string]$remaining)
+            }
+            $null = $stages.Add((Invoke-Stage $stage $arguments $resultPath))
+            if ($stage -eq "generational-5k-10k") { $null = $stages.Add((Invoke-Contract "seal-generational" @("--seal-generational", $rawGenerational))) }
+            Assert-StageManifest $stage $spec.result
             $value = Get-Content -LiteralPath $spec.result -Raw | ConvertFrom-Json
             switch ($stage) {
                 "actual-100k-browser" {
@@ -373,11 +476,8 @@ try {
     $env:TEMP = $previousTemp
     $env:TMP = $previousTmp
     $env:WEDL_TEST_OUTCOMES = $previousOutcomes
-    if ($script:success -and $ValidateOnly) {
-        $expected = [System.IO.Path]::GetFullPath((Join-Path $temporaryRoot "wedl-performance-$runId"))
-        if ([System.IO.Path]::GetFullPath($scratch) -eq $expected) {
-            Remove-Item -LiteralPath $scratch -Recurse -Force -ErrorAction SilentlyContinue
-        }
-    }
+    $env:WEDL_PERFORMANCE_CONTEXT = $previousContext
+    $env:WEDL_CODE_ROOT = $previousCodeRoot
+    $env:PYTHONDONTWRITEBYTECODE = $previousBytecode
 }
 exit $script:exitCode

@@ -61,12 +61,14 @@ def _with_frontmatter(world: World, identifier: str, **fields: object) -> World:
 
 
 def test_legacy_corpus_affordances_survive_candidate_conversion(
-    ash_repo: Repository, frontiersmen_repo: Repository,
+    ash_repo: Repository, frontiersmen_repo: Repository, request: pytest.FixtureRequest,
 ) -> None:
+    pytest_request = request
     totals = []
     tokens: set[str] = set()
     authored_rows = []
     mapped_rows = []
+    package_evidence = []
     for package, repository, expected_count in (("ash", ash_repo, 24), ("frontiersmen", frontiersmen_repo, 29)):
         snapshot = repository.snapshot("HEAD")
         before = snapshot.files
@@ -148,6 +150,16 @@ def test_legacy_corpus_affordances_survive_candidate_conversion(
         )
         assert reversed_result["status"] == "committed"
         assert repository.snapshot("HEAD").files == before
+        source_material = bytearray()
+        for path, data in sorted(before.items()):
+            source_material.extend(path.encode("utf-8") + b"\0" + hashlib.sha256(data).digest() + b"\n")
+        package_evidence.append({
+            "name": package, "recordCount": len(before), "fieldCount": count,
+            "sourceSha256": hashlib.sha256(source_material).hexdigest(),
+            "sourceFiles": {path: hashlib.sha256(data).hexdigest() for path, data in sorted(before.items())},
+            "lifecycle": {name: True for name in (
+                "candidate", "preview", "apply", "replay", "sourceReload", "compiledDetail", "noOp", "rollback")},
+        })
     assert sum(totals) == 53
     assert len(tokens) == 19
     assert len(mapped_rows) == 53
@@ -155,6 +167,30 @@ def test_legacy_corpus_affordances_survive_candidate_conversion(
                                                     ensure_ascii=False).encode("utf-8")).hexdigest()
     assert digest(authored_rows) == "924318fb126571a159be87a66ff8febd76fc19c262756beda312aa3eab69b7a5"
     assert digest(mapped_rows) == "728193728c7561d41a13e20c3fc5cef0cb16eca255d46fcfc26f4920fe04ce97"
+    assert sum(not row["capabilities"] for row in authored_rows) == 25
+    assert sum(bool(row["capabilities"]) for row in authored_rows) == 28
+    # The runner consumes this proof only after pytest reports this exact node passed.
+    import os
+    from pathlib import Path
+    import sys
+
+    context_path = os.environ.get("WEDL_PERFORMANCE_CONTEXT")
+    if context_path:
+        root = Path(__file__).resolve().parents[1]
+        sys.path.insert(0, str(root / "tools"))
+        from benchmark_spatial_browser import read_context, write_manifest
+
+        context = read_context(Path(context_path))
+        assert pytest_request.node.nodeid == context["affordanceNode"]
+        assert hashlib.sha256(Path(__file__).read_bytes()).hexdigest() == context["codeHashes"]["tests/test_object_affordances.py"]
+        proof = {
+            "kind": "object-affordance-corpus", "nodeId": pytest_request.node.nodeid,
+            "fieldCount": 53, "emptyFieldCount": 25, "nonemptyFieldCount": 28,
+            "tokenCount": len(tokens), "tokens": sorted(tokens), "packages": package_evidence,
+            "authoredRows": authored_rows, "mappedRows": mapped_rows,
+            "authoredSha256": digest(authored_rows), "mappedSha256": digest(mapped_rows),
+        }
+        write_manifest(Path(context["results"]["object-affordance-corpus"]), proof, context)
 
 
 def test_upgrade_preview_apply_replay_detail_and_rollback(task91_repo: Repository) -> None:
