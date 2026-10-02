@@ -1,0 +1,13 @@
++++
+schema = "adrai/connection/v1"
+connection = "C01M3Y3S5XZMZB6TRTA6QF151GX"
+relation = "status"
+parent_connections = []
+record_heads = ["R01M3Y3S5XZ33Y7SD2K3E20EQ6Q"]
+state = "active"
+subject_adr = "A01M3Y3S5QMJWMBMQT42HDQPDJS"
++++
+
+Initial active status.
+
+<!-- @adrai:eyJhIjp7ImkiOiJjb2RleCIsImsiOiJsbG0iLCJtIjoiZ3B0LTYuMS1zb2wifSwiYiI6Ijc4ZGI5NDI2ZjQ1ZWIxZmQzODk5MmE2ODlmNDNlOGMxNWMwMmY4NWIiLCJpIjoic2hhMjU2OlhmWTkweGRzcUtPRVgxSVgwTXBsZXQ4eUxzT1VzdXNjMVNlanBPbEtjQUEiLCJrIjoic3RhdHVzLmluaXRpYWwiLCJvIjoiQzAxTTNZM1M1WFpNWkI2VFJUQTZRRjE1MUdYIiwib3AiOiJPMDFNM1kzUzVYWjMzWTdTRDJLM0UyMEVRNlEiLCJwIjpbIlIwMU0zWTNTNVhaMzNZN1NEMkszRTIwRVE2USJdLCJyIjoibWFzdGVyIiwicyI6InNoYTI1NjozREJkSHRTVWZkcEpZTTE2QTFhMmxaZXRyY3JWbnQxOFlYZFdFejJudDMwIiwidCI6MTc5MDkzODIyNDU3NSwidiI6MSwieCI6ImFkcmFpLzEuMC4wIn0 -->
