@@ -10,3 +10,8 @@ approver and recorded approval date may change a record to `Accepted`.
 - [0004 — Spatial domain, queries, and schema-version contract](0004-spatial-domain-query-and-version-contract.md) — **Accepted** (approved by Project owner (user) on 2026-08-30)
 - [0005 — First-class generational history and coordinated v0.7 contract](0005-first-class-generational-history.md) — **Accepted** (ratified by the current project owner on 2026-08-30 after independent review)
 - [0006 — Preserve authored object affordances in v0.7](0006-preserve-object-affordances-in-v07.md) — **Accepted** (approved by the project owner on 2026-09-25)
+
+ADRAI-managed workflow decisions use their own identifiers alongside the legacy
+numbered records above:
+
+- [A01M3Y3S5QMJWMBMQT42HDQPDJS — Bounded development scratch and test signals](../../architecture/adrai/decisions/R01M/R01M3Y3S5XZ33Y7SD2K3E20EQ6Q--bounded-development-scratch-and-test-signals.decision.md) — **Accepted** by Sornaensis on 2026-10-02; applies repository-wide (`**`).

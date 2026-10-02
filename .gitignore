@@ -60,3 +60,4 @@ dist/
 
 # Local cleanup catalogues, archives, and execution receipts
 /output/repository-cleanup-20261002/
+/.adrai/
