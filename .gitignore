@@ -57,3 +57,6 @@ dist/
 /.tmp-task*.pid
 /.tmp-task*.stderr
 /.tmp-task*.stdout
+
+# Local cleanup catalogues, archives, and execution receipts
+/output/repository-cleanup-20261002/

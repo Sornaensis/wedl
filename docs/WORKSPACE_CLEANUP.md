@@ -1,37 +1,36 @@
 # Workspace cleanup
 
-The 2026-10-02 cleanup reduced the repository root from 981 entries to 23. It removed 4,274,760,618 **logical file bytes**, archived 193 historical receipts, and relocated 742 historical run directories into `output/repository-cleanup-20261002/legacy-test-runs/`. Physical disk savings are unknown: retained revision databases can use hardlinks to world databases. Directory relocation frees no storage.
+The 2026-10-02 cleanup reduced the repository root from 981 entries to 23 and removed 55,913,760,183 logical file bytes. It archived 193 root receipts, then retired all 742 closed historical run directories after preserving their diagnostic records. Retirement removed 1,756,584 regular files, 610,745 directories and one link entry. Physical disk savings are unmeasured because files can share hardlink allocations.
 
-The readable catalogue, inventories, removal manifests, archive restoration index, rename/restore maps, and execution receipts are under `output/repository-cleanup-20261002/`. That directory is local evidence. Historical source copies, nested Git repositories, unique receipts, patches, scripts, and current investigation inputs remain preserved. The eight inherited modified files retain their original hashes. `_aef_review_fix_mig_clean` remains at the root because Windows denied its namespace move; `tmpvx2hjok2` has unknown provenance and remains untouched.
+The catalogue, inventories, exact manifests, archive indices, provenance and execution receipts are in `output/repository-cleanup-20261002/`. The narrow ignore rule keeps this local evidence out of Git status. Main source, eight inherited modified files, both story Git links, registered worktrees, and unresolved spatial and warm-read proof inputs remain protected. `_aef_review_fix_mig_clean` remains after Windows denied its move; no ACL repair was attempted. The empty `tmpvx2hjok2` has unknown provenance and remains outside the cleanup scope.
 
-## Exact removal
+## Preserved diagnostics
 
-`tools/cleanup_workspace.ps1` implements this maintenance task's exact manifest categories. It does not discover disposable content from filenames. An independently reviewed manifest and its SHA256 are required; dry-run is the default, and `-Apply` performs removal. Use a fresh receipt path for every invocation.
+`root-receipts.zip` and its index preserve all 193 earlier root XML/log/process-stream receipts byte for byte. The retirement archive, `legacy-retirement/diagnostics.zip`, has 91,527 verified members: 58,328 raw records and 33,199 derived metadata envelopes. Its index maps current and original paths, lengths, fingerprints, and each retained member's SHA256. Every member was independently decompressed and checked before retirement.
+
+Raw records are byte-restorable. Derived envelopes preserve diagnostic state, hashes, lengths, journal/index metadata and bounded SQLite revision/compile metrics; they cannot restore the omitted database, source, Git-object, or beforeimage payloads. Large journal image fields have explicit omitted-field paths and encoded hashes/lengths. Malformed journals retain actual parse errors rather than inferred outcomes. SQLite inspection used immutable metadata reads, without WAL replay; unknown malformed stores and omitted companions are recorded.
+
+To restore a raw receipt, select its indexed member, verify the decompressed length and SHA256, and write only to an absent contained destination. Old rename/restore maps are historical provenance; after payload retirement they cannot restore whole fixtures. Rebuild future fixtures from maintained source.
+
+## Guarded maintenance tools
+
+These tools implement exact reviewed manifests for this maintenance task. They do not discover disposable content from a filename. Dry-run is the default; `-Apply` changes the filesystem. Supply the reviewed manifest SHA256 and a new receipt path on each invocation.
+
+`tools/cleanup_workspace.ps1` checks workspace identity, containment, nonreparse ancestors, file hashes/lengths/timestamps and exact directory child rosters. Files use literal-path removal; directories use atomic nonrecursive deletion that refuses new children. Receipt-backed removal first verifies every decompressed archive member.
+
+`tools/organize_workspace_runs.ps1` performs exact same-volume directory moves and reviewed restoration subsets with native identities and ancestor/location checks. There is no copy/delete fallback. Its 2026-10-02 maps describe the historical organization step, preceding retirement.
+
+`tools/retire_workspace_runs.ps1` verifies the archive/index, exact root and ancestor identities, worktree exclusions, and preserved diagnostics' locked native fingerprints. NTFS hardlink aliases can expose stale directory-entry timestamps, so freshness uses handle metadata. All repository-to-root ancestor handles remain held during deletion. Descendant reparse entries are unlinked without following targets. Native unlink avoids changing read-only attributes shared with retained hardlinks; unsupported operations refuse rather than fall back.
 
 ```powershell
-./tools/cleanup_workspace.ps1 -Manifest output/repository-cleanup-20261002/removal-manifest.json -ExpectedManifestSha256 <reviewed-sha256> -Receipt output/repository-cleanup-20261002/new-dry-run.json
-# For an approved manifest, use a fresh receipt path and append -Apply.
+./tools/retire_workspace_runs.ps1 -Manifest output/repository-cleanup-20261002/legacy-retirement/retirement-manifest.json -ExpectedManifestSha256 <reviewed-sha256> -Receipt output/repository-cleanup-20261002/legacy-retirement/new-dry-run.json
+# Append -Apply only for the independently approved exact manifest.
 ```
 
-The tool checks workspace identity, containment, nonreparse ancestors, file hashes/lengths/mtime, and directory child rosters. Files use literal-path removal; directories use atomic nonrecursive deletion that refuses new children. Archived receipts require validation of every decompressed entry against the retained name/length/SHA256 index before originals can be removed. A changed file, unexpected child, inaccessible entry, link, or unsupported category refuses the operation. Each successful action publishes an immutable flushed checkpoint; partial failures retain completed actions. A crash between an action and checkpoint publication can leave an unrecorded missing target, so reconcile existence before preparing another manifest.
+Immutable flushed checkpoints record each completed root, with explicit partial/refused outcomes. A crash between deletion and checkpoint publication can leave unrecorded removals; reconcile actual paths before preparing a new manifest. No process termination or ACL change is performed.
 
-Removed cache bytes are no longer retained. Task959 rebuild provenance and historical source/scripts remain in the manifests. The synthetic browser100k cache requires its preserved historical compiled-browser patch and browser-small seed recipe; ordinary source compilation is not its reconstruction recipe. Removing caches does not change the original historical receipt claims or certify current product gates.
+Bounded process checks see absolute canonical prefixes. Relative paths, aliases and processes identified only by their working directory are outside their visibility. Coordinate with known owners; these checks do not establish host-wide inactivity.
 
-## Reversible run organization
+## Prevention and remaining work
 
-`tools/organize_workspace_runs.ps1` accepts an independently reviewed exact rename manifest and SHA256. Dry-run is the default; `-Apply` moves directories and `-Restore` reverses successful entries. For restoring a subset, prepare and review an exact subset manifest using the recorded identities and restore maps. The original manifest includes one refused entry, so blindly restoring the full roster is inappropriate.
-
-```powershell
-./tools/organize_workspace_runs.ps1 -Manifest output/repository-cleanup-20261002/rename-manifest.extra16.json -ExpectedManifestSha256 <reviewed-sha256> -Receipt output/repository-cleanup-20261002/new-restore-dry-run.json -Restore
-# After reviewing the dry-run, use another fresh receipt and append -Apply.
-```
-
-Moves use same-volume `Directory.Move` with native directory identity and ancestor/location checks. There is no descendant traversal, copy/delete fallback, link following, ACL repair, or process termination. Each successful move preserves the directory identity and publishes a checkpoint. Opaque descendants remain intact; historical absolute paths or relative links may require restoration to the original location before replay. Relocation does not establish that a fixture runs from its new path.
-
-A bounded process query checks absolute original and retained prefixes for the actual direction of movement. Matches are deferred; query errors, deadlines, and caps refuse the invocation. Relative paths, aliases, and processes whose working directory alone identifies a fixture are outside this check. Coordinate with known owners; the query is not evidence that no process on the host uses the inputs.
-
-## Retention and prevention
-
-Canonical source, tests, documentation, examples, supported tools, the development environment, runtime state, both Git links, registered worktrees, and current spatial/generational investigation inputs remain protected. Root XML/log/process streams are preserved in `root-receipts.zip`; `root-receipts-index.json` records original relative names, lengths, hashes, and timestamps. Verify decompressed bytes before restoring an individual receipt to an absent contained original path.
-
-Root-anchored ignore rules cover observed run families and receipt extensions. Ignoring a file does not prove it is disposable or expire it. Follow-up work should direct runner scratch into one documented ignored run directory with a retention policy, reconcile stale suite timing documentation, and review closed output bulk by provenance. Legacy and v0.7 package-data copies are compatibility fixtures; byte similarity alone is insufficient to remove them. Source architecture and dead-code changes require their own behavior review.
+Root-anchored ignore rules cover observed scratch and receipt families. Ignoring a file does not expire it or prove disposability. A future runner change should direct scratch into one documented ignored directory with explicit retention. Current spatial staging/warm-read proof inputs and other historical output groups remain catalogued separately. Compatibility package-data copies, source organization, dead-code review and stale timing documentation need their own behavior review.
