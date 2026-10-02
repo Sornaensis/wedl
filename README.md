@@ -616,15 +616,24 @@ and [`docs/MEDIUM_SEARCH_PROFILE_BENCHMARKS.json`](docs/MEDIUM_SEARCH_PROFILE_BE
 
 ## Tests
 
-```bash
-pytest -q
+Run the bounded normal suite from the repository root:
+
+```powershell
+powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\tools\test.ps1
 ```
 
-The suite covers parsing, validation, temporal state, historical story-point
-correctness, perspective-safe retrieval, hard context budgets, conversation
-presence intervals, conflicting recollections, atomic changesets, typed
-conversation IDs, idempotent replay, source/embedding reuse, compiled-world
-reuse, SQLite integrity, completed-story continuity, historical search boundaries, and API authorization.
+This command collects the exact versioned test roster, checks the normal and
+performance partition, and runs the normal nodes in five disjoint shards with
+isolated temporary directories. Its default execution deadline is 800 seconds;
+`-TimeoutSeconds` accepts 1–800 for diagnosis. On a deadline breach it exits 124,
+terminates active pytest process trees, and reports diagnostics. Cleanup can
+extend the command's total wall time beyond the execution deadline.
+
+A successful run verifies one passing call outcome for every collected normal
+node and prints the live test counts and elapsed time. The separate performance
+suite uses the exact active performance IDs in `pytest.ini`; test intent alone
+does not select execution. See [docs/TESTING.md](docs/TESTING.md) for the commands
+and accounting rules.
 
 ## Project layout
 
