@@ -33,3 +33,27 @@ dist/
 /.v/
 /.x/
 /.y/
+
+# Observed disposable run sandboxes (retained failures still need review)
+/.task*/
+/._task*/
+/._t92*/
+/.wedl-test-tmp-*/
+/.wedl-task*/
+/_aef*/
+/_b9*/
+/_pytest*/
+/_t92*/
+/_task*/
+/_validation*/
+/_ce365*/
+
+# Historical root run receipts; ignoring does not authorize removal
+/.pytest-*.xml
+/.task*.xml
+/.chronology-*.xml
+/_t92*.log
+/.tmp-task*.exit
+/.tmp-task*.pid
+/.tmp-task*.stderr
+/.tmp-task*.stdout
