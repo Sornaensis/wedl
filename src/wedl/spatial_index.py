@@ -196,7 +196,15 @@ def insert_spatial_index(connection: sqlite3.Connection, projection: SpatialProj
             connection.executemany(sql, batch); batches += 1; maximum = max(maximum, len(batch))
     insert("INSERT INTO spatial_capability VALUES (?,?)", projection.capabilities)
     insert("INSERT INTO spatial_map VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)", projection.maps)
-    insert("INSERT INTO spatial_location VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)", projection.locations)
+    # Deferred self-references can name parents inserted later in source order.
+    # SQLite checks their earlier children whenever a parent arrives. Without
+    # this index that check scans all preceding locations for every insertion.
+    # Keep it build-only: the compiler installs its public query indexes later.
+    connection.execute("CREATE INDEX spatial_build_parent_idx ON spatial_location(parent_id)")
+    try:
+        insert("INSERT INTO spatial_location VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?)", projection.locations)
+    finally:
+        connection.execute("DROP INDEX spatial_build_parent_idx")
     insert("INSERT INTO spatial_location_vertex VALUES (?,?,?,?,?)", projection.vertices)
     insert("INSERT INTO spatial_hierarchy VALUES (?,?,?)", projection.hierarchy)
     insert("INSERT INTO spatial_location_link VALUES (?,?,?,?)", projection.location_links)

@@ -7,7 +7,8 @@ repository being measured. Compiled-projection probes are labeled separately.
 from __future__ import annotations
 
 import argparse
-from contextlib import closing, contextmanager
+from concurrent.futures import ThreadPoolExecutor
+from contextlib import closing, contextmanager, nullcontext
 import ctypes
 import hashlib
 import json
@@ -15,8 +16,10 @@ import os
 from pathlib import Path
 import platform
 import shutil
+import signal
 import sqlite3
 import statistics
+import stat
 import subprocess
 import sys
 import threading
@@ -118,18 +121,199 @@ def _finalize_run(trace: PhaseTrace, sandbox: Path, output: Path,
             temporary.unlink(missing_ok=True)
 
 
+class CommandCleanupError(RuntimeError):
+    """An owned command may still hold the fixture; manual reaping is required."""
+
+
+def _run_command(command: list[str], *, input: bytes | None = None,
+                 stdin=None, timeout: float = 60, check: bool = True) -> subprocess.CompletedProcess:
+    """Bound both command execution and descendant/pipe cleanup."""
+    process = subprocess.Popen(command, stdin=subprocess.PIPE if input is not None else stdin,
+                               stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                               start_new_session=os.name != "nt")
+    try:
+        stdout, stderr = process.communicate(input, timeout=timeout)
+    except subprocess.TimeoutExpired as failure:
+        try:
+            if process.poll() is None:
+                if os.name == "nt":
+                    subprocess.run(["taskkill", "/PID", str(process.pid), "/T", "/F"],
+                                   capture_output=True, check=True, timeout=10)
+                else:
+                    os.killpg(process.pid, signal.SIGKILL)
+            stdout, stderr = process.communicate(timeout=10)
+            failure.output, failure.stderr = stdout[-32768:], stderr[-32768:]
+        except Exception as cleanup:
+            raise CommandCleanupError(f"command cleanup failed; retain owned fixture and report: {cleanup}") from failure
+        raise
+    result = subprocess.CompletedProcess(command, process.returncode, stdout, stderr)
+    if check:
+        result.check_returncode()
+    return result
+
+
 def _git(root: Path, *args: str) -> str:
-    result = subprocess.run(["git", "-C", str(root), *args],
-                            capture_output=True, text=True)
+    result = _run_command(["git", "-C", str(root), *args], check=False)
     if result.returncode:
-        raise RuntimeError(f"git {' '.join(args)} failed: {result.stderr.strip()}")
-    return result.stdout.strip()
+        raise RuntimeError(f"git {' '.join(args)} failed: {result.stderr.decode().strip()}")
+    return result.stdout.decode().strip()
 
 
 def _write(root: Path, group: str, record: dict[str, Any]) -> None:
     path = root / "story" / group / (record["id"].replace(":", "-") + ".md")
     path.parent.mkdir(parents=True, exist_ok=True)
     path.write_bytes(serialize_record(record, f"# {record['title']}\n"))
+
+
+def _commit_generated(root: Path, sandbox: Path, parent: str,
+                      trace: PhaseTrace | None = None) -> dict[str, Any]:
+    """Commit fresh authored files in one Git stream, then prove tree parity.
+
+    This operates only on the newly copied disposable repository. It refuses
+    attributes/filters rather than bypassing Git's normal source conversion.
+    The source files remain the input, and every blob and mode is verified.
+    """
+    if root.resolve(strict=True).parent != sandbox.resolve(strict=True):
+        raise RuntimeError("generated fixture is outside its sandbox")
+
+    def regular(path: Path, *, directory: bool) -> os.stat_result:
+        info = path.lstat()
+        if (stat.S_ISLNK(info.st_mode) or
+                getattr(info, "st_file_attributes", 0) & stat.FILE_ATTRIBUTE_REPARSE_POINT or
+                (not stat.S_ISDIR(info.st_mode) if directory else not stat.S_ISREG(info.st_mode))):
+            raise RuntimeError(f"generated fixture contains an alias or special file: {path}")
+        return info
+
+    for directory in (sandbox, root, root / ".git", root / "story"):
+        regular(directory, directory=True)
+    if _git(root, "rev-parse", "HEAD") != parent:
+        raise RuntimeError("generated fixture parent changed")
+    branch = _git(root, "symbolic-ref", "HEAD")
+    if not branch.startswith("refs/heads/"):
+        raise RuntimeError("generated fixture needs its copied local branch")
+    files: list[Path] = []
+    file_states: dict[Path, tuple[int, int, int, int, int]] = {}
+    directory_states: dict[Path, tuple[int, int, int, int, int]] = {}
+
+    def state(info: os.stat_result) -> tuple[int, int, int, int, int]:
+        return info.st_dev, info.st_ino, info.st_size, info.st_mtime_ns, info.st_ctime_ns
+
+    def read_authored(path: Path) -> bytes:
+        if state(regular(path, directory=False)) != file_states[path]:
+            raise RuntimeError("generated fixture source changed before reading")
+        data = path.read_bytes()
+        if state(regular(path, directory=False)) != file_states[path]:
+            raise RuntimeError("generated fixture source changed while reading")
+        return data
+
+    for directory, subdirectories, names in os.walk(root / "story", followlinks=False):
+        directory_states[Path(directory)] = state(regular(Path(directory), directory=True))
+        for name in subdirectories:
+            regular(Path(directory) / name, directory=True)
+        for name in names:
+            path = Path(directory) / name
+            file_states[path] = state(regular(path, directory=False))
+            relative = path.relative_to(root).as_posix()
+            if not relative.isascii() or any(character in relative for character in '\n\r"\\'):
+                raise RuntimeError("generated fixture path cannot be streamed literally")
+            files.append(path)
+    files.sort(key=lambda path: path.relative_to(root).as_posix())
+    paths = b"".join(path.relative_to(root).as_posix().encode() + b"\0" for path in files)
+    attributes = _run_command(["git", "-C", str(root), "check-attr", "-z", "--all", "--stdin"], input=paths)
+    if attributes.stdout:
+        raise RuntimeError("generated fixture attributes require conventional Git staging")
+    ignored = _run_command(["git", "-C", str(root), "check-ignore", "-z", "--no-index", "--stdin"],
+                           input=paths, check=False)
+    if ignored.returncode not in (0, 1) or ignored.stdout:
+        raise RuntimeError("generated fixture ignore rules require conventional Git staging")
+    autocrlf = _run_command(["git", "-C", str(root), "config", "--get", "core.autocrlf"],
+                            check=False, timeout=10)
+    if autocrlf.returncode not in (0, 1) or autocrlf.stdout.strip().lower() not in (b"", b"false", b"input"):
+        raise RuntimeError("generated fixture line conversion is not supported by stream staging")
+    algorithm = _git(root, "rev-parse", "--show-object-format")
+    if algorithm not in {"sha1", "sha256"}:
+        raise RuntimeError("unsupported Git object format")
+
+    def tree(revision: str) -> dict[bytes, bytes]:
+        result = _run_command(["git", "-C", str(root), "ls-tree", "-rz", revision])
+        return dict((entry.split(b"\t", 1)[1], entry.split(b"\t", 1)[0])
+                    for entry in result.stdout.split(b"\0") if entry)
+
+    before = tree(parent)
+    expected = {path: value for path, value in before.items() if not path.startswith(b"story/")}
+    stream_path = sandbox / "generated-import.fi"
+    created_stream = False
+    measure = trace.measure if trace is not None else lambda _: nullcontext()
+    try:
+        with measure("git-authored-read-and-blob-stream"), stream_path.open("xb") as stream:
+            created_stream = True
+            # Cold per-file opens dominate this authored Windows workload.
+            # Read a bounded batch concurrently, retaining source order and
+            # hashing the actual file bytes rather than generator records.
+            with ThreadPoolExecutor(max_workers=16) as readers:
+                for offset in range(0, len(files), 64):
+                    batch = files[offset:offset + 64]
+                    for path, data in zip(batch, readers.map(read_authored, batch)):
+                        if b"\r" in data:
+                            raise RuntimeError("generated fixture needs conventional line conversion")
+                        relative = path.relative_to(root).as_posix().encode()
+                        oid = hashlib.new(algorithm, f"blob {len(data)}\0".encode() + data).hexdigest().encode()
+                        expected[relative] = b"100644 blob " + oid
+                        stream.write(b"blob\n")
+                        stream.write(f"data {len(data)}\n".encode() + data + b"\n")
+            stream.write(b"done\n")
+        with measure("git-blob-import"), stream_path.open("rb") as stream:
+            _run_command(["git", "-C", str(root), "fast-import", "--quiet", "--done"],
+                         stdin=stream, timeout=300)
+        with measure("git-native-tree-and-proof"):
+            # Build trees in bulk, avoiding fast-import's per-path tree updates for
+            # the hundreds of thousands of siblings in the authored route folder.
+            directories: dict[bytes, list[bytes]] = {b"story": []}
+            for path, value in expected.items():
+                if path.startswith(b"story/"):
+                    directory, name = path.rsplit(b"/", 1)
+                    directories.setdefault(directory, []).append(value + b"\t" + name + b"\0")
+                    while directory != b"story":
+                        directory = directory.rsplit(b"/", 1)[0]
+                        directories.setdefault(directory, [])
+            story_oid = b""
+            for directory in sorted(directories, key=lambda path: path.count(b"/"), reverse=True):
+                oid = _run_command(["git", "-C", str(root), "mktree", "-z"],
+                                   input=b"".join(directories[directory])).stdout.strip()
+                if directory == b"story":
+                    story_oid = oid
+                else:
+                    ancestor, name = directory.rsplit(b"/", 1)
+                    directories[ancestor].append(b"040000 tree " + oid + b"\t" + name + b"\0")
+            parent_entries = _run_command(["git", "-C", str(root), "ls-tree", "-z", parent]).stdout
+            root_entries = [entry + b"\0" for entry in parent_entries.split(b"\0")
+                            if entry and entry.split(b"\t", 1)[1] != b"story"]
+            root_entries.append(b"040000 tree " + story_oid + b"\tstory\0")
+            root_oid = _run_command(["git", "-C", str(root), "mktree", "-z"],
+                                    input=b"".join(root_entries)).stdout.decode().strip()
+            revision = _run_command(["git", "-C", str(root), "-c", "user.name=spatial scale",
+                                     "-c", "user.email=scale@test.invalid", "commit-tree", root_oid,
+                                     "-p", parent], input=b"generated spatial scale fixture\n").stdout.decode().strip()
+            if _git(root, "rev-parse", f"{revision}^") != parent or tree(revision) != expected:
+                raise RuntimeError("generated Git tree differs from exact authored bytes/modes/base tree")
+            for path, snapshot in file_states.items():
+                if state(regular(path, directory=False)) != snapshot:
+                    raise RuntimeError("generated fixture source changed after reading")
+            for path, snapshot in directory_states.items():
+                if state(regular(path, directory=True)) != snapshot:
+                    raise RuntimeError("generated fixture source set changed after reading")
+            if _git(root, "symbolic-ref", "HEAD") != branch:
+                raise RuntimeError("generated fixture branch changed")
+            _git(root, "update-ref", branch, revision, parent)
+            # Populate the disposable index directly; a worktree refresh would walk
+            # every generated file again. The checked Git tree is authoritative.
+            _git(root, "read-tree", "HEAD")
+            return {"kind": "fresh-authored-git-stream", "sourceFiles": len(files),
+                    "parent": parent, "treeOid": _git(root, "rev-parse", "HEAD^{tree}"),
+                    "verifiedBlobModes": True, "verifiedNonStoryTree": True}
+    finally:
+        if created_stream and not isinstance(sys.exc_info()[1], CommandCleanupError):
+            stream_path.unlink(missing_ok=True)
 
 
 def generate(root: Path, *, places: int, maps: int, routes: int,
@@ -430,6 +614,7 @@ def run(*, base: Path, output: Path, places: int = 256, maps: int = 2,
     trace = PhaseTrace(output)
     successful = False
     manifest: dict[str, Any] | None = None
+    preparation: dict[str, Any] | None = None
     sandbox = output / f"run-{uuid4().hex}"
     sandbox.mkdir()
     try:
@@ -458,11 +643,8 @@ def run(*, base: Path, output: Path, places: int = 256, maps: int = 2,
                 with trace.measure("source-generation"):
                     counts = generate(clone, places=places, maps=maps, routes=routes,
                                       portals=portals, overlays=overlays)
-                with trace.measure("git-add"):
-                    _git(clone, "add", "-A", "story")
-                with trace.measure("git-commit"):
-                    _git(clone, "-c", "user.name=spatial scale", "-c", "user.email=scale@test.invalid",
-                         "commit", "-qm", "generated spatial scale fixture")
+                with trace.measure("git-stream-and-tree-verification"):
+                    preparation = _commit_generated(clone, sandbox, base_head, trace)
             else:
                 clone = retained_fixture.resolve(strict=True)
                 owned = (base / "output" / "spatial-release-scale").resolve(strict=True)
@@ -602,6 +784,7 @@ def run(*, base: Path, output: Path, places: int = 256, maps: int = 2,
                     evidence["withinAdvisoryBudget"] = evidence["vmStepsUpperBound"] <= VM_BUDGETS[operation]
             manifest = {"kind": "authored-source-to-API", "baseCommit": base_head,
                         "fixtureCommit": fixture_head, "seed": 0, "host": _host(),
+                        "fixturePreparation": preparation,
                         "implementationProvenance": provenance,
                         "counts": counts, "compiledRows": rows,
                         "budgets": {"maxPage": 100, "routeExpansions": MAX_ROUTE_EXPANSIONS,
@@ -636,7 +819,12 @@ def run(*, base: Path, output: Path, places: int = 256, maps: int = 2,
             if old_tmp is None: os.environ.pop("TMP", None)
             else: os.environ["TMP"] = old_tmp
     finally:
-        _finalize_run(trace, sandbox, output, manifest, successful)
+        if isinstance(sys.exc_info()[1], CommandCleanupError):
+            (output / "cleanup-unresolved.json").write_text(json.dumps({
+                "sandbox": str(sandbox), "reason": "owned command cleanup unresolved",
+                "disposition": "retain until owner verifies descendants reaped; then finite contained cleanup"}) + "\n")
+        else:
+            _finalize_run(trace, sandbox, output, manifest, successful)
 
 
 def main() -> None:
