@@ -63,7 +63,7 @@ def test_json_wire_bound_rejects_malformed_values_and_overflow(monkeypatch: pyte
         with pytest.raises(RepositoryError, match="live-byte budget exceeded"):
             journal_module._json_wire_upper_bound(value)
     malformed_image = {"base64": "not\\base64", "sha256": "0" * 64}
-    assert journal_module._budgeted_journal_wire_upper_bound(malformed_image) >= len(
+    assert journal_module._json_wire_upper_bound(malformed_image) >= len(
         json.dumps(malformed_image, ensure_ascii=True, separators=(",", ":")).encode("utf-8")
     )
     monkeypatch.setattr(journal_module, "sys", SimpleNamespace(maxsize=10))
