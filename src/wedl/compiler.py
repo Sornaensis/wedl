@@ -819,11 +819,12 @@ def cache_readiness(repository: Repository, revision: str = "HEAD") -> dict[str,
 
 
 def _cache_readiness_for_resolved_revision(
-    repository: Repository, resolved: str,
+    repository: Repository, resolved: str, *, tree_oid: str | None = None,
 ) -> dict[str, Any]:
     """Inspect a target resolved freshly by this read's repository entry point."""
     _cache, database, _revisions = cache_paths(repository)
-    tree_oid = repository.tree_oid(resolved)
+    if tree_oid is None:
+        tree_oid = repository.tree_oid(resolved)
     target = {"revision": resolved, "treeOid": tree_oid}
     if not database.exists():
         return {
@@ -1747,9 +1748,10 @@ def require_database(
 
 def _require_database_for_resolved_revision(
     repository: Repository, resolved: str, *, require_compiled: bool = False,
+    tree_oid: str | None = None,
 ) -> tuple[World, Path]:
     """Consume only the revision resolution performed for the current read."""
-    readiness = _cache_readiness_for_resolved_revision(repository, resolved)
+    readiness = _cache_readiness_for_resolved_revision(repository, resolved, tree_oid=tree_oid)
     return _require_database_from_readiness(
         repository, resolved, readiness, require_compiled=require_compiled)
 

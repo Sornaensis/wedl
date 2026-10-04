@@ -17,7 +17,7 @@ from typing import Any, Collection, Mapping
 
 from .compiler import _require_database_for_resolved_revision, connect
 from .conversation import scene_context_time
-from .errors import CompileRequired, ValidationFailed
+from .errors import CompileRequired, RepositoryError, ValidationFailed
 from .generational_index import _DISCOVERY_INTERVAL_BASE, cited_ancestors, cited_containment, cited_descendants, cited_relative_path, fold_record
 from .ids import valid_id
 from .model import ORDER_MAX, TICK_MAX, StoryTime
@@ -750,12 +750,18 @@ def query_generational(repository: Repository, scope: TrustedViewerScope,
             and isinstance(request, Mapping) and "includeFormerRoles" in request):
         return _closed("invalid", "GEN-REQUEST-001")
     try:
-        resolved = repository.resolve(scope.revision)
+        target = {}
+        if (isinstance(repository, Repository) and re.fullmatch(r"[0-9a-f]{40}", scope.revision)
+                and repository.is_git):
+            resolved, tree_oid = repository._resolve_pinned_target(scope.revision)
+            target["tree_oid"] = tree_oid
+        else:
+            resolved = repository.resolve(scope.revision)
         if resolved != scope.revision:
             return _closed("invalid", "GEN-REQUEST-001")
         world, database = _require_database_for_resolved_revision(
-            repository, resolved, require_compiled=require_compiled)
-    except (ValueError, OSError, CompileRequired, ValidationFailed):
+            repository, resolved, require_compiled=require_compiled, **target)
+    except (ValueError, OSError, RepositoryError, CompileRequired, ValidationFailed):
         return _closed("unavailable")
     if world.revision != scope.revision or CAPABILITY not in (world.world_record.frontmatter.get("capabilities") or []):
         return _closed("unavailable")

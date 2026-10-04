@@ -6,6 +6,7 @@ from copy import deepcopy
 from contextlib import closing
 from pathlib import Path
 import sqlite3
+import subprocess
 
 import pytest
 
@@ -1106,6 +1107,113 @@ def _entry_fixture(tmp_path):
     compiled = compile_world(repository, profile_name="fts")
     repository.calls.clear()
     return repository, Path(compiled["database"]), mapping
+
+
+def _pinned_git_entry_fixture(tmp_path, monkeypatch):
+    from wedl import compiler
+    from wedl.repository import Repository
+
+    # Git is read-only here; the compiled vector and every cache write belong
+    # to tmp_path. This also works when the test source is in a Git worktree.
+    repository = Repository(Path(__file__).resolve().parents[1])
+    assert repository.is_git, "the real-Git lookup regression requires a Git checkout"
+    revision = repository.head()
+    tree = repository.tree_oid(revision)
+    fake, database, mapping = _entry_fixture(tmp_path)
+    with closing(sqlite3.connect(database)) as connection:
+        connection.execute("UPDATE revision SET head_commit=?,tree_oid=?", (revision, tree))
+        connection.commit()
+    paths = compiler.cache_paths(fake)
+    monkeypatch.setattr(compiler, "cache_paths", lambda _repository: paths)
+    return repository, database, mapping, replace(_scope(), revision=revision), tree
+
+
+def test_pinned_git_entry_pairs_lookup_and_checks_integrity_each_read(tmp_path, monkeypatch):
+    from wedl import compiler
+
+    repository, database, mapping, scope, tree = _pinned_git_entry_fixture(tmp_path, monkeypatch)
+    calls = []
+    original_git = repository._git
+    original_check = compiler._compiled_database_issues
+    checked = []
+
+    def observed_git(args, **kwargs):
+        calls.append(list(args))
+        return original_git(args, **kwargs)
+
+    def observed_check(path):
+        checked.append(path)
+        return original_check(path)
+
+    monkeypatch.setattr(repository, "_git", observed_git)
+    monkeypatch.setattr(compiler, "_compiled_database_issues", observed_check)
+    requests = [{"operation": "parents", "subject_id": mapping["character_child"]},
+                {"operation": "ancestors", "subject_id": mapping["character_child"]},
+                {"operation": "vital", "subject_id": mapping["character_child"]},
+                {"operation": "search", "text": "character", "items": 2}]
+    before = database.read_bytes()
+    with closing(sqlite3.connect(database)) as connection:
+        connection.row_factory = sqlite3.Row
+        for viewer in (scope, replace(_scope(mode="character"), revision=scope.revision)):
+            for request in requests:
+                expected = query_connection(connection, viewer, request)
+                calls.clear()
+                assert query_generational(repository, viewer, request, require_compiled=True) == expected
+                assert calls == [["rev-parse", scope.revision,
+                                  f"{scope.revision}^{{tree}}"]]
+    assert checked == [database] * 8
+    assert database.read_bytes() == before
+    # A tree object was historically accepted: do not narrow to ^{commit}.
+    assert repository._resolve_pinned_target(tree) == (tree, tree)
+    with closing(sqlite3.connect(database)) as connection:
+        connection.execute("DROP INDEX generational_search_lookup_idx")
+        connection.commit()
+    damaged = database.read_bytes()
+    assert query_generational(repository, scope, requests[0], require_compiled=True) == {"state": "unavailable"}
+    assert checked == [database] * 9 and database.read_bytes() == damaged
+
+
+def test_pinned_git_entry_closes_failed_and_malformed_target_replies(tmp_path, monkeypatch):
+    from wedl import compiler
+    from wedl.errors import RepositoryError
+
+    repository, database, mapping, scope, tree = _pinned_git_entry_fixture(tmp_path, monkeypatch)
+    request = {"operation": "parents", "subject_id": mapping["character_child"]}
+    before = database.read_bytes()
+    original_git = repository._git
+    assert query_generational(repository, replace(scope, revision="0" * 40), request) == {"state": "unavailable"}
+
+    def forbidden(*args, **kwargs):
+        pytest.fail("invalid Git target reached readiness or rebuild")
+
+    monkeypatch.setattr(compiler, "_cache_readiness_for_resolved_revision", forbidden)
+    monkeypatch.setattr(compiler, "compile_world", forbidden)
+    replies = [(1, f"{scope.revision}\n{tree}\n".encode()), (0, b""),
+               (0, f"{scope.revision}\n".encode()),
+               (0, f"{scope.revision}\n{tree}\n{tree}\n".encode()),
+               (0, f"{'f' * 40}\n{tree}\n".encode()),
+               (0, f"{scope.revision}\nnot-an-oid\n".encode()),
+               (0, f"{scope.revision}\n{tree.upper()}\n".encode()),
+               (0, b"\xff\n\xff\n")]
+    for returncode, stdout in replies:
+        calls = []
+
+        def reply(args, **kwargs):
+            calls.append(list(args))
+            return subprocess.CompletedProcess(args, returncode, stdout, b"failure")
+
+        monkeypatch.setattr(repository, "_git", reply)
+        assert query_generational(repository, scope, request) == {"state": "unavailable"}
+        assert len(calls) == 1 and database.read_bytes() == before
+
+    for error in (RepositoryError("Git failed"), OSError("Git missing")):
+        def failed(*args, **kwargs):
+            raise error
+
+        monkeypatch.setattr(repository, "_git", failed)
+        assert query_generational(repository, scope, request) == {"state": "unavailable"}
+    monkeypatch.setattr(repository, "_git", original_git)
+    assert database.read_bytes() == before
 
 
 def test_repository_entry_resolves_once_and_preserves_ready_answers(tmp_path: Path, monkeypatch) -> None:

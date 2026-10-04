@@ -5,6 +5,7 @@ from contextlib import closing, contextmanager
 import json
 import os
 from pathlib import Path
+import re
 import sqlite3
 import stat
 import subprocess
@@ -320,6 +321,22 @@ class Repository:
         if not self.is_git or revision in {None, "WORKTREE"}:
             return "WORKTREE"
         return self._git(["rev-parse", str(revision)]).stdout.decode().strip()
+
+    def _resolve_pinned_target(self, revision: str) -> tuple[str, str]:
+        """Read a canonical object and its tree together, without retaining them."""
+        if not re.fullmatch(r"[0-9a-f]{40}", revision) or not self.is_git:
+            raise RepositoryError("a canonical Git object is required")
+        process = self._git(["rev-parse", revision, f"{revision}^{{tree}}"])
+        if process.returncode != 0:
+            raise RepositoryError("pinned Git target lookup failed")
+        try:
+            objects = process.stdout.decode("ascii").splitlines()
+        except UnicodeDecodeError as error:
+            raise RepositoryError("invalid pinned Git target reply") from error
+        if (len(objects) != 2 or objects[0] != revision
+                or any(re.fullmatch(r"[0-9a-f]{40}", oid) is None for oid in objects)):
+            raise RepositoryError("invalid pinned Git target reply")
+        return objects[0], objects[1]
 
     def _batch_blobs(self, object_ids: list[str]) -> list[bytes]:
         if not object_ids:
