@@ -90,11 +90,16 @@ def _request_fields(request: dict[str, Any], *, require_source_hash: bool = Fals
     return mode, expected, source_hash, key.strip(), rollback_ref, request.get("backupRef")
 
 
-def _rollback_identity(repository: Repository, backup_ref: str) -> tuple[str, str]:
+def _rollback_snapshot(repository: Repository, backup_ref: str) -> tuple[str, Snapshot]:
     oid = repository.ref(backup_ref)
     if oid is None:
         raise RepositoryError("rollback backup ref does not exist")
-    return oid, _source_hash(repository.snapshot(oid))
+    return oid, repository.snapshot(oid)
+
+
+def _rollback_identity(repository: Repository, backup_ref: str) -> tuple[str, str]:
+    oid, source = _rollback_snapshot(repository, backup_ref)
+    return oid, _source_hash(source)
 
 
 def _normalized_request(repository: Repository, request: dict[str, Any], snapshot: Snapshot) -> dict[str, Any]:
@@ -383,10 +388,10 @@ def _raw_changes(previous: dict[str, bytes], proposed: dict[str, bytes]) -> tupl
 
 def _rollback_plan(repository: Repository, request: dict[str, Any], snapshot: Snapshot) -> dict[str, Any]:
     backup_ref = str(request["rollbackBackupRef"])
-    current_oid, current_hash = _rollback_identity(repository, backup_ref)
+    current_oid, source = _rollback_snapshot(repository, backup_ref)
+    current_hash = _source_hash(source)
     if current_oid != request["rollbackBackupOid"] or current_hash != request["rollbackBackupSourceSnapshotHash"]:
         raise StaleRevision("rollback backup ref changed after preview", details={"rollbackBackupRef": backup_ref})
-    source = repository.snapshot(current_oid)
     schemas = {frontmatter.get("schema") for _path, frontmatter, _body, _data in _raw_records(source)}
     # A v0.4 backup is intentionally restored byte-for-byte only here.  The
     # ordinary loader remains quarantined and no derived cache is rebuilt.

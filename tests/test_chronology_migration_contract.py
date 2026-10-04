@@ -8,9 +8,13 @@ import json
 from pathlib import Path
 import re
 
+import pytest
 import yaml
 
+from wedl import migration
+from wedl.errors import ConfirmationMismatch, ConfirmationRequired, ConflictError, ParseError, RepositoryError, StaleRevision
 from wedl.model import Record, World
+from wedl.repository import Snapshot
 from wedl.validation import validate_world
 
 
@@ -20,6 +24,64 @@ VECTOR = ROOT / "docs/examples/chronology-migration-v06.yaml"
 THREAD_CONTRACT = ROOT / "docs/THREAD_SCHEMA_CONTRACT.md"
 MIGRATION_RECOVERY = ROOT / "docs/MIGRATION_AND_RECOVERY.md"
 EMPTY_CHRONOLOGY = {"calendars": [], "eras": [], "anchors": []}
+
+
+class _RollbackRepository:
+    """Source-free backup reader; every mutation entry point is forbidden."""
+
+    def __init__(self, root, source):
+        self.root = root
+        self.source_root = "story"
+        self.backup_ref = migration.BACKUP_PREFIX + "a" * 64
+        self.oid = source.revision
+        self.source = source
+        self.head_oid = "head"
+        self.ref_reads = []
+        self.snapshot_reads = []
+        self.next_reads = []
+        self.writes = []
+
+    def ref(self, name):
+        assert name == self.backup_ref
+        self.ref_reads.append(name)
+        return self.oid
+
+    def snapshot(self, oid):
+        self.snapshot_reads.append(oid)
+        assert oid == self.oid
+        value = self.next_reads.pop(0) if self.next_reads else self.source
+        if isinstance(value, BaseException):
+            raise value
+        return value
+
+    def head(self):
+        return self.head_oid
+
+    def _write(self, *args, **kwargs):
+        self.writes.append((args, kwargs))
+        raise AssertionError("source/ref/index write forbidden")
+
+    ensure_backup_ref = commit_files = _await_external_index_lock_release = _write
+
+
+def _backup_snapshot(files, oid="captured-backup"):
+    return Snapshot(oid, "backup-tree", files, {})
+
+
+def _backup_hash(source):
+    value = hashlib.sha256()
+    for path, data in sorted(source.files.items()):
+        value.update(path.encode("utf-8") + b"\0" + hashlib.sha256(data).digest() + b"\n")
+    return value.hexdigest()
+
+
+def _backup_request(repository, current):
+    return {
+        "protocol": migration.PROTOCOL, "mode": "rollback", "expectedHead": "head",
+        "sourceSnapshotHash": _backup_hash(current), "idempotencyKey": "tiny-rollback",
+        "rollbackBackupRef": repository.backup_ref, "rollbackBackupOid": repository.oid,
+        "rollbackBackupSourceSnapshotHash": _backup_hash(repository.source),
+    }
 
 
 def _schemas(records):
@@ -209,7 +271,7 @@ def test_invalid_pinned_legacy_or_transformed_v06_candidate_writes_nothing():
     assert source == before_source, "candidate rejection precedes every ref/source/receipt/cache write"
 
 
-def test_same_v1_wire_parity_uses_current_hash_order_and_response_identity():
+def test_same_v1_wire_parity_uses_current_hash_order_and_response_identity(tmp_path, monkeypatch):
     data = yaml.safe_load(VECTOR.read_text(encoding="utf-8"))
     parity = data["wire_parity"]
     base = {**parity["request"], "sourceSnapshotHash": parity["sourceSnapshotHash"]}
@@ -238,6 +300,98 @@ def test_same_v1_wire_parity_uses_current_hash_order_and_response_identity():
         "protocol", "mode", "expectedHead", "sourceSnapshotHash", "idempotencyKey", "rollbackBackupRef", "backupRef",
     ]
 
+    raw = b"---\nschema: wedl/v0.4\n---\nrestored\n"
+    source = _backup_snapshot({"story/a.md": raw})
+    current = _backup_snapshot({"story/a.md": b"current\n"}, "head")
+    repository = _RollbackRepository(tmp_path, source)
+    request = _backup_request(repository, current)
+    assert migration._rollback_identity(repository, repository.backup_ref) == (source.revision, _backup_hash(source))
+
+    # Same captured OID, different content in a separate request must be read again.
+    repository.source = _backup_snapshot({"story/a.md": raw + b"changed\n"})
+    with monkeypatch.context() as patch:
+        patch.setattr(migration, "_raw_records", lambda _source: pytest.fail("identity must precede parsing"))
+        with pytest.raises(StaleRevision, match="changed after preview"):
+            migration._rollback_plan(repository, request, current)
+    assert repository.snapshot_reads == [source.revision, source.revision]
+    assert repository.writes == []
+
+    # Read failures propagate unchanged; malformed bytes are parsed only after identity.
+    for failure in (OSError("unavailable backup"), RepositoryError("corrupt object")):
+        repository.next_reads = [failure]
+        with pytest.raises(type(failure)) as raised:
+            migration._rollback_plan(repository, request, current)
+        assert raised.value is failure
+    repository.source = _backup_snapshot({"story/a.md": b"not a frontmatter record\n"})
+    with pytest.raises(StaleRevision):
+        migration._rollback_plan(repository, request, current)
+    malformed_request = _backup_request(repository, current)
+    with pytest.raises(ParseError):
+        migration._rollback_plan(repository, malformed_request, current)
+    repository.source = _backup_snapshot({"story/a.md": b"\xff"})
+    with pytest.raises(ParseError):
+        migration._rollback_plan(repository, _backup_request(repository, current), current)
+
+    # HEAD and current-source checks remain ahead of backup ref resolution.
+    repository.source = source
+    before_reads = len(repository.ref_reads)
+    repository.head_oid = "moved-head"
+    with pytest.raises(StaleRevision, match="different HEAD"):
+        migration._normalized_request(repository, request, current)
+    repository.head_oid = "head"
+    with pytest.raises(StaleRevision, match="source snapshot changed"):
+        migration._normalized_request(repository, {**request, "sourceSnapshotHash": "wrong"}, current)
+    assert len(repository.ref_reads) == before_reads
+    normalized = migration._normalized_request(repository, request, current)
+    assert normalized["rollbackBackupOid"] == source.revision
+    assert normalized["rollbackBackupSourceSnapshotHash"] == _backup_hash(source)
+    assert len(repository.ref_reads) == before_reads + 1
+    migration._rollback_plan(repository, normalized, current)
+    assert len(repository.ref_reads) == before_reads + 2
+
+    # A tiny stored receipt exercises the public replay branch without a Git/source fixture.
+    receipt_path = tmp_path / ".wedl" / "migration-receipts.json"
+    receipt_path.parent.mkdir()
+    response = {"protocol": migration.PROTOCOL, "phase": "apply", "status": "committed"}
+    receipt_path.write_text(json.dumps({request["idempotencyKey"]: {
+        "request": normalized, "confirmationToken": "confirmed", "result": response,
+    }}), encoding="utf-8")
+    receipt_bytes = receipt_path.read_bytes()
+    for token, error in ((None, ConfirmationRequired), ("wrong", ConfirmationMismatch)):
+        before_reads = len(repository.ref_reads)
+        with pytest.raises(error):
+            migration.apply(repository, request, confirmation_token_value=token)
+        assert len(repository.ref_reads) == before_reads + 1
+    before_reads = len(repository.ref_reads)
+    with pytest.raises(ConflictError):
+        migration.apply(repository, {**request, "expectedHead": "another-head"}, confirmation_token_value=None)
+    with pytest.raises(RepositoryError):
+        migration.apply(repository, {**request, "sourceSnapshotHash": None}, confirmation_token_value=None)
+    assert len(repository.ref_reads) == before_reads
+    repository.source = _backup_snapshot({"story/a.md": raw + b"rebound content\n"})
+    with pytest.raises(StaleRevision):
+        migration.apply(repository, request, confirmation_token_value=None)
+    repository.source = source
+    repository.oid = "rebound-oid"
+    with pytest.raises(StaleRevision):
+        migration.apply(repository, request, confirmation_token_value=None)
+    repository.oid = source.revision
+    repository.head_oid = "moved-head"
+    for _ in range(2):
+        before_reads = len(repository.ref_reads)
+        assert migration.apply(repository, request, confirmation_token_value="confirmed") == {**response, "idempotentReplay": True}
+        assert len(repository.ref_reads) == before_reads + 1
+    assert receipt_path.read_bytes() == receipt_bytes
+    assert repository.writes == []
+
+    invalid = _backup_snapshot({"story/a.md": b"---\nschema: wedl/v0.5\nkind: object\nid: invalid\n---\nbody\n"})
+    invalid_repository = _RollbackRepository(tmp_path, invalid)
+    rejected = migration._rollback_plan(invalid_repository, _backup_request(invalid_repository, current), current)
+    assert not rejected["valid"] and not rejected["skipCompile"]
+    assert any(item["severity"] == "error" for item in rejected["diagnostics"])
+    assert rejected["changes"] == {} and rejected["diff"] == ""
+    assert invalid_repository.writes == [] and receipt_path.read_bytes() == receipt_bytes
+
 
 def test_document_binds_atomic_preview_apply_and_disposable_cache_policy():
     text = " ".join(DOC.read_text(encoding="utf-8").split())
@@ -264,7 +418,43 @@ def test_document_binds_atomic_preview_apply_and_disposable_cache_policy():
     ]
 
 
-def test_rollback_pointer_uses_only_the_literal_preview_backup_ref():
+def test_rollback_pointer_uses_only_the_literal_preview_backup_ref(tmp_path):
     text = MIGRATION_RECOVERY.read_text(encoding="utf-8")
     assert "--rollback-backup-ref <BACKUP_REF_FROM_PREVIEW>" in text
     assert "--rollback-backup-ref refs/wedl/backups/migration/<REQUEST_HASH>" not in text
+
+    restored = b"---\nschema: wedl/v0.4\n---\nrestored\r\n"
+    source = _backup_snapshot({"story/a.md": restored})
+    current = _backup_snapshot({"story/a.md": b"current\n"}, "head")
+    repository = _RollbackRepository(tmp_path, source)
+    request = _backup_request(repository, current)
+    repository.next_reads = [source, AssertionError("duplicate snapshot read")]
+    plan = migration._rollback_plan(repository, request, current)
+    assert repository.ref_reads == [repository.backup_ref]
+    assert repository.snapshot_reads == [source.revision]
+    assert len(repository.next_reads) == 1
+    assert plan == {
+        "valid": True, "diagnostics": [], "changes": {"story/a.md": restored},
+        "diff": "--- a/story/a.md\n+++ b/story/a.md\n@@ -1 +1,4 @@\n-current\n+---\n+schema: wedl/v0.4\n+---\n+restored\r\n",
+        "noOp": False, "skipCompile": True,
+    }
+    assert request["rollbackBackupSourceSnapshotHash"] == _backup_hash(source)
+    repository.next_reads = []
+    assert migration._rollback_plan(repository, request, current) == plan
+    assert repository.ref_reads == [repository.backup_ref] * 2
+    assert repository.snapshot_reads == [source.revision] * 2
+
+    repository.oid = "changed-backup-oid"
+    repository.source = _backup_snapshot(source.files, repository.oid)
+    with pytest.raises(StaleRevision, match="changed after preview"):
+        migration._rollback_plan(repository, request, current)
+    assert repository.snapshot_reads[-1] == repository.oid
+    repository.oid = None
+    before_snapshots = list(repository.snapshot_reads)
+    with pytest.raises(RepositoryError, match="backup ref does not exist"):
+        migration._rollback_plan(repository, request, current)
+    assert repository.snapshot_reads == before_snapshots
+    repository.oid = source.revision
+    repository.source = source
+    assert migration._rollback_identity(repository, repository.backup_ref) == (source.revision, _backup_hash(source))
+    assert repository.writes == []
