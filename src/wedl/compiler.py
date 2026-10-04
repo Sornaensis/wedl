@@ -814,8 +814,15 @@ def cache_readiness(repository: Repository, revision: str = "HEAD") -> dict[str,
     that need no implicit writes can use this result (or ``require_database``
     with ``require_compiled=True``) to decide whether to run ``wedl compile``.
     """
-    _cache, database, _revisions = cache_paths(repository)
     resolved = repository.resolve(revision)
+    return _cache_readiness_for_resolved_revision(repository, resolved)
+
+
+def _cache_readiness_for_resolved_revision(
+    repository: Repository, resolved: str,
+) -> dict[str, Any]:
+    """Inspect a target resolved freshly by this read's repository entry point."""
+    _cache, database, _revisions = cache_paths(repository)
     tree_oid = repository.tree_oid(resolved)
     target = {"revision": resolved, "treeOid": tree_oid}
     if not database.exists():
@@ -1734,6 +1741,23 @@ def require_database(
     require_compiled: bool = False,
 ) -> tuple[World, Path]:
     readiness = cache_readiness(repository, revision)
+    return _require_database_from_readiness(
+        repository, revision, readiness, require_compiled=require_compiled)
+
+
+def _require_database_for_resolved_revision(
+    repository: Repository, resolved: str, *, require_compiled: bool = False,
+) -> tuple[World, Path]:
+    """Consume only the revision resolution performed for the current read."""
+    readiness = _cache_readiness_for_resolved_revision(repository, resolved)
+    return _require_database_from_readiness(
+        repository, resolved, readiness, require_compiled=require_compiled)
+
+
+def _require_database_from_readiness(
+    repository: Repository, revision: str, readiness: dict[str, Any], *,
+    require_compiled: bool = False,
+) -> tuple[World, Path]:
     database = Path(readiness["database"])
     if readiness["state"] != "ready":
         if require_compiled:

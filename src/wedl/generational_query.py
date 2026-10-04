@@ -15,7 +15,7 @@ import re
 import sqlite3
 from typing import Any, Collection, Mapping
 
-from .compiler import connect, require_database
+from .compiler import _require_database_for_resolved_revision, connect
 from .conversation import scene_context_time
 from .errors import CompileRequired, ValidationFailed
 from .generational_index import _DISCOVERY_INTERVAL_BASE, cited_ancestors, cited_containment, cited_descendants, cited_relative_path, fold_record
@@ -750,10 +750,11 @@ def query_generational(repository: Repository, scope: TrustedViewerScope,
             and isinstance(request, Mapping) and "includeFormerRoles" in request):
         return _closed("invalid", "GEN-REQUEST-001")
     try:
-        if repository.resolve(scope.revision) != scope.revision:
+        resolved = repository.resolve(scope.revision)
+        if resolved != scope.revision:
             return _closed("invalid", "GEN-REQUEST-001")
-        world, database = require_database(repository, scope.revision,
-                                           require_compiled=require_compiled)
+        world, database = _require_database_for_resolved_revision(
+            repository, resolved, require_compiled=require_compiled)
     except (ValueError, OSError, CompileRequired, ValidationFailed):
         return _closed("unavailable")
     if world.revision != scope.revision or CAPABILITY not in (world.world_record.frontmatter.get("capabilities") or []):

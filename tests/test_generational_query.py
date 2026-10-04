@@ -3,8 +3,11 @@ from __future__ import annotations
 
 from dataclasses import replace
 from copy import deepcopy
+from contextlib import closing
 from pathlib import Path
 import sqlite3
+
+import pytest
 
 from test_generational_compiler import _add_parentage, _connection as _unindexed_connection, _world
 from wedl.compiler import INDEX_DDL, compile_world, _bootstrap_compiled_connection, _insert_entities, _compiled_database_issues
@@ -1056,6 +1059,206 @@ def test_source_compiled_and_rebuilt_query_parity(tmp_path: Path, monkeypatch) -
     assert _compiled_database_issues(database) == ()
     assert [comparable(query_generational(repository, later_scope, request))
             for request in requests] == [comparable(result) for result in expected]
+
+
+class _EntryRepository:
+    """Source-free repository with mutable refs and independently mutable trees."""
+
+    source_root = "story"
+
+    def __init__(self, root, world):
+        self.root = root
+        self.world = world
+        self.revision = world.revision
+        self.trees = {world.revision: world.tree_oid,
+                      "vector-revision-next": "vector-tree-next",
+                      "WORKTREE": "worktree-tree"}
+        self.refs = {"branch": self.revision, "short": self.revision}
+        self._compiled_world_cache = {}
+        self.calls = []
+        self.last_load_stats = {"mode": "fixture", "parsed": len(world.records),
+                                "cacheHits": 0, "blobReads": 0}
+
+    def resolve(self, revision):
+        self.calls.append(("resolve", revision))
+        resolved = self.revision if revision == "HEAD" else self.refs.get(revision, revision)
+        if resolved not in self.trees:
+            raise ValueError("revision is unavailable")
+        return resolved
+
+    def tree_oid(self, revision):
+        self.calls.append(("tree", revision))
+        return self.trees[revision]
+
+    def load_world(self, revision, *, cache_write=False):
+        return replace(self.world, revision=revision, tree_oid=self.tree_oid(revision))
+
+    def is_ancestor(self, older, newer):
+        return older == "vector-revision" and newer == "vector-revision-next"
+
+    def changed_paths(self, older, newer):
+        return ["story/kinships/fixture.md"]
+
+
+def _entry_fixture(tmp_path):
+    world, mapping = _world()
+    repository = _EntryRepository(tmp_path, world)
+    compiled = compile_world(repository, profile_name="fts")
+    repository.calls.clear()
+    return repository, Path(compiled["database"]), mapping
+
+
+def test_repository_entry_resolves_once_and_preserves_ready_answers(tmp_path: Path, monkeypatch) -> None:
+    from wedl import compiler
+
+    repository, database, mapping = _entry_fixture(tmp_path)
+    requests = [
+        {"operation": "parents", "subject_id": mapping["character_child"]},
+        {"operation": "ancestors", "subject_id": mapping["character_child"]},
+        {"operation": "vital", "subject_id": mapping["character_child"]},
+        {"operation": "search", "text": "character", "items": 2},
+    ]
+    checked = []
+    original_check = compiler._compiled_database_issues
+
+    def observed_check(path):
+        checked.append(path)
+        return original_check(path)
+
+    monkeypatch.setattr(compiler, "_compiled_database_issues", observed_check)
+    with closing(sqlite3.connect(database)) as connection:
+        connection.row_factory = sqlite3.Row
+        for scope in (_scope(), _scope(mode="character")):
+            for request in requests:
+                expected = query_connection(connection, scope, request)
+                repository.calls.clear()
+                assert query_generational(repository, scope, request, require_compiled=True) == expected
+                assert repository.calls == [("resolve", scope.revision), ("tree", scope.revision)]
+    assert checked == [database] * (2 * len(requests))
+
+
+def test_repository_entry_rejects_alias_and_missing_revision(tmp_path: Path, monkeypatch) -> None:
+    from wedl import generational_query
+
+    repository, database, mapping = _entry_fixture(tmp_path)
+    original = database.read_bytes()
+    request = {"operation": "parents", "subject_id": mapping["character_child"]}
+
+    def unexpected_readiness(*args, **kwargs):
+        pytest.fail("rejected revision reached cache readiness")
+
+    monkeypatch.setattr(generational_query, "_require_database_for_resolved_revision", unexpected_readiness)
+    for revision in ("HEAD", "branch", "short"):
+        repository.calls.clear()
+        assert query_generational(repository, replace(_scope(), revision=revision), request) == {
+            "state": "invalid", "code": "GEN-REQUEST-001"}
+        assert repository.calls == [("resolve", revision)]
+    assert query_generational(repository, replace(_scope(), revision="missing"), request) == {"state": "unavailable"}
+
+    def unavailable(revision):
+        raise OSError("unavailable repository")
+
+    monkeypatch.setattr(repository, "resolve", unavailable)
+    assert query_generational(repository, _scope(), request) == {"state": "unavailable"}
+    assert database.read_bytes() == original
+
+
+def test_repository_entry_target_changes_remain_fresh(tmp_path: Path, monkeypatch) -> None:
+    from wedl import compiler
+    from wedl.errors import CompileRequired
+
+    repository, database, mapping = _entry_fixture(tmp_path)
+    request = {"operation": "parents", "subject_id": mapping["character_child"]}
+    assert query_generational(repository, _scope(), request, require_compiled=True)["state"] == "available"
+    repository.trees[repository.revision] = "changed-tree"
+    assert compiler.cache_readiness(repository)["state"] == "stale"
+    assert query_generational(repository, _scope(), request, require_compiled=True) == {"state": "unavailable"}
+    with pytest.raises(CompileRequired):
+        compiler.require_database(repository, "branch", require_compiled=True)
+    compiler.require_database(repository, "branch")
+    assert compiler.cache_readiness(repository, "branch")["state"] == "ready"
+
+    repository.revision = "vector-revision-next"
+    repository.refs["branch"] = repository.revision
+    for ref in ("HEAD", "branch"):
+        assert compiler.cache_readiness(repository, ref)["target"]["revision"] == repository.revision
+        with pytest.raises(CompileRequired):
+            compiler.require_database(repository, ref, require_compiled=True)
+    compiler.require_database(repository, "HEAD")
+    assert compiler.cache_readiness(repository, "branch")["state"] == "ready"
+    assert query_generational(repository, replace(_scope(), revision=repository.revision), request,
+                              require_compiled=True)["state"] == "available"
+
+    for tree in ("worktree-tree", "worktree-changed"):
+        repository.trees["WORKTREE"] = tree
+        assert compiler.cache_readiness(repository, "WORKTREE")["state"] == "stale"
+        compiler.require_database(repository, "WORKTREE")
+        assert query_generational(repository, replace(_scope(), revision="WORKTREE"), request,
+                                  require_compiled=True)["state"] == "available"
+
+    original_compile = compiler.compile_world
+
+    def moving_compile(repo, revision):
+        result = original_compile(repo, revision)
+        repo.revision = "vector-revision"
+        repo.refs["branch"] = repo.revision
+        return result
+
+    monkeypatch.setattr(compiler, "compile_world", moving_compile)
+    for ref in ("HEAD", "branch"):
+        repository.revision = "vector-revision-next"
+        repository.refs["branch"] = repository.revision
+        # The database remains WORKTREE, so each public call must rebuild then
+        # check its original mutable request again after the ref moves.
+        with pytest.raises(RuntimeError, match="did not produce a ready database: stale"):
+            compiler.require_database(repository, ref)
+        original_compile(repository, "WORKTREE")
+
+
+def test_repository_entry_missing_stale_damaged_cache_stays_fail_closed(tmp_path: Path, monkeypatch) -> None:
+    from wedl import compiler
+
+    repository, database, mapping = _entry_fixture(tmp_path)
+    request = {"operation": "parents", "subject_id": mapping["character_child"]}
+    expected = query_generational(repository, _scope(), request, require_compiled=True)
+    original_compile = compiler.compile_world
+    rebuilds = []
+
+    def observed_compile(repo, revision):
+        rebuilds.append(revision)
+        return original_compile(repo, revision)
+
+    monkeypatch.setattr(compiler, "compile_world", observed_compile)
+    original_tree_oid = repository.tree_oid
+    original_database = database.read_bytes()
+    for error_type in (ValueError, OSError):
+        def unavailable_tree(revision):
+            repository.calls.append(("tree", revision))
+            raise error_type("resolved target tree is unavailable")
+
+        monkeypatch.setattr(repository, "tree_oid", unavailable_tree)
+        repository.calls.clear()
+        assert query_generational(repository, _scope(), request, require_compiled=True) == {"state": "unavailable"}
+        assert repository.calls == [("resolve", repository.revision), ("tree", repository.revision)]
+        assert rebuilds == [] and database.read_bytes() == original_database
+    monkeypatch.setattr(repository, "tree_oid", original_tree_oid)
+    for state in ("missing", "stale", "incompatible"):
+        if state == "missing":
+            database.unlink()
+        elif state == "stale":
+            repository.trees[repository.revision] = "another-tree"
+        else:
+            with closing(sqlite3.connect(database)) as connection:
+                connection.execute("DROP INDEX generational_search_lookup_idx")
+        assert compiler.cache_readiness(repository)["state"] == state
+        before = database.read_bytes() if database.exists() else None
+        previous_rebuilds = list(rebuilds)
+        assert query_generational(repository, _scope(), request, require_compiled=True) == {"state": "unavailable"}
+        assert rebuilds == previous_rebuilds
+        assert (database.read_bytes() if database.exists() else None) == before
+        assert query_generational(repository, _scope(), request) == expected
+        assert rebuilds == previous_rebuilds + [repository.revision]
+        assert compiler.cache_readiness(repository)["state"] == "ready"
 
 
 def test_vital_direct_and_search_agree_before_birth_and_when_withheld() -> None:
