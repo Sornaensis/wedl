@@ -1,7 +1,8 @@
 """Name-first, revision-bound transport for the private generational query service.
 
 The loopback session proves access to this repository, not a character's
-identity.  Only the local author scope can currently be constructed here.
+identity. A trusted Python adapter can supply a separate character scope;
+ordinary JSON cannot construct that scope.
 """
 from __future__ import annotations
 
@@ -14,7 +15,7 @@ from .errors import NotFound, RepositoryError, ValidationFailed
 from .compiler import cache_readiness, compile_world, connect, require_database
 from .conversation import scene_context_time
 from .generational_context import build_generational_context
-from .generational_query import CAPABILITY, PROTOCOL, TrustedViewerScope, _VisibleCandidates, discovery_connection, query_generational
+from .generational_query import CAPABILITY, PROTOCOL, TrustedViewerScope, _VisibleCandidates, discovery_connection, discover_generational, query_generational
 from .model import ORDER_MAX, TICK_MAX, StoryTime, World
 from .repository import Repository
 from .util import canonical_json
@@ -60,7 +61,7 @@ def _point(value: Any) -> StoryTime | None:
         return None
 
 
-def _closed_request(operation: str, request: Any) -> tuple[dict[str, Any] | None, str | None]:
+def _closed_request(operation: str, request: Any, *, trusted_character: bool = False) -> tuple[dict[str, Any] | None, str | None]:
     if operation not in OPERATIONS or not isinstance(request, dict):
         return None, "GEN-REQUEST-001"
     fields = _FIELDS.get(operation, {"subject"})
@@ -88,7 +89,7 @@ def _closed_request(operation: str, request: Any) -> tuple[dict[str, Any] | None
         return None, "GEN-REQUEST-001"
     if any(key in request for key in ("viewer", "characterId", "audience", "perspective")):
         return None, "GEN-REQUEST-001"
-    if operation in {"discover", "labels"} and (mode != "author-as-of" or "at" not in request):
+    if operation in {"discover", "labels"} and ((mode != "author-as-of" and not (trusted_character and mode == "character")) or "at" not in request):
         return None, "GEN-REQUEST-001"
     if operation in {"character-unions", "organization-legacies"} and (
         mode != "author-as-of" or "at" not in request
@@ -245,9 +246,10 @@ def _visible_name_world(repository: Repository, world: World, scope: TrustedView
 
 
 def execute(repository: Repository, operation: str, request: Any, *,
-            require_compiled: bool = False) -> dict[str, Any]:
-    """Validate first, then resolve author references at the selected revision."""
-    parsed, code = _closed_request(operation, request)
+            require_compiled: bool = False,
+            trusted_scope: TrustedViewerScope | None = None) -> dict[str, Any]:
+    """Resolve author references or dispatch IDs from a matching trusted POV."""
+    parsed, code = _closed_request(operation, request, trusted_character=trusted_scope is not None)
     raw_revision = request.get("revision") if isinstance(request, dict) else None
     revision = raw_revision if isinstance(raw_revision, str) and _SHA.fullmatch(raw_revision) else None
     if code:
@@ -256,7 +258,48 @@ def execute(repository: Repository, operation: str, request: Any, *,
     # The repository session is not a trusted character principal.  Do not
     # load source or resolve even a caller-supplied name in that mode.
     if parsed["mode"] == "character":
-        return _outcome(operation, revision, "unknown")
+        if trusted_scope is None:
+            return _outcome(operation, revision, "unknown")
+        if (not isinstance(trusted_scope, TrustedViewerScope)
+                or trusted_scope.mode != "character" or trusted_scope.revision != revision
+                or trusted_scope.timeline != parsed["timeline"]
+                or trusted_scope.at != _point(parsed["at"])
+                or trusted_scope.capabilities != frozenset(parsed["capabilities"])):
+            return _outcome(operation, revision, "invalid", code="GEN-REQUEST-001")
+        selector = {"operation": operation, "items": parsed.get("items", 100),
+                    "depth": parsed.get("depth", 8)}
+        if operation in {"discover", "labels"}:
+            selector = {"operation": operation}
+            if operation == "discover":
+                selector.update(kind=parsed["kind"], text=parsed["text"], items=parsed.get("items", 20), cursor=parsed.get("cursor"))
+            else:
+                selector["ids"] = parsed["ids"]
+        elif operation == "search":
+            selector.update(text=parsed["text"], cursor=parsed.get("cursor"))
+        else:
+            selector["subject_id"] = parsed["subject"]
+            if operation == "relatives":
+                selector["target_id"] = parsed["target"]
+        if operation in {"discover", "labels"}:
+            result = discover_generational(repository, trusted_scope, selector,
+                                           require_compiled=require_compiled)
+        elif operation == "context":
+            result = build_generational_context(repository, trusted_scope, selector["subject_id"],
+                                                max_characters=parsed["maxCharacters"],
+                                                max_items=selector["items"], max_depth=selector["depth"],
+                                                require_compiled=require_compiled)
+        else:
+            result = query_generational(repository, trusted_scope, selector,
+                                        require_compiled=require_compiled)
+        outcome = _wire(_outcome(operation, revision, result["state"],
+                                **{key: value for key, value in result.items() if key != "state"}))
+        if operation == "context" and outcome["state"] in {"available", "unknown"}:
+            while len(canonical_json(outcome)) > parsed["maxCharacters"] and outcome.get("items"):
+                outcome["items"].pop()
+                outcome["truncated"] = True
+            if len(canonical_json(outcome)) > parsed["maxCharacters"]:
+                return _outcome(operation, revision, "limit", code="GEN-LIMIT-001")
+        return outcome
     if operation in {"discover", "labels"}:
         try:
             database = _discovery_database(repository, revision, require_compiled=require_compiled)

@@ -4,6 +4,7 @@ from __future__ import annotations
 from typing import Any
 
 from .generational_query import TrustedViewerScope, query_generational
+from .generational_knowledge import CAPABILITY as KNOWLEDGE_CAPABILITY
 from .repository import Repository
 from .util import canonical_json
 
@@ -27,6 +28,9 @@ def build_generational_context(
                          "depth": max_depth, "items": max_items}),
         ("vital", {"operation": "vital", "subject_id": subject_id, "items": max_items}),
     )
+    if scope.mode == "character" and KNOWLEDGE_CAPABILITY in scope.capabilities:
+        requests += (("learned-history", {"operation": "knowledge-history", "subject_id": subject_id,
+                                         "items": max_items}),)
     results = []
     for name, request in requests:
         value = query_generational(repository, scope, request, require_compiled=require_compiled)

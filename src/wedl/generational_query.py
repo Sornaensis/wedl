@@ -18,7 +18,8 @@ from typing import Any, Collection, Mapping
 from .compiler import _require_database_for_resolved_revision, connect
 from .conversation import scene_context_time
 from .errors import CompileRequired, RepositoryError, ValidationFailed
-from .generational_index import _DISCOVERY_INTERVAL_BASE, cited_ancestors, cited_containment, cited_descendants, cited_relative_path, fold_record
+from .generational_index import _DISCOVERY_INTERVAL_BASE, cited_ancestors, cited_containment, cited_descendants, cited_relative_path, fold_record, fold_knowledge_assertion
+from .generational_knowledge import CAPABILITY as KNOWLEDGE_CAPABILITY
 from .ids import valid_id
 from .model import ORDER_MAX, TICK_MAX, StoryTime
 from .repository import Repository
@@ -30,9 +31,245 @@ CAPABILITY = "generational-core-v1"
 _DECIMAL = re.compile(r"(?:0|-?[1-9][0-9]*)\Z")
 _OPS = frozenset({"parents", "ancestors", "descendants", "relatives", "union",
                   "organization", "legacy", "vital", "search", "character-unions",
-                  "organization-legacies"})
+                  "organization-legacies", "knowledge-history"})
 _REQUEST_KEYS = frozenset({"operation", "subject_id", "target_id", "text",
                            "depth", "items", "cursor", "includeFormerRoles"})
+
+
+def _character_assertions(connection: sqlite3.Connection, scope: "TrustedViewerScope", at: StoryTime,
+                          *, kind: str | None = None, field: str | None = None,
+                          endpoint: str | None = None, knowledge_id: str | None = None,
+                          held_history: bool = False, limit: int = 100) -> list[dict[str, Any]] | None:
+    """Filter learning/state/applicability before a literal enters a result."""
+    if KNOWLEDGE_CAPABILITY not in scope.capabilities:
+        return []
+    sql = ("SELECT a.* FROM generational_knowledge_assertion a WHERE a.knower_id=? AND a.timeline=? "
+           "AND (a.learned_tick<? OR (a.learned_tick=? AND a.learned_order<=?)) "
+           "AND (SELECT t.state FROM knowledge_transition t WHERE t.knowledge_id=a.knowledge_id "
+           "AND t.timeline=a.timeline AND (t.tick<? OR (t.tick=? AND t.ordering<=?)) "
+           "ORDER BY t.tick DESC,t.ordering DESC,t.ordinal DESC,t.transition_id DESC LIMIT 1) "
+           "IN ('accepted','suspected','uncertain','remembered') ")
+    params: list[Any] = [scope.character_id, at.timeline, at.tick, at.tick, at.order, at.tick, at.tick, at.order]
+    if not held_history:
+        sql += ("AND (a.from_tick<? OR (a.from_tick=? AND a.from_order<=?)) "
+                "AND (a.until_tick IS NULL OR a.until_tick>? OR (a.until_tick=? AND a.until_order>=?)) ")
+        params.extend([at.tick, at.tick, at.order, at.tick, at.tick, at.order])
+    if kind is not None:
+        sql += "AND a.kind=? "
+        params.append(kind)
+    if knowledge_id is not None:
+        sql += "AND a.knowledge_id=? "
+        params.append(knowledge_id)
+    if endpoint is not None:
+        sql += "AND EXISTS (SELECT 1 FROM generational_knowledge_endpoint e WHERE e.knowledge_id=a.knowledge_id AND e.entity_id=? "
+        params.append(endpoint)
+        if field is not None:
+            sql += "AND e.field=? "
+            params.append(field)
+        sql += ") "
+    sql += "ORDER BY a.learned_tick,a.learned_order,a.knowledge_id LIMIT ?"
+    rows = connection.execute(sql, [*params, limit + 1]).fetchall()
+    if len(rows) > limit:
+        return None
+    result = []
+    for row in rows:
+        value = fold_knowledge_assertion(connection, row["knowledge_id"], knower_id=scope.character_id, at=at)
+        if value is None or not value["held"]:
+            continue
+        value["valid"] = {"from": {"timeline": row["timeline"], "tick": row["from_tick"], "order": row["from_order"]}}
+        if row["until_tick"] is not None:
+            value["valid"]["until"] = {"timeline": row["timeline"], "tick": row["until_tick"], "order": row["until_order"]}
+        result.append(value)
+    return result
+
+
+def _belief_citations(value: Mapping[str, Any]) -> list[dict[str, Any]]:
+    return [{**value["citation"], "label": "Authored genealogy assertion",
+             "learnedAt": value["learnedAt"], "learningTransitionId": value["learningTransitionId"],
+             "evidence": value["evidence"]}]
+
+
+def _belief_uncertain(value: Mapping[str, Any]) -> bool:
+    return value["state"] != "accepted" or (value["confidence"] is not None and value["confidence"] < 1)
+
+
+def _belief_view(value: Mapping[str, Any]) -> dict[str, Any]:
+    return {"recordId": value["knowledgeId"], "knowledgeId": value["knowledgeId"],
+            "kind": value["kind"], "beliefState": value["state"], "confidence": value["confidence"],
+            "value": value["payload"], "labels": value["labels"], "valid": value["valid"],
+            "learnedAt": value["learnedAt"], "applicable": value["applicable"],
+            "uncertain": _belief_uncertain(value), "citations": _belief_citations(value)}
+
+
+def _character_paths(connection: sqlite3.Connection, scope: "TrustedViewerScope", at: StoryTime,
+                     subject: str, *, direction: str, depth: int, items: int,
+                     target: str | None = None, kind: str = "parentage") -> dict[str, Any]:
+    """Enumerate complete simple asserted paths, with no canonical bridges."""
+    frontier = [(subject, [], frozenset({subject}))]
+    paths: list[dict[str, Any]] = []
+    expanded = 0
+    while frontier:
+        following = []
+        for node, path, visited in frontier:
+            directions = (("child_id", "parent_id"), ("parent_id", "child_id")) if direction == "both" else (
+                (("parent_id", "child_id"),) if direction == "down" else (("child_id", "parent_id"),))
+            if kind == "organization":
+                directions = (("organization_id", "parent_id"),)
+            neighbors = []
+            for source, destination in directions:
+                rows = _character_assertions(connection, scope, at, kind=kind, field=source,
+                                             endpoint=node, limit=items)
+                if rows is None:
+                    return _closed("limit", "GEN-LIMIT-001")
+                neighbors.extend((row, row["payload"][destination]) for row in rows)
+            for row, next_node in sorted(neighbors, key=lambda value: (value[0]["knowledgeId"], value[1] or "")):
+                if next_node is None or next_node in visited:
+                    continue
+                if len(path) == depth or expanded == items:
+                    return _closed("limit", "GEN-LIMIT-001")
+                edge = {"from": node, "to": next_node, "recordId": row["knowledgeId"],
+                        "knowledgeId": row["knowledgeId"], "beliefState": row["state"],
+                        "uncertain": _belief_uncertain(row), "labels": row["labels"],
+                        "citations": _belief_citations(row)}
+                if kind == "parentage":
+                    edge["basis"] = row["payload"]["basis"]
+                new_path = [*path, edge]
+                expanded += 1
+                value = {"targetId": next_node, "generationDistance": len(new_path),
+                         "label": "relative-path" if target is not None else
+                                  "descendant" if direction == "down" else "ancestor",
+                         "uncertain": any(step["uncertain"] for step in new_path), "edges": new_path}
+                if target is None:
+                    paths.append(value)
+                elif next_node == target:
+                    return {"state": "available", "relations": [value]}
+                following.append((next_node, new_path, visited | {next_node}))
+        frontier = following
+    return {"state": "available", "relations": paths} if paths else _closed("unknown")
+
+
+def _character_labels(connection: sqlite3.Connection, scope: "TrustedViewerScope", at: StoryTime,
+                      request: Mapping[str, Any]) -> dict[str, Any]:
+    # The candidate ceiling bounds literal folding. Future, other-POV and
+    # retired assertions are excluded before observing this ceiling.
+    rows = _character_assertions(connection, scope, at, held_history=True, limit=500)
+    if rows is None:
+        return _closed("limit", "GEN-LIMIT-001")
+    values = []
+    for row in rows:
+        for identifier, title in sorted(row["labels"].items()):
+            kind = next((value for value in ("character", "organization", "legacy", "event")
+                         if valid_id(identifier, value)), None)
+            if request["operation"] == "labels":
+                admitted = identifier in request["ids"]
+            else:
+                admitted = kind == request["kind"] and title.casefold().startswith(request["text"].casefold())
+            if admitted:
+                values.append({"id": identifier, "kind": kind, "title": title, "matchedName": title,
+                               "knowledgeId": row["knowledgeId"], "uncertain": _belief_uncertain(row),
+                               "citations": _belief_citations(row)})
+    if len(values) > 500:
+        return _closed("limit", "GEN-LIMIT-001")
+    if request["operation"] == "labels":
+        return {"state": "available", "labels": values}
+    key = _cursor_key(scope, request)
+    after = _decode_cursor(request.get("cursor"), key)
+    if after is None:
+        return _closed("invalid", "GEN-REQUEST-001")
+    ordered = sorted((canonical_json([value["title"].casefold(), value["id"], value["knowledgeId"]]), value)
+                     for value in values)
+    if after and after not in {sort_key for sort_key, _ in ordered}:
+        return _closed("invalid", "GEN-REQUEST-001")
+    selected = [(sort_key, value) for sort_key, value in ordered if sort_key > after]
+    items = request.get("items", 20)
+    page = selected[:items]
+    cursor = _encode_cursor(key, page[-1][0]) if len(selected) > items else None
+    return {"state": "available", "results": [value for _, value in page], "cursor": cursor}
+
+
+def _character_query(connection: sqlite3.Connection, scope: "TrustedViewerScope", at: StoryTime,
+                     request: Mapping[str, Any]) -> dict[str, Any]:
+    operation, subject = request["operation"], request.get("subject_id")
+    if KNOWLEDGE_CAPABILITY not in scope.capabilities:
+        return _closed("unknown")
+    if operation in {"character-unions", "organization-legacies"}:
+        return _closed("invalid", "GEN-REQUEST-001")
+    items, depth = request.get("items", 100), request.get("depth", 8)
+    if operation in {"ancestors", "descendants", "relatives"}:
+        return _character_paths(connection, scope, at, subject,
+                                direction="down" if operation == "descendants" else
+                                          "both" if operation == "relatives" else "up",
+                                depth=depth, items=items,
+                                target=request.get("target_id") if operation == "relatives" else None)
+    if operation == "parents":
+        rows = _character_assertions(connection, scope, at, kind="parentage", field="child_id",
+                                     endpoint=subject, limit=request.get("items", 100))
+        if rows is None:
+            return _closed("limit", "GEN-LIMIT-001")
+        relations = [{"targetId": row["payload"]["parent_id"],
+                      "label": row["payload"]["basis"] + "-parent", "recordId": row["knowledgeId"],
+                      "knowledgeId": row["knowledgeId"], "beliefState": row["state"],
+                      "uncertain": _belief_uncertain(row), "labels": row["labels"],
+                      "citations": _belief_citations(row)} for row in rows]
+        return {"state": "available", "relations": relations} if relations else _closed("unknown")
+    if operation == "knowledge-history":
+        rows = _character_assertions(connection, scope, at, endpoint=subject, held_history=True, limit=items)
+        return _closed("limit", "GEN-LIMIT-001") if rows is None else (
+            {"state": "available", "assertions": [_belief_view(row) for row in rows]} if rows else _closed("unknown"))
+    if operation == "union":
+        rows = _character_assertions(connection, scope, at, kind="union", knowledge_id=subject, limit=items)
+        if not rows:
+            return _closed("unknown")
+        row = rows[0]
+        if len(row["payload"]["participant_ids"]) > items:
+            return _closed("limit", "GEN-LIMIT-001")
+        return {"state": "available", "participants": row["payload"]["participant_ids"],
+                "unionState": row["payload"]["state"], "assertion": _belief_view(row),
+                "uncertain": _belief_uncertain(row), "citations": _belief_citations(row)}
+    if operation == "vital":
+        rows = _character_assertions(connection, scope, at, kind="vital", field="character_id", endpoint=subject, limit=items)
+        if rows is None:
+            return _closed("limit", "GEN-LIMIT-001")
+        states = {row["payload"]["state"] for row in rows}
+        return {"state": "available", "vital": next(iter(states)) if len(states) == 1 else None,
+                "conflicting": len(states) > 1, "uncertain": len(states) > 1 or any(_belief_uncertain(row) for row in rows),
+                "assertions": [_belief_view(row) for row in rows]} if rows else _closed("unknown")
+    if operation == "organization":
+        organization = _character_assertions(connection, scope, at, kind="organization", field="organization_id", endpoint=subject, limit=items)
+        roles = _character_assertions(connection, scope, at, kind="affiliation", field="organization_id", endpoint=subject, limit=items)
+        if organization is None or roles is None or len(organization) + len(roles) > items:
+            return _closed("limit", "GEN-LIMIT-001")
+        paths = _character_paths(connection, scope, at, subject, direction="up", depth=depth, items=items, kind="organization")
+        if paths["state"] == "limit":
+            return paths
+        return {"state": "available", "assertions": [_belief_view(row) for row in organization],
+                "roles": [_belief_view(row) for row in roles], "parentPath": paths.get("relations", [])} if organization or roles else _closed("unknown")
+    if operation == "legacy":
+        tenures = _character_assertions(connection, scope, at, kind="tenure", field="legacy_id", endpoint=subject, limit=items)
+        claims = _character_assertions(connection, scope, at, kind="claim", field="legacy_id", endpoint=subject, limit=items)
+        if tenures is None or claims is None or len(tenures) + len(claims) > items:
+            return _closed("limit", "GEN-LIMIT-001")
+        return {"state": "available", "tenures": [_belief_view(row) for row in tenures],
+                "holders": [_belief_view(row) for row in tenures if row["payload"]["holder_id"] is not None],
+                "vacancies": [_belief_view(row) for row in tenures if row["payload"]["holder_id"] is None],
+                "claims": [_belief_view(row) for row in claims], "succession": []} if tenures or claims else _closed("unknown")
+    if operation == "search":
+        rows = _character_assertions(connection, scope, at, held_history=True, limit=500)
+        if rows is None:
+            return _closed("limit", "GEN-LIMIT-001")
+        text = request["text"].casefold()
+        matched = [row for row in rows if any(word.startswith(text) for word in
+                   re.findall(r"\w+", " ".join([row["kind"], *row["labels"].values()]).casefold()))]
+        key = _cursor_key(scope, request)
+        after = _decode_cursor(request.get("cursor"), key)
+        if after is None or (after and after not in {row["knowledgeId"] for row in matched}):
+            return _closed("invalid", "GEN-REQUEST-001")
+        matched.sort(key=lambda row: row["knowledgeId"])
+        selected = [row for row in matched if row["knowledgeId"] > after]
+        page = selected[:items]
+        cursor = _encode_cursor(key, page[-1]["knowledgeId"]) if len(selected) > items else None
+        return {"state": "available", "results": [_belief_view(row) for row in page], "cursor": cursor}
+    return _closed("unknown")
 
 
 @dataclass(frozen=True, slots=True)
@@ -162,10 +399,23 @@ def discovery_connection(connection: sqlite3.Connection, scope: TrustedViewerSco
     at, failure = _validated_scope(scope)
     if failure:
         return failure
+    if scope.mode == "character":
+        operation = request.get("operation") if isinstance(request, Mapping) else None
+        if operation not in {"labels", "discover"} or at is None:
+            return _closed("invalid", "GEN-REQUEST-001")
+        if operation == "labels":
+            identifiers = request.get("ids")
+            if (not isinstance(identifiers, list) or not 1 <= len(identifiers) <= 100
+                    or any(not isinstance(value, str) for value in identifiers)
+                    or len(set(identifiers)) != len(identifiers)):
+                return _closed("invalid", "GEN-REQUEST-001")
+        elif (request.get("kind") not in {"character", "organization", "legacy", "event"}
+              or not isinstance(request.get("text"), str) or len(request["text"]) > 64
+              or type(request.get("items", 20)) is not int or not 1 <= request.get("items", 20) <= 100):
+            return _closed("invalid", "GEN-REQUEST-001")
+        return _character_labels(connection, scope, at, request)
     if at is None or scope.mode != "author-as-of":
         return _closed("invalid", "GEN-REQUEST-001")
-    if scope.mode == "character":
-        return _closed("unknown")
     operation = request.get("operation")
     lanes = sorted((audience, perspective) for audience in scope.audiences
                    for perspective in scope.perspectives)
@@ -527,7 +777,12 @@ def query_connection(connection: sqlite3.Connection, scope: TrustedViewerScope,
     target_kind = {"parents": "character", "ancestors": "character",
                    "descendants": "character", "relatives": "character", "vital": "character",
                    "union": "union", "organization": "organization", "legacy": "legacy",
-                   "character-unions": "character", "organization-legacies": "organization"}
+                   "character-unions": "character", "organization-legacies": "organization",
+                   "knowledge-history": "character"}
+    if scope.mode == "character":
+        target_kind["union"] = "knowledge"
+    elif operation == "knowledge-history":
+        return _closed("invalid", "GEN-REQUEST-001")
     if operation != "search" and not valid_id(subject, target_kind[operation]):
         return _closed("invalid", "GEN-REQUEST-001")
     depth, items = request.get("depth", 8), request.get("items", 100)
@@ -544,9 +799,9 @@ def query_connection(connection: sqlite3.Connection, scope: TrustedViewerScope,
     after = _decode_cursor(request.get("cursor"), key)
     if after is None:
         return _closed("invalid", "GEN-REQUEST-001")
-    visible = _VisibleCandidates(connection, scope, at)
     if scope.mode == "character":
-        return _closed("unknown")
+        return _character_query(connection, scope, at, request)
+    visible = _VisibleCandidates(connection, scope, at)
     if operation in {"character-unions", "organization-legacies"}:
         if scope.mode != "author-as-of" or scope.at is None:
             return _closed("invalid", "GEN-REQUEST-001")
@@ -740,8 +995,9 @@ def query_connection(connection: sqlite3.Connection, scope: TrustedViewerScope,
     return {"state": "available", "results": page, "cursor": cursor}
 
 
-def query_generational(repository: Repository, scope: TrustedViewerScope,
-                       request: Mapping[str, Any], *, require_compiled: bool = False) -> dict[str, Any]:
+def _read_generational(repository: Repository, scope: TrustedViewerScope,
+                       request: Mapping[str, Any], *, require_compiled: bool = False,
+                       discovery: bool = False) -> dict[str, Any]:
     """Revision-bound repository entry point for a trusted transport adapter."""
     _at, failure = _validated_scope(scope)
     if failure:
@@ -765,6 +1021,8 @@ def query_generational(repository: Repository, scope: TrustedViewerScope,
         return _closed("unavailable")
     if world.revision != scope.revision or CAPABILITY not in (world.world_record.frontmatter.get("capabilities") or []):
         return _closed("unavailable")
+    if scope.mode == "character" and scope.capabilities != frozenset(world.world_record.frontmatter.get("capabilities") or []):
+        return _closed("unavailable")
     if scope.timeline not in world.timeline_ids:
         return _closed("invalid", "GEN-TIME-001")
     effective_scope = scope
@@ -781,4 +1039,16 @@ def query_generational(repository: Repository, scope: TrustedViewerScope,
                                             cursor, scope.audiences,
                                             scope.perspectives, scope.capabilities)
     with closing(connect(database, True)) as connection:
-        return query_connection(connection, effective_scope, request)
+        return (discovery_connection if discovery else query_connection)(connection, effective_scope, request)
+
+
+def query_generational(repository: Repository, scope: TrustedViewerScope,
+                       request: Mapping[str, Any], *, require_compiled: bool = False) -> dict[str, Any]:
+    """Revision-bound assertion/canonical read for a trusted adapter."""
+    return _read_generational(repository, scope, request, require_compiled=require_compiled)
+
+
+def discover_generational(repository: Repository, scope: TrustedViewerScope,
+                          request: Mapping[str, Any], *, require_compiled: bool = False) -> dict[str, Any]:
+    """Same full readiness and revision gate for learned-label discovery."""
+    return _read_generational(repository, scope, request, require_compiled=require_compiled, discovery=True)
