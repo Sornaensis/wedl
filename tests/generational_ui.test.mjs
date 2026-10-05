@@ -84,3 +84,27 @@ test("capability loss and malformed bootstrap close a previously pinned envelope
     assert.deepEqual(api.capabilities, []);
   }
 });
+
+test("character reads use per-request encoded POV, exact time and no fabricated JSON identity", async () => {
+  const calls = [];
+  const api = createGenerationalApi(async (path, options) => {
+    const operation = path.split("?")[0].split("/").at(-1);
+    calls.push({path, body: options.body && JSON.parse(options.body)});
+    return {ok: true, json: async () => operation === "session" ? {token:"local"} : {
+      protocol:"wedl-generational/v1", operation, state:"available", revision, capabilities:caps,
+      timelines:["main"], results:[], labels:[], cursor:null}};
+  });
+  await api.boot(); api.setScope("character", "Known & person");
+  await api.discover(point, "character", "Known", null);
+  await api.labels(point, ["character:one"]);
+  await api.read("parents", point, {subject:"character:one"});
+  for (const {path, body} of calls.slice(2)) {
+    assert.match(path, /\?viewpoint=Known%20%26%20person$/);
+    assert.equal(body.mode,"character"); assert.deepEqual(body.at,point);
+    for (const field of ["viewpoint","characterId","viewer","audience","perspective"]) assert.equal(Object.hasOwn(body,field),false);
+  }
+  await assert.rejects(() => api.read("legacy", point, {}, undefined, "author-all-time"), GenerationalReadError);
+  api.setScope("author-as-of"); await api.read("parents",point,{subject:"character:one"});
+  assert.equal(calls.at(-1).path,"/api/generational/parents");
+  assert.throws(() => api.setScope("character", ""),GenerationalReadError);
+});

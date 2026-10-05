@@ -348,9 +348,20 @@ def _knowledge(world: World, character: Record, at: StoryTime, query: set[str], 
     values = current_knowledge(world, character.id, at)
     result: list[Atom] = []
     for item in values:
-        text = _belief_text(character, _plain(str(item.get("statement") or ""), 330), str(item.get("state")), item.get("confidence"))
-        relevance = _relevance(text, query, scene_tokens)
         claim = item.get("claim") or {}
+        assertion = claim.get("genealogy")
+        if isinstance(assertion, dict):
+            if item["state"] not in {"accepted", "suspected", "uncertain", "remembered"}:
+                continue
+            statement = _genealogy_statement(assertion, at)
+            if statement is None:
+                # Never show an incomplete union or remove the historical
+                # qualification merely to make an atom fit its text bound.
+                continue
+        else:
+            statement = str(item.get("statement") or "")
+        text = _belief_text(character, _plain(statement, 500 if assertion else 330), str(item.get("state")), item.get("confidence"))
+        relevance = _relevance(text, query, scene_tokens)
         referenced = {
             value
             for value in [claim.get("subject"), item.get("sourceEntityId")]
@@ -365,13 +376,46 @@ def _knowledge(world: World, character: Record, at: StoryTime, query: set[str], 
         result.append(Atom(
             "What matters",
             text,
-            (Ref(item["knowledgeId"], f"transition:{item.get('transitionId')}"),),
+            (Ref(item["knowledgeId"], f"transition:{item['transitionId']}; time:{point['timeline']} {point['tick']}:{point['order']}"
+                 if assertion and item.get("transitionId") else
+                 f"time:{point['timeline']} {point['tick']}:{point['order']}; state:{item['state']}"
+                 if assertion else f"transition:{item.get('transitionId')}"),),
             106 if scene_match else 98 if relevance else 88,
             relevance + float(item.get("confidence") or 0) + recency + (8.0 if scene_match else 0.0),
-            f"knowledge:{item['knowledgeId']}",
+            f"genealogy:{item['knowledgeId']}" if assertion else f"knowledge:{item['knowledgeId']}",
             (0 if scene_match else 1, -relevance, -recency, -float(item.get("confidence") or 0)),
         ))
     return result, len(values)
+
+
+def _genealogy_statement(assertion: dict[str, Any], at: StoryTime) -> str | None:
+    """Literal learned names and payload only; never resolve canon or corrections."""
+    payload = assertion["payload"]
+    labels = assertion.get("labels") or {}
+    def name(identifier: str | None) -> str:
+        return _plain(labels.get(identifier, "unnamed asserted entity"), 200) if identifier else "none / vacancy"
+    kind = assertion["kind"]
+    if kind == "parentage":
+        text = f"{name(payload['parent_id'])} is {name(payload['child_id'])}'s {payload['basis']} parent"
+    elif kind == "union":
+        text = f"union of {', '.join(name(identifier) for identifier in payload['participant_ids'])}: {payload['state']}"
+    elif kind == "organization":
+        text = f"{name(payload['organization_id'])} has parent organization {name(payload['parent_id'])}"
+    elif kind == "affiliation":
+        text = f"{name(payload['character_id'])} is affiliated with {name(payload['organization_id'])}, role {payload.get('role') or 'unspecified'}"
+    elif kind == "tenure":
+        text = f"{name(payload['legacy_id'])} has {payload['basis']} holder {name(payload['holder_id'])}"
+    elif kind == "claim":
+        text = f"{name(payload['claimant_id'])} has a {payload['state']} claim to {name(payload['legacy_id'])}"
+    else:
+        text = f"{name(payload['character_id'])} is {payload['state']}"
+    validity = assertion["valid"]
+    first = StoryTime.from_value(validity["from"], at.timeline)
+    last = StoryTime.from_value(validity["until"], at.timeline) if "until" in validity else None
+    applicable = first.not_after(at) and (last is None or at.not_after(last))
+    interval = f"{first.timeline} {first.tick}:{first.order}" + (f" through {last.tick}:{last.order}" if last else " onward")
+    complete = text + f" (asserted applicability {interval}" + ("; historical knowledge, not a current edge" if not applicable else "") + ")"
+    return complete if len(complete) <= 500 else None
 
 
 def _relationships(world: World, character: Record, scene: Record, at: StoryTime, query: set[str], scene_tokens: set[str]) -> tuple[list[Atom], int]:
@@ -454,6 +498,10 @@ def _retrieval(world: World, database: Path, character: Record, scene: Record, a
 
 
 def _near_duplicate(atom: Atom, selected: Sequence[Atom]) -> bool:
+    if atom.key.startswith("genealogy:"):
+        # Similar wording can carry conflicting literal assertions. Each
+        # authored knowledge identity retains its own state and provenance.
+        return False
     left = _tokens(atom.text)
     for existing in selected:
         right = _tokens(existing.text)

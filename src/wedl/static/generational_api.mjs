@@ -31,6 +31,7 @@ export function createGenerationalApi(fetcher = globalThis.fetch) {
   let revision = "";
   let capabilities = [];
   let timelines = [];
+  let scopeMode = "author-as-of", viewpoint = "", scopeEpoch = 0;
 
   async function transport(path, body, signal) {
     const options = { signal, headers: token ? { "X-Wedl-Token": token } : {} };
@@ -59,13 +60,21 @@ export function createGenerationalApi(fetcher = globalThis.fetch) {
     if (!revision || !capabilities.length) throw new GenerationalReadError("Refresh the generational session.", "stale_revision");
     if (!timelines.includes(point.timeline)) throw new GenerationalReadError("Choose a declared timeline.");
     return { protocol: GENERATIONAL_PROTOCOL, operation, revision, capabilities: [...capabilities],
-      mode, timeline: point.timeline, ...(mode === "author-as-of" ? { at: point } : {}) };
+      mode, timeline: point.timeline, ...(mode !== "author-all-time" ? { at: point } : {}) };
   }
 
   return {
     get revision() { return revision; },
     get capabilities() { return [...capabilities]; },
     get timelines() { return [...timelines]; },
+    get mode() { return scopeMode; },
+    setScope(mode, selectedViewpoint = "") {
+      if (!["author-as-of", "character"].includes(mode) || typeof selectedViewpoint !== "string" ||
+          mode === "character" && (!selectedViewpoint.trim() || selectedViewpoint.length > 256)) {
+        throw new GenerationalReadError("Choose an author view or enter a character viewpoint.");
+      }
+      scopeMode = mode; viewpoint = mode === "character" ? selectedViewpoint : ""; scopeEpoch += 1;
+    },
     invalidate() { revision = ""; capabilities = []; timelines = []; },
     async boot(signal) {
       const session = await transport("/api/session", undefined, signal);
@@ -93,9 +102,13 @@ export function createGenerationalApi(fetcher = globalThis.fetch) {
       if (drifted) throw new GenerationalReadError("The world changed. Choose the horizon again.", "stale_revision");
       return { revision, capabilities: [...capabilities], timelines: [...timelines] };
     },
-    async read(operation, point, fields = {}, signal, mode = "author-as-of") {
+    async read(operation, point, fields = {}, signal, mode = scopeMode) {
+      if (scopeMode === "character" && mode !== "character") throw new GenerationalReadError("Author-only history is unavailable in character view.");
+      const epoch = scopeEpoch;
       const body = { ...envelope(operation, point, mode), ...fields };
-      const { payload, ok } = await transport(`/api/generational/${operation}`, body, signal);
+      const path = `/api/generational/${operation}` + (mode === "character" ? `?viewpoint=${encodeURIComponent(viewpoint)}` : "");
+      const { payload, ok } = await transport(path, body, signal);
+      if (epoch !== scopeEpoch) throw new DOMException("Viewpoint changed.", "AbortError");
       if (payload?.protocol !== GENERATIONAL_PROTOCOL || payload?.operation !== operation || payload?.revision !== revision) {
         this.invalidate();
         throw new GenerationalReadError("The world changed. Refresh the session.", "stale_revision");

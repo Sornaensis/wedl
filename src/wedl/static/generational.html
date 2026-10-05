@@ -10,12 +10,13 @@
   <body>
     <header class="topbar"><div><p class="eyebrow">Lore compendium</p><h1>Generational evidence</h1></div><nav aria-label="Site"><a href="/">Read the compendium</a></nav></header>
     <main>
-      <p class="notice">These are local-author reads at the selected StoryTime. They do not establish what any character knows.</p>
+      <p class="notice">Choose author evidence or a character's explicitly learned beliefs. A belief may be mistaken or conflicting; character views never compare it with hidden canon.</p>
       <p id="gen-status" role="status" aria-live="polite">Opening the author session…</p>
       <form id="horizon-form" class="panel">
-        <h2>Exact author horizon</h2>
+        <h2>Viewpoint and exact horizon</h2>
         <p>Enter an authored signed decimal tick and order. Results remain closed until you apply a horizon.</p>
-        <div class="fields"><label for="gen-timeline">Timeline</label><select id="gen-timeline" required></select><label for="gen-tick">Tick</label><input id="gen-tick" type="text" inputmode="numeric" pattern="(?:0|-?[1-9][0-9]*)" required><label for="gen-order">Order</label><input id="gen-order" type="text" inputmode="numeric" pattern="(?:0|-?[1-9][0-9]*)" required></div>
+        <div class="fields"><label for="gen-mode">View</label><select id="gen-mode"><option value="author-as-of">Author evidence</option><option value="character">Character beliefs</option></select><label for="gen-viewpoint">Character viewpoint</label><input id="gen-viewpoint" type="text" maxlength="256" placeholder="Character ID, title or alias" aria-describedby="viewpoint-help" disabled><label for="gen-timeline">Timeline</label><select id="gen-timeline" required></select><label for="gen-tick">Tick</label><input id="gen-tick" type="text" inputmode="numeric" pattern="(?:0|-?[1-9][0-9]*)" required><label for="gen-order">Order</label><input id="gen-order" type="text" inputmode="numeric" pattern="(?:0|-?[1-9][0-9]*)" required></div>
+        <p id="viewpoint-help">The local author selects the viewpoint. Character results use learned names only; selecting a viewpoint grants no canonical facts.</p>
         <button type="submit">Apply horizon</button><button id="gen-refresh" type="button">Refresh world</button>
         <p id="horizon-label" role="status" aria-live="polite">No horizon selected.</p>
       </form>

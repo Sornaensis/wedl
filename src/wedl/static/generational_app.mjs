@@ -37,7 +37,7 @@ function namesFrom(results) {
 
 export function mountGenerationalExplorer(document, api = createGenerationalApi()) {
   const get = (id) => document.getElementById(id);
-  const el = Object.fromEntries(`gen-status horizon-form gen-timeline gen-tick gen-order gen-refresh horizon-label discover-form gen-kind gen-query discover-status discover-results discover-more detail-title detail-status detail-content`.split(" ").map((id) => [id, get(id)]));
+  const el = Object.fromEntries(`gen-status horizon-form gen-mode gen-viewpoint gen-timeline gen-tick gen-order gen-refresh horizon-label discover-form gen-kind gen-query discover-status discover-results discover-more detail-title detail-status detail-content`.split(" ").map((id) => [id, get(id)]));
   const state = { point: null, kind: "character", query: "", cursor: null, selected: null, epoch: 0, labels: new Map() };
   const controllers = new Map();
 
@@ -94,7 +94,7 @@ export function mountGenerationalExplorer(document, api = createGenerationalApi(
   }
   async function fresh(signal) { await api.refresh(signal); }
 
-  function label(id) { return state.labels.get(id) || neutral; }
+  function label(id, learned = null) { return learned?.[id] || state.labels.get(id) || neutral; }
   function list(container, rows, render, empty) {
     const holder = node(document, "ol"); holder.className = "cards";
     if (!rows.length) holder.append(node(document, "li", empty));
@@ -109,7 +109,12 @@ export function mountGenerationalExplorer(document, api = createGenerationalApi(
     if (!asArray(items).length) { box.append(node(document, "p", "No admitted citation in this result.")); return; }
     const details = node(document, "details"), summary = node(document, "summary", `Citations (${items.length})`);
     details.append(summary);
-    list(details, items, (item) => node(document, "li", `${item.path || "Source unavailable"} · ${applicabilityText(item.applicability)}`), "No citations.");
+    list(details, items, (item) => node(document, "li", api.mode === "character"
+      ? `Knowledge ${item.knowledgeId || "locator unavailable"} · transition ${item.transitionId || "locator unavailable"} · ${pointText(item.time)} · learned ${pointText(item.learnedAt)}`
+      : `${item.path || "Source unavailable"} · ${applicabilityText(item.applicability)}`), "No citations.");
+    if (api.mode === "character") for (const item of items) {
+      for (const evidence of asArray(item.evidence)) details.append(node(document, "p", `${evidence.kind} ${evidence.entityId} · ${evidence.itemId} · ${pointText(evidence.time)}`));
+    }
     box.append(details);
   }
   function causes(box, items) {
@@ -159,12 +164,18 @@ export function mountGenerationalExplorer(document, api = createGenerationalApi(
     else box.append(node(document, "p", `${stateText[result?.state] || "No result"}${result?.code ? ` (${result.code})` : ""}.`));
   }
   function relationCard(relation) {
-    const card = node(document, "li"); card.append(node(document, "strong", label(relation.targetId)));
+    const card = node(document, "li"); card.append(node(document, "strong", label(relation.targetId, relation.labels)));
     field(card, "Relation", relation.label || "Authored relation");
+    if (api.mode === "character") {
+      field(card, "Belief state", relation.beliefState || "See each cited step");
+      field(card, "Uncertainty", relation.uncertain ? "Uncertain asserted path" : "Accepted assertion; no comparison with canon");
+    }
     if (relation.generationDistance != null) field(card, "Generations", String(relation.generationDistance));
     if (relation.citations) citations(card, relation.citations);
     for (const edge of asArray(relation.edges)) {
-      field(card, "Cited step", `${label(edge.from)} → ${label(edge.to)}`); citations(card, edge.citations);
+      field(card, "Cited step", `${label(edge.from, edge.labels)} → ${label(edge.to, edge.labels)}`);
+      if (api.mode === "character") field(card, "Step belief", `${edge.beliefState || "Unknown"}${edge.uncertain ? " · uncertain" : ""}`);
+      citations(card, edge.citations);
     }
     history(card, relation.history); return card;
   }
@@ -173,13 +184,42 @@ export function mountGenerationalExplorer(document, api = createGenerationalApi(
       closedSection(container, heading, results[operation], (box, result) => list(box, asArray(result.relations), relationCard, "No authored relations in this result."));
     }
     closedSection(container, "Approved vital state", results.vital, (box, result) => {
+      if (api.mode === "character") { renderAssertions(box, result.assertions); return; }
       field(box, "Vital", result.vital || "Unknown"); citations(box, result.citations); history(box, result.history);
     });
+    if (api.mode === "character") { restricted(container, "Current authored unions"); return; }
     closedSection(container, "Current authored unions", results["character-unions"], (box, result) => {
       list(box, asArray(result.unions), (row) => rowCard(row, "Union", [["Participants", asArray(row.value?.participant_ids).map(label).join(", ") || "None"]]), "No current authored unions.");
     });
   }
+  function restricted(container, heading) {
+    section(container, heading).append(node(document, "p", "Author-only endpoint. Unavailable in character view."));
+  }
+  function renderAssertions(container, assertions) {
+    list(container, asArray(assertions), (row) => {
+      const card = node(document, "li", row.kind || "Authored belief");
+      field(card, "Belief state", row.beliefState || "Unknown");
+      field(card, "Uncertainty", row.uncertain ? "Uncertain belief" : "Accepted belief; no comparison with canon");
+      const payload = row.value || {};
+      for (const [key, value] of Object.entries(payload)) {
+        if (key.endsWith("_id")) field(card, key.replaceAll("_", " "), value === null ? "None asserted / vacancy" : label(value, row.labels));
+        else if (key === "participant_ids") field(card, "Participants", asArray(value).map((id) => label(id, row.labels)).join(", "));
+        else field(card, key.replaceAll("_", " "), String(value));
+      }
+      field(card, "Learned at", pointText(row.learnedAt));
+      if (row.valid) field(card, "Asserted applicability", `${pointText(row.valid.from)}${row.valid.until ? ` through ${pointText(row.valid.until)}` : " onward"}`);
+      if (row.applicable === false) field(card, "Historical knowledge", "Still held; not an affirmative relationship at this horizon");
+      citations(card, row.citations); return card;
+    }, "No held assertions in this result.");
+  }
   function renderOrganization(container, results) {
+    if (api.mode === "character") {
+      closedSection(container, "Organization beliefs", results.organization, (box, data) => {
+        renderAssertions(box, data.assertions); renderAssertions(box, data.roles);
+        list(box, asArray(data.parentPath), relationCard, "No asserted parent path.");
+      });
+      restricted(container, "Reverse organization legacies"); return;
+    }
     closedSection(container, "Organization or house", results.organization, (box, result) => {
       const organization = result.organization;
       field(box, "Authored state", organization.state || "Unknown");
@@ -202,6 +242,12 @@ export function mountGenerationalExplorer(document, api = createGenerationalApi(
     });
   }
   function renderLegacy(container, result, allTime = false) {
+    if (api.mode === "character") {
+      closedSection(container, "Tenure and claim beliefs", result, (box, data) => {
+        renderAssertions(box, data.tenures); renderAssertions(box, data.claims);
+      });
+      restricted(container, "All-time author history"); return;
+    }
     const prefix = allTime ? "All-time authored history" : "As-of legacy evidence";
     closedSection(container, prefix, result, (box, data) => {
       field(box, "Authored state", data.legacy?.state || "Unknown");
@@ -225,13 +271,17 @@ export function mountGenerationalExplorer(document, api = createGenerationalApi(
     });
   }
   async function resolveLabels(point, results, signal) {
-    const ids = namesFrom(Object.values(results));
+    const ids = namesFrom(Object.values(results)).filter((id) => api.mode !== "character" || /^(?:char|character|organization|legacy|event)[_:]/.test(id));
     const labels = new Map(state.selected ? [[state.selected.id, state.selected.title]] : []);
+    const alternatives = new Map();
     for (let offset = 0; offset < ids.length; offset += 100) {
       const response = await api.labels(point, ids.slice(offset, offset + 100), signal);
       if (response.state !== "available") throw new GenerationalReadError("Display labels could not be resolved.", response.state, response.code);
-      for (const item of asArray(response.labels)) if (isId(item.id) && typeof item.title === "string") labels.set(item.id, item.title);
+      for (const item of asArray(response.labels)) if (isId(item.id) && typeof item.title === "string") {
+        const names = alternatives.get(item.id) || new Set(); names.add(item.title); alternatives.set(item.id, names);
+      }
     }
+    for (const [id, names] of alternatives) labels.set(id, [...names].sort().join(" / "));
     return labels;
   }
   async function select(item) {
@@ -245,11 +295,13 @@ export function mountGenerationalExplorer(document, api = createGenerationalApi(
     const point = state.point;
     const result = await action("selection", async (signal) => {
       await fresh(signal);
-      const operations = item.kind === "character" ? ["parents", "ancestors", "descendants", "vital", "character-unions"]
+      let operations = item.kind === "character" ? ["parents", "ancestors", "descendants", "vital", "character-unions"]
         : item.kind === "organization" ? ["organization", "organization-legacies"] : ["legacy"];
+      if (api.mode === "character") operations = [...operations.filter((op) => !["character-unions", "organization-legacies"].includes(op)), ...(item.kind === "character" ? ["context"] : [])];
       const values = await Promise.all(operations.map(async (operation) => [operation, await api.read(operation, point,
         { subject: item.id, items: READ_ITEMS, ...(operation === "ancestors" || operation === "descendants" || operation === "organization" ? { depth: 8 } : {}),
-          ...(operation === "organization" ? { includeFormerRoles: true } : {}) }, signal)]));
+          ...(operation === "organization" && api.mode !== "character" ? { includeFormerRoles: true } : {}),
+          ...(operation === "context" ? { maxCharacters: 20000 } : {}) }, signal)]));
       const results = Object.fromEntries(values);
       const labels = await resolveLabels(point, results, signal);
       return { results, labels };
@@ -257,14 +309,19 @@ export function mountGenerationalExplorer(document, api = createGenerationalApi(
     if (!result || state.selected !== item || state.point !== point) return;
     state.labels = result.labels;
     el["detail-content"].replaceChildren();
-    field(el["detail-content"], "Local-author horizon", pointText(point));
+    field(el["detail-content"], api.mode === "character" ? "Character learning horizon" : "Local-author horizon", pointText(point));
     if (item.kind === "character") renderCharacter(el["detail-content"], result.results);
     else if (item.kind === "organization") renderOrganization(el["detail-content"], result.results);
     else {
       renderLegacy(el["detail-content"], result.results.legacy);
+      if (api.mode !== "character") {
       const button = node(document, "button", "Show separate all-time authored history"); button.type = "button";
       button.addEventListener("click", () => void loadAllTime(item, point)); el["detail-content"].append(button);
+      }
     }
+    if (api.mode === "character" && item.kind === "character") closedSection(el["detail-content"], "Held knowledge, including historical applicability", result.results.context, (box, data) => {
+      renderAssertions(box, asArray(data.items).filter((entry) => entry.kind === "learned-history").flatMap((entry) => asArray(entry.result?.assertions)));
+    });
     status(el["detail-status"], `${item.kind} evidence at ${pointText(point)}. Unknown and limit states stay separate.`);
   }
   async function loadAllTime(item, point) {
@@ -312,12 +369,21 @@ export function mountGenerationalExplorer(document, api = createGenerationalApi(
     try {
       const point = exactPoint(el["gen-timeline"].value, el["gen-tick"].value, el["gen-order"].value);
       if (!api.timelines.includes(point.timeline)) throw new GenerationalReadError("Choose a declared timeline.");
+      api.setScope(el["gen-mode"].value || "author-as-of", el["gen-viewpoint"].value);
       cancel(); clearHorizon(); state.point = point;
       el["discover-form"].querySelector("button").disabled = false;
-      el["horizon-label"].textContent = `Local-author evidence at ${pointText(point)}.`;
-      status(el["gen-status"], "Exact author horizon applied. Search admitted titles and aliases.");
+      el["horizon-label"].textContent = `${api.mode === "character" ? "Character beliefs" : "Local-author evidence"} at ${pointText(point)}.`;
+      status(el["gen-status"], api.mode === "character" ? "Learning horizon applied. Search explicitly learned labels." : "Exact author horizon applied. Search admitted titles and aliases.");
     } catch (error) { status(el["gen-status"], error.message, true); }
   });
+  function scopeChanged() {
+    cancel(); clearHorizon();
+    el["gen-viewpoint"].disabled = el["gen-mode"].value !== "character";
+    el["gen-viewpoint"].required = !el["gen-viewpoint"].disabled;
+  }
+  el["gen-mode"].addEventListener("change", scopeChanged);
+  el["gen-viewpoint"].addEventListener("input", scopeChanged);
+  for (const id of ["gen-timeline", "gen-tick", "gen-order"]) el[id].addEventListener("input", () => { cancel(); clearHorizon(); });
   el["gen-refresh"].addEventListener("click", () => void boot());
   el["discover-form"].addEventListener("submit", (event) => { event.preventDefault(); void discover(); });
   el["discover-more"].addEventListener("click", () => { if (state.cursor) void discover(state.cursor); });

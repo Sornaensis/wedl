@@ -5,7 +5,7 @@ import { mountGenerationalExplorer } from "../src/wedl/static/generational_app.m
 
 const revision = "a".repeat(40);
 const capabilities = ["generational-core-v1"];
-const ids = `gen-status horizon-form gen-timeline gen-tick gen-order gen-refresh horizon-label discover-form gen-kind gen-query discover-status discover-results discover-more detail-title detail-status detail-content`;
+const ids = `gen-status horizon-form gen-mode gen-viewpoint gen-timeline gen-tick gen-order gen-refresh horizon-label discover-form gen-kind gen-query discover-status discover-results discover-more detail-title detail-status detail-content`;
 
 class Element {
   constructor(tag = "div") {
@@ -27,6 +27,7 @@ function makeDocument() {
   const nodes = new Map(ids.split(" ").map((id) => [id, new Element(id.endsWith("form") ? "form" : id === "gen-timeline" ? "select" : "div")]));
   nodes.get("discover-form").submitButton = new Element("button");
   nodes.get("gen-kind").value = "character";
+  nodes.get("gen-mode").value = "author-as-of";
   return { nodes, document: { getElementById: (id) => nodes.get(id), createElement: (tag) => new Element(tag) } };
 }
 const flush = async () => { for (let index = 0; index < 8; index += 1) await new Promise((resolve) => setTimeout(resolve, 0)); };
@@ -194,4 +195,53 @@ test("capability loss or malformed bootstrap clears mounted horizon, search, and
     assert.equal(nodes.get("detail-content").textContent, "");
     assert.match(nodes.get("gen-status").textContent, /world changed/i);
   }
+});
+
+test("character view renders literal uncertainty/history and clears stale POV/time data without author fallback", async () => {
+  const {nodes,document} = makeDocument(), calls=[];
+  let pending=null;
+  const learned = {"character:one":"Learned child", "character:two":"Learned parent"};
+  const provenance = {knowledgeId:"knowledge:one",transitionId:"kt:one",time:{timeline:"main",tick:"2",order:"0"},learnedAt:{timeline:"main",tick:"2",order:"0"}};
+  const assertion = {kind:"parentage",beliefState:"suspected",uncertain:true,value:{child_id:"character:one",parent_id:"character:two",basis:"adoptive"},labels:learned,
+    learnedAt:provenance.learnedAt,valid:{from:{timeline:"main",tick:"-10",order:"0"},until:{timeline:"main",tick:"-1",order:"0"}},applicable:false,citations:[provenance]};
+  const fetcher = async(path,options) => {
+    const operation=path.split("?")[0].split("/").at(-1),body=options.body&&JSON.parse(options.body);
+    calls.push({path,body});
+    if(operation==="session") return {ok:true,json:async()=>({token:"local"})};
+    const common={protocol:"wedl-generational/v1",operation,revision,state:"available"};
+    if(operation==="bootstrap") return {ok:true,json:async()=>({...common,capabilities:[...capabilities,"generational-knowledge-v1"],timelines:["main"]})};
+    assert.equal(body.mode,"character"); assert.match(path,/\?viewpoint=/);
+    assert.equal(Object.hasOwn(body,"characterId"),false);
+    assert.ok(!["character-unions","organization-legacies"].includes(operation));
+    const value=operation==="discover"?{results:[{id:"character:one",kind:"character",title:"Learned child"}],cursor:"page2"}
+      :operation==="labels"?{labels:Object.entries(learned).filter(([id])=>body.ids.includes(id)).map(([id,title])=>({id,title}))}
+      :operation==="parents"?{relations:[{targetId:"character:two",label:"adoptive-parent",beliefState:"suspected",uncertain:true,labels:learned,citations:[provenance]}]}
+      :operation==="context"?{items:[{kind:"learned-history",result:{assertions:[assertion]}}]}
+      :{relations:[],assertions:[],vital:null};
+    if(operation==="discover"&&pending) return new Promise(resolve=>{pending=()=>resolve({ok:true,json:async()=>({...common,...value})});});
+    return {ok:true,json:async()=>({...common,...value})};
+  };
+  const app=mountGenerationalExplorer(document,createGenerationalApi(fetcher)); await flush();
+  nodes.get("gen-mode").value="character";nodes.get("gen-mode").dispatch("change");
+  nodes.get("gen-viewpoint").value="First person";nodes.get("gen-viewpoint").dispatch("input");
+  nodes.get("gen-tick").value="2";nodes.get("gen-order").value="0";nodes.get("horizon-form").dispatch("submit");
+  await app.select({id:"character:one",kind:"character",title:"Learned child"});
+  const text=nodes.get("detail-content").textContent;
+  for(const expected of ["Learned parent","suspected","Uncertain","historical","Knowledge knowledge:one","transition kt:one","Author-only endpoint"]) assert.ok(text.includes(expected),expected);
+  assert.doesNotMatch(text,/story\/|AUTHOR correction|Source unavailable/);
+  for (const kind of ["organization","legacy"]) {
+    const start=calls.length;
+    await app.select({id:kind+":one",kind,title:"Learned "+kind});
+    assert.ok(!calls.slice(start).some(({path})=>path.startsWith("/api/generational/context")));
+    assert.doesNotMatch(nodes.get("detail-content").textContent,/Invalid request or horizon/);
+  }
+  await app.select({id:"character:one",kind:"character",title:"Learned child"});
+  pending=true;nodes.get("gen-query").value="Learned";nodes.get("discover-form").dispatch("submit");await flush();
+  nodes.get("gen-viewpoint").value="Second person";nodes.get("gen-viewpoint").dispatch("input");pending();await flush();
+  assert.equal(nodes.get("discover-results").children.length,0);assert.equal(nodes.get("detail-content").textContent,"");
+  assert.equal(nodes.get("discover-more").hidden,true);assert.equal(nodes.get("horizon-label").textContent,"No horizon selected.");
+  nodes.get("horizon-form").dispatch("submit");await app.select({id:"character:one",kind:"character",title:"Learned child"});
+  assert.ok(calls.at(-1).path.includes("viewpoint=Second%20person"));
+  nodes.get("gen-tick").value="-1";nodes.get("gen-tick").dispatch("input");
+  assert.equal(nodes.get("detail-content").textContent,"");assert.equal(nodes.get("discover-form").submitButton.disabled,true);
 });

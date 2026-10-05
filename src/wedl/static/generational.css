@@ -28,6 +28,7 @@ input, select { width: 100%; }
 .evidence dd { margin: 0; }
 .meta { color: #c2d9e5; font-size: .9rem; }
 .empty { color: #c2d9e5; }
+#viewpoint-help { max-width: 48rem; color: #c2d9e5; }
 @media (max-width: 700px) { .topbar { align-items: flex-start; flex-direction: column; } .layout { display: block; } .fields { grid-template-columns: minmax(0, 1fr); } }
 @media (prefers-reduced-motion: reduce) { *, *::before, *::after { scroll-behavior: auto !important; animation-duration: 0s !important; transition-duration: 0s !important; } }
 @media (forced-colors: active) { .panel, .cards > li, .evidence, .notice, #gen-status { border-color: CanvasText; } }
