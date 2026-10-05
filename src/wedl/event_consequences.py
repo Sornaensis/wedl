@@ -555,3 +555,11 @@ def event_local_changes(projection: Projection, event: str) -> list[dict]:
     """Separately labeled T comparison, never substituted for revision delta H."""
     from .consequence_delta import event_local_changes as compare
     return compare(projection, event)
+
+
+def event_report(world: World, scope: AuthorScope, event: str, at: StoryTime, *, limit: int = MAX_ITEMS,
+                 candidate: CandidateIdentity | None = None, base: World | None = None,
+                 source_valid: bool = True) -> dict[str, Any]:
+    """Consolidated pure read; authentication/loading belong to outer adapters."""
+    from .consequence_report import event_report as assemble
+    return assemble(world, scope, event, at, limit=limit, candidate=candidate, base=base, source_valid=source_valid)
