@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import argparse
+import re
 import sys
 from typing import Any
 
@@ -165,6 +166,12 @@ def integer_between(minimum: int, maximum: int) -> Any:
     parse.maximum = maximum
     parse.value_type = "integer"
     return parse
+
+
+def exact_revision(value: str) -> str:
+    if not re.fullmatch(r"[0-9a-f]{40}", value):
+        raise argparse.ArgumentTypeError("expected an exact lowercase 40-character Git revision")
+    return value
 
 
 def parser() -> argparse.ArgumentParser:
@@ -430,7 +437,7 @@ inclusive, and ticks do not convert to elapsed duration.""",
     request_sub = request.add_subparsers(dest="author_subject_command", required=True, parser_class=WedlArgumentParser)
     for name in ("preview", "apply"):
         command = request_sub.add_parser(name, help=f"{name} an authoring intent JSON document", description=f"{name.capitalize()} an HTTP-equivalent authoring intent JSON document.")
-        command.add_argument("file", metavar="FILE", help="authoring intent JSON file, or - to read from standard input")
+        command.add_argument("file", metavar="FILE", help="authoring intent JSON file, including consequence.batch, or - to read from standard input")
         _add_repo_argument(command)
         if name == "apply":
             confirmation = command.add_mutually_exclusive_group()
@@ -442,7 +449,9 @@ inclusive, and ticks do not convert to elapsed duration.""",
     scaffold = changeset_sub.add_parser("scaffold", help="write a valid current-HEAD starter changeset", description="Create a valid wedl-changeset/v1 starter bound to the current repository HEAD. It contains a no-op entity.update so it can be previewed immediately; replace that operation while retaining the envelope. Start with `wedl changeset scaffold --output change.json`, inspect `wedl changeset schema`, then run `wedl changeset preview change.json`.")
     _add_repo_argument(scaffold)
     scaffold.add_argument("--output", metavar="FILE", default="-", help="new JSON file to create; use - or omit for stdout (existing files are never overwritten)")
-    changeset_sub.add_parser("schema", help="show supported changeset operations and envelope fields", description="Emit concise machine-readable wedl-changeset/v1 envelope and operation guidance. Use it alongside `wedl changeset scaffold` before editing a request.")
+    schema_command = changeset_sub.add_parser("schema", help="show supported operations and optional repository definitions", description="Emit concrete wedl-changeset/v1 operation schemas. Without --repo this is repository-free. With --repo, describe that validated world's declarations at current HEAD or an exact --revision SHA.")
+    schema_command.add_argument("--repo", default=None, metavar="PATH", help="optional repository root for authenticated local-author schema context")
+    schema_command.add_argument("--revision", type=exact_revision, metavar="SHA", help="optional exact lowercase 40-character Git revision for schema context; CLI requires --repo")
     for name in ("preview", "apply"):
         action = "inspect its effects without writes" if name == "preview" else "write it as one Git commit and recompile"
         description = f"Read a JSON changeset and {action}."

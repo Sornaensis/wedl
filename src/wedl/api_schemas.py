@@ -1092,7 +1092,7 @@ _CHANGESET = {
     "expectedHead": "0123456789abcdef0123456789abcdef01234567",
     "idempotencyKey": "example-change",
     "summary": "Record the harbour ledger discovery",
-    "operations": [],
+    "operations": [{"type": "entity.update", "entity": "character-mara-vale", "frontmatterPatch": {}}],
 }
 
 

@@ -189,7 +189,24 @@ def dispatch(args: argparse.Namespace) -> Any:
             vector_provider=args.vector_provider,
         )
     if args.command == "changeset" and args.changeset_command == "schema":
-        return changeset_schema()
+        if args.repo is None:
+            if args.revision is not None:
+                raise UsageError("schema --revision requires --repo")
+            return changeset_schema()
+        from .event_consequences import AuthorScope
+        from .model import World
+        from .validation import validate_world
+        from .errors import ValidationFailed
+        repository = Repository(args.repo)
+        revision = args.revision if args.revision is not None else repository.head()
+        loaded = repository.load_world(revision, cache_write=False)
+        if loaded.revision != revision:
+            raise UsageError("schema context revision does not match the requested revision")
+        world = World(loaded.revision, loaded.tree_oid, loaded.records, loaded.root, loaded.source_root)
+        diagnostics = validate_world(world)
+        if any(item["severity"] == "error" for item in diagnostics):
+            raise ValidationFailed("schema context source is invalid", diagnostics)
+        return changeset_schema(world=world, scope=AuthorScope(world.world_record.id, frozenset(world.records)))
     repository = Repository(args.repo)
     value: Any
     if args.command == "status": value = status(repository)
@@ -262,6 +279,8 @@ def dispatch(args: argparse.Namespace) -> Any:
                 return preview_intent(repository, intent)
             if args.yes and isinstance(intent, dict) and str(intent.get("action", "")).startswith(("spatial.", "generational.")):
                 raise UsageError("--yes cannot bypass preview confirmation for spatial or generational authoring")
+            if args.yes and isinstance(intent, dict) and intent.get("action") == "consequence.batch":
+                raise UsageError("--yes cannot bypass preview confirmation for consequence authoring")
             value = apply_intent(repository, intent, confirmation_token_value=args.confirm, allow_unconfirmed=args.yes)
             return value
         action = {

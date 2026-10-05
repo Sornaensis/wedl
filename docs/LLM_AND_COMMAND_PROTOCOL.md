@@ -250,6 +250,19 @@ authorization.
 
 ## Output and automation
 
+`wedl changeset schema` is repository-free concrete discovery. Add `--repo PATH`
+for validated world declarations at current HEAD, or also `--revision SHA` to pin
+an exact lowercase 40-character revision. The selected source is loaded once
+without publishing a cache. `--revision` requires `--repo`.
+
+Preview a `consequence.batch` intent with `wedl author request preview FILE --repo
+PATH`, then apply the unchanged intent with `wedl author request apply FILE
+--repo PATH --confirm TOKEN`. FILE may be `-` for standard input. The batch uses
+the installed operation schemas, explicit times and declared references;
+`expectation.check` checks the complete final candidate. Automation also requires
+that exact preview token; `--yes` cannot bypass batch confirmation. OpenAPI
+publishes the same unwrapped body through the existing authoring routes.
+
 Data commands print formatted JSON by default; pass global `--compact` before
 the subcommand for compact JSON. `serve` writes a human-ready URL line when it
 has bound successfully, or its one-line JSON readiness object with `--compact`.

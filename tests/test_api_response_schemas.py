@@ -113,17 +113,23 @@ def test_generational_parser_contract_and_closed_request_variants() -> None:
 def test_generational_authoring_examples_cover_eight_kinds_and_four_variants() -> None:
     for command in (("author", "request", "preview"), ("author", "request", "apply")):
         contract = next(item for item in route_contracts() if item.command == command)
-        examples = contract.discovery.examples
-        assert len(examples) == 11
+        examples = tuple(example for example in contract.discovery.examples
+                         if example["value"]["body"]["action"].startswith("generational."))
+        assert len(examples) == 15
         bodies = [example["value"]["body"] for example in examples]
         assert {body["action"] for body in bodies} == {
             "generational.create", "generational.append", "generational.correct",
-            "generational.batch"}
+            "generational.batch", "generational.knowledge.opt-in", "generational.knowledge.create",
+            "generational.knowledge.state", "generational.knowledge.replace"}
         assert {body["kind"] for body in bodies if body["action"] == "generational.create"} == {
             "organization", "parentage", "union", "affiliation", "legacy", "tenure",
             "claim", "vital-history"}
         for body in bodies:
             _validate("AuthoringRequest", body)
+        consequence = [example["value"]["body"] for example in contract.discovery.examples
+                       if example["value"]["body"]["action"] == "consequence.batch"]
+        assert len(consequence) == 1
+        _validate("AuthoringRequest", consequence[0])
 
 
 def test_generational_nested_responses_require_cited_closed_shapes() -> None:

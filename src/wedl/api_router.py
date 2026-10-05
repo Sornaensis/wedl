@@ -12,7 +12,7 @@ import asyncio
 import inspect
 from typing import Any, Awaitable, Callable, Literal
 
-from fastapi import APIRouter, Body, Depends, Header, Path, Query
+from fastapi import APIRouter, Body, Depends, Header, Path, Query, Request
 from fastapi.responses import JSONResponse
 
 from .api_contract import (
@@ -138,7 +138,7 @@ def openapi_contract_errors(schema: dict[str, Any]) -> tuple[str, ...]:
             for argument in contract.arguments
             if argument.transport in {Transport.QUERY, Transport.PATH, Transport.HEADER}
         ]
-        if contract.binding.auth == AuthPolicy.SESSION:
+        if contract.binding.auth != AuthPolicy.PUBLIC:
             parameters.append(parameter_value(
                 AuthPolicy.SESSION.header_name or "", "header", False, "string",
                 description=AuthPolicy.SESSION.header_description,
@@ -398,6 +398,8 @@ def create_api_router(runtime: Any, authorize: Authorize) -> APIRouter:
         assert contract.binding is not None
         assert contract.discovery is not None
         dependencies = [Depends(authorize)] if contract.binding.auth == AuthPolicy.SESSION else []
+        if contract.binding.auth == AuthPolicy.CONTEXT_SESSION:
+            dependencies = [Depends(authorize_schema_context)]
         extra = discovery_openapi_extra(
             contract.discovery,
             command=contract.command,
@@ -418,6 +420,12 @@ def create_api_router(runtime: Any, authorize: Authorize) -> APIRouter:
             responses=discovery_responses(contract.discovery),
             openapi_extra=extra,
         )
+
+    async def authorize_schema_context(request: Request,
+                                       x_wedl_token: str | None = Header(default=None, alias=AuthPolicy.SESSION.header_name,
+                                           description=AuthPolicy.SESSION.header_description)) -> None:
+        if "revision" in request.query_params:
+            await authorize(x_wedl_token)
 
     session_contract = control_endpoint("GET", "/api/session")
 
@@ -660,8 +668,25 @@ def create_api_router(runtime: Any, authorize: Authorize) -> APIRouter:
         async with runtime.write_lock:
             return await asyncio.to_thread(scaffold_changeset, runtime.repository)
 
-    async def schema_handler() -> dict[str, Any]:
-        return changeset_schema()
+    async def schema_handler(**arguments: Any) -> dict[str, Any]:
+        revision = arguments["revision"]
+        if revision is None:
+            return changeset_schema()
+        def contextual_schema() -> dict[str, Any]:
+            from .event_consequences import AuthorScope
+            from .model import World
+            from .validation import validate_world
+            from .errors import ValidationFailed
+            loaded = runtime.repository.load_world(revision, cache_write=False)
+            if loaded.revision != revision:
+                from .errors import UsageError
+                raise UsageError("schema context revision does not match the requested revision")
+            world = World(loaded.revision, loaded.tree_oid, loaded.records, loaded.root, loaded.source_root)
+            diagnostics = validate_world(world)
+            if any(item["severity"] == "error" for item in diagnostics):
+                raise ValidationFailed("schema context source is invalid", diagnostics)
+            return changeset_schema(world=world, scope=AuthorScope(world.world_record.id, frozenset(world.records)))
+        return await asyncio.to_thread(contextual_schema)
 
     async def apply_handler(**arguments: Any) -> dict[str, Any]:
         async with runtime.write_lock:

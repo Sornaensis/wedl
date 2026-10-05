@@ -25,6 +25,22 @@ call.
 
 ## Routes
 
+`GET /api/changesets/schema` without query input remains public static discovery.
+Add `?revision=<exact lowercase 40-character SHA>` and `X-Wedl-Token` for the
+selected world's source version, ordered capabilities, state-key definitions and
+relationship metric bounds. Authentication precedes source loading. Contextual
+discovery validates that exact revision and writes no compiled cache; it accepts
+no audience, viewer, identity or scope fields.
+
+`consequence.batch` uses the existing `/api/authoring/preview` and
+`/api/authoring/apply` routes with an unwrapped intent body. Concrete operation
+schemas and a batch example appear in OpenAPI. Operations expressly author
+effects, transitions and links; `expectation.check` evaluates the final candidate
+at its explicit horizon without creating source facts. Apply uses the original
+intent's exact `X-Wedl-Confirmation`, including for automation. Edited aliases,
+policies, checks or times require a new preview. Session authentication and
+idempotent recorded-result replay retain the ordinary authoring behavior.
+
 | Method | Route | Session token | Purpose |
 | --- | --- | --- | --- |
 | GET | `/` | no | Local browser application. |
@@ -68,7 +84,7 @@ call.
 | GET | `/api/search` | no | Perspective- and time-bounded search. |
 | GET | `/api/context` | no | Bounded writing-context packet. |
 | GET | `/api/conversations/{conversation_id}` | no | Time- and perspective-bounded transcript. |
-| GET | `/api/changesets/schema` | no | Changeset envelope and operation vocabulary. |
+| GET | `/api/changesets/schema` | with `revision` | Concrete operation schemas; optional exact-revision world declarations. |
 | POST | `/api/changesets/scaffold` | yes | Current-HEAD starter changeset. |
 | POST | `/api/changesets/preview` | yes | Validate and preview a changeset. |
 | POST | `/api/changesets/apply` | yes | Confirmed, atomic changeset apply. |

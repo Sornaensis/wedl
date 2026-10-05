@@ -44,14 +44,15 @@ class AuthPolicy(str, Enum):
 
     PUBLIC = "public"
     SESSION = "session"
+    CONTEXT_SESSION = "session-if-context"
 
     @property
     def header_name(self) -> str | None:
-        return "X-Wedl-Token" if self == AuthPolicy.SESSION else None
+        return "X-Wedl-Token" if self != AuthPolicy.PUBLIC else None
 
     @property
     def header_description(self) -> str | None:
-        return "per-repository session token returned by GET /api/session" if self == AuthPolicy.SESSION else None
+        return "per-repository session token returned by GET /api/session" if self != AuthPolicy.PUBLIC else None
 
 
 @dataclass(frozen=True)
@@ -92,6 +93,20 @@ _SPATIAL_EXAMPLES: dict[str, dict[str, Any]] = {
 _GENERATIONAL_OPERATIONS = ("parents", "ancestors", "descendants", "relatives", "union",
                            "organization", "legacy", "vital", "search", "context", "discover", "labels",
                            "character-unions", "organization-legacies")
+
+
+def _consequence_intent_examples(path: str, *, apply: bool) -> tuple[dict[str, Any], ...]:
+    headers = {"X-Wedl-Token": "<session-token>"}
+    if apply:
+        headers["X-Wedl-Confirmation"] = "wedl-confirmation/v1:<proof>"
+    body = {"action": "consequence.batch", "expectedHead": "0" * 40, "idempotencyKey": "explicit-door-opening",
+            "operations": [{"type": "event.create", "temporaryId": "tmp:opening", "title": "Open the door",
+                "time": {"timeline": "main", "tick": "12", "order": "0"},
+                "effects": [{"target": "Vault door", "key": "condition", "operation": "set", "value": "open"}]},
+                {"type": "expectation.check", "event": "tmp:opening", "at": {"timeline": "main", "tick": "12", "order": "0"},
+                 "policy": "required", "items": [{"id": "door-open", "predicate": {"kind": "state.equals",
+                     "target": "Vault door", "key": "condition", "value": "open"}}]}]}
+    return ({"summary": "Explicit consequence batch", "value": {"method": "POST", "path": path, "headers": headers, "body": body}},)
 
 
 def _generational_example(action: str) -> dict[str, Any]:
@@ -383,7 +398,7 @@ _POLICY: dict[tuple[str, ...], tuple[ApiClass, str, str, RouteBinding | None, st
     ("author", "request", "preview"): (ApiClass.ACTION, "write", "mounted", RouteBinding("POST", "/api/authoring/preview", auth=AuthPolicy.SESSION), None),
     ("author", "request", "apply"): (ApiClass.MUTATION, "write", "mounted", RouteBinding("POST", "/api/authoring/apply", auth=AuthPolicy.SESSION, headers=(HeaderContract("confirm", "X-Wedl-Confirmation"),)), None),
     ("changeset", "scaffold"): (ApiClass.ACTION, "write", "mounted", RouteBinding("POST", "/api/changesets/scaffold", auth=AuthPolicy.SESSION), None),
-    ("changeset", "schema"): (ApiClass.QUERY, "read", "mounted", RouteBinding("GET", "/api/changesets/schema"), None),
+    ("changeset", "schema"): (ApiClass.QUERY, "read", "mounted", RouteBinding("GET", "/api/changesets/schema", (("revision", "revision"),), auth=AuthPolicy.CONTEXT_SESSION), None),
     ("changeset", "preview"): (ApiClass.ACTION, "write", "mounted", RouteBinding("POST", "/api/changesets/preview", auth=AuthPolicy.SESSION), None),
     ("changeset", "apply"): (ApiClass.MUTATION, "write", "mounted", RouteBinding("POST", "/api/changesets/apply", auth=AuthPolicy.SESSION, headers=(HeaderContract("confirm", "X-Wedl-Confirmation"),)), None),
     ("serve",): (ApiClass.LOCAL_ONLY, "local", "local_only", None, "owns a local process and browser lifecycle"),
@@ -423,10 +438,10 @@ _DISCOVERY: dict[tuple[str, ...], DiscoveryDescriptor] = {
     ("search",): DiscoveryDescriptor("Search the world", "Search indexed content with author or character perspective and optional temporal scope. Hypotheses require explicit author opt-in and are never canonical facts.", ("Queries",), "Search results.", ("usage_error", "compile_required", "validation_failed", "parse_error", "repository_error")),
     ("context",): DiscoveryDescriptor("Build context", "Build a bounded retrieval context for the selected character, scene, and query.", ("Queries",), "Context result.", ("usage_error", "compile_required", "validation_failed", "parse_error", "repository_error")),
     ("conversation", "show"): DiscoveryDescriptor("Read a conversation", "Resolve a conversation from an author or character perspective at a timeline position.", ("Queries",), "Conversation.", ("usage_error", "not_found", "compile_required", "validation_failed", "parse_error", "repository_error")),
-    ("author", "request", "preview"): DiscoveryDescriptor("Preview an authoring intent", "Resolve title or alias references and compile a semantic authoring intent to the existing raw changeset protocol without writes.", ("Authoring",), "Authoring preview.", ("authentication_required", "usage_error", "not_found", "protocol_error", "upgrade_required", "parse_error", "repository_error"), examples=_generational_intent_examples("/api/authoring/preview", apply=False)),
-    ("author", "request", "apply"): DiscoveryDescriptor("Apply an authoring intent", "Resolve a semantic authoring intent, require a preview confirmation, and apply its compiled raw changeset.", ("Authoring",), "Authoring application result.", ("authentication_required", "usage_error", "not_found", "protocol_error", "upgrade_required", "validation_failed", "confirmation_required", "confirmation_mismatch", "conflict", "stale_revision", "dirty_managed_tree", "parse_error", "repository_error"), examples=_generational_intent_examples("/api/authoring/apply", apply=True)),
+    ("author", "request", "preview"): DiscoveryDescriptor("Preview an authoring intent", "Resolve declared title or alias references and compile a semantic authoring intent, including consequence.batch, to the raw changeset protocol without writes. Consequence checks and reports use authenticated author scope and explicit horizons.", ("Authoring",), "Authoring preview.", ("authentication_required", "usage_error", "not_found", "protocol_error", "upgrade_required", "parse_error", "repository_error"), examples=_generational_intent_examples("/api/authoring/preview", apply=False) + _consequence_intent_examples("/api/authoring/preview", apply=False)),
+    ("author", "request", "apply"): DiscoveryDescriptor("Apply an authoring intent", "Require exact preview confirmation for the complete original intent, including consequence.batch in automation. Edited aliases, policies or horizons require a new preview; identical retries return recorded results.", ("Authoring",), "Authoring application result.", ("authentication_required", "usage_error", "not_found", "protocol_error", "upgrade_required", "validation_failed", "confirmation_required", "confirmation_mismatch", "conflict", "stale_revision", "dirty_managed_tree", "parse_error", "repository_error"), examples=_generational_intent_examples("/api/authoring/apply", apply=True) + _consequence_intent_examples("/api/authoring/apply", apply=True)),
     ("changeset", "scaffold"): DiscoveryDescriptor("Scaffold a changeset", "Create a current-HEAD-bound starter changeset; it has no request body.", ("Changesets",), "Changeset scaffold.", ("authentication_required", "protocol_error", "parse_error", "repository_error")),
-    ("changeset", "schema"): DiscoveryDescriptor("Get changeset schema", "Return the public schema for raw wedl-changeset/v1 request objects.", ("Changesets",), "Changeset schema.", ()),
+    ("changeset", "schema"): DiscoveryDescriptor("Get changeset schema", "Return concrete raw and consequence.batch operation schemas. Without revision this is public repository-free discovery. Supplying an exact revision requires the repository session token before reading that validated world's declarations; no viewer or scope grants are accepted.", ("Changesets",), "Changeset schema.", ("authentication_required", "usage_error", "validation_failed", "parse_error", "repository_error")),
     ("changeset", "preview"): DiscoveryDescriptor("Preview a changeset", "Validate a raw changeset object against the current HEAD without writes. Candidate validation is returned as valid=false, not an error response.", ("Changesets",), "Changeset preview.", ("authentication_required", "protocol_error", "parse_error", "repository_error")),
     ("changeset", "apply"): DiscoveryDescriptor("Apply a changeset", "Apply a confirmed raw changeset object and compile the resulting revision. Replays may return the stored receipt.", ("Changesets",), "Changeset application result.", ("authentication_required", "protocol_error", "validation_failed", "confirmation_required", "confirmation_mismatch", "conflict", "stale_revision", "dirty_managed_tree", "parse_error", "repository_error")),
 }
@@ -895,6 +910,8 @@ def discovery_openapi_extra(
     }
     if command is not None:
         extra["x-wedl-command"] = list(command)
+    if auth == AuthPolicy.CONTEXT_SESSION:
+        extra["x-wedl-auth-context-query"] = "revision"
     return extra
 
 
