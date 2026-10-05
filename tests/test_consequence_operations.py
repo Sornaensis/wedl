@@ -233,7 +233,10 @@ def test_typed_creates_reuse_genealogy_and_homogeneous_source_validation():
     create["value"]["frontmatter"]["id"] = world.by_kind("knowledge")[0].id
     with pytest.raises(UsageError):
         _apply(world, [create])
-    assert "expectation.check" not in changeset.CHANGESET_OPERATION_TYPES
+    assert changeset.CHANGESET_OPERATION_TYPES.count("expectation.check") == 1
+    assert "expectation.unknown" not in changeset.CHANGESET_OPERATION_TYPES
+    with pytest.raises(changeset.ProtocolError, match="unsupported operation 'expectation.unknown'"):
+        _apply(world, [{"type": "expectation.unknown"}])
     existing = world.by_kind("relationship")[0]
     frontmatter = deepcopy(existing.frontmatter)
     frontmatter.pop("id")

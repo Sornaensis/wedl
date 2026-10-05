@@ -189,18 +189,97 @@ def test_generational_reference_errors_unknown_context_and_schema_are_closed() -
     with pytest.raises(jsonschema.ValidationError):
         _validate("GenerationalSchemaResponse", bad)
 
+    # Only installed literal-label dictionaries allow arbitrary keys; their
+    # values remain bounded strings. Fixed envelopes remain closed.
+    labels = ("properties", "labels")
+    assertion = ("oneOf",)
+    bounded_maps = set()
+    for branch in (66, 68):
+        prefix = ("oneOf", branch, "properties")
+        if branch == 68:
+            prefix += ("replacement", "properties")
+        for kind in range(7):
+            bounded_maps.add(("GenerationalScaffoldResponse",
+                              prefix + ("assertion",) + assertion + (kind,) + labels))
+    for component, path in (
+            ("Parents", ("relations", "items")),
+            ("Ancestors", ("relations", "items", "properties", "edges", "items")),
+            ("Descendants", ("relations", "items", "properties", "edges", "items")),
+            ("Relatives", ("relations", "items", "properties", "edges", "items")),
+            ("Organization", ("parentPath", "items", "properties", "edges", "items"))):
+        bounded_maps.add((f"Generational{component}AvailableOutcome",
+                          ("anyOf", 1, "properties") + path + labels))
+    for component, fields in (
+            ("Organization", ("roles", "assertions")),
+            ("Legacy", ("claims", "holders", "tenures", "vacancies")),
+            ("Search", ("results",)),
+            ("Vital", ("assertions",))):
+        for field in fields:
+            for kind in range(7):
+                bounded_maps.add((f"Generational{component}AvailableOutcome",
+                                  ("anyOf", 1, "properties", field, "items", "oneOf", kind) + labels))
+    for kind in range(7):
+        bounded_maps.add(("GenerationalUnionAvailableOutcome",
+                          ("anyOf", 1, "properties", "assertion", "oneOf", kind) + labels))
+    for branch in range(5):
+        prefix = ("anyOf", 1, "properties", "items", "items", "oneOf", branch,
+                  "properties", "result", "properties")
+        if branch < 3:
+            path = ("relations", "items")
+            if branch:
+                path += ("properties", "edges", "items")
+            bounded_maps.add(("GenerationalContextAvailableOutcome", prefix + path + labels))
+        else:
+            for kind in range(7):
+                bounded_maps.add(("GenerationalContextAvailableOutcome",
+                                  prefix + ("assertions", "items", "oneOf", kind) + labels))
+
+    seen_maps = set()
     for name, shape in components()["schemas"].items():
         if not (name.startswith("Generational") and name.endswith(("Response", "Outcome"))):
             continue
-        pending = [shape]
+        pending = [((), shape)]
         while pending:
-            item = pending.pop()
+            path, item = pending.pop()
             if isinstance(item, dict):
                 if item.get("type") == "object":
-                    assert item.get("additionalProperties") is False, name
-                pending.extend(item.values())
+                    if (name, path) in bounded_maps:
+                        assert item == {"type": "object", "additionalProperties": {
+                            "type": "string", "minLength": 1, "maxLength": 200}}, (name, path)
+                        seen_maps.add((name, path))
+                        jsonschema.validate({"child": "Mara", "parent": "x" * 200}, item)
+                        for value in (False, 1, None, [], {}, "", "x" * 201):
+                            with pytest.raises(jsonschema.ValidationError):
+                                jsonschema.validate({"child": value}, item)
+                    else:
+                        assert item.get("additionalProperties") is False, (name, path)
+                pending.extend((path + (key,), value) for key, value in item.items())
             elif isinstance(item, list):
-                pending.extend(item)
+                pending.extend((path + (index,), value) for index, value in enumerate(item))
+    assert seen_maps == bounded_maps
+
+    scaffold = {"action": "generational.knowledge.create", "expectedHead": revision,
+                "idempotencyKey": "bounded-label-scaffold", "title": "Authored parent belief",
+                "knower": "character-mara", "at": {"timeline": "main", "tick": "0", "order": "0"},
+                "state": "accepted", "assertion": {
+                    "kind": "parentage", "payload": {
+                        "child_id": "character-mara", "parent_id": "character-oren", "basis": "biological"},
+                    "valid": {"from": {"timeline": "main", "tick": "0", "order": "0"}},
+                    "labels": {"child": "Mara", "parent": "Oren"}}}
+    _validate("GenerationalScaffoldResponse", scaffold)
+    for value in (False, 1, None, [], {}, "", "x" * 201):
+        bad = deepcopy(scaffold)
+        bad["assertion"]["labels"]["child"] = value
+        with pytest.raises(jsonschema.ValidationError):
+            _validate("GenerationalScaffoldResponse", bad)
+    for path in ((), ("assertion",), ("assertion", "payload"), ("assertion", "valid")):
+        bad = deepcopy(scaffold)
+        target = bad
+        for key in path:
+            target = target[key]
+        target["secret"] = "withheld"
+        with pytest.raises(jsonschema.ValidationError):
+            _validate("GenerationalScaffoldResponse", bad)
 
 
 def test_spatial_authoring_union_rejects_title_update_and_static_validity() -> None:

@@ -446,9 +446,20 @@ def test_generational_cli_preserves_semantic_exit_matrix(monkeypatch: pytest.Mon
                                  ("invalid", 2), ("unavailable", 2), ("limit", 2)):
         outcome = {"protocol": "wedl-generational/v1", "operation": "parents",
                    "revision": "0" * 40, "state": state}
-        monkeypatch.setattr("wedl.cli.generational_execute",
-                            lambda _repo, _operation, _request, *, require_compiled: outcome)
-        assert main(["generational", "parents", "-", "--repo", "world"]) == expected_exit
-        captured = capsys.readouterr()
-        assert json.loads(captured.out if expected_exit == 0 else captured.err) == outcome
-        assert (captured.err if expected_exit == 0 else captured.out) == ""
+        forwarded = []
+
+        def execute(repository, operation, request, *, require_compiled, viewpoint):
+            forwarded.append((repository.root, operation, request, require_compiled, viewpoint))
+            return outcome
+
+        monkeypatch.setattr("wedl.cli.generational_execute", execute)
+        for options, expected_viewpoint, expected_compiled in (
+                ([], None, False),
+                (["--viewpoint", "Mara Vale", "--require-compiled"], "Mara Vale", True)):
+            assert main(["generational", "parents", "-", "--repo", "world", *options]) == expected_exit
+            assert forwarded[-1] == (Path("world"), "parents", {"protocol": "wedl-generational/v1"},
+                                     expected_compiled, expected_viewpoint)
+            captured = capsys.readouterr()
+            assert json.loads(captured.out if expected_exit == 0 else captured.err) == outcome
+            assert (captured.err if expected_exit == 0 else captured.out) == ""
+        assert len(forwarded) == 2
