@@ -151,12 +151,13 @@ export function eventConsequenceModel(report, registry, { stateKeys = null, link
     if (kind(subject) === "knowledge") return plain(`Belief: ${humanizeToken(data.state)}${data.confidence != null ? `; confidence ${data.confidence}` : ""}`);
     if (kind(subject) === "relationship") return [...plain(`Status: ${data.status || "unspecified"}; `), ...effectValueParts(data.metrics || {}, names), ...plain(`; facets: ${(data.facets || []).join(", ") || "none recorded"}`)];
     if (kind(subject) === "story-point") return plain(`Recorded status: ${humanizeToken(data.storedState)}; current status: ${humanizeToken(data.derivedState)}; ${data.eligible ? "eligible" : "not eligible"}`);
+    if (subject.targetKind === "scene") return plain(data.targetLinked ? "Scene records this outcome event" : "Scene does not record this outcome event");
     return plain(`Event link: ${data.eventLinked ? "recorded" : "not recorded"}; target link: ${data.targetLinked ? "recorded" : "not recorded"}`);
   };
   const subjectParts = (subject) => [...ref(subject.recordId), ...(subject.key ? plain(` — ${humanizeToken(effectText(subject.key))}`) : []),
     ...(subject.targetId ? [...plain(" → "), ...ref(subject.targetId)] : [])];
   const cited = (values) => (Array.isArray(values) ? values : []).map((citation) => ({
-    parts: [...plain("Recorded in "), ...ref(citation.recordId), ...plain(` — ${humanizeToken(effectText(citation.section || "record"))}`)],
+    parts: [...plain("Recorded in "), ...ref(citation.recordId), ...plain(` — ${humanizeToken(effectText(citation.section || "record").replaceAll(".", " "))}`)],
     time: citation.time,
   }));
   const local = (report.changes || []).map((change) => ({

@@ -690,6 +690,7 @@ test("future timeline cards retain normal-text contrast without parent opacity",
 });
 
 const reportRevision = "a".repeat(40);
+const recordProof = (id, blob = "c".repeat(40)) => ({ recordId: id, provenance: { kind: "source", revision: reportRevision, blobOid: blob } });
 const reportRequest = (options = {}) => eventConsequenceRequest({ revision: reportRevision, event: "event_rescue", timeline: "main", ...options });
 const reportOk = (request = reportRequest(), extra = {}) => ({
   protocol: request.protocol, outcome: "ok", revision: request.revision, event: { id: request.event, kind: "event", title: "Rescue" },
@@ -729,23 +730,23 @@ test("event report API keeps session authentication and no character request is 
 });
 test("event consequence enrichment is explicit, deduplicated and bounded to four concurrent reads", async () => {
   const request = reportRequest(); let running = 0; let peak = 0; const calls = [];
-  const transitions = Array.from({ length: 30 }, (_, i) => ({ kind: "relationship", record: { id: `rel_${i}` } }));
+  const transitions = Array.from({ length: 30 }, (_, i) => ({ kind: "relationship", record: { id: `rel_${i}` }, citation: recordProof(`rel_${i}`) }));
   transitions.push(transitions[0], { kind: "story-point", record: { id: "plot_never_read" } });
   const details = await eventConsequenceDetails(reportOk(request, { causedTransitions: transitions }), request, async (path) => {
     calls.push(path); peak = Math.max(peak, ++running); await new Promise((resolve) => setTimeout(resolve, 0)); running--;
     const id = decodeURIComponent(path.split("/").pop().split("?")[0]);
-    return { revision: request.revision, id, kind: "relationship", perspective: "author", effectiveTime: request.at };
+    return { blob_oid: "c".repeat(40), id, kind: "relationship", perspective: "author", effectiveTime: request.at };
   }, () => true);
   assert.equal(calls.length, 24); assert.equal(details.size, 24); assert.equal(peak, 4);
-  for (const path of calls) { const url = new URL(path, "http://example.test"); assert.equal(url.searchParams.get("perspective"), "author"); assert.equal(url.searchParams.get("tick"), request.at.tick); }
+  for (const path of calls) { const url = new URL(path, "http://example.test"); assert.equal(url.search, "", "only declared entity.show query fields may be sent"); }
 });
 test("event enrichment discards HEAD, identity, lens and horizon mismatches and stops stale work", async () => {
-  const request = reportRequest(); const records = Array.from({ length: 8 }, (_, i) => ({ kind: "knowledge", record: { id: `know_${i}` } }));
+  const request = reportRequest(); const records = Array.from({ length: 8 }, (_, i) => ({ kind: "knowledge", record: { id: `know_${i}` }, citation: recordProof(`know_${i}`) }));
   const mismatches = [{ revision: "b".repeat(40) }, { id: "wrong" }, { perspective: "character" }, { effectiveTime: { ...request.at, tick: "0" } }, { timeScope: { mode: "all-time" } }];
   const details = await eventConsequenceDetails(reportOk(request, { causedTransitions: records }), request, async (path) => {
     const id = path.split("/").pop().split("?")[0]; const i = Number(id.split("_")[1]);
     if (i === 5) throw new Error("failure");
-    return { revision: request.revision, id, kind: "knowledge", ...mismatches[i] };
+    return { revision: request.revision, blob_oid: "c".repeat(40), id, kind: "knowledge", ...mismatches[i] };
   }, () => true);
   assert.deepEqual([...details.keys()], ["know_6", "know_7"]);
   let current = true; let calls = 0;
@@ -759,7 +760,7 @@ test("event consequence model names explicit rejected beliefs, direction, outcom
     causedTransitions: [
       { kind: "knowledge", record: { id: "know_route", kind: "knowledge", title: "Route belief" }, transition: { state: "rejected" }, atEventTime: false, citation },
       { kind: "relationship", record: { id: "rel_trust", kind: "relationship", title: "Trust" }, transition: { relationship_status: "strained", metrics: { trust: 0 }, facets: ["wary"] }, atEventTime: false, citation },
-      { kind: "story-point", record: { id: "plot_gate", kind: "story-point", title: "Gate opened" }, transition: { state: "resolved" }, atEventTime: true, citation },
+      { kind: "story-point", record: { id: "plot_gate", kind: "story-point", title: "Gate opened" }, transition: { state: "resolved" }, atEventTime: true, citation: { ...citation, section: "lifecycle.transitions" } },
     ],
     outcomes: [{ event: { id: "event_rescue", kind: "event", title: "Rescue" }, target: { id: "scene_gate", kind: "scene", title: "Gate scene" }, reciprocal: true, citations: [citation] }],
     currentAtHorizon: [{ subject: { kind: "state", recordId: "char_a", key: "condition" }, snapshot: { presence: "absent", citations: [citation] }, supersession: "superseded", supersedingCitations: [citation] }],
@@ -767,8 +768,52 @@ test("event consequence model names explicit rejected beliefs, direction, outcom
   const linkedDetails = new Map([["rel_trust", { frontmatter: { from: "char_a", to: "char_b" } }], ["know_route", { frontmatter: { knower: "char_b", claim: { statement: "<svg>False route</svg>" } } }]]);
   const model = eventConsequenceModel(report, registry, { linkedDetails }); const all = JSON.stringify(model.sections);
   assert.match(all, /Rejected/); assert.match(all, /Known by/); assert.match(all, /False route/); assert.match(all, /No value remains/); assert.match(all, /superseded by later authored evidence/);
-  assert.doesNotMatch(all, /secret\/source\.md|verified/i);
+  assert.doesNotMatch(all, /secret\/source\.md|verified/i); assert.match(all, /Lifecycle transitions/i); assert.doesNotMatch(all, /Lifecycle\.transitions/);
   const relationship = model.sections[1].rows[1].parts; assert.deepEqual(relationship.filter((p) => p.type === "reference").map((p) => p.id), ["rel_trust", "char_a", "char_b"]);
   assert.ok(relationship.some((p) => p.text?.includes("→"))); assert.equal(model.sections[1].rows[0].label, "Later recorded transition");
   const fallback = eventConsequenceModel(report, registry); assert.equal(fallback.sections[1].rows[1].parts.filter((p) => p.type === "reference").length, 1);
+});
+
+test("event public enrichment requires admitted matching source blobs and copies invariants only", async () => {
+  const request = reportRequest(); const item = { kind: "knowledge", record: { id: "know_proof" }, citation: recordProof("know_proof") };
+  const report = reportOk(request, { causedTransitions: [item] }); let calls = 0;
+  const read = async () => { calls++; return { id: "know_proof", kind: "knowledge", blob_oid: "c".repeat(40),
+    frontmatter: { knower: "char_a", claim: { statement: "The ledger is safe.", author_truth_status: "true" }, transitions: [{ state: "rejected", time: "future" }], secret: "ignored" } }; };
+  const details = await eventConsequenceDetails(report, request, read, () => true);
+  assert.equal(calls, 1); assert.deepEqual(details.get("know_proof"), { frontmatter: { knower: "char_a", claim: { statement: "The ledger is safe." } } });
+  for (const patch of [{ blob_oid: undefined }, { blob_oid: "d".repeat(40) }, { revision: "b".repeat(40) }, { perspective: "character" }]) {
+    const refused = await eventConsequenceDetails(report, request, async () => ({ ...(await read()), ...patch }), () => true);
+    assert.equal(refused.size, 0);
+  }
+  for (const causedTransitions of [[{ ...item, citation: null }], [item, { ...item, citation: recordProof("know_proof", "d".repeat(40)) }],
+    [{ ...item, citation: { ...recordProof("know_proof"), recordId: "other" } }]]) {
+    const before = calls; assert.equal((await eventConsequenceDetails(reportOk(request, { causedTransitions }), request, read, () => true)).size, 0); assert.equal(calls, before);
+  }
+  const before = calls; assert.equal((await eventConsequenceDetails({ protocol: request.protocol, outcome: "unavailable", code: "fixed", message: "safe" }, request, read, () => true)).size, 0);
+  assert.equal(calls, before, "failed reports grant no enrichment admission");
+});
+
+
+test("event consequence outcome snapshots distinguish scene records from plot halves", () => {
+  const row = (targetId, targetKind, eventLinked, targetLinked) => ({
+    subject: { kind: "outcome", recordId: "event_rescue", targetId, targetKind },
+    snapshot: { presence: "present", payload: { eventLinked, targetLinked }, citations: [] },
+    supersession: "unchanged", supersedingCitations: [],
+  });
+  const registry = createEntityRegistry([{ id: "scene_present", kind: "scene", title: "Linked scene" },
+    { id: "scene_absent", kind: "scene", title: "Unlinked scene" },
+    { id: "plot_event", kind: "story-point", title: "Scene-looking plot title" },
+    { id: "plot_target", kind: "story-point", title: "Target-side plot" }]);
+  const report = reportOk(undefined, { currentAtHorizon: [
+    row("scene_present", "scene", false, true), row("scene_absent", "scene", false, false),
+    row("plot_event", "story-point", true, false), row("plot_target", "story-point", false, true),
+  ] });
+  const rows = eventConsequenceModel(report, registry).sections.find(section => section.title === "Current at the reading horizon").rows;
+  const prose = rows.map(item => item.parts.filter(part => part.type === "text").map(part => part.text).join(""));
+  assert.match(prose[0], /Scene records this outcome event/);
+  assert.match(prose[1], /Scene does not record this outcome event/);
+  for (const scene of prose.slice(0, 2)) assert.doesNotMatch(scene, /Event link:|target link:/);
+  assert.match(prose[2], /Event link: recorded; target link: not recorded/);
+  assert.match(prose[3], /Event link: not recorded; target link: recorded/);
+  for (const plot of prose.slice(2)) assert.doesNotMatch(plot, /Scene (?:does not record|records) this outcome event/);
 });

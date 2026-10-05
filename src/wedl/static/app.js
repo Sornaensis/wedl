@@ -499,8 +499,7 @@ function consequenceNameParts(container, parts, names) {
 }
 function renderConsequenceReport(slot, report, linkedDetails, horizonDescription, capturedHorizon) {
   const model = eventConsequenceModel(report, state.registry, { stateKeys: state.worldStateKeys, linkedDetails });
-  const heading = node("h2", "Explicit event consequences"); slot.replaceChildren(heading,
-    node("p", horizonDescription), node("p", "Recorded links and authored state; this report does not establish narrative completeness.", "section-help"));
+  slot.replaceChildren(node("p", horizonDescription), node("p", "Recorded links and authored state; this report does not establish narrative completeness.", "section-help"));
   for (const sectionModel of model.sections) {
     const sectionNode = momentSection(sectionModel.title, sectionModel.help);
     if (!sectionModel.rows.length) sectionNode.append(node("p", "No recorded links in this section.", "section-help"));
@@ -523,8 +522,9 @@ function renderConsequenceReport(slot, report, linkedDetails, horizonDescription
 }
 async function renderEventConsequences(detail, requestId, generation) {
   const request = eventConsequenceRequest({ revision: state.revision, event: detail.id, timeline: state.activeTimelineId, horizon: activeHorizon(), lens: state.readerLens });
-  const slot = node("section", "", "event-consequences"); el.article.append(slot);
-  if (!request) { slot.append(node("h2", "Explicit event consequences"), node("p", "Choose an author chronology to read recorded consequences.")); return; }
+  const slot = node("section", "", "event-consequences"); const reportStatus = node("p", "", "section-help consequence-status"); reportStatus.setAttribute("role", "status"); reportStatus.setAttribute("aria-live", "polite");
+  const content = node("div", "", "consequence-content"); slot.append(node("h2", "Explicit event consequences"), reportStatus, content); el.article.append(slot);
+  if (!request) { reportStatus.textContent = "Choose an author chronology to read recorded consequences."; return; }
   const key = eventConsequenceKey(request); const capturedHorizon = activeHorizon() ? { ...activeHorizon() } : null;
   const chronology = state.timelineDeclarations.find((item) => item.id === request.at.timeline);
   const horizonDescription = capturedHorizon ? horizonLabel() : `Full story — through the terminal story boundary in ${chronology ? timelineDisplayLabel(chronology) : "the selected chronology"}.`;
@@ -532,13 +532,13 @@ async function renderEventConsequences(detail, requestId, generation) {
     && state.selectedEntityId === request.event && state.revision === request.revision
     && eventConsequenceKey(eventConsequenceRequest({ revision: state.revision, event: detail.id, timeline: state.activeTimelineId, horizon: activeHorizon(), lens: state.readerLens }) || { revision: "", event: "", at: {}, limit: 0 }) === key;
   state.consequenceController?.abort(); const controller = new AbortController(); state.consequenceController = controller;
-  slot.append(node("h2", "Explicit event consequences"), node("p", "Loading recorded consequences…", "section-help"));
+  reportStatus.textContent = "Loading recorded consequences…"; slot.setAttribute("aria-busy", "true");
   const failure = (outcome) => {
-    slot.replaceChildren(node("h2", "Explicit event consequences"), node("p", ({
+    content.replaceChildren(); slot.setAttribute("aria-busy", "false"); reportStatus.textContent = ({
       unavailable: "Recorded consequences are unavailable at this reading horizon.",
       limit: "The recorded consequences exceed the report limit.",
       invalid: "The consequence request could not be read.",
-    })[outcome] || "Recorded consequences could not be loaded. Open this entry again to retry.", "section-help"));
+    })[outcome] || "Recorded consequences could not be loaded. Open this entry again to retry.";
   };
   try {
     const cached = state.eventConsequenceCache.get(key);
@@ -548,10 +548,11 @@ async function renderEventConsequences(detail, requestId, generation) {
     if (!current() || controller.signal.aborted) return;
     if (!eventConsequenceMatches(report, request)) { failure("error"); return; }
     if (report.outcome !== "ok") { failure(report.outcome); return; }
-    renderConsequenceReport(slot, report, cached?.linkedDetails || new Map(), horizonDescription, capturedHorizon);
+    renderConsequenceReport(content, report, cached?.linkedDetails || new Map(), horizonDescription, capturedHorizon);
+    reportStatus.textContent = "Recorded consequences loaded."; slot.setAttribute("aria-busy", "false");
     const linkedDetails = cached?.linkedDetails || await eventConsequenceDetails(report, request, (path, options) => api.get(path, options), current, controller.signal);
     if (!current() || controller.signal.aborted) return;
-    renderConsequenceReport(slot, report, linkedDetails, horizonDescription, capturedHorizon);
+    renderConsequenceReport(content, report, linkedDetails, horizonDescription, capturedHorizon);
     state.eventConsequenceCache.set(key, { report, linkedDetails });
     while (state.eventConsequenceCache.size > 64) state.eventConsequenceCache.delete(state.eventConsequenceCache.keys().next().value);
   } catch { if (current() && !controller.signal.aborted) failure("error"); }

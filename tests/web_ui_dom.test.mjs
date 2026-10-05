@@ -961,7 +961,7 @@ async function withConsequenceArticle(handler, exercise) {
   globalThis.requestAnimationFrame = (callback) => callback(); globalThis.window = { addEventListener() {}, matchMedia: () => ({ matches: false }) }; globalThis.WebSocket = undefined; globalThis.sessionStorage = undefined;
   globalThis.fetch = async (path, options = {}) => {
     calls.push({ path, options });
-    if (path === "/api/events/consequences" || path.includes("?perspective=author")) return handler(path, options, { ok, response, revision });
+    if (path === "/api/events/consequences" || path === "/api/entities/rel_trust") return handler(path, options, { ok, response, revision });
     const entity = entities.find((entry) => path === `/api/entities/${entry.id}`);
     return response(path === "/api/session" ? { token: "session" } : path === "/api/status" ? { revision, timeModel: { timelineDeclarations: [{ id: "main", label: "Main story" }], defaultTimeline: "main" } }
       : path === "/api/entities" ? entities : path === "/api/threads" ? { revision, groupingAvailable: false, threads: [] }
@@ -977,16 +977,16 @@ test("event article renders pinned explicit consequences with safe named directi
   let requested;
   await withConsequenceArticle((path, options, { ok, response, revision }) => {
     if (path === "/api/events/consequences") {
-      requested = JSON.parse(options.body); const citation = { recordId: "event_rescue", sourcePath: "hidden/path.md", section: "effects" };
+      requested = JSON.parse(options.body); const citation = { recordId: "rel_trust", sourcePath: "hidden/path.md", section: "transitions", provenance: { kind: "source", revision, blobOid: "c".repeat(40) } };
       return response(ok(requested, { causedTransitions: [{ kind: "relationship", record: { id: "rel_trust", kind: "relationship", title: "Trust" }, transition: { relationship_status: "strained", metrics: { trust: 0 }, facets: [] }, atEventTime: false, time: { timeline: "main", tick: "11", order: "0" }, citation }] }));
     }
-    return response({ id: "rel_trust", kind: "relationship", revision, frontmatter: { from: "char_mara", to: "char_rook" } });
+    return response({ id: "rel_trust", kind: "relationship", blob_oid: "c".repeat(40), frontmatter: { from: "char_mara", to: "char_rook" } });
   }, async ({ elements, calls, open, settle, revision }) => {
     open("event_rescue"); await settle();
     assert.equal(requested.revision, revision); assert.deepEqual(requested.at, { timeline: "main", tick: "9223372036854775807", order: "2147483647" });
     assert.equal(calls.find((call) => call.path === "/api/events/consequences").options.headers["X-Wedl-Token"], "session");
     const prose = elements.article.textContent;
-    for (const label of ["What changes", "Article prose remains.", "Full story — through the terminal story boundary in Main story", "Changes at this event", "Later recorded transition", "Trust", "<svg onload=evil()>Mara</svg>", "→ Rook", "Recorded in Rescue", "No recorded links"]) assert.ok(prose.includes(label), label + ": " + prose);
+    for (const label of ["What changes", "Article prose remains.", "Full story — through the terminal story boundary in Main story", "Changes at this event", "Later recorded transition", "Trust", "<svg onload=evil()>Mara</svg>", "→ Rook", "Recorded in Trust", "No recorded links"]) assert.ok(prose.includes(label), label + ": " + prose);
     assert.doesNotMatch(prose, /verified|hidden\/path|rel_trust|char_mara|9223372036854775807/i);
     assert.equal(elements.article.querySelectorAll(".event-consequences")[0].querySelectorAll(".lore-link").find((button) => button.textContent === "<svg onload=evil()>Mara</svg>").tagName, "button");
     const tags = []; const visit = (entry) => { if (entry instanceof Element) { tags.push(entry.tagName); entry.children.forEach(visit); } }; visit(elements.article); assert.ok(!tags.includes("svg"));
@@ -999,7 +999,8 @@ test("event article preserves prose and effects through closed unavailable, limi
         open("event_rescue"); await settle(); assert.match(elements.article.textContent, /Article prose remains/); assert.match(elements.article.textContent, /What changes/);
         assert.match(elements.article.textContent, outcome === "limit" ? /exceed the report limit/ : outcome === "unavailable" ? /unavailable at this reading horizon/ : outcome === "invalid" ? /request could not be read/ : /could not be loaded/);
         assert.doesNotMatch(elements.article.textContent, /secret|<img>|Changes at this event/);
-        assert.equal(calls.filter((call) => call.path.includes("?perspective=author")).length, 0);
+        const status = elements.article.querySelector(".consequence-status"); assert.equal(status.attributes.get("role"), "status"); assert.equal(status.attributes.get("aria-live"), "polite"); assert.equal(elements.article.querySelector(".event-consequences").attributes.get("aria-busy"), "false");
+        assert.equal(calls.filter((call) => call.path === "/api/entities/rel_trust").length, 0);
       });
   }
 });
@@ -1023,20 +1024,20 @@ test("event article pins changed horizons and discards mismatched linked HEAD de
   await withConsequenceArticle((path, options, { response, ok, revision }) => {
     if (path === "/api/events/consequences") {
       const request = JSON.parse(options.body); requests.push(request);
-      const citation = { recordId: "event_rescue", section: "causes" };
+      const citation = { recordId: "rel_trust", section: "transitions", provenance: { kind: "source", revision, blobOid: "c".repeat(40) } };
       const payload = ok(request, { causedTransitions: [{ kind: "relationship", record: { id: "rel_trust", kind: "relationship", title: "Trust record" }, transition: { relationship_status: "strained", metrics: {}, facets: [] }, atEventTime: false, citation }] });
       if (requests.length === 1) return new Promise((resolve) => { release = () => resolve(response({ ...payload, outcomes: [{ target: { id: "scene_stale", kind: "scene", title: "STALE HORIZON" }, event: payload.event, reciprocal: true, citations: [] }] })); });
       return response(payload);
     }
-    return response({ id: "rel_trust", kind: "relationship", revision: "b".repeat(40), frontmatter: { from: "char_mara", to: "char_rook" } });
+    return response({ id: "rel_trust", kind: "relationship", revision: "b".repeat(40), blob_oid: "c".repeat(40), frontmatter: { from: "char_mara", to: "char_rook" } });
   }, async ({ elements, calls, open, settle }) => {
     open("event_rescue"); await settle();
     elements.horizon.value = "main\u000010\u00000"; elements.horizon.dispatch("change"); await settle();
     assert.equal(requests.length, 2); assert.deepEqual(requests[1].at, { timeline: "main", tick: "10", order: "0" });
     release(); await settle();
     assert.match(elements.article.textContent, /Through Rescue/); assert.match(elements.article.textContent, /Trust record/); assert.doesNotMatch(elements.article.textContent, /STALE HORIZON|→ Rook/);
-    const reads = calls.filter((call) => call.path.includes("?perspective=author")); assert.equal(reads.length, 1);
-    const url = new URL(reads[0].path, "http://example.test"); assert.equal(url.searchParams.get("tick"), "10");
+    const reads = calls.filter((call) => call.path === "/api/entities/rel_trust"); assert.equal(reads.length, 1);
+    const url = new URL(reads[0].path, "http://example.test"); assert.equal(url.search, "");
     elements.horizon.value = ""; elements.horizon.dispatch("change"); await settle();
     assert.equal(requests.length, 3, "stale terminal response never populated its cache");
   });

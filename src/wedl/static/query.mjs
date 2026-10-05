@@ -130,25 +130,44 @@ export function eventConsequenceMatches(payload, request) {
   try { return new TextEncoder().encode(JSON.stringify(payload)).length <= 262144; } catch { return false; }
 }
 
-// Enrichment uses only records explicitly admitted by this report. It never
-// reconciles HEAD or promotes a mismatched detail into the article cache.
+// entity.show is an existing PUBLIC raw-source read. Successful authenticated
+// report admission supplies the record scope; a matching blob proves content
+// identity, not authorization. Never consume its temporal fields.
 export async function eventConsequenceDetails(report, request, read, isCurrent, signal) {
-  const records = [...new Map(report.causedTransitions.filter((item) => ["knowledge", "relationship"].includes(item.kind))
-    .map((item) => [item.record.id, item.kind])).entries()].slice(0, 24);
+  if (!eventConsequenceMatches(report, request) || report.outcome !== "ok") return new Map();
+  const admitted = new Map(); const conflicts = new Set();
+  for (const item of report.causedTransitions) {
+    if (!["knowledge", "relationship"].includes(item.kind)) continue;
+    const id = item.record?.id; const proof = item.citation?.provenance;
+    if (!id || item.citation?.recordId !== id || proof?.kind !== "source" || proof.revision !== request.revision
+        || !/^[0-9a-f]{40}$/.test(proof.blobOid || "")) { if (id) conflicts.add(id); continue; }
+    const previous = admitted.get(id);
+    if (previous && (previous.kind !== item.kind || previous.blob !== proof.blobOid)) conflicts.add(id);
+    admitted.set(id, { kind: item.kind, blob: proof.blobOid });
+  }
+  const records = [...admitted.entries()].filter(([id]) => !conflicts.has(id)).slice(0, 24);
   const details = new Map(); let next = 0;
   const sameTime = (at) => { const normalized = reportTime(at); return normalized && Object.keys(request.at).every((key) => normalized[key] === request.at[key]); };
   await Promise.all(Array.from({ length: Math.min(4, records.length) }, async () => {
     while (isCurrent() && !signal?.aborted && next < records.length) {
-      const [id, kind] = records[next++];
-      const params = new URLSearchParams({ perspective: "author", ...request.at });
+      const [id, { kind, blob }] = records[next++];
       try {
-        const detail = await read(`/api/entities/${encodeURIComponent(id)}?${params}`, { signal });
+        const detail = await read(`/api/entities/${encodeURIComponent(id)}`, { signal });
         if (!isCurrent() || signal?.aborted) return;
-        if (detail?.revision !== request.revision || detail.id !== id || detail.kind !== kind
+        if (detail?.id !== id || detail.kind !== kind || detail.blob_oid !== blob
+            || (detail.revision !== undefined && detail.revision !== request.revision)
             || (detail.perspective !== undefined && detail.perspective !== "author")
             || (detail.effectiveTime !== undefined && !sameTime(detail.effectiveTime))
             || (detail.timeScope !== undefined && (detail.timeScope.mode !== "author-as-of" || !sameTime(detail.timeScope.at)))) continue;
-        details.set(id, detail);
+        const source = detail.frontmatter || {}; const invariant = {};
+        if (kind === "knowledge") {
+          if (typeof source.knower === "string") invariant.knower = source.knower;
+          if (typeof source.claim?.statement === "string") invariant.claim = { statement: source.claim.statement };
+        } else {
+          if (typeof source.from === "string") invariant.from = source.from;
+          if (typeof source.to === "string") invariant.to = source.to;
+        }
+        details.set(id, { frontmatter: invariant });
       } catch { /* The report record's admitted name remains the fallback. */ }
     }
   }));
