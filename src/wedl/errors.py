@@ -53,8 +53,11 @@ class SupersededSchemaError(WedlError):
 class ValidationFailed(WedlError):
     code = "validation_failed"
 
-    def __init__(self, message: str, diagnostics: list[dict[str, Any]]) -> None:
-        super().__init__(message, details={"diagnostics": diagnostics})
+    def __init__(self, message: str, diagnostics: list[dict[str, Any]], *, expectation_checks: dict[str, Any] | None = None) -> None:
+        details: dict[str, Any] = {"diagnostics": diagnostics}
+        if expectation_checks is not None:
+            details["expectationChecks"] = expectation_checks
+        super().__init__(message, details=details)
         self.diagnostics = diagnostics
 
 

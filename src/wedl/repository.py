@@ -1166,6 +1166,47 @@ class Repository:
         with self._canonical_write_lock():
             self._reconcile_authoring_transactions_locked()
 
+    def _publish_authoring_receipt(self, *, expected_head: str,
+                                   transaction_enroll: Callable[[TransactionJournal], None]) -> None:
+        """Complete a receipt-only transaction without a ref or index write.
+
+        Equal-SHA unfinished journals roll back under ordinary recovery. The
+        completed phase is the durable success boundary for this transaction.
+        """
+        if not self.is_git:
+            raise RepositoryError("Git is required for canonical writes")
+        with self._canonical_write_lock():
+            if not TransactionJournal.pending(self.root):
+                self._await_external_index_lock_release(deadline=[None])
+            self._reconcile_authoring_transactions_locked()
+            self.assert_clean_managed()
+            actual = self.head()
+            if actual != expected_head:
+                raise StaleRevision("repository HEAD changed", details={"expected": expected_head, "actual": actual})
+            ref = self._git(["symbolic-ref", "-q", "HEAD"], check=False).stdout.decode().strip()
+            if not ref:
+                raise RepositoryError("canonical writes require a branch")
+            journal = TransactionJournal.create(self.root, ref=ref, previous_head=expected_head,
+                                                committed_head=expected_head)
+            self._bind_transaction_lock(journal)
+            transaction_enroll(journal)
+            if any(surface.get("role") != "receipt" or surface.get("path") != ".wedl/idempotency.json"
+                   for surface in journal.record["surfaces"]):
+                raise RepositoryError("receipt transaction contains an unowned surface")
+            self.assert_clean_managed()
+            actual = self.head()
+            if actual != expected_head:
+                raise StaleRevision("repository HEAD changed", details={"expected": expected_head, "actual": actual})
+            lock = self._canonical_lock
+            if lock is None or not journal.owns_canonical_lock(lock[0], pid=os.getpid(), token=lock[1]):
+                raise RepositoryError("canonical write lock ownership changed")
+            journal.publish_surfaces()
+            mutation_checkpoint("receipt-before-completion")
+            if not journal.owns_canonical_lock(lock[0], pid=os.getpid(), token=lock[1]):
+                raise RepositoryError("canonical write lock ownership changed")
+            self._complete_transaction(journal)
+            mutation_checkpoint("receipt-after-completion")
+
     def commit_files(
         self,
         *,

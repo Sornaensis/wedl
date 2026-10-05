@@ -504,6 +504,8 @@ CHANGESET_OPERATION_SCHEMA.extend([
         ("outcome.link", ["event", "storyPoints", "scenes"]),
     )
 ])
+CHANGESET_OPERATION_SCHEMA.append({"type": "expectation.check", "summary": "check the final candidate without adding source facts",
+                                   "fields": ["event", "at", "policy", "items"]})
 CHANGESET_OPERATION_TYPES = tuple(item["type"] for item in CHANGESET_OPERATION_SCHEMA)
 
 
@@ -820,6 +822,10 @@ def _apply(payload: dict[str, Any], world: World, replacements: dict[str, str], 
         if focus_events is not None and record is not None and record.kind == "event":
             focus_events.add(identifier)
     for index, raw_operation in enumerate(operations):
+        if raw_operation.get("type") == "expectation.check":
+            # Check literals are never expanded by the legacy source walker.
+            # The report adapter resolves only declared reference leaves.
+            continue
         if consequence_batch:
             from .consequence_intents import expand
             operation = expand(raw_operation, replacements, digest, index, world)
@@ -942,6 +948,103 @@ def _semantic_delta(world: World, candidate: World, request: Any, request_hash: 
                           base_valid=base_valid, candidate_valid=candidate_valid)
 
 
+def _check_reports(world: World, candidate: World, payload: dict[str, Any], replacements: dict[str, str],
+                   request_hash: str, source_valid: bool, delta: dict[str, Any] | None) -> dict[str, Any]:
+    from .consequence_expectations import check_time, evaluate_expectations, _validate
+    from .event_consequences import AuthorScope, CandidateIdentity, Projection, ProjectionFailure, bounded
+
+    def failure_report(failure: ProjectionFailure) -> dict[str, Any]:
+        return {"outcome": failure.outcome, "code": failure.code, "message": failure.message}
+
+    def value_refs(value: Any, rule: Any) -> None:
+        if not isinstance(rule, dict): return
+        if rule.get("type") == "entity" and isinstance(value, dict) and isinstance(value.get("entity"), str):
+            value["entity"] = replacements.get(value["entity"], value["entity"])
+        elif rule.get("type") == "array" and isinstance(value, list):
+            for item in value: value_refs(item, rule.get("items"))
+        elif rule.get("type") == "object" and isinstance(value, dict) and isinstance(rule.get("properties"), dict):
+            for key, definition in rule["properties"].items():
+                if key in value: value_refs(value[key], definition)
+
+    try:
+        if not source_valid: raise ProjectionFailure("invalid", source=True)
+        operations = [(index, operation) for index, operation in enumerate(payload.get("operations") or [])
+                      if isinstance(operation, dict) and operation.get("type") == "expectation.check"]
+        count = 0
+        for _, operation in operations:
+            if operation.keys() != {"type", "event", "at", "policy", "items"}:
+                raise ProjectionFailure("invalid")
+            if not isinstance(operation["event"], str) or not operation["event"].strip():
+                raise ProjectionFailure("invalid")
+            check_time(operation["at"])
+            _validate(operation["items"], operation["policy"])
+            if not operation["items"]: raise ProjectionFailure("invalid")
+            count += len(operation["items"])
+        if count > 100: raise ProjectionFailure("limit")
+        scope = AuthorScope(world.world_record.id, frozenset(world.records) | frozenset(candidate.records),
+                            complete_families=frozenset({"state", "knowledge"}))
+        identity = CandidateIdentity(world.revision, request_hash)
+        groups = []
+        allowed = True
+        fields = {"state.equals": ("target",), "state.absent": ("target",),
+                  "knowledge.state": ("knowledge",), "relationship.matches": ("relationship",),
+                  "story-point.state": ("storyPoint",), "outcome.linked": ("event", "target"),
+                  "transition.caused": ("record", "transitionId", "event")}
+        for index, operation in operations:
+            point = check_time(operation["at"])
+            items = deepcopy(operation["items"])
+            for item in items:
+                predicate = item["predicate"]
+                for field in fields[predicate["kind"]]:
+                    predicate[field] = replacements.get(predicate[field], predicate[field])
+                if predicate["kind"] == "state.equals":
+                    projection = Projection(candidate, scope, point, candidate=identity, base=world)
+                    try:
+                        target = projection.reference(predicate["target"])
+                        rule = ((candidate.config.get("state_keys") or {}).get(target["kind"]) or {}).get(predicate["key"])
+                        value_refs(predicate["value"], rule)
+                    except ProjectionFailure as failure:
+                        if failure.outcome != "unavailable": raise
+            evaluation = evaluate_expectations(candidate, scope, replacements.get(operation["event"], operation["event"]),
+                                                point, items, policy=operation["policy"], candidate=identity, base=world)
+            groups.append({"operationIndex": index, "event": evaluation.event, "at": evaluation.at,
+                           "policy": evaluation.policy, "results": evaluation.results})
+            allowed = allowed and evaluation.apply_allowed
+        report = {"outcome": "ok", "baseRevision": world.revision,
+                  "candidate": {"baseRevision": world.revision, "requestHash": request_hash},
+                  "groups": groups, "applyAllowed": allowed}
+        focus = {group["event"]["id"] for group in groups}
+        logical: set[str] = set()
+        if delta is not None and delta["outcome"] == "ok":
+            focus.update(event["id"] for event in delta["focusEvents"])
+            sections: set[str] = set()
+            records: set[str] = set()
+            for group in [*delta["eventGroups"], {"changes": delta["unattributedChanges"], "recordChanges": delta["unattributedRecordChanges"]}]:
+                logical.update(canonical_json(change) for change in group["changes"])
+                for record in group["recordChanges"]:
+                    records.add(record["recordId"])
+                    sections.update(canonical_json([record["recordId"], section]) for section in record["sections"])
+            count += len(logical) + len(records) + len(sections)
+            delta["expectations"] = groups
+            delta["applyAllowed"] = allowed
+        count += len(focus)
+        if len(focus) > 100 or (delta is not None and delta["outcome"] == "limit"):
+            raise ProjectionFailure("limit")
+        limit = 1000
+        request = payload.get("consequenceRequest")
+        if isinstance(request, dict) and type(request.get("limit")) is int and 1 <= request["limit"] <= 1000:
+            limit = request["limit"]
+        bounded({"expectationChecks": report, **({"semanticDelta": delta} if delta is not None else {})}, count, limit)
+        return report
+    except (ProjectionFailure, RecursionError) as failure:
+        if isinstance(failure, RecursionError): failure = ProjectionFailure("invalid")
+        report = failure_report(failure)
+        if delta is not None and (delta["outcome"] == "ok" or failure.outcome == "limit"):
+            delta.clear()
+            delta.update({"protocol": "wedl-event-consequence-delta/v1", **report})
+        return report
+
+
 def preview(
     repository: Repository,
     payload: dict[str, Any],
@@ -959,8 +1062,9 @@ def preview(
     if expected != current:
         raise StaleRevision("changeset expected a different HEAD", details={"expected": expected, "actual": current})
     semantic = "consequenceRequest" in payload
-    world = repository.load_world(expected, cache_write=False if semantic or consequence_batch else cache_write)
-    if semantic or consequence_batch:
+    checks = any(isinstance(operation, dict) and operation.get("type") == "expectation.check" for operation in payload.get("operations") or [])
+    world = repository.load_world(expected, cache_write=False if semantic or checks or consequence_batch else cache_write)
+    if semantic or checks or consequence_batch:
         # Validation and ordinary World lookups populate a fold/kind cache.
         # Keep those local while preserving the exact loaded source records.
         world = World(world.revision, world.tree_oid, world.records, world.root, world.source_root)
@@ -987,6 +1091,13 @@ def preview(
     result = {"protocol": "wedl-preview/v1", "valid": valid, "expectedHead": expected, "requestHash": request_hash, "confirmationToken": confirmation_token(payload, request_hash=request_hash, expected_head=expected, authoring_intent_hash=authoring_intent_hash if consequence_batch else None), "generatedIds": replacements, "touchedEntityIds": sorted(touched), "diagnostics": diagnostics, "files": sorted(changes), "diff": "".join(diffs), "_changes": changes, "_recordCount": len(records)}
     if semantic:
         result["semanticDelta"] = _semantic_delta(world, candidate, payload["consequenceRequest"], request_hash, targets, focus, valid)
+    if checks:
+        report = _check_reports(world, candidate, payload, replacements, request_hash, valid, result.get("semanticDelta"))
+        result["expectationChecks"] = report
+        if report["outcome"] != "ok" or not report["applyAllowed"]:
+            result["valid"] = False
+            diagnostics.append({"severity": "error", "code": report.get("code", "CONSEQUENCE-EXPECTATION-001"),
+                                "message": report.get("message", "Consequence checks block apply.")})
     return result
 
 
@@ -1065,6 +1176,9 @@ def apply(
     result = preview(repository, payload, use_current_head=use_current_head, cache_write=False,
                      consequence_batch=consequence_batch, authoring_intent_hash=authoring_intent_hash if consequence_batch else None)
     if not result["valid"]:
+        if "expectationChecks" in result:
+            raise ValidationFailed("Consequence checks block apply.", result["diagnostics"],
+                                   expectation_checks=result["expectationChecks"])
         raise ValidationFailed("changeset candidate is invalid", result["diagnostics"])
     if not allow_unconfirmed:
         if not confirmation_token_value:
@@ -1074,6 +1188,38 @@ def apply(
     changes = result.pop("_changes")
     record_count = result.pop("_recordCount")
     enrolled: dict[str, Any] = {}
+
+    def receipt_enrollments(response: dict[str, Any]) -> tuple[SurfaceEnrollment, ...]:
+        after = receipt_before
+        if key:
+            receipt = {"requestHash": request_hash, "fullPayloadHash": full_payload_hash,
+                       "confirmationToken": result["confirmationToken"], "result": response}
+            if authoring_intent_hash is not None:
+                receipt["authoringIntentHash"] = authoring_intent_hash
+            if bounded_authoring_impact is not None:
+                receipt["authorImpact"] = json.loads(bounded_authoring_impact)
+            after = _bounded_canonical_json_bytes({**receipts, key: receipt}, _AUTHORING_MAX_RECEIPT,
+                                                 error="idempotency receipt exceeds authoring byte limit")
+        return (SurfaceEnrollment(".wedl/idempotency.json", before=receipt_before, after=after, role="receipt"),)
+
+    if "expectationChecks" in result and not changes:
+        response = {"protocol": "wedl-command-result/v1", "status": "checked",
+                    "previousHead": result["expectedHead"], "newHead": result["expectedHead"],
+                    "generatedIds": result["generatedIds"], "touchedEntityIds": [],
+                    "compile": {"status": "not-required", "revision": result["expectedHead"]},
+                    "idempotentReplay": False, "expectationChecks": result["expectationChecks"]}
+        def enroll_checked(journal: TransactionJournal) -> None:
+            surfaces = receipt_enrollments(response)
+            reserve = _authoring_caller_reserve(surfaces, changes={}, diff="", authoring_impact=bounded_authoring_impact,
+                                               request_bytes=request_bytes, source_before_bytes=0)
+            journal.register_surfaces(surfaces, live_budget=JournalLiveByteBudget(
+                total_bytes=_AUTHORING_PROCESS_LIMIT, caller_reserve_bytes=reserve))
+        try:
+            repository._publish_authoring_receipt(expected_head=result["expectedHead"], transaction_enroll=enroll_checked)
+        except Exception:
+            repository.recover_authoring_transactions()
+            raise
+        return response
 
     source_before_bytes = _authoring_commit_source_preflight(repository, changes, source_bytes)
     source_after_bytes = sum(len(value) for value in changes.values() if value is not None)
@@ -1102,40 +1248,10 @@ def apply(
             "generatedIds": result["generatedIds"], "touchedEntityIds": result["touchedEntityIds"],
             "compile": compile_report, "idempotentReplay": False,
         }
-        receipt_enrollments: tuple[SurfaceEnrollment, ...] = (
-            SurfaceEnrollment(
-                ".wedl/idempotency.json", before=receipt_before,
-                after=receipt_before, role="receipt",
-            ),
-        )
-        if key:
-            next_receipts = dict(receipts)
-            def encode_receipt() -> tuple[SurfaceEnrollment, ...]:
-                receipt = {"requestHash": request_hash, "fullPayloadHash": full_payload_hash,
-                           "confirmationToken": result["confirmationToken"], "result": response}
-                if authoring_intent_hash is not None:
-                    receipt["authoringIntentHash"] = authoring_intent_hash
-                if bounded_authoring_impact is not None:
-                    # This value passed a streaming byte bound before parsing,
-                    # so receipt construction cannot copy an unbounded input.
-                    receipt["authorImpact"] = json.loads(bounded_authoring_impact)
-                next_receipts[key] = receipt
-                receipt_after = _bounded_canonical_json_bytes(
-                    next_receipts,
-                    _AUTHORING_MAX_RECEIPT,
-                    error="idempotency receipt exceeds authoring byte limit",
-                )
-                return (
-                    SurfaceEnrollment(
-                        ".wedl/idempotency.json",
-                        before=receipt_before,
-                        after=receipt_after,
-                        role="receipt",
-                    ),
-                )
-
-            receipt_enrollments = encode_receipt()
-        enrollments = (*cache_enrollments, *receipt_enrollments)
+        if "expectationChecks" in result:
+            response["expectationChecks"] = result["expectationChecks"]
+        receipt_surfaces = receipt_enrollments(response)
+        enrollments = (*cache_enrollments, *receipt_surfaces)
         caller_reserve = _authoring_caller_reserve(
             enrollments, changes=changes, diff=result.get("diff", ""),
             authoring_impact=bounded_authoring_impact,
@@ -1177,8 +1293,8 @@ def apply(
             )
             response["compile"] = compile_report
             if key:
-                receipt_enrollments = encode_receipt()
-            enrollments = receipt_enrollments
+                receipt_surfaces = receipt_enrollments(response)
+            enrollments = receipt_surfaces
             caller_reserve = _authoring_caller_reserve(
                 enrollments, changes=changes, diff=result.get("diff", ""),
                 authoring_impact=bounded_authoring_impact,
