@@ -205,6 +205,13 @@ by the 0.6 CLI. Use `--use-current-head` only when the changeset deliberately
 omits an expected head: it weakens the normal expected-HEAD protection against
 applying a change to an unintended revision.
 
+The additive consequence operations and event/preview semantic reports are
+specified in [EVENT_CONSEQUENCES_CONTRACT.md](EVENT_CONSEQUENCES_CONTRACT.md).
+That contract defines downstream support; use installed schema discovery and
+CLI help to determine which variants are executable. It preserves the current
+changeset/source versions and distinguishes event-local views from a base/candidate
+comparison at one explicit horizon.
+
 `wedl author chronology replace` is a complete catalog and/or per-record
 annotation replacement, not granular chronology CRUD. It previews by default,
 requires the exact audited `--expected-head`, and accepts the normal
