@@ -1041,7 +1041,7 @@ def _check_reports(world: World, candidate: World, payload: dict[str, Any], repl
                     records.add(record["recordId"])
                     sections.update(canonical_json([record["recordId"], section]) for section in record["sections"])
             count += len(logical) + len(records) + len(sections)
-            delta["expectations"] = groups
+            delta["expectations"] = [result for group in groups for result in group["results"]]
             delta["applyAllowed"] = allowed
         count += len(focus)
         if len(focus) > 100 or (delta is not None and delta["outcome"] == "limit"):

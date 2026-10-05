@@ -367,7 +367,8 @@ copying parser defaults or guessing response fields.
 
 ## Changeset workflow
 
-`schema` is public. `scaffold`, `preview`, and `apply` require
+Static `schema` discovery is public. Supplying an exact revision for contextual
+discovery requires `X-Wedl-Token`. `scaffold`, `preview`, and `apply` also require
 `X-Wedl-Token`. `scaffold` has no request body. `preview` and `apply` accept
 the raw `wedl-changeset/v1` JSON object itself, not an object wrapped in
 `payload`, `changeset`, or a CLI file field.
@@ -430,7 +431,7 @@ normal changeset preview and apply requires that preview token in
 `hypothesis.adopt`, `hypothesis.reject`, `chronology.replace`,
 `spatial.map.create`, `spatial.map.update`, `spatial.location.update`,
 `spatial.route.create`, `spatial.route.update`, `spatial.overlay.create`, and
-`spatial.overlay.update`.
+`spatial.overlay.update`, and `consequence.batch`.
 `chronology.replace` requires the exact audited `expectedHead`, replaces each
 supplied catalogue or record annotation array completely, previews before any
 write, and applies through the ordinary confirmed changeset workflow. A hypothesis create takes a
@@ -470,6 +471,26 @@ time—and can report `conversation-created`, `conversation-turn-appended`, and
 remain unchanged. An append whose order is automatically allocated after the
 current cursor advances every active front atomically; an explicit order never
 does so implicitly.
+
+## Semantic preview and explicit consequence batches
+
+Raw and authoring previews accept optional `consequenceRequest` with an explicit
+canonical signed-string horizon. Their existing protocols, source diff, files,
+diagnostics, generated IDs and confirmation flow remain unchanged. The nested
+`semanticDelta` uses `wedl-event-consequence-delta/v1`: base and final candidate
+are compared at the same H; literal event groups and unattributed record changes
+preserve their different attribution. Event-local before/after at T is a separate
+event report comparison. Closed invalid/unavailable/limit results never assert a
+partial success.
+
+`consequence.batch` records explicit effects, caused transitions and outcome links,
+with optional required/advisory expectation checks. `expectationChecks` is reported
+independently of the optional delta. Apply binds the complete original intent and
+requires the exact author preview token; no scope or confirmation body fields are
+accepted. A check-only no-op returns a checked receipt without advancing HEAD.
+See the [executable rescue example](EVENT_CONSEQUENCE_PREVIEW.md) for custody,
+belief, directed trust, delayed plot resolution, scene outcome and unattributed
+prose, plus generated-reference and candidate-provenance handling.
 
 ## Explicit exclusions
 

@@ -17,7 +17,7 @@ from typing import Any, Iterable, Mapping
 
 from . import command_parser
 from .api_schemas import components as response_schema_components
-from .api_schemas import operation_example, operation_schema
+from .api_schemas import consequence_rescue_example, operation_example, operation_schema
 from .errors import UsageError
 
 
@@ -99,14 +99,9 @@ def _consequence_intent_examples(path: str, *, apply: bool) -> tuple[dict[str, A
     headers = {"X-Wedl-Token": "<session-token>"}
     if apply:
         headers["X-Wedl-Confirmation"] = "wedl-confirmation/v1:<proof>"
-    body = {"action": "consequence.batch", "expectedHead": "0" * 40, "idempotencyKey": "explicit-door-opening",
-            "operations": [{"type": "event.create", "temporaryId": "tmp:opening", "title": "Open the door",
-                "time": {"timeline": "main", "tick": "12", "order": "0"},
-                "effects": [{"target": "Vault door", "key": "condition", "operation": "set", "value": "open"}]},
-                {"type": "expectation.check", "event": "tmp:opening", "at": {"timeline": "main", "tick": "12", "order": "0"},
-                 "policy": "required", "items": [{"id": "door-open", "predicate": {"kind": "state.equals",
-                     "target": "Vault door", "key": "condition", "value": "open"}}]}]}
-    return ({"summary": "Explicit consequence batch", "value": {"method": "POST", "path": path, "headers": headers, "body": body}},)
+    body = consequence_rescue_example()
+    return ({"summary": "Explicit ledger rescue (replace zero expectedHead with session HEAD and match source schema)",
+             "value": {"method": "POST", "path": path, "headers": headers, "body": body}},)
 
 
 def _generational_example(action: str) -> dict[str, Any]:
@@ -442,7 +437,7 @@ _DISCOVERY: dict[tuple[str, ...], DiscoveryDescriptor] = {
     ("author", "request", "apply"): DiscoveryDescriptor("Apply an authoring intent", "Require exact preview confirmation for the complete original intent, including consequence.batch in automation. Edited aliases, policies or horizons require a new preview; identical retries return recorded results.", ("Authoring",), "Authoring application result.", ("authentication_required", "usage_error", "not_found", "protocol_error", "upgrade_required", "validation_failed", "confirmation_required", "confirmation_mismatch", "conflict", "stale_revision", "dirty_managed_tree", "parse_error", "repository_error"), examples=_generational_intent_examples("/api/authoring/apply", apply=True) + _consequence_intent_examples("/api/authoring/apply", apply=True)),
     ("changeset", "scaffold"): DiscoveryDescriptor("Scaffold a changeset", "Create a current-HEAD-bound starter changeset; it has no request body.", ("Changesets",), "Changeset scaffold.", ("authentication_required", "protocol_error", "parse_error", "repository_error")),
     ("changeset", "schema"): DiscoveryDescriptor("Get changeset schema", "Return concrete raw and consequence.batch operation schemas. Without revision this is public repository-free discovery. Supplying an exact revision requires the repository session token before reading that validated world's declarations; no viewer or scope grants are accepted.", ("Changesets",), "Changeset schema.", ("authentication_required", "usage_error", "validation_failed", "parse_error", "repository_error")),
-    ("changeset", "preview"): DiscoveryDescriptor("Preview a changeset", "Validate a raw changeset object against the current HEAD without writes. Candidate validation is returned as valid=false, not an error response.", ("Changesets",), "Changeset preview.", ("authentication_required", "protocol_error", "parse_error", "repository_error")),
+    ("changeset", "preview"): DiscoveryDescriptor("Preview a changeset", "Validate a raw changeset against current HEAD without writes. Optional semanticDelta compares the base and final candidate at explicit H, with event-local before/after at T; invalid/unavailable/limit contain no partial assertions. Source validation still returns valid=false and diagnostics.", ("Changesets",), "Changeset preview.", ("authentication_required", "protocol_error", "parse_error", "repository_error")),
     ("changeset", "apply"): DiscoveryDescriptor("Apply a changeset", "Apply a confirmed raw changeset object and compile the resulting revision. Replays may return the stored receipt.", ("Changesets",), "Changeset application result.", ("authentication_required", "protocol_error", "validation_failed", "confirmation_required", "confirmation_mismatch", "conflict", "stale_revision", "dirty_managed_tree", "parse_error", "repository_error")),
 }
 

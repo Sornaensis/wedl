@@ -30,7 +30,7 @@ def test_checks_use_final_candidate_original_indexes_and_one_evaluation(monkeypa
     assert plan["valid"] and report["applyAllowed"] and len(calls) == 2
     assert [group["operationIndex"] for group in report["groups"]] == [0, 2]
     assert all(group["results"][0]["outcome"] == "pass" for group in report["groups"])
-    assert plan["semanticDelta"]["expectations"] == report["groups"]
+    assert plan["semanticDelta"]["expectations"] == [result for group in report["groups"] for result in group["results"]]
     assert report["candidate"] == plan["semanticDelta"]["candidate"]
     assert repository.loads == [(world.revision, False)] and world._cache == before and payload == original
     assert calls[0][1]["candidate"].request_hash == changeset._request_hash(original)

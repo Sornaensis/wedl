@@ -1151,6 +1151,14 @@ def operation_schema(operation: str) -> str:
 def operation_example(operation: str) -> tuple[dict[str, Any], ...]:
     """Return one compact but schema-valid success response example."""
 
+    if operation in {"changeset preview", "author request preview"}:
+        examples = [{"summary": "Source preview (semantic request omitted)", "value": deepcopy(_OPERATIONS[operation][1])}]
+        for outcome, code in (("invalid", "CONSEQUENCE-REQUEST-001"), ("unavailable", "CONSEQUENCE-UNAVAILABLE-001"), ("limit", "CONSEQUENCE-LIMIT-001")):
+            value = deepcopy(_OPERATIONS[operation][1])
+            plan = value["preview"] if operation == "author request preview" else value
+            plan["semanticDelta"] = {"protocol": "wedl-event-consequence-delta/v1", "outcome": outcome, "code": code, "message": "Semantic result " + outcome + "."}
+            examples.append({"summary": "Closed semantic " + outcome + " (source preview fields retained)", "value": value})
+        return tuple(examples)
     if operation == "generational schema":
         from .generational_authoring import schema as generational_schema
 
@@ -1233,3 +1241,47 @@ _static_consequence_defs.pop("operationNames")
 _OPERATIONS["changeset schema"] = ("ChangesetSchemaDocument", {
     **_OPERATIONS["changeset schema"][1], "$defs": _static_consequence_defs,
     "requestSchema": {"$ref": "#/$defs/ChangesetRequest"}})
+
+
+def consequence_rescue_example(revision: str = "0" * 40, source_schema: str = "wedl/v0.3") -> dict[str, Any]:
+    """Editable Ash Archive example; zero revision is a placeholder, never a commit claim."""
+    def record(kind, title, **fields):
+        return {"frontmatter": {"schema": source_schema, "kind": kind, "title": title,
+                "domain": "story", "status": "canonical", "tags": [], "aliases": [], **fields},
+                "bodyMarkdown": title + "\n"}
+    at = {"timeline": "main", "tick": "302", "order": "0"}
+    return {"action": "consequence.batch", "expectedHead": revision,
+        "idempotencyKey": "explicit-ledger-rescue", "summary": "Rescue the ledger and record explicit consequences",
+        "consequenceRequest": {"protocol": "wedl-event-consequence-delta/v1", "at": at, "limit": 1000},
+        "operations": [
+            {"type": "entity.create", "temporaryId": "tmp:ledger", "value": record("object", "Rescued ledger", initial_state={})},
+            {"type": "entity.create", "temporaryId": "tmp:plot", "value": record("story-point", "Recover the rescued ledger",
+                lifecycle={"initial_state": "dormant", "transitions": []}, dependencies={}, trigger={}, outcome_events=[])},
+            {"type": "entity.create", "temporaryId": "tmp:scene", "value": record("scene", "Ledger rescue scene", status="closed",
+                location="South-Bank Flood Stair", time={"start": {"timeline": "main", "tick": 299, "order": 0},
+                    "current": {"timeline": "main", "tick": 302, "order": 0}, "end": {"timeline": "main", "tick": 303, "order": 0}},
+                participants=[], objects=[], environments=[], conversations=[], story_points=[], observations=[], outcome_events=[])},
+            {"type": "event.create", "temporaryId": "tmp:rescue", "title": "Ledger rescue",
+                "time": {"timeline": "main", "tick": "300", "order": "0"},
+                "effects": [{"id": "tmp:custody", "target": "tmp:ledger", "key": "holder", "operation": "set", "value": {"entity": "Mara Vale"}}]},
+            {"type": "knowledge.create", "temporaryId": "tmp:belief", "value": record("knowledge", "Mara believes the rescued ledger safe",
+                knower="Mara Vale", claim={"key": "rescued-ledger-safe", "statement": "The rescued ledger is safe."}, transitions=[])},
+            {"type": "knowledge.transition.append", "knowledge": "tmp:belief", "transition": {"id": "tmp:learned",
+                "time": {"timeline": "main", "tick": "300", "order": "0"}, "state": "accepted", "causing_event": "tmp:rescue"}},
+            {"type": "relationship.create", "temporaryId": "tmp:trust", "value": record("relationship", "Mara trusts Oren after ledger rescue",
+                **{"from": "Mara Vale", "to": "Oren Thane", "relationship_kind": "trust", "transitions": []})},
+            {"type": "relationship.transition.append", "relationship": "tmp:trust", "transition": {"id": "tmp:trust-raised",
+                "time": {"timeline": "main", "tick": "300", "order": "0"}, "metrics": {"trust": 0.8}, "causing_event": "tmp:rescue"}},
+            {"type": "story-point.transition.append", "storyPoint": "tmp:plot", "transition": {"id": "tmp:resolved",
+                "time": {"timeline": "main", "tick": "301", "order": "0"}, "state": "resolved", "causing_event": "tmp:rescue"}},
+            {"type": "outcome.link", "event": "tmp:rescue", "storyPoints": ["tmp:plot"], "scenes": ["tmp:scene"]},
+            {"type": "entity.update", "entity": "Mara Vale", "bodyMarkdown": "An unrelated blue-coat description.\n"},
+            {"type": "expectation.check", "event": "tmp:rescue", "at": dict(at), "policy": "required", "items": [
+                {"id": "custody", "predicate": {"kind": "state.equals", "target": "tmp:ledger", "key": "holder", "value": {"entity": "Mara Vale"}}},
+                {"id": "belief", "predicate": {"kind": "knowledge.state", "knowledge": "tmp:belief", "state": "accepted"}},
+                {"id": "trust", "predicate": {"kind": "relationship.matches", "relationship": "tmp:trust", "values": {"metrics": {"trust": 0.8}}}},
+                {"id": "plot", "predicate": {"kind": "story-point.state", "storyPoint": "tmp:plot", "state": "resolved"}},
+                {"id": "scene", "predicate": {"kind": "outcome.linked", "event": "tmp:rescue", "target": "tmp:scene"}}]}]}
+
+SCHEMAS["ChangesetPreviewResponse"]["description"] = ("Source preview with optional closed semanticDelta and expectationChecks. Revision delta compares base and final candidate at one explicit horizon H; eventGroups attribute those same-H changes by literal references. A separate event report compares immediately before/after its event at T, without predecessor arithmetic. Candidate identity is baseRevision plus requestHash, never a fabricated commit SHA. Failure outcomes contain no partial results.")
+SCHEMAS["AuthoringPreviewResponse"]["description"] = "wedl-author-preview/v1 retains the complete original intent, compiled changeset, wedl-preview/v1 source diff and confirmation token. Semantic results are nested under preview; authentication and full-intent confirmation remain mandatory."
