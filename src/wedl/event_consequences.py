@@ -147,6 +147,7 @@ class Projection:
         self._knowledge_complete = "knowledge" in scope.complete_families
         self._state_complete = "state" in scope.complete_families
         self._known_absent: set[tuple[str, str]] = set()
+        self._temporal_events: set[str] = set()
         self._ordinals: dict[tuple[str, str], list[int]] = {}
         default = str(config.get("default_timeline", "main"))
         # The focus is resolved only after scope/horizon selection. Exclusion
@@ -163,7 +164,13 @@ class Projection:
                 if not scope.permits(identifier, "frontmatter.time"):
                     self._state_complete = False
                     continue
-                if record.status != "canonical" or not StoryTime.from_value(fm.get("time"), default).not_after(at):
+                if not StoryTime.from_value(fm.get("time"), default).not_after(at):
+                    # Authorization already admitted this event's identity and
+                    # time. Its temporal exclusion means canonical false, not
+                    # withheld support. Retain no future payload or citation.
+                    self._temporal_events.add(identifier)
+                    continue
+                if record.status != "canonical":
                     continue
                 if not scope.permits(identifier, "effects"):
                     self._state_complete = False
@@ -327,12 +334,12 @@ class Projection:
                                         if item["claimKey"] == predicate.get("claim_key"))
                 if "event" in value:
                     event = value["event"].get("event") if isinstance(value["event"], dict) else value["event"]
-                    if event not in self.world.records:
+                    if event not in self.world.records and event not in self._temporal_events:
                         missing = True
-                    elif self.scope.permits(event, "frontmatter.time"):
+                    elif event in self.world.records and self.scope.permits(event, "frontmatter.time"):
                         point = StoryTime.from_value(self.world.records[event].frontmatter["time"], self.world.default_timeline)
                         subjects.append({"citation": self.citation(event, "frontmatter.time", None, None, point)})
-                    else:
+                    elif event in self.world.records:
                         missing = True
         visit(record.frontmatter.get("trigger") or {})
         for dependency in (record.frontmatter.get("dependencies") or {}).get("all") or []:

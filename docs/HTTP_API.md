@@ -14,6 +14,24 @@ use `/api/session` only when a client needs the local session token.
 
 ## Authentication
 
+`POST /api/events/consequences` requires `X-Wedl-Token`. Send a closed
+`wedl-event-consequences/v1` request with `revision` (full Git SHA), `event`
+(ID, title or alias), `at` (timeline and canonical signed decimal tick/order
+strings), and `limit` (1–1000). Optional `expectations: {policy, items}` uses
+the shared closed predicate catalogue. Caller identity, scope and perspective
+fields and duplicate JSON members at any depth are rejected. Authentication
+precedes source loading and name lookup.
+
+Verification loads and validates only the requested revision without compiling
+or publishing caches. The report compares immediately before/after event T and
+follows literal consequences through horizon H. Its flat `expectations` cite
+that source revision; required non-pass checks return `ok` with
+`applyAllowed: false`. Advisory checks permit application. This read performs
+no application. Combined collection/check and serialized-byte limits replace
+the whole report on overflow. Outcomes map to HTTP 200 (`ok`), 400 (`invalid`),
+409 (`unavailable`), and 422 (`limit`). Generated OpenAPI supplies the request,
+predicates and closed report components.
+
 Most read routes are public to the local server. Generational reads require
 the repository session token because their author scope can include private
 history. Session-protected routes require

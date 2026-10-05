@@ -1285,3 +1285,8 @@ def consequence_rescue_example(revision: str = "0" * 40, source_schema: str = "w
 
 SCHEMAS["ChangesetPreviewResponse"]["description"] = ("Source preview with optional closed semanticDelta and expectationChecks. Revision delta compares base and final candidate at one explicit horizon H; eventGroups attribute those same-H changes by literal references. A separate event report compares immediately before/after its event at T, without predecessor arithmetic. Candidate identity is baseRevision plus requestHash, never a fabricated commit SHA. Failure outcomes contain no partial results.")
 SCHEMAS["AuthoringPreviewResponse"]["description"] = "wedl-author-preview/v1 retains the complete original intent, compiled changeset, wedl-preview/v1 source diff and confirmation token. Semantic results are nested under preview; authentication and full-intent confirmation remain mandatory."
+
+for _outcome in ("invalid", "unavailable", "limit"):
+    SCHEMAS["ConsequenceEvent" + _outcome.capitalize()] = {
+        "allOf": [{"$ref": "#/components/schemas/ConsequenceFailure"},
+                  {"properties": {"protocol": {"const": "wedl-event-consequences/v1"}, "outcome": {"const": _outcome}}}]}

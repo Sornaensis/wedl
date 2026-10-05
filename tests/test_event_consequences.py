@@ -333,3 +333,47 @@ def test_limits_identity_and_source_only_dependency_boundary():
     with pytest.raises(ProjectionFailure) as failure:
         Projection(world, scope, StoryTime("main", 20))
     assert failure.value.outcome == "unavailable"
+
+
+def test_authorized_temporal_event_absence_preserves_trigger_folds_and_privacy():
+    world, scope = _world()
+    plot = world.get(_id("story-point", "plot"))
+    future = world.get(_id("event", "later"))
+    subject = _subject("story-point", "plot")
+    for negated in (False, True):
+        literal = {"event": {"event": future.id}}
+        plot.frontmatter["trigger"] = {"not": literal} if negated else literal
+        expected = evaluate_story_point(world, plot, StoryTime("main", 10))
+        answers = []
+        for tick, title, status in ((20, "future-secret-one", "canonical"), (100, "future-secret-two", "draft"),
+                                  (100, "future-secret-three", "cancelled"), (100, "future-secret-four", "retconned")):
+            future.frontmatter.update(time=StoryTime("main", tick).to_dict(), title=title, status=status,
+                effects=[{"id": _id("effect", "future-private"), "target": _id("object", "object"),
+                          "key": "condition", "operation": "set", "value": title}])
+            projection = Projection(world, scope, StoryTime("main", 10))
+            answer = projection.snapshot(subject)
+            assert answer["payload"]["triggerSatisfied"] == expected["triggerSatisfied"] == negated
+            assert answer["payload"]["eligible"] == expected["eligible"] == negated
+            encoded = canonical_json(answer)
+            assert future.id not in encoded and "future-secret" not in encoded
+            assert not any(item["recordId"] == future.id for item in answer["citations"])
+            answers.append(answer)
+        assert all(answer == answers[0] for answer in answers)
+        denied = AuthorScope(scope.world_id, scope.record_ids - {future.id}, complete_families=scope.complete_families)
+        for tick in (0, 100):
+            future.frontmatter["time"] = StoryTime("main", tick).to_dict()
+            _unavailable(lambda: Projection(world, denied, StoryTime("main", 10)).snapshot(subject))
+        # A denied time grant never supplies temporal-absence evidence.
+        selected = {identifier: frozenset({"frontmatter", "effects", "initial_state", "transitions",
+                    "lifecycle", "trigger", "dependencies", "outcome_events", "related_story_points", "causes"})
+                    for identifier in scope.record_ids}
+        selected[future.id] = frozenset({"frontmatter.title"})
+        _unavailable(lambda: Projection(world, AuthorScope(scope.world_id, scope.record_ids, selected,
+                     scope.complete_families), StoryTime("main", 10)).snapshot(subject))
+        missing = deepcopy(world); missing.records.pop(future.id)
+        _unavailable(lambda: Projection(missing, scope, StoryTime("main", 10)).snapshot(subject))
+    # Event-local BEFORE excludes contributions, retaining the focus itself.
+    plot.frontmatter["trigger"] = {"event": {"event": _id("event", "focus")}}
+    before, after = Projection(world, scope, StoryTime("main", 10)).event_views("focus")
+    assert before.snapshot(subject)["payload"]["triggerSatisfied"] is True
+    assert after.snapshot(subject)["payload"]["triggerSatisfied"] is True

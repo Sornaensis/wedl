@@ -37,6 +37,8 @@ from .compiler import compile_world
 from .context import build_context
 from .chronology_api import catalog as chronology_catalog, convert_date as chronology_convert, format_date as chronology_format, search_annotations as chronology_search, story_times as chronology_story_times
 from .spatial_api import execute as spatial_execute, status_code as spatial_status_code
+from .consequence_verification import decode_request as consequence_decode, execute as consequence_execute, failure as consequence_failure, status_code as consequence_status_code
+from .event_consequences import ProjectionFailure
 from .spatial_explorer_api import execute as explorer_execute, status_code as explorer_status_code
 from .generational_api import OPERATIONS as GENERATIONAL_OPERATIONS, bootstrap as generational_bootstrap, execute_with_viewpoint as generational_execute, status_code as generational_status_code
 from .generational_authoring import scaffold as generational_scaffold, schema as generational_schema
@@ -335,6 +337,10 @@ def _parameters(
     for argument in contract.arguments:
         if argument.transport not in {Transport.QUERY, Transport.PATH, Transport.BODY, Transport.HEADER}:
             continue
+        # This closed protocol decodes the authenticated raw body itself;
+        # framework JSON decoding would lose duplicates or preempt failures.
+        if contract.command == ("consequences",) and argument.transport == Transport.BODY:
+            continue
         assert argument.transport_name is not None
         name = argument.transport_name if argument.transport in {Transport.PATH, Transport.BODY} else argument.dest
         default = ... if argument.required else argument.default
@@ -357,7 +363,9 @@ def _endpoint(
 ) -> Handler:
     """Wrap a behaviour-only handler in the parser-derived FastAPI signature."""
 
-    exposed = tuple(argument for argument in contract.arguments if argument.transport in {Transport.QUERY, Transport.PATH, Transport.BODY, Transport.HEADER})
+    exposed = tuple(argument for argument in contract.arguments
+                    if argument.transport in {Transport.QUERY, Transport.PATH, Transport.BODY, Transport.HEADER}
+                    and not (contract.command == ("consequences",) and argument.transport == Transport.BODY))
 
     async def endpoint(**values: Any) -> Any:
         arguments: dict[str, Any] = {}
@@ -410,7 +418,8 @@ def create_api_router(runtime: Any, authorize: Authorize) -> APIRouter:
             extra["requestBody"] = discovery_request_body(contract.discovery, body)
         router.add_api_route(
             contract.binding.path,
-            _endpoint(contract, handler),
+            _endpoint(contract, handler, extra=(inspect.Parameter("request", inspect.Parameter.KEYWORD_ONLY,
+                      annotation=Request),) if command == ("consequences",) else ()),
             methods=[contract.binding.method],
             dependencies=dependencies,
             operation_id=operation(contract),
@@ -595,6 +604,15 @@ def create_api_router(runtime: Any, authorize: Authorize) -> APIRouter:
     async def chronology_story_times_handler(**arguments: Any) -> dict[str, Any]:
         return await asyncio.to_thread(chronology_story_times, runtime.repository, arguments["file"], require_compiled=arguments["require_compiled"])
 
+    async def consequences_handler(**arguments: Any) -> Any:
+        try:
+            payload = consequence_decode(await arguments["request"].body())
+        except ProjectionFailure as failed:
+            value = consequence_failure(failed)
+        else:
+            value = await asyncio.to_thread(consequence_execute, runtime.repository, payload)
+        return JSONResponse(value, status_code=consequence_status_code(value))
+
     async def spatial_handler(operation: str, **arguments: Any) -> Any:
         value = await asyncio.to_thread(spatial_execute, runtime.repository, operation, arguments["file"], require_compiled=arguments["require_compiled"])
         return JSONResponse(value, status_code=spatial_status_code(value))
@@ -738,6 +756,7 @@ def create_api_router(runtime: Any, authorize: Authorize) -> APIRouter:
         ("chronology", "convert"): chronology_convert_handler,
         ("chronology", "search"): chronology_search_handler,
         ("chronology", "story-times"): chronology_story_times_handler,
+        ("consequences",): consequences_handler,
         ("spatial", "containment"): lambda **arguments: spatial_handler("containment", **arguments),
         ("spatial", "children"): lambda **arguments: spatial_handler("children", **arguments),
         ("spatial", "bbox"): lambda **arguments: spatial_handler("bbox", **arguments),

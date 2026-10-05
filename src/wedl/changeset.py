@@ -957,8 +957,8 @@ def _semantic_delta(world: World, candidate: World, request: Any, request_hash: 
         return {"protocol": "wedl-event-consequence-delta/v1", "outcome": failure.outcome,
                 "code": failure.code, "message": failure.message}
     base_valid = not any(item["severity"] == "error" for item in validate_world(world))
-    scope = AuthorScope(world.world_record.id, frozenset(world.records) | frozenset(candidate.records),
-                        complete_families=frozenset({"state", "knowledge"}))
+    from .consequence_verification import full_author_scope
+    scope = full_author_scope(world, candidate)
     return semantic_delta(world, candidate, scope, StoryTime.from_value(point), CandidateIdentity(world.revision, request_hash),
                           operation_targets=targets, focus_events=sorted(focus), limit=limit,
                           base_valid=base_valid, candidate_valid=candidate_valid)
@@ -997,8 +997,8 @@ def _check_reports(world: World, candidate: World, payload: dict[str, Any], repl
             if not operation["items"]: raise ProjectionFailure("invalid")
             count += len(operation["items"])
         if count > 100: raise ProjectionFailure("limit")
-        scope = AuthorScope(world.world_record.id, frozenset(world.records) | frozenset(candidate.records),
-                            complete_families=frozenset({"state", "knowledge"}))
+        from .consequence_verification import admit_semantic, full_author_scope
+        scope = full_author_scope(world, candidate)
         identity = CandidateIdentity(world.revision, request_hash)
         groups = []
         allowed = True
@@ -1029,28 +1029,15 @@ def _check_reports(world: World, candidate: World, payload: dict[str, Any], repl
         report = {"outcome": "ok", "baseRevision": world.revision,
                   "candidate": {"baseRevision": world.revision, "requestHash": request_hash},
                   "groups": groups, "applyAllowed": allowed}
-        focus = {group["event"]["id"] for group in groups}
-        logical: set[str] = set()
         if delta is not None and delta["outcome"] == "ok":
-            focus.update(event["id"] for event in delta["focusEvents"])
-            sections: set[str] = set()
-            records: set[str] = set()
-            for group in [*delta["eventGroups"], {"changes": delta["unattributedChanges"], "recordChanges": delta["unattributedRecordChanges"]}]:
-                logical.update(canonical_json(change) for change in group["changes"])
-                for record in group["recordChanges"]:
-                    records.add(record["recordId"])
-                    sections.update(canonical_json([record["recordId"], section]) for section in record["sections"])
-            count += len(logical) + len(records) + len(sections)
             delta["expectations"] = [result for group in groups for result in group["results"]]
             delta["applyAllowed"] = allowed
-        count += len(focus)
-        if len(focus) > 100 or (delta is not None and delta["outcome"] == "limit"):
-            raise ProjectionFailure("limit")
         limit = 1000
         request = payload.get("consequenceRequest")
         if isinstance(request, dict) and type(request.get("limit")) is int and 1 <= request["limit"] <= 1000:
             limit = request["limit"]
-        bounded({"expectationChecks": report, **({"semanticDelta": delta} if delta is not None else {})}, count, limit)
+        admit_semantic({"expectationChecks": report, **({"semanticDelta": delta} if delta is not None else {})},
+                       checks=count, focus_events=(group["event"]["id"] for group in groups), delta=delta, limit=limit)
         return report
     except (ProjectionFailure, RecursionError) as failure:
         if isinstance(failure, RecursionError): failure = ProjectionFailure("invalid")

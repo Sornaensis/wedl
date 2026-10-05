@@ -307,6 +307,9 @@ inclusive, and ticks do not convert to elapsed duration.""",
         command = chronology_sub.add_parser(name, help=help_text, description=help_text.capitalize() + ".")
         command.add_argument("file", metavar="FILE", help="raw wedl-chronology/v1 JSON file, or - for stdin")
         _add_repo_argument(command); _add_require_compiled_argument(command)
+    consequences = commands.add_parser("consequences", help="verify consequences at an exact source revision", description="Read event-local consequences and optional expectations through an explicit horizon from validated source, without compiling or writing.")
+    consequences.add_argument("file", metavar="FILE", help="raw wedl-event-consequences/v1 JSON request file, or - for stdin")
+    _add_repo_argument(consequences)
     spatial = commands.add_parser("spatial", help="read the compiled spatial protocol", description="Read only the compiled wedl-spatial/v1 projection. Requests are raw JSON files or stdin and never select source paths.")
     spatial_sub = spatial.add_subparsers(dest="spatial_command", required=True, metavar="ACTION", title="spatial actions", parser_class=WedlArgumentParser)
     for name, help_text in (("containment", "read authored containment"), ("children", "list authored child locations"), ("bbox", "query geometry bounds"), ("nearby", "query same-map geometry"), ("adjacency", "read authored outbound edges"), ("reachability", "traverse authored directed edges"), ("path", "find an authored metric path"), ("overlay-as-of", "read authorized overlays at an exact StoryTime")):

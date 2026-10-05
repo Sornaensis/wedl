@@ -8,6 +8,23 @@ truth.
 
 ## Repository selection and references
 
+`wedl consequences FILE --repo PATH` verifies a closed
+`wedl-event-consequences/v1` JSON request; use `-` for stdin and `--compact`
+for compact JSON. Supply an exact full `revision` SHA, an `event` reference,
+explicit `at: {timeline, tick, order}` with canonical decimal strings, and
+`limit` from 1 through 1000. Optional `expectations: {policy, items}` uses
+`required` or `advisory` and the shared closed check predicates. Public requests
+cannot provide identity, mode, audience or scope grants. Duplicate JSON members
+at any depth are rejected in both files and stdin.
+
+The read validates source and reports event-local T changes plus consequences
+through H without compiling, writing source, or publishing caches/receipts.
+An `ok` report exits 0 even when required checks produce `applyAllowed: false`;
+invalid, unavailable and limit outcomes retain their closed JSON on stderr
+and exit 2. The corresponding authenticated HTTP route is
+`POST /api/events/consequences`; parser-derived discovery and OpenAPI describe
+the same body and response components.
+
 Read commands accept `--repo PATH`. A relative path is resolved from the
 current working directory. Therefore, use `--repo frontiersmen` from its parent
 directory, and `--repo .` (or omit the option) after entering the repository.

@@ -29,6 +29,8 @@ from .migration import PROTOCOL as MIGRATION_PROTOCOL, apply as apply_migration,
 from .query import causality, conversation_view, entity_state, hypotheses, interactions_between, knowledge, list_entities, search_world, show_entity, status, story_points, thread_catalog, thread_memberships, timeline, validation_report, whereabouts
 from .chronology_api import catalog as chronology_catalog, convert_date as chronology_convert_date, format_date as chronology_format_date, search_annotations as chronology_search_annotations, story_times as chronology_story_times
 from .spatial_api import execute as spatial_execute
+from .consequence_verification import decode_request as consequence_decode, execute as consequence_execute, failure as consequence_failure
+from .event_consequences import ProjectionFailure
 from .generational_api import execute_with_viewpoint as generational_execute
 from .generational_authoring import scaffold as generational_scaffold, schema as generational_schema
 from .repository import Repository
@@ -207,6 +209,13 @@ def dispatch(args: argparse.Namespace) -> Any:
         if any(item["severity"] == "error" for item in diagnostics):
             raise ValidationFailed("schema context source is invalid", diagnostics)
         return changeset_schema(world=world, scope=AuthorScope(world.world_record.id, frozenset(world.records)))
+    if args.command == "consequences":
+        raw = sys.stdin.read() if args.file == "-" else Path(args.file).read_text(encoding="utf-8")
+        try:
+            payload = consequence_decode(raw)
+        except ProjectionFailure as failed:
+            return consequence_failure(failed)
+        return consequence_execute(Repository(args.repo), payload)
     repository = Repository(args.repo)
     value: Any
     if args.command == "status": value = status(repository)
@@ -366,6 +375,9 @@ def main(argv: list[str] | None = None) -> int:
             # outcomes.  Keep their exact envelope on stderr for parity with
             # the HTTP status mapping instead of pretending an empty result
             # succeeded.
+            if args.command == "consequences" and value["outcome"] != "ok":
+                print(json.dumps(value, ensure_ascii=False, separators=(",", ":")) if args.compact else pretty_json(value), file=sys.stderr)
+                return 2
             if args.command in {"spatial", "generational"} and isinstance(value, dict) and value.get("state") not in {"ok", "available", "unknown"}:
                 print(json.dumps(value, ensure_ascii=False, separators=(",", ":")) if args.compact else pretty_json(value), file=sys.stderr)
                 return 2
