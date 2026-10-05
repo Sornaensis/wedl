@@ -8,6 +8,7 @@ from itertools import chain
 import json
 import os
 from pathlib import Path
+import re
 import sqlite3
 import stat
 from typing import Any
@@ -559,7 +560,7 @@ def _request_hash(payload: dict[str, Any]) -> str:
     return hashlib.sha256(canonical_json(value).encode()).hexdigest()
 
 
-def confirmation_token(payload: dict[str, Any], *, request_hash: str, expected_head: str) -> str:
+def confirmation_token(payload: dict[str, Any], *, request_hash: str, expected_head: str, authoring_intent_hash: str | None = None) -> str:
     """Return a versioned proof that a complete request was previewed at HEAD.
 
     This is deliberately separate from :func:`_request_hash`: request IDs are
@@ -574,6 +575,8 @@ def confirmation_token(payload: dict[str, Any], *, request_hash: str, expected_h
         "payload": payload,
         "requestHash": request_hash,
     }
+    if authoring_intent_hash is not None:
+        material["authoringIntentHash"] = authoring_intent_hash
     digest = hashlib.sha256(canonical_json(material).encode()).hexdigest()
     return f"wedl-confirmation/v1:{digest}"
 
@@ -597,7 +600,7 @@ def _has_consequence_operations(payload: dict[str, Any]) -> bool:
     )
 
 
-def _allocate(payload: dict[str, Any]) -> dict[str, str]:
+def _allocate(payload: dict[str, Any], *, consequence_batch: bool = False) -> dict[str, str]:
     digest = _request_hash(payload)
     generated: dict[str, str] = {}
     for index, operation in enumerate(payload.get("operations") or []):
@@ -636,7 +639,12 @@ def _allocate(payload: dict[str, Any]) -> dict[str, str]:
                 if isinstance(item, dict) and isinstance(item.get("temporaryId"), str):
                     temporary = item["temporaryId"]
                     generated[temporary] = id_from_seed("chronology", f"{digest}:{index}:{temporary}")
-    return consequence_operations.allocate(payload, generated, digest) if _has_consequence_operations(payload) else generated
+    if consequence_batch or _has_consequence_operations(payload):
+        generated = consequence_operations.allocate(payload, generated, digest)
+    if consequence_batch:
+        from .consequence_intents import allocate
+        generated = allocate(payload, generated)
+    return generated
 
 
 def _replace_chronology_identifiers(value: Any, replacements: dict[str, str], *, declaration: bool = False) -> Any:
@@ -796,7 +804,7 @@ def _canonical_frontmatter_patch(record: Record, patch: dict[str, Any]) -> dict[
     return canonical
 
 
-def _apply(payload: dict[str, Any], world: World, replacements: dict[str, str]) -> tuple[dict[str, Record], set[str]]:
+def _apply(payload: dict[str, Any], world: World, replacements: dict[str, str], *, consequence_batch: bool = False) -> tuple[dict[str, Record], set[str]]:
     records = {entity_id: Record(deepcopy(record.frontmatter), record.body, record.source_path, record.raw_bytes, record.blob_oid, record.revision) for entity_id, record in world.records.items()}
     touched: set[str] = set()
     typed = _has_consequence_operations(payload)
@@ -805,11 +813,15 @@ def _apply(payload: dict[str, Any], world: World, replacements: dict[str, str]) 
     links: list[dict[str, Any]] = []
     declared: list[dict[str, Any]] = []
     for index, raw_operation in enumerate(operations):
-        operation = (consequence_operations.expand(raw_operation, replacements, digest, index, world)
+        if consequence_batch:
+            from .consequence_intents import expand
+            operation = expand(raw_operation, replacements, digest, index, world)
+        else:
+            operation = (consequence_operations.expand(raw_operation, replacements, digest, index, world)
                      if raw_operation.get("type") in consequence_operations.TYPES or consequence_operations.is_typed_event(raw_operation)
                      else _replace_operation_references(raw_operation, replacements))
         operation_type = operation.get("type")
-        if operation_type in consequence_operations.TYPES or consequence_operations.is_typed_event(raw_operation):
+        if operation_type in consequence_operations.TYPES or consequence_operations.is_typed_event(raw_operation) or (consequence_batch and operation_type == "event.create"):
             declared.append(operation)
         if operation_type not in CHANGESET_OPERATION_TYPES:
             raise ProtocolError(f"unsupported operation {operation_type!r}")
@@ -829,7 +841,7 @@ def _apply(payload: dict[str, Any], world: World, replacements: dict[str, str]) 
                 raise ProtocolError(f"unknown entity {entity_id}")
             records.pop(entity_id); touched.add(entity_id)
         elif operation_type == "event.create":
-            new_typed_event = consequence_operations.is_typed_event(raw_operation)
+            new_typed_event = consequence_batch or consequence_operations.is_typed_event(raw_operation)
             event_id = str(_temporary(operation) or operation.get("id") or id_from_seed("event", seed))
             if new_typed_event and event_id in records:
                 raise UsageError("typed event cannot replace an existing record")
@@ -895,15 +907,19 @@ def preview(
     *,
     use_current_head: bool = False,
     cache_write: bool = True,
+    consequence_batch: bool = False,
+    authoring_intent_hash: str | None = None,
 ) -> dict[str, Any]:
+    if consequence_batch and (not isinstance(authoring_intent_hash, str) or not re.fullmatch(r"[0-9a-f]{64}", authoring_intent_hash)):
+        raise UsageError("batch preview requires a complete authoring intent hash")
     expected = str(payload.get("expectedHead") or "")
     current = repository.head()
     if use_current_head or expected == "HEAD": expected = current
     if expected != current:
         raise StaleRevision("changeset expected a different HEAD", details={"expected": expected, "actual": current})
     world = repository.load_world(expected, cache_write=cache_write)
-    replacements = _allocate(payload)
-    records, touched = _apply(payload, world, replacements)
+    replacements = _allocate(payload, consequence_batch=consequence_batch)
+    records, touched = _apply(payload, world, replacements, consequence_batch=consequence_batch)
     candidate = World(expected, world.tree_oid, records, world.root, world.source_root)
     diagnostics = validate_world(candidate)
     valid = not any(item["severity"] == "error" for item in diagnostics)
@@ -919,7 +935,7 @@ def preview(
         changes[path] = new_data
         diffs.extend(difflib.unified_diff((old_data or b"").decode().splitlines(True), (new_data or b"").decode().splitlines(True), fromfile=f"a/{path}", tofile=f"b/{path}"))
     request_hash = _request_hash(payload)
-    return {"protocol": "wedl-preview/v1", "valid": valid, "expectedHead": expected, "requestHash": request_hash, "confirmationToken": confirmation_token(payload, request_hash=request_hash, expected_head=expected), "generatedIds": replacements, "touchedEntityIds": sorted(touched), "diagnostics": diagnostics, "files": sorted(changes), "diff": "".join(diffs), "_changes": changes, "_recordCount": len(records)}
+    return {"protocol": "wedl-preview/v1", "valid": valid, "expectedHead": expected, "requestHash": request_hash, "confirmationToken": confirmation_token(payload, request_hash=request_hash, expected_head=expected, authoring_intent_hash=authoring_intent_hash if consequence_batch else None), "generatedIds": replacements, "touchedEntityIds": sorted(touched), "diagnostics": diagnostics, "files": sorted(changes), "diff": "".join(diffs), "_changes": changes, "_recordCount": len(records)}
 
 
 def apply(
@@ -931,6 +947,7 @@ def apply(
     allow_unconfirmed: bool = False,
     authoring_intent_hash: str | None = None,
     authoring_impact: dict[str, Any] | None = None,
+    consequence_batch: bool = False,
 ) -> dict[str, Any]:
     """Apply a previously previewed changeset, or use an explicit trusted bypass.
 
@@ -939,6 +956,8 @@ def apply(
     always pass a confirmation token instead.
     """
 
+    if consequence_batch and (allow_unconfirmed or not isinstance(authoring_intent_hash, str) or not re.fullmatch(r"[0-9a-f]{64}", authoring_intent_hash)):
+        raise ConfirmationRequired("batch apply requires a complete intent hash and preview confirmation")
     # A previous process may have advanced the ref before it reached receipt,
     # cache, real-index, or finalization publication.  Reconcile that durable
     # transaction before inspecting receipts: otherwise an idempotent retry can
@@ -991,7 +1010,8 @@ def apply(
     # Validate before confirmation so malformed candidates keep their existing
     # diagnostics, but plan read-only: a refused mutation must not create or
     # update cache/receipt/source state.
-    result = preview(repository, payload, use_current_head=use_current_head, cache_write=False)
+    result = preview(repository, payload, use_current_head=use_current_head, cache_write=False,
+                     consequence_batch=consequence_batch, authoring_intent_hash=authoring_intent_hash if consequence_batch else None)
     if not result["valid"]:
         raise ValidationFailed("changeset candidate is invalid", result["diagnostics"])
     if not allow_unconfirmed:

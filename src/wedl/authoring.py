@@ -107,9 +107,12 @@ def apply_intent(
     # This also protects receipt replay: a caller must present the original
     # confirmation token instead of turning an idempotency key into a write
     # capability.
-    if intent["action"].startswith(("spatial.", "generational.")) and allow_unconfirmed:
-        raise ConfirmationRequired("spatial and generational authoring require a preview confirmation token")
+    if (intent["action"].startswith(("spatial.", "generational.")) or intent["action"] == "consequence.batch") and allow_unconfirmed:
+        raise ConfirmationRequired("typed authoring requires a preview confirmation token")
     _validate_intent_types(intent)
+    if intent["action"] == "consequence.batch":
+        from .consequence_intents import validate
+        validate(intent)
     key = str(intent.get("idempotencyKey") or _stable_key(intent))
     receipt_path = repository.root / ".wedl" / "idempotency.json"
     if receipt_path.exists():
@@ -144,6 +147,7 @@ def apply_intent(
         confirmation_token_value=confirmation_token_value, allow_unconfirmed=allow_unconfirmed,
         authoring_intent_hash=_intent_hash(intent),
         authoring_impact=impact,
+        consequence_batch=intent["action"] == "consequence.batch",
     )
     return {**result, "authorImpact": impact}
 
@@ -496,7 +500,7 @@ def _append_advances_horizon(world: World, conversation: Any, intent: dict[str, 
 def _compiled_author_impact(repository: Repository, intent: dict[str, Any], payload: dict[str, Any]) -> dict[str, Any]:
     """Summarize a compiled generational intent without another source read."""
 
-    if intent["action"].startswith("generational."):
+    if intent["action"].startswith("generational.") or intent["action"] == "consequence.batch":
         return {"summary": str(intent.get("summary") or f"Authoring: {intent['action']}"), "items": []}
     return author_impact(repository, intent, payload)
 
@@ -577,7 +581,9 @@ def preview_intent(repository: Repository, intent: dict[str, Any]) -> dict[str, 
     from .changeset import preview as preview_changeset
 
     payload = compile_intent(repository, intent)
-    plan = preview_changeset(repository, payload, cache_write=not str(intent.get("action", "")).startswith(("spatial.", "generational.")))
+    batch = intent.get("action") == "consequence.batch"
+    plan = preview_changeset(repository, payload, cache_write=not (batch or str(intent.get("action", "")).startswith(("spatial.", "generational."))),
+                             consequence_batch=batch, authoring_intent_hash=_intent_hash(intent) if batch else None)
     plan.pop("_changes", None)
     return {
         "protocol": "wedl-author-preview/v1", "intent": intent, "changeset": payload,
@@ -1054,6 +1060,9 @@ def compile_intent(repository: Repository, intent: dict[str, Any]) -> dict[str, 
         raise UsageError("authoring request requires an action")
     _validate_intent_types(intent)
     action = intent["action"]
+    if action == "consequence.batch":
+        from .consequence_intents import compile_batch
+        return compile_batch(repository, intent)
     if action.startswith("generational."):
         from .generational_authoring import compile_operations
         return _envelope(repository, intent, compile_operations(repository, intent))
