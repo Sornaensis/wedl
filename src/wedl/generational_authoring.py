@@ -9,10 +9,12 @@ from typing import Any
 from . import V07_SOURCE_SCHEMA
 from .errors import ChronologyUpgradeRequired, StaleRevision, UsageError
 from .generational import GENERATIONAL_KINDS, SPECIFIC_FIELDS, TRANSITIONS
+from .generational_knowledge import AFFIRMATIVE_STATES, CAPABILITY as KNOWLEDGE_CAPABILITY, GenealogyAssertion
 from .ids import id_from_seed, valid_id
 from .model import StoryTime, World
 from .repository import Repository
 from .util import canonical_json
+from .v07 import CAPABILITY_ORDER
 
 
 _SHA = re.compile(r"[0-9a-f]{40}\Z")
@@ -44,6 +46,83 @@ _DOMAINS = {"organization": "history.organizations", "parentage": "history.kinsh
             "union": "history.unions", "affiliation": "history.affiliations",
             "legacy": "history.legacies", "tenure": "history.tenures",
             "claim": "history.claims", "vital-history": "history.vitals"}
+KNOWLEDGE_ACTIONS = ("generational.knowledge.opt-in", "generational.knowledge.create",
+                     "generational.knowledge.state", "generational.knowledge.replace")
+_KNOWLEDGE_CREATE = {"title", "knower", "assertion", "at", "state", "confidence", "id", "transitionId"}
+
+
+def _knowledge_transition(world: World, item: dict[str, Any], seed: str, *, initial: bool = False) -> dict[str, Any]:
+    states = AFFIRMATIVE_STATES if initial else AFFIRMATIVE_STATES | {"rejected", "forgotten"}
+    if not isinstance(item["state"], str) or item["state"] not in states:
+        raise UsageError("knowledge state is not an admitted variant")
+    confidence = item.get("confidence")
+    if "confidence" in item and (type(confidence) not in (int, float) or not 0 <= confidence <= 1):
+        raise UsageError("knowledge confidence must be a finite number from zero to one")
+    identifier = item.get("transitionId", id_from_seed("knowledge-transition", seed))
+    if not valid_id(identifier, "knowledge-transition"):
+        raise UsageError("transitionId must be a stable knowledge transition ID")
+    result = {"id": identifier, "time": _time(item["at"], world), "state": item["state"], "acquisition": "learned"}
+    if "confidence" in item:
+        result["confidence"] = confidence
+    return result
+
+
+def _knowledge_create(world: World, item: dict[str, Any], seed: str) -> dict[str, Any]:
+    _closed(item, {"title", "knower", "assertion", "at", "state"}, _KNOWLEDGE_CREATE, "knowledge create")
+    assertion = deepcopy(item["assertion"])
+    if not isinstance(assertion, dict) or not isinstance(assertion.get("valid"), dict):
+        raise UsageError("assertion requires a closed genealogy literal")
+    assertion["valid"] = {key: _time(value, world) for key, value in assertion["valid"].items()}
+    try:
+        GenealogyAssertion.from_value(assertion)
+    except (TypeError, ValueError) as exc:
+        raise UsageError("assertion requires a closed typed genealogy literal") from exc
+    identifier = item.get("id", id_from_seed("knowledge", seed))
+    if not valid_id(identifier, "knowledge") or identifier in world.records:
+        raise UsageError("knowledge create ID is invalid or already used")
+    frontmatter = {"schema": world.schema, "kind": "knowledge", "id": identifier,
+                   "title": _text(item["title"], "title"), "domain": "knowledge.genealogy",
+                   "status": "canonical", "tags": [], "aliases": [],
+                   "knower": _reference(world, {}, item["knower"], "character"),
+                   "claim": {"key": "genealogy", "statement": "Authored genealogy assertion", "genealogy": assertion},
+                   "transitions": [_knowledge_transition(world, item, seed, initial=True)]}
+    return {"type": "entity.create", "value": {"frontmatter": frontmatter}}
+
+
+def _knowledge_operations(world: World, intent: dict[str, Any], seed: str) -> list[dict[str, Any]]:
+    action = intent["action"]
+    required = {"action", "expectedHead", "idempotencyKey"}
+    if action == "generational.knowledge.opt-in":
+        _closed(intent, required, required | {"summary"}, "knowledge opt-in")
+        capabilities = world.world_record.frontmatter.get("capabilities") or []
+        enabled = sorted(set(capabilities) | {"generational-core-v1", KNOWLEDGE_CAPABILITY}, key=CAPABILITY_ORDER.index)
+        return [{"type": "entity.update", "entity": world.world_record.id, "frontmatterPatch": {"capabilities": enabled}}]
+    if KNOWLEDGE_CAPABILITY not in (world.world_record.frontmatter.get("capabilities") or []):
+        raise ChronologyUpgradeRequired("knowledge authoring requires an explicit generational-knowledge-v1 opt-in")
+    if action == "generational.knowledge.create":
+        _closed(intent, required | {"title", "knower", "assertion", "at", "state"}, required | {"summary"} | _KNOWLEDGE_CREATE, "knowledge create intent")
+        return [_knowledge_create(world, {key: value for key, value in intent.items() if key in _KNOWLEDGE_CREATE}, seed)]
+    if action not in {"generational.knowledge.state", "generational.knowledge.replace"}:
+        raise UsageError("unsupported knowledge intent variant")
+    fields = {"record", "at", "state", "transitionId", "confidence"} if action.endswith(".state") else {"record", "at", "retireState", "transitionId", "replacement"}
+    _closed(intent, required | {"record", "at"} | ({"state"} if action.endswith(".state") else {"retireState", "replacement"}), required | {"summary"} | fields, "knowledge transition intent")
+    identifier = _reference(world, {}, intent["record"], "knowledge")
+    record = world.get(identifier)
+    if not isinstance(record.frontmatter.get("claim"), dict) or "genealogy" not in record.frontmatter["claim"]:
+        raise UsageError("knowledge transition requires a typed genealogy assertion")
+    state_item = intent if action.endswith(".state") else {"at": intent["at"], "state": intent["retireState"], **({"transitionId": intent["transitionId"]} if "transitionId" in intent else {})}
+    if action.endswith(".replace") and (not isinstance(intent["retireState"], str) or intent["retireState"] not in {"rejected", "forgotten"}):
+        raise UsageError("replacement must explicitly reject or forget the old assertion")
+    transition = _knowledge_transition(world, state_item, seed + ":state")
+    history = deepcopy(record.frontmatter["transitions"])
+    if history and not StoryTime.from_value(history[-1]["time"]).not_after(StoryTime.from_value(transition["time"])):
+        raise UsageError("knowledge state must append at or after its last authored transition")
+    history.append(transition)
+    result = [{"type": "entity.update", "entity": identifier, "frontmatterPatch": {"transitions": history}}]
+    if action.endswith(".replace"):
+        replacement = _closed(intent["replacement"], {"title", "assertion", "state"}, _KNOWLEDGE_CREATE - {"knower", "at"}, "knowledge replacement")
+        result.append(_knowledge_create(world, {**replacement, "knower": record.frontmatter["knower"], "at": intent["at"]}, seed + ":replacement"))
+    return result
 
 
 def _closed(value: Any, required: set[str], allowed: set[str], label: str) -> dict[str, Any]:
@@ -194,6 +273,10 @@ def compile_operations(repository: Repository, intent: dict[str, Any]) -> list[d
         raise StaleRevision("generational intent expected a different HEAD",
                             details={"expected": expected, "actual": repository.head()})
     world = repository.load_world(expected, cache_write=False)
+    if str(intent["action"]).startswith("generational.knowledge."):
+        if world.schema != V07_SOURCE_SCHEMA:
+            raise ChronologyUpgradeRequired("knowledge authoring requires wedl/v0.7; migration defaults are unchanged")
+        return _knowledge_operations(world, intent, hashlib.sha256(canonical_json(intent).encode()).hexdigest())
     if world.schema != V07_SOURCE_SCHEMA or "generational-core-v1" not in (world.world_record.frontmatter.get("capabilities") or []):
         raise ChronologyUpgradeRequired("generational authoring requires wedl/v0.7 with generational-core-v1")
     items = _items(intent)
@@ -317,7 +400,7 @@ def schema() -> dict[str, Any]:
             "sourceSchema": V07_SOURCE_SCHEMA,
             "kinds": sorted(GENERATIONAL_KINDS),
             "variants": ["generational.create", "generational.append",
-                         "generational.correct", "generational.batch"],
+                         "generational.correct", "generational.batch", *KNOWLEDGE_ACTIONS],
             "fields": {kind: {"required": sorted(required), "optional": sorted(optional),
                               "transitions": sorted(TRANSITIONS[kind])}
                        for kind, (required, optional) in _FIELDS.items()},

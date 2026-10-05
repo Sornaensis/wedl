@@ -29,7 +29,7 @@ from .migration import PROTOCOL as MIGRATION_PROTOCOL, apply as apply_migration,
 from .query import causality, conversation_view, entity_state, hypotheses, interactions_between, knowledge, list_entities, search_world, show_entity, status, story_points, thread_catalog, thread_memberships, timeline, validation_report, whereabouts
 from .chronology_api import catalog as chronology_catalog, convert_date as chronology_convert_date, format_date as chronology_format_date, search_annotations as chronology_search_annotations, story_times as chronology_story_times
 from .spatial_api import execute as spatial_execute
-from .generational_api import execute as generational_execute
+from .generational_api import execute_with_viewpoint as generational_execute
 from .generational_authoring import scaffold as generational_scaffold, schema as generational_schema
 from .repository import Repository
 from .server import local_server_url, open_local_browser, preflight_local_server, run_local_server
@@ -245,7 +245,8 @@ def dispatch(args: argparse.Namespace) -> Any:
             value = generational_schema()
         else:
             value = generational_execute(repository, args.generational_command,
-                                         _json_file(args.file), require_compiled=args.require_compiled)
+                                         _json_file(args.file), require_compiled=args.require_compiled,
+                                         viewpoint=args.viewpoint)
     elif args.command == "threads": value = thread_catalog(repository, require_compiled=args.require_compiled)
     elif args.command == "thread-memberships": value = thread_memberships(repository, tuple(args.record_ids), tuple(args.thread_ids), require_compiled=args.require_compiled)
     elif args.command == "whereabouts": value = whereabouts(repository, args.character, args.tick, args.timeline, args.order, require_compiled=args.require_compiled)

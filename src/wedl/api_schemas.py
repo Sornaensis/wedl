@@ -11,6 +11,7 @@ from __future__ import annotations
 from copy import deepcopy
 from itertools import combinations
 from typing import Any
+from .v07 import CAPABILITY_ORDER, CAPABILITY_REQUIRES
 
 
 def _object(*required: str, properties: dict[str, Any] | None = None) -> dict[str, Any]:
@@ -376,6 +377,35 @@ _GEN_BATCH = _strict_object("action", "expectedHead", "idempotencyKey", "items",
     "items": {"type": "array", "minItems": 1, "maxItems": 32, "items": {"oneOf": _GEN_AUTHOR_ITEMS}},
 })
 _GEN_AUTHORING_REQUEST = {"oneOf": [*_GEN_AUTHOR_SINGLE, _GEN_BATCH]}
+_KNOWLEDGE_PAYLOADS = {
+    "parentage": {"child_id": _GEN_REF, "parent_id": _GEN_REF, "basis": {"enum": ["biological", "adoptive"]}},
+    "union": {"participant_ids": {"type": "array", "minItems": 2, "maxItems": 32, "uniqueItems": True, "items": _GEN_REF}, "state": {"enum": ["formed", "ended", "annulled"]}},
+    "organization": {"organization_id": _GEN_REF, "parent_id": {"anyOf": [_GEN_REF, {"type": "null"}]}},
+    "affiliation": {"character_id": _GEN_REF, "organization_id": _GEN_REF, "role": {"type": ["string", "null"], "minLength": 1, "maxLength": 200}},
+    "tenure": {"legacy_id": _GEN_REF, "holder_id": {"anyOf": [_GEN_REF, {"type": "null"}]}, "basis": {"enum": ["legal", "de-facto"]}},
+    "claim": {"legacy_id": _GEN_REF, "claimant_id": _GEN_REF, "state": {"enum": ["proposed", "disputed", "recognized", "withdrawn", "rejected"]}},
+    "vital": {"character_id": _GEN_REF, "state": {"enum": ["living", "dead", "existing", "ended"]}},
+}
+_KNOWLEDGE_LABELS = {"type": "object", "additionalProperties": {"type": "string", "minLength": 1, "maxLength": 200}}
+_KNOWLEDGE_VALID = _strict_object("from", properties={"from": _GEN_TIME, "until": _GEN_TIME})
+_KNOWLEDGE_EVIDENCE = {"type": "array", "maxItems": 32, "items": {"oneOf": [
+    _strict_object("kind", "entity_id", field, properties={"kind": {"const": kind}, "entity_id": _GEN_REF, field: _GEN_REF})
+    for kind, field in (("knowledge", "transition_id"), ("observation", "observation_id"), ("turn", "turn_id"), ("recollection", "recollection_id"))]}}
+_KNOWLEDGE_ASSERTION = {"oneOf": [_strict_object("kind", "payload", "valid", properties={
+    "kind": {"const": kind}, "payload": _strict_object(*payload, properties=payload),
+    "valid": _KNOWLEDGE_VALID, "labels": _KNOWLEDGE_LABELS, "evidence": _KNOWLEDGE_EVIDENCE}) for kind, payload in _KNOWLEDGE_PAYLOADS.items()]}
+_KNOWLEDGE_CREATE_FIELDS = {"title": _GEN_REF, "knower": _GEN_REF, "assertion": _KNOWLEDGE_ASSERTION,
+    "at": _GEN_TIME, "state": {"enum": ["accepted", "suspected", "uncertain", "remembered"]},
+    "confidence": {"type": "number", "minimum": 0, "maximum": 1}, "id": _GEN_REF, "transitionId": _GEN_REF}
+_GEN_AUTHORING_REQUEST["oneOf"].extend([
+    _strict_object("action", "expectedHead", "idempotencyKey", properties={"action": {"const": "generational.knowledge.opt-in"}, **_GEN_OUTER}),
+    _strict_object("action", "expectedHead", "idempotencyKey", "title", "knower", "assertion", "at", "state", properties={"action": {"const": "generational.knowledge.create"}, **_GEN_OUTER, **_KNOWLEDGE_CREATE_FIELDS}),
+    _strict_object("action", "expectedHead", "idempotencyKey", "record", "at", "state", properties={"action": {"const": "generational.knowledge.state"}, **_GEN_OUTER, "record": _GEN_REF, "at": _GEN_TIME,
+        "state": {"enum": ["accepted", "suspected", "uncertain", "remembered", "rejected", "forgotten"]}, "confidence": _KNOWLEDGE_CREATE_FIELDS["confidence"], "transitionId": _GEN_REF}),
+    _strict_object("action", "expectedHead", "idempotencyKey", "record", "at", "retireState", "replacement", properties={"action": {"const": "generational.knowledge.replace"}, **_GEN_OUTER,
+        "record": _GEN_REF, "at": _GEN_TIME, "retireState": {"enum": ["rejected", "forgotten"]}, "transitionId": _GEN_REF,
+        "replacement": _strict_object("title", "assertion", "state", properties={key: value for key, value in _KNOWLEDGE_CREATE_FIELDS.items() if key not in {"knower", "at"}})}),
+])
 _AUTHORING_REQUEST = {"oneOf": [
     _object("action", "time", properties={**_AUTHORING_COMMON, "action": {"const": "current-time.set"}}),
     _object("action", "title", "location", "characters", properties={**_AUTHORING_COMMON, "action": {"const": "scene.create"}}),
@@ -425,8 +455,8 @@ def _chronology_outcome(operation: str, result: str) -> dict[str, Any]:
     ]}
 
 
-_CAPABILITY_ORDER = ("generational-core-v1", "spatial-core-v1", "geometry-v1", "route-v1", "overlay-v1")
-_CANONICAL_CAPABILITY_LISTS = [[]] + [list(choice) for size in range(1, len(_CAPABILITY_ORDER) + 1) for choice in combinations(_CAPABILITY_ORDER, size) if ({"generational-core-v1", "spatial-core-v1"} & set(choice)) and all("spatial-core-v1" in choice for item in ("geometry-v1", "route-v1", "overlay-v1") if item in choice)]
+_CAPABILITY_ORDER = CAPABILITY_ORDER
+_CANONICAL_CAPABILITY_LISTS = [[]] + [list(choice) for size in range(1, len(_CAPABILITY_ORDER) + 1) for choice in combinations(_CAPABILITY_ORDER, size) if ({"generational-core-v1", "spatial-core-v1"} & set(choice)) and all(required in choice for item, required in CAPABILITY_REQUIRES.items() if item in choice)]
 _SPATIAL_COMMON_FIELDS = {
     "protocol": {"const": "wedl-spatial/v1"},
     "revision": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
@@ -895,6 +925,58 @@ _GEN_READ_RESULTS = {
 }
 
 
+_BELIEF_STATE = {"enum": ["accepted", "suspected", "uncertain", "remembered"]}
+_BELIEF_CITATIONS = {"type": "array", "minItems": 1, "maxItems": 1, "items": _strict_object(
+    "knowledgeId", "transitionId", "time", "state", "label", "learnedAt", "learningTransitionId", "evidence", properties={
+    "knowledgeId": _GEN_REF, "transitionId": _GEN_REF, "time": _GEN_TIME, "state": _BELIEF_STATE,
+    "label": {"const": "Authored genealogy assertion"}, "learnedAt": _GEN_TIME, "learningTransitionId": _GEN_REF,
+    "evidence": {"type": "array", "maxItems": 32, "items": _strict_object("kind", "entityId", "itemId", "time", properties={
+        "kind": {"enum": ["knowledge", "observation", "turn", "recollection"]}, "entityId": _GEN_REF, "itemId": _GEN_REF, "time": _GEN_TIME})}})}
+_BELIEF_COMMON = {"recordId": _GEN_REF, "knowledgeId": _GEN_REF, "beliefState": _BELIEF_STATE,
+    "confidence": {"type": ["number", "null"], "minimum": 0, "maximum": 1}, "labels": _KNOWLEDGE_LABELS,
+    "valid": _KNOWLEDGE_VALID, "learnedAt": _GEN_TIME, "applicable": _BOOLEAN, "uncertain": _BOOLEAN, "citations": _BELIEF_CITATIONS}
+_BELIEF = {"oneOf": [_strict_object(*_BELIEF_COMMON, "kind", "value", properties={**_BELIEF_COMMON,
+    "kind": {"const": kind}, "value": _strict_object(*payload, properties=payload)}) for kind, payload in _KNOWLEDGE_PAYLOADS.items()]}
+_BELIEF_EDGE = _strict_object("from", "to", "recordId", "knowledgeId", "beliefState", "uncertain", "labels", "citations", properties={
+    "from": _GEN_REF, "to": _GEN_REF, "recordId": _GEN_REF, "knowledgeId": _GEN_REF, "beliefState": _BELIEF_STATE,
+    "uncertain": _BOOLEAN, "labels": _KNOWLEDGE_LABELS, "citations": _BELIEF_CITATIONS, "basis": {"enum": ["biological", "adoptive"]}})
+_BELIEF_RELATION = _strict_object("targetId", "generationDistance", "label", "uncertain", "edges", properties={
+    "targetId": _GEN_REF, "generationDistance": {"type": "integer", "minimum": 1, "maximum": 32},
+    "label": {"enum": ["ancestor", "descendant", "relative-path"]}, "uncertain": _BOOLEAN,
+    "edges": {"type": "array", "minItems": 1, "maxItems": 32, "items": _BELIEF_EDGE}})
+_BELIEF_PARENT = _strict_object("targetId", "label", "recordId", "knowledgeId", "beliefState", "uncertain", "labels", "citations", properties={
+    "targetId": _GEN_REF, "label": {"enum": ["biological-parent", "adoptive-parent"]}, "recordId": _GEN_REF,
+    "knowledgeId": _GEN_REF, "beliefState": _BELIEF_STATE, "uncertain": _BOOLEAN,
+    "labels": _KNOWLEDGE_LABELS, "citations": _BELIEF_CITATIONS})
+_BELIEF_LABEL = _strict_object("id", "kind", "title", "matchedName", "knowledgeId", "uncertain", "citations", properties={
+    **_GEN_DISCOVERY_RESULT["properties"], "knowledgeId": _GEN_REF, "uncertain": _BOOLEAN, "citations": _BELIEF_CITATIONS})
+_BELIEF_ARRAY = {"type": "array", "maxItems": 500, "items": _BELIEF}
+_GEN_CHARACTER_RESULTS = {
+    "parents": (("relations",), {"relations": {"type": "array", "maxItems": 500, "items": _BELIEF_PARENT}}),
+    **{action: (("relations",), {"relations": {"type": "array", "maxItems": 500, "items": _BELIEF_RELATION}}) for action in ("ancestors", "descendants", "relatives")},
+    "union": (("participants", "unionState", "assertion", "uncertain", "citations"), {
+        "participants": {"type": "array", "minItems": 2, "maxItems": 32, "items": _GEN_REF},
+        "unionState": {"enum": ["formed", "ended", "annulled"]}, "assertion": _BELIEF, "uncertain": _BOOLEAN, "citations": _BELIEF_CITATIONS}),
+    "organization": (("assertions", "roles", "parentPath"), {"assertions": _BELIEF_ARRAY, "roles": _BELIEF_ARRAY,
+        "parentPath": {"type": "array", "maxItems": 500, "items": _BELIEF_RELATION}}),
+    "legacy": (("tenures", "holders", "vacancies", "claims", "succession"), {"tenures": _BELIEF_ARRAY, "holders": _BELIEF_ARRAY,
+        "vacancies": _BELIEF_ARRAY, "claims": _BELIEF_ARRAY, "succession": {"type": "array", "maxItems": 0}}),
+    "vital": (("vital", "conflicting", "uncertain", "assertions"), {"vital": {"enum": ["living", "dead", "existing", "ended", None]},
+        "conflicting": _BOOLEAN, "uncertain": _BOOLEAN, "assertions": _BELIEF_ARRAY}),
+    "search": (("results", "cursor"), {"results": _BELIEF_ARRAY, "cursor": {"type": ["string", "null"], "maxLength": 1024}}),
+    "discover": (("results", "cursor"), {"results": {"type": "array", "maxItems": 100, "items": _BELIEF_LABEL}, "cursor": {"type": ["string", "null"], "maxLength": 1024}}),
+    "labels": (("labels",), {"labels": {"type": "array", "maxItems": 500, "items": _BELIEF_LABEL}}),
+}
+_GEN_CHARACTER_RESULTS["context"] = (("items", "truncated"), {"truncated": _BOOLEAN,
+    "items": {"type": "array", "maxItems": 100, "items": {"oneOf": [
+        _strict_object("kind", "result", properties={"kind": {"const": kind}, "result": _strict_object("state", *required, properties={
+            "state": {"const": "available"}, **properties})})
+        for kind, required, properties in [
+            *((action, *_GEN_CHARACTER_RESULTS[action]) for action in ("parents", "ancestors", "descendants", "vital")),
+            ("learned-history", ("assertions",), {"assertions": _BELIEF_ARRAY}),
+        ]]}}})
+
+
 def _generational_request(action: str) -> dict[str, Any]:
     common = {"protocol": {"const": "wedl-generational/v1"}, "operation": {"const": action},
               "revision": _GEN_SHA, "capabilities": {"oneOf": [{"const": value} for value in _CANONICAL_CAPABILITY_LISTS if "generational-core-v1" in value]},
@@ -927,8 +1009,10 @@ def _generational_request(action: str) -> dict[str, Any]:
         common["maxCharacters"] = {"type": "integer", "minimum": 80, "maximum": 65536}
         required.append("maxCharacters")
     variants = [_strict_object(*required, properties={**common, "mode": {"const": "author-as-of"}, "at": _GEN_TIME})]
-    if action in {"discover", "labels", "character-unions", "organization-legacies"}:
+    if action in {"character-unions", "organization-legacies"}:
         return variants[0]
+    if action in {"discover", "labels"}:
+        return {"oneOf": [variants[0], _strict_object(*required, properties={**common, "mode": {"const": "character"}, "at": _GEN_TIME})]}
     variants.extend((
         _strict_object(*required, properties={**common, "mode": {"const": "author-all-time"}}),
         _strict_object(*required, "at", properties={**common, "mode": {"const": "character"}, "at": _GEN_TIME}),
@@ -964,6 +1048,12 @@ for _action in _GEN_READ_ACTIONS:
     SCHEMAS[f"Generational{_stem}AvailableOutcome"] = _strict_object(
         "protocol", "operation", "revision", "state", *_required_result,
         properties={**_base, "state": {"const": "available"}, **_result})
+    if _action in _GEN_CHARACTER_RESULTS:
+        _character_required, _character_properties = _GEN_CHARACTER_RESULTS[_action]
+        SCHEMAS[f"Generational{_stem}AvailableOutcome"] = {"anyOf": [
+            SCHEMAS[f"Generational{_stem}AvailableOutcome"],
+            _strict_object("protocol", "operation", "revision", "state", *_character_required,
+                properties={**_base, "state": {"const": "available"}, **_character_properties})]}
     SCHEMAS[f"Generational{_stem}UnknownOutcome"] = _strict_object(
         "protocol", "operation", "revision", "state",
         properties={**_base, "state": {"const": "unknown"},

@@ -38,7 +38,7 @@ from .context import build_context
 from .chronology_api import catalog as chronology_catalog, convert_date as chronology_convert, format_date as chronology_format, search_annotations as chronology_search, story_times as chronology_story_times
 from .spatial_api import execute as spatial_execute, status_code as spatial_status_code
 from .spatial_explorer_api import execute as explorer_execute, status_code as explorer_status_code
-from .generational_api import OPERATIONS as GENERATIONAL_OPERATIONS, bootstrap as generational_bootstrap, execute as generational_execute, status_code as generational_status_code
+from .generational_api import OPERATIONS as GENERATIONAL_OPERATIONS, bootstrap as generational_bootstrap, execute_with_viewpoint as generational_execute, status_code as generational_status_code
 from .generational_authoring import scaffold as generational_scaffold, schema as generational_schema
 from .query import (
     causality,
@@ -593,7 +593,8 @@ def create_api_router(runtime: Any, authorize: Authorize) -> APIRouter:
 
     async def generational_handler(operation: str, **arguments: Any) -> Any:
         value = await asyncio.to_thread(generational_execute, runtime.repository, operation,
-                                        arguments["file"], require_compiled=arguments["require_compiled"])
+                                        arguments["file"], require_compiled=arguments["require_compiled"],
+                                        viewpoint=arguments["viewpoint"])
         return JSONResponse(value, status_code=generational_status_code(value))
 
     async def generational_scaffold_handler() -> dict[str, Any]:

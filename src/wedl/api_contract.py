@@ -209,6 +209,20 @@ def _generational_intent_examples(path: str, *, apply: bool) -> tuple[dict[str, 
     batch = {"action": "generational.batch", **common, "items": [batch_item]}
     bodies.extend((("generational.append", append), ("generational.correct", correct),
                    ("generational.batch", batch)))
+    child = "character_00000000000000000000000000"
+    parent = "character_00000000000000000000000001"
+    assertion = {"kind": "parentage", "payload": {"child_id": child, "parent_id": parent, "basis": "adoptive"},
+                 "valid": {"from": point}, "labels": {child: "Mara", parent: "Reported parent"}}
+    knowledge_create = {"action": "generational.knowledge.create", **common,
+                        "title": "Private authored report", "knower": child, "assertion": assertion,
+                        "at": point, "state": "suspected", "confidence": 0.5}
+    bodies.extend((("generational.knowledge.opt-in", {"action": "generational.knowledge.opt-in", **common}),
+                   ("generational.knowledge.create", knowledge_create),
+                   ("generational.knowledge.state", {"action": "generational.knowledge.state", **common,
+                       "record": "knowledge_00000000000000000000000000", "at": point, "state": "rejected"}),
+                   ("generational.knowledge.replace", {"action": "generational.knowledge.replace", **common,
+                       "record": "knowledge_00000000000000000000000000", "at": point, "retireState": "forgotten",
+                       "replacement": {"title": "New authored report", "assertion": assertion, "state": "accepted"}})))
     headers = {"X-Wedl-Token": "<session-token>"}
     if apply:
         headers["X-Wedl-Confirmation"] = "wedl-confirmation/v1:<proof>"
@@ -221,7 +235,7 @@ def _generational_descriptor(action: str) -> DiscoveryDescriptor:
     stem = "".join(part.capitalize() for part in action.split("-"))
     return DiscoveryDescriptor(
         f"Read generational {action}",
-        "Read selected-revision cited generational evidence. The session is a local author principal; character mode remains closed without a trusted character identity. Semantic states use the 200/400/409/422 matrix.",
+        "Read selected-revision cited author evidence or literal character beliefs. The authorized local author selects a per-request character POV using the viewpoint query parameter; JSON cannot fabricate its scope. Semantic states use the 200/400/409/422 matrix.",
         ("Generational",), "Generational outcome.",
         ("authentication_required", "usage_error", "compile_required", "parse_error", "repository_error"),
         examples=({"summary": f"{action} request", "value": {"method": "POST",
@@ -344,7 +358,7 @@ _POLICY: dict[tuple[str, ...], tuple[ApiClass, str, str, RouteBinding | None, st
     ("spatial", "reachability"): (ApiClass.QUERY, "read", "mounted", RouteBinding("POST", "/api/spatial/reachability", (("require_compiled", "requireCompiled"),)), None),
     ("spatial", "path"): (ApiClass.QUERY, "read", "mounted", RouteBinding("POST", "/api/spatial/path", (("require_compiled", "requireCompiled"),)), None),
     ("spatial", "overlay-as-of"): (ApiClass.QUERY, "read", "mounted", RouteBinding("POST", "/api/spatial/overlay-as-of", (("require_compiled", "requireCompiled"),)), None),
-    **{("generational", action): (ApiClass.QUERY, "read", "mounted", RouteBinding("POST", f"/api/generational/{action}", (("require_compiled", "requireCompiled"),), AuthPolicy.SESSION), None) for action in _GENERATIONAL_OPERATIONS},
+    **{("generational", action): (ApiClass.QUERY, "read", "mounted", RouteBinding("POST", f"/api/generational/{action}", (("require_compiled", "requireCompiled"), ("viewpoint", "viewpoint")), AuthPolicy.SESSION), None) for action in _GENERATIONAL_OPERATIONS},
     ("generational", "scaffold"): (ApiClass.ACTION, "write", "mounted", RouteBinding("POST", "/api/generational/scaffold", auth=AuthPolicy.SESSION), None),
     ("generational", "schema"): (ApiClass.QUERY, "read", "mounted", RouteBinding("GET", "/api/generational/schema", auth=AuthPolicy.SESSION), None),
     ("threads",): (ApiClass.QUERY, "read", "mounted", RouteBinding("GET", "/api/threads", (("require_compiled", "requireCompiled"),)), None),

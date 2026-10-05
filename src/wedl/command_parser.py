@@ -306,11 +306,12 @@ inclusive, and ticks do not convert to elapsed duration.""",
         command = spatial_sub.add_parser(name, help=help_text, description=help_text.capitalize() + ".")
         command.add_argument("file", metavar="FILE", help="raw wedl-spatial/v1 JSON file, or - for stdin")
         _add_repo_argument(command); _add_require_compiled_argument(command)
-    generational = commands.add_parser("generational", help="read cited generational history by name", description="Read private wedl-generational/v1 evidence using a selected revision and local author scope. Character mode remains closed until a trusted character identity exists.")
+    generational = commands.add_parser("generational", help="read cited generational history by name", description="Read selected-revision author history or literal character beliefs. Use --viewpoint to select a local-author character POV outside the query JSON.")
     generational_sub = generational.add_subparsers(dest="generational_command", required=True, metavar="ACTION", title="generational actions", parser_class=WedlArgumentParser)
     for name, help_text in (("parents", "read biological and adoptive parents"), ("ancestors", "traverse cited ancestry"), ("descendants", "traverse cited descendants"), ("relatives", "find a cited relation path"), ("union", "read a n-ary union"), ("organization", "read an organization and active roster"), ("legacy", "read tenure, holders, claims, and succession"), ("vital", "read known vital history"), ("search", "search private structural tokens"), ("context", "build bounded generational context"), ("discover", "find admitted titles and aliases"), ("labels", "label admitted linked IDs"), ("character-unions", "read current authored unions for a character"), ("organization-legacies", "read authored legacies linked to an organization")):
         command = generational_sub.add_parser(name, help=help_text, description=help_text.capitalize() + ".")
         command.add_argument("file", metavar="FILE", help="raw wedl-generational/v1 JSON request file, or - for stdin")
+        command.add_argument("--viewpoint", metavar="CHARACTER", help="local-author selected character ID, title or alias at the request revision; requires character mode")
         _add_repo_argument(command); _add_require_compiled_argument(command)
     gen_scaffold = generational_sub.add_parser("scaffold", help="write a current-HEAD generational starter intent", description="Create a v0.7 organization intent bound to current HEAD. Edit the explicit choices, then use author request preview and author request apply --confirm TOKEN.")
     _add_repo_argument(gen_scaffold)

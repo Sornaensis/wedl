@@ -17,6 +17,7 @@ from .conversation import scene_context_time
 from .generational_context import build_generational_context
 from .generational_query import CAPABILITY, PROTOCOL, TrustedViewerScope, _VisibleCandidates, discovery_connection, discover_generational, query_generational
 from .model import ORDER_MAX, TICK_MAX, StoryTime, World
+from .ids import valid_id
 from .repository import Repository
 from .util import canonical_json
 from .v07 import CAPABILITY_ORDER
@@ -398,3 +399,65 @@ def execute(repository: Repository, operation: str, request: Any, *,
         if len(canonical_json(outcome)) > budget:
             return _outcome(operation, revision, "limit", code="GEN-LIMIT-001")
     return outcome
+
+
+def execute_with_viewpoint(repository: Repository, operation: str, request: Any, *,
+                           viewpoint: str | None = None, require_compiled: bool = False) -> dict[str, Any]:
+    """Local-author adapter: resolve one per-request POV outside the query JSON."""
+    if viewpoint is None:
+        return execute(repository, operation, request, require_compiled=require_compiled)
+    parsed, code = _closed_request(operation, request, trusted_character=True)
+    revision = request.get("revision") if isinstance(request, dict) else None
+    revision = revision if isinstance(revision, str) and _SHA.fullmatch(revision) else None
+    if (code or parsed is None or parsed["mode"] != "character"
+            or not isinstance(viewpoint, str) or not viewpoint.strip() or len(viewpoint) > 256):
+        return _outcome(operation, revision, "invalid", code=code or "GEN-REQUEST-001")
+    try:
+        if repository.resolve(revision) != revision:
+            return _outcome(operation, revision, "invalid", code="GEN-REQUEST-001")
+        world = repository.load_world(revision, cache_write=False)
+        character = world.find(viewpoint, "character")
+        if character.status != "canonical":
+            return _outcome(operation, revision, "unknown")
+    except NotFound:
+        return _outcome(operation, revision, "unknown")
+    except (OSError, ValueError, RepositoryError):
+        return _outcome(operation, revision, "unavailable")
+    scope = TrustedViewerScope(revision, "character", parsed["timeline"], _point(parsed["at"]),
+                               frozenset({"public"}), frozenset({"ordinary"}),
+                               frozenset(parsed["capabilities"]), character.id)
+    resolved = dict(parsed)
+    for field, kind in (("subject", _KINDS.get(operation)), ("target", "character")):
+        if field not in resolved:
+            continue
+        if operation == "union":
+            kind = "knowledge"
+        reference = resolved[field]
+        if valid_id(reference, kind):
+            continue
+        if kind == "knowledge":
+            return _outcome(operation, revision, "unknown")
+        # Only explicitly learned labels resolve assertion endpoint names.
+        # Character discovery folds literal labels. Bound that folded prefix,
+        # retaining the whole folded name for exact matching across all pages.
+        name_key = reference.casefold()
+        prefix = name_key[:64]
+        identifiers = set()
+        cursor = None
+        while True:
+            discovery = discover_generational(repository, scope,
+                {"operation": "discover", "kind": kind, "text": prefix,
+                 "items": 100, "cursor": cursor}, require_compiled=require_compiled)
+            if discovery["state"] != "available":
+                return _outcome(operation, revision, discovery["state"],
+                                **{key: value for key, value in discovery.items() if key in {"code"}})
+            identifiers.update(value["id"] for value in discovery["results"]
+                               if value["title"].casefold() == name_key)
+            cursor = discovery["cursor"]
+            if cursor is None:
+                break
+        if len(identifiers) != 1:
+            return _outcome(operation, revision, "unknown")
+        resolved[field] = next(iter(identifiers))
+    return execute(repository, operation, resolved, trusted_scope=scope,
+                   require_compiled=require_compiled)

@@ -1,10 +1,10 @@
 # Generational query and context
 
 `wedl.generational_query` provides API-neutral reads over the compiled v0.7
-evidence. A transport adapter authenticates the principal and constructs a
+evidence. A transport adapter authorizes the local author and constructs a
 `TrustedViewerScope` with the pinned revision, mode, timeline, exact StoryTime,
 server-derived audiences and perspectives, negotiated capabilities, and, for
-character mode, the authenticated character ID. None of these values may come
+character mode, the author-selected character ID. None of these values may come
 from a raw query selector. `wedl.generational_api` owns local author binding,
 name resolution, wire validation, and CLI/HTTP status mapping.
 
@@ -14,7 +14,7 @@ checks the selected source revision against the compiled database, rebuilding
 the disposable cache unless `require_compiled=True`. `author-as-of` uses an
 explicit StoryTime or the authored world/active-scene cursor; absent both, the
 request is invalid. `author-all-time` requires a selected timeline and forbids
-`at`. Character mode requires an authenticated character and an exact `at`.
+`at`. Character mode requires a server-resolved viewpoint and an exact `at`.
 Cross-timeline, malformed, or budget-invalid requests return closed `invalid`;
 missing capability returns `unavailable`.
 
@@ -28,7 +28,9 @@ cycle-safe and indexed. If depth or item bounds would cut off a derived path,
 the whole result is `limit` (`GEN-LIMIT-001`) with no partial inference.
 Missing affirmative evidence is `unknown`; an empty authorized private search
 is `available` with no results. Every returned derived edge cites its authored
-record path and exact applicability. Claims remain separate from literal
+record path and exact applicability in author mode. Character citations contain
+only stable knowledge/transition IDs, exact learning/state times and admitted
+evidence references. Claims remain separate from literal
 tenure, and a transfer never implies the target holds.
 
 Filtering checks capability, timeline, horizon, record audience/perspective,
@@ -82,13 +84,21 @@ declared `timeline`. Author as-of may supply `at` with exact signed decimal
 string `tick` and `order`, or use the current world/scene cursor. Explicit
 author all-time forbids `at`. `character-unions` and `organization-legacies`
 require an explicit author-as-of `at`; they do not accept all-time or character
-mode. Other character-mode reads require `at` and currently
-returns closed `unknown`: the repository session token is not a character
-identity, and the current evidence grammar cannot prove a positive structural
-grant. The request cannot supply a viewer, audience, or perspective.
+mode. Character-mode reads require `at` and an explicit per-request viewpoint:
+`wedl generational parents request.json --viewpoint CHARACTER` or the HTTP query
+parameter `?viewpoint=CHARACTER`. The authorized local author may select a
+character ID, title or alias at the requested revision. This selection is not
+stored in the session. The adapter constructs the trusted scope internally;
+the JSON body cannot supply `viewer`, `characterId`, `audience`, `perspective`
+or `viewpoint`. Without a viewpoint, ordinary character reads stay closed
+`unknown`; discovery and label requests require the trusted viewpoint.
 
 Use `subject` and, for `relatives`, `target` as a canonical ID, title, or
-alias; the server resolves each at the selected revision. Search uses a
+alias in author mode; the server resolves each at the selected revision. In
+character mode, names resolve only through that character's explicitly learned
+labels at the requested horizon. Canonical names and author metadata never
+provide a fallback. A singular character `union` selects the authored knowledge
+assertion ID, while an author `union` selects the canonical union ID. Search uses a
 normalized single token `text` and an optional revision/scope-bound `cursor`.
 `items` is 1–500 and `depth` is 0–32; context additionally requires
 `maxCharacters` (80–65536), with `items` at most 100 and `depth` at most 16.
@@ -113,7 +123,8 @@ requires its cache to be ready. It returns no entity names or counts.
 
 Use `wedl generational discover request.json` or
 `POST /api/generational/discover` to find admitted titles and aliases. The raw
-request uses the common protocol/revision/capabilities, `mode: author-as-of`,
+request uses the common protocol/revision/capabilities, `mode: author-as-of`
+or `mode: character` with the per-request viewpoint,
 declared `timeline`, and an explicit signed-string `at`, plus `kind` (character,
 organization, legacy, or event), a nonblank title/alias prefix `text` (at most
 64 characters), optional `items` (1–100), and optional `cursor`. Results have
@@ -137,12 +148,51 @@ prose. A generated test fixture with at least 5,000 characters and 10,000
 parentage edges checks the name index, 20-result response size, and SQLite
 virtual-machine work for an indexed page.
 
-The current knowledge, scene-observation, and conversation-recollection source
-grammar has no validated exact reference that says a character knows a given
-generational structural fact. Prose, a visible character identity, and
-`source_entity` do not establish one. Character generational reads therefore
-return `unknown` until an approved source/ADR contract supplies that evidence;
-they cannot report even the existence or count of hidden records.
+Character reads require v0.7 with `generational-knowledge-v1` and
+`generational-core-v1`. Typed `knowledge.claim.genealogy` records preserve
+authored mistaken, suspected and conflicting beliefs without comparing them to
+canonical truth. An affirmative authored learning transition is required before
+the assertion or its labels can appear. Assertion applicability and learning
+time are independent: a historical assertion learned later stays unknown before
+learning, and expiry does not erase its learned labels or bounded private
+history. Rejection and forgetting produce no current relationship edge.
+Explicit evidence references are checked at learning time; prose, presence,
+`source_entity`, and an unrecorded hearing never grant knowledge. Absent,
+future and withheld facts have the same closed outcome. Derived paths remain
+bounded and carry each literal assertion's uncertainty and citations.
+
+## Confirmed knowledge authoring
+
+Use the existing `wedl author request preview intent.json` and
+`wedl author request apply intent.json --confirm TOKEN`, or
+`POST /api/authoring/preview` and `/api/authoring/apply`. HTTP requires the session
+token and apply requires `X-Wedl-Confirmation`. Every intent supplies the exact
+`expectedHead` and a unique `idempotencyKey`; changes to a replayed intent are
+refused. `--yes` does not bypass confirmation for generational intents.
+
+The closed variants are:
+
+- `generational.knowledge.opt-in`: explicitly enables both capabilities on an
+  existing v0.7 world, preserving the canonical order of its other capabilities.
+  Legacy migration defaults remain unchanged.
+- `generational.knowledge.create`: supplies `title` (private author metadata),
+  `knower`, the closed typed `assertion`, exact signed-string `at`, and initial
+  affirmative `state`; optional `confidence`, `id` and `transitionId` preserve
+  explicit stable provenance. The assertion contains `kind`, literal `payload`,
+  a separate `valid.from`/optional `valid.until`, and optional learned `labels`
+  and admitted `evidence` references.
+- `generational.knowledge.state`: supplies `record`, `at`, `state` and optional
+  `confidence`/`transitionId`. It appends history without replacing the assertion.
+- `generational.knowledge.replace`: supplies `record`, `at`, `retireState`
+  (`rejected` or `forgotten`) and a `replacement` with `title`, `assertion` and
+  affirmative `state` (optional confidence and stable IDs). One confirmed atomic
+  changeset retires the old assertion and creates the replacement for the same
+  knower. It preserves the original assertion and transition history.
+
+The supported literal assertion kinds are parentage, union, organization,
+affiliation, tenure, claim and vital. The schema catalogue and OpenAPI examples
+describe their closed payloads. These operations use the existing atomic
+changeset writer, stale-HEAD refusal, confirmation and idempotent replay.
 
 `build_generational_context` calls only authorized query operations. It has
 depth (0–16), item (1–100), and final serialized-character budgets. It measures
