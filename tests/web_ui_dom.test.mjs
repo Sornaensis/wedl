@@ -76,6 +76,82 @@ async function loadBrowserModule() {
   return import(dataModule(`${app}\n// browser test instance ${++browserModuleNonce}`));
 }
 
+test("event operations display named destinations and safe values with keyboard links", async () => {
+  const previous = { document: globalThis.document, fetch: globalThis.fetch, history: globalThis.history, location: globalThis.location, requestAnimationFrame: globalThis.requestAnimationFrame, window: globalThis.window, WebSocket: globalThis.WebSocket, sessionStorage: globalThis.sessionStorage };
+  const { document, elements } = makeDom(); const calls = [];
+  const entities = [{ id: "world_test", kind: "world", title: "Test world" }, { id: "event_rescue", kind: "event", title: "Rescue" }, { id: "obj_token", kind: "object", title: "Token" }, { id: "char_mara", kind: "character", title: "Mara" }, { id: "loc_gate", kind: "location", title: "<svg onload=evil()>Gate</svg>" }];
+  const effects = [
+    { target: "obj_token", key: "holder", operation: "set", value: { entity: "char_mara", label: "extension" } },
+    { target: "char_mara", key: "location", operation: "set", value: { entity: "loc_gate" } },
+    { target: "char_mara", key: "condition", operation: "set", value: "injured" },
+    { target: "char_mara", key: "count", operation: "set", value: 0 },
+    { target: "char_mara", key: "awake", operation: "set", value: false },
+    { target: "char_mara", key: "note", operation: "set", value: null },
+    { target: "char_mara", key: "flags", operation: "add-to-set", value: "brave" },
+    { target: "char_mara", key: "flags", operation: "remove-from-set", value: "afraid" },
+    { target: "char_mara", key: "condition", operation: "clear" },
+    { target: "obj_token", key: "holder", operation: "set", value: { entity: "char_1234567890ABC" } },
+    { target: "char_mara", key: "note", operation: "set", value: '<img src=x onerror="evil()">' },
+    { target: "char_mara", key: "nested", operation: "set", value: { entity: "char_mara", label: "data" } },
+    { target: "char_mara", key: "literal", operation: "set", value: { entity: "char_mara" } },
+    { target: "char_mara", key: "missing", operation: "set" },
+  ];
+  globalThis.document = document; globalThis.location = { pathname: "/", protocol: "http:", host: "wedl.test" }; globalThis.history = { state: null, pushState() {}, replaceState() {} }; globalThis.requestAnimationFrame = (callback) => callback(); globalThis.window = { addEventListener() {}, matchMedia: () => ({ matches: false }) }; globalThis.WebSocket = undefined; globalThis.sessionStorage = undefined;
+  globalThis.fetch = async (path) => {
+    calls.push(path);
+    const entity = entities.find((entry) => path === `/api/entities/${encodeURIComponent(entry.id)}`);
+    const payload = path === "/api/session" ? { token: "test" } : path === "/api/status" ? { revision: "r1", timeModel: { timelineDeclarations: [], defaultTimeline: "" } } : path === "/api/entities" ? entities : path === "/api/threads" ? { revision: "r1", groupingAvailable: false, threads: [] } : entity ? { ...entity, frontmatter: entity.kind === "event" ? { effects } : entity.kind === "world" ? { state_keys: { object: { holder: { type: "entity" } }, character: { location: { type: "entity" }, nested: { type: "object" }, literal: { type: "object" } } } } : {} } : {};
+    return { ok: true, status: 200, json: async () => payload, text: async () => "" };
+  };
+  try {
+    await loadBrowserModule(); await waitForUi(); await waitForUi();
+    elements.entities.querySelectorAll(".entity-select").find((button) => button.dataset.entityId === "event_rescue").click(); await waitForUi(); await waitForUi(); await waitForUi(); await waitForUi();
+    const prose = elements.article.textContent;
+    for (const expected of ["Holder — Set to: Mara", "{label: extension}", "Location — Set to: <svg onload=evil()>Gate</svg>", "Condition — Set to: injured", "Count — Set to: 0", "Awake — Set to: false", "Note — Set to: null", "Add to set: brave", "Remove from set: afraid", "Clear: no value remains", "Unavailable reference", "Unavailable value", '<img src=x onerror="evil()">', "entity: Unavailable reference; label: data", "Literal — Set to: {entity: Unavailable reference}"]) assert.ok(prose.includes(expected), `${expected}: ${prose}`);
+    assert.match(prose, /Authored operations/); assert.doesNotMatch(prose, /char_1234567890ABC|char_mara|obj_token/);
+    const tags = []; const visit = (entry) => { if (!(entry instanceof Element)) return; tags.push(entry.tagName); entry.children.forEach(visit); }; visit(elements.article);
+    assert.ok(!tags.includes("svg") && !tags.includes("img"), "hostile source stays text, never markup");
+    const destination = elements.article.querySelectorAll(".lore-link").find((button) => button.textContent === "<svg onload=evil()>Gate</svg>");
+    assert.equal(destination.tagName, "button"); assert.equal(destination.type, "button"); destination.focus(); assert.equal(destination.focused, true); destination.click(); await waitForUi(); await waitForUi();
+    assert.ok(calls.includes("/api/entities/loc_gate")); assert.match(elements.article.textContent, /Gate/);
+  } finally { Object.assign(globalThis, previous); }
+});
+
+test("event value definitions fail honestly and stale revision reads cannot supply new article links", async () => {
+  const previous = { document: globalThis.document, fetch: globalThis.fetch, history: globalThis.history, location: globalThis.location, requestAnimationFrame: globalThis.requestAnimationFrame, window: globalThis.window, WebSocket: globalThis.WebSocket, sessionStorage: globalThis.sessionStorage };
+  const { document, elements } = makeDom(); let revision = "r1"; let releaseOld; let worldReads = 0;
+  const entities = [{ id: "world_test", kind: "world", title: "World" }, { id: "event_test", kind: "event", title: "Rescue" }, { id: "obj_test", kind: "object", title: "Token" }, { id: "loc_test", kind: "location", title: "Harbor" }];
+  class Socket { static instance; constructor() { this.events = new Map(); Socket.instance = this; } addEventListener(key, listener) { this.events.set(key, listener); } emit() { this.events.get("message")?.({ data: JSON.stringify({ revision }) }); } }
+  const response = (payload) => ({ ok: true, status: 200, json: async () => payload, text: async () => "" });
+  globalThis.document = document; globalThis.location = { pathname: "/", protocol: "http:", host: "wedl.test" }; globalThis.history = { state: null, pushState() {}, replaceState() {} }; globalThis.requestAnimationFrame = (callback) => callback(); globalThis.window = { addEventListener() {}, matchMedia: () => ({ matches: false }) }; globalThis.WebSocket = Socket; globalThis.sessionStorage = undefined;
+  globalThis.fetch = async (path) => {
+    if (path === "/api/entities/world_test") {
+      worldReads += 1;
+      if (revision === "r1") return { ok: false, status: 503, text: async () => "Unavailable" };
+      if (revision === "r2") return new Promise((resolve) => { releaseOld = () => resolve(response({ revision: "r2", frontmatter: { state_keys: { object: { holder: { type: "entity" } } } } })); });
+      return response({ revision, frontmatter: { state_keys: { object: { holder: { type: "object" } } } } });
+    }
+    const entity = entities.find((entry) => path === `/api/entities/${entry.id}`);
+    return response(path === "/api/session" ? { token: "test" } : path === "/api/status" ? { revision, timeModel: { timelineDeclarations: [], defaultTimeline: "" } } : path === "/api/entities" ? entities : path === "/api/threads" ? { revision, groupingAvailable: false, threads: [] } : entity ? { ...entity, revision, frontmatter: entity.kind === "event" ? { effects: [{ target: "obj_test", key: "holder", operation: "set", value: { entity: "loc_test" } }] } : {} } : {});
+  };
+  const settle = async () => { for (let index = 0; index < 8; index += 1) await waitForUi(); };
+  try {
+    await loadBrowserModule(); await settle();
+    elements.entities.querySelectorAll(".entity-select").find((button) => button.dataset.entityId === "event_test").click(); await settle();
+    assert.match(elements.article.textContent, /State value types are unavailable/);
+    assert.match(elements.article.textContent, /Holder — Set to: \{entity: Unavailable reference\}/);
+    assert.ok(!elements.article.querySelectorAll(".lore-link").some((button) => button.textContent === "Harbor"));
+    revision = "r2"; Socket.instance.emit(); await settle(); assert.equal(typeof releaseOld, "function");
+    revision = "r3"; Socket.instance.emit(); await settle();
+    assert.doesNotMatch(elements.article.textContent, /State value types are unavailable/);
+    assert.match(elements.article.textContent, /Holder — Set to: \{entity: Unavailable reference\}/);
+    releaseOld(); await settle();
+    assert.match(elements.article.textContent, /Holder — Set to: \{entity: Unavailable reference\}/);
+    assert.ok(!elements.article.querySelectorAll(".lore-link").some((button) => button.textContent === "Harbor"), "old entity type cannot become a destination under the new object type");
+    assert.equal(worldReads, 4, "a stale read reconciles to the current revision instead of publishing its definitions");
+  } finally { Object.assign(globalThis, previous); }
+});
+
 test("spatial lore handoff is consumed once and opens only a registry-backed ID", async () => {
   const previous = { document: globalThis.document, fetch: globalThis.fetch, history: globalThis.history,
     location: globalThis.location, requestAnimationFrame: globalThis.requestAnimationFrame,

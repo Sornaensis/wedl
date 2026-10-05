@@ -102,6 +102,35 @@ export function referenceValue(value) {
   return null;
 }
 
+// Mirror ids.py's stable and spatial ID grammars at the text boundary. Keep
+// the older tolerant scrub too, so malformed legacy IDs cannot become prose.
+function effectText(value) {
+  return String(value).replace(/(?<![A-Za-z0-9])(?:[a-z][a-z0-9-]*_[0-9A-HJKMNP-TV-Z]{26}|(?:map|location|overlay|route|anchor|portal):[a-z0-9][a-z0-9-]{0,127}(?:\/[a-z0-9][a-z0-9-]{0,127})*|(?:char|scene|event|conv|sp|loc|obj|env|rel|know|world|hyp)_[A-Za-z0-9]+|[A-Z][A-Z0-9]*_[A-Z0-9_]{8,}|[A-Z0-9]{12,})(?![A-Za-z0-9])/g, "Unavailable reference");
+}
+
+// Only the revision's declared state type can admit a reference leaf. An
+// object containing an "entity" field is otherwise ordinary authored data.
+export function effectValueParts(value, registry, definition = null) {
+  const text = (value) => [{ type: "text", text: value }];
+  if (value === null) return text("null");
+  if (typeof value === "string") return text(registry.has(value) ? "Unavailable reference" : effectText(value));
+  if (typeof value === "boolean" || (typeof value === "number" && Number.isFinite(value))) return text(String(value));
+  if (Array.isArray(value)) return [...text("["), ...value.flatMap((item, index) => [...(index ? text(", ") : []), ...effectValueParts(item, registry, definition?.type === "array" ? definition.items : null)]), ...text("]")];
+  if (value && typeof value === "object") {
+    const entries = Object.entries(value);
+    const entityType = definition?.type === "entity";
+    const fields = entityType ? entries.filter(([key]) => key !== "entity") : entries;
+    const reference = entityType ? (typeof value.entity === "string" ? [{ type: "reference", id: value.entity }] : text("Unavailable reference")) : [];
+    if (entityType && !fields.length) return reference;
+    return [...reference, ...text(entityType ? " {" : "{"), ...fields.flatMap(([key, item], index) => [...(index ? text("; ") : []), ...text(`${effectText(key)}: `), ...effectValueParts(item, registry, definition?.type === "object" ? definition.properties?.[key] : null)]), ...text("}")];
+  }
+  return text("Unavailable value");
+}
+
+export function effectOperationLabel(operation) {
+  return { set: "Set to", clear: "Clear", "add-to-set": "Add to set", "remove-from-set": "Remove from set" }[operation] || "Unavailable operation";
+}
+
 export function displayTime(time) {
   if (!time || typeof time !== "object") return "";
   return "Story beat";
@@ -177,7 +206,11 @@ export function buildLoreArticle(detail, registry, options = {}) {
     addReferences("People involved", frontmatter.participants);
     addReferences("Caused by", frontmatter.causes, "");
     addReferences("Related plot threads", frontmatter.related_story_points, "");
-    if (Array.isArray(frontmatter.effects) && frontmatter.effects.length) sections.push({ type: "effects", title: "What changes", items: frontmatter.effects.map((item) => ({ target: item && item.target, key: item && item.key, operation: item && item.operation, value: item && item.value })) });
+    if (Array.isArray(frontmatter.effects) && frontmatter.effects.length) sections.push({ type: "effects", title: "What changes", typesAvailable: Boolean(options.stateKeys), items: frontmatter.effects.map((item) => {
+      const definition = options.stateKeys?.[registry.get(item?.target)?.kind]?.[item?.key];
+      const valueDefinition = ["add-to-set", "remove-from-set"].includes(item?.operation) && definition?.type === "array" ? definition.items : definition;
+      return { target: item && item.target, key: effectText(item && item.key || "state"), operation: item && item.operation, valueParts: effectValueParts(item && item.value, registry, valueDefinition) };
+    }) });
   } else if (kind === "story-point") {
     addReferences("Depends on", frontmatter.dependencies && frontmatter.dependencies.all, "");
     addReferences("Outcome events", frontmatter.outcome_events, "");

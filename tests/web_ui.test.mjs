@@ -4,7 +4,7 @@ import { readFile } from "node:fs/promises";
 import test from "node:test";
 
 import { authorSearchRequestPath, characterKnowledgeRequestPath, contextRequestPath, conversationRequestPath, entityRequestPath, entityStateRequestPath, threadMembershipRequestPaths, whereaboutsRequestPath } from "../src/wedl/static/query.mjs";
-import { authorText, buildLoreArticle, conversationTranscriptBeats, createEntityRegistry, intervalContains, observationVisibleAt, referenceVisibleAt, safeDisplayName } from "../src/wedl/static/lore.mjs";
+import { authorText, buildLoreArticle, conversationTranscriptBeats, createEntityRegistry, effectValueParts, intervalContains, observationVisibleAt, referenceVisibleAt, safeDisplayName } from "../src/wedl/static/lore.mjs";
 import { authorSearchHeading, filterSearchResultsByKind, isAuthorSearchResult, plainSearchText, presentSearchResults, refreshAuthorSearch } from "../src/wedl/static/search.mjs";
 import { clearSupersededNavigationLoading, createNavigationGeneration, historyAction, navigationSnapshot, restoreNavigation } from "../src/wedl/static/navigation.mjs";
 import { compareCharacters, indexSortConfiguration, prominenceBand, sortIndex, sortPossibilities, sortWhereabouts } from "../src/wedl/static/sorting.mjs";
@@ -15,6 +15,35 @@ const { createApiClient } = await import(`data:text/javascript;base64,${Buffer.f
 const appSource = await readFile(new URL("../src/wedl/static/app.js", import.meta.url), "utf8");
 const htmlSource = await readFile(new URL("../src/wedl/static/index.html", import.meta.url), "utf8");
 const stylesheetSource = await readFile(new URL("../src/wedl/static/style.css", import.meta.url), "utf8");
+
+test("authored effect values preserve explicit references, nested scalars, null and absence", () => {
+  const registry = createEntityRegistry([{ id: "char_1234567890ABC", title: "Mara", kind: "character" }]);
+  assert.deepEqual(effectValueParts({ entity: "char_1234567890ABC" }, registry, { type: "entity" }), [{ type: "reference", id: "char_1234567890ABC" }]);
+  assert.deepEqual(effectValueParts({ entity: "char_1234567890ABC" }, registry, { type: "object" }), [{ type: "text", text: "{" }, { type: "text", text: "entity: " }, { type: "text", text: "Unavailable reference" }, { type: "text", text: "}" }], "object shapes do not imply a reference");
+  assert.deepEqual(effectValueParts({ entity: "char_1234567890ABC", label: "extension" }, registry, { type: "entity" }), [{ type: "reference", id: "char_1234567890ABC" }, { type: "text", text: " {" }, { type: "text", text: "label: " }, { type: "text", text: "extension" }, { type: "text", text: "}" }]);
+  assert.deepEqual(effectValueParts("char_1234567890ABC", registry), [{ type: "text", text: "Unavailable reference" }], "a plain string never becomes an entity link");
+  const nested = effectValueParts({ condition: "injured", count: 0, awake: false, note: null, flags: [true, { entity: "char_missing" }], target: "char_1234567890ABC" }, registry, { type: "object", properties: { flags: { type: "array", items: { type: "entity" } } } });
+  assert.equal(nested.filter((part) => part.type === "text").map((part) => part.text).join(""), "{condition: injured; count: 0; awake: false; note: null; flags: [true, ]; target: Unavailable reference}");
+  assert.deepEqual(nested.filter((part) => part.type === "reference"), [{ type: "reference", id: "char_missing" }]);
+  assert.deepEqual(effectValueParts(undefined, registry), [{ type: "text", text: "Unavailable value" }]);
+  assert.deepEqual(effectValueParts([], registry), [{ type: "text", text: "[" }, { type: "text", text: "]" }]);
+  const model = buildLoreArticle({ kind: "event", title: "Rescue", frontmatter: { effects: [{ target: "char_1234567890ABC", key: "condition", operation: "set", value: null }, { target: "char_1234567890ABC", key: "condition", operation: "clear" }] } }, registry);
+  assert.equal(model.sections[0].items[0].valueParts[0].text, "null");
+  assert.equal(model.sections[0].items[1].operation, "clear");
+});
+
+test("effect text and keys suppress complete stable and spatial IDs without creating links", () => {
+  const registry = createEntityRegistry([]);
+  const opaque = "organization_00000000000000000000000001";
+  for (const value of [`before ${opaque} after`, "via map:riverward/old-bank today", "route:gate anchor:river portal:ward location:archive overlay:district"]) {
+    const parts = effectValueParts(value, registry, { type: "string" });
+    assert.ok(parts.every((part) => part.type === "text"));
+    assert.match(parts.map((part) => part.text).join(""), /Unavailable reference/);
+    assert.doesNotMatch(parts.map((part) => part.text).join(""), /organization_|map:|route:|anchor:|portal:|location:|overlay:/);
+  }
+  const model = buildLoreArticle({ kind: "event", frontmatter: { effects: [{ target: "missing", key: `note_${opaque} map:riverward`, operation: "set", value: { [opaque]: "map:riverward" } }] } }, registry, { stateKeys: {} });
+  assert.doesNotMatch(JSON.stringify(model.sections), /organization_00000000000000000000000001|map:riverward/);
+});
 
 function contrastRatio(foreground, background) {
   const luminance = (hex) => {
