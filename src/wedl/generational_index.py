@@ -12,6 +12,8 @@ import sqlite3
 from typing import Any, Collection
 
 from .generational import GENERATIONAL_KINDS, generational_record
+from .conversation import turn_time
+from .generational_knowledge import AFFIRMATIVE_STATES, GenealogyAssertion
 from .model import StoryTime, World
 from .semantics import effective_time
 from .util import canonical_json
@@ -329,11 +331,95 @@ def current_holders(
 _DISCOVERY_INTERVAL_BASE = 1 << 40
 
 
+def _insert_knowledge_assertions(connection: sqlite3.Connection, world: World) -> int:
+    """Copy validated authored belief literals; never join to canonical truth."""
+    count = 0
+    for record in sorted(world.by_kind("knowledge"), key=lambda item: item.id):
+        claim = record.frontmatter.get("claim") or {}
+        if record.status != "canonical" or "genealogy" not in claim:
+            continue
+        value = claim["genealogy"]
+        assertion = GenealogyAssertion.from_value(value)
+        learned = [(StoryTime.from_value(t["time"], world.default_timeline), ordinal, t)
+                   for ordinal, t in enumerate(record.frontmatter["transitions"])
+                   if t["state"] in AFFIRMATIVE_STATES]
+        point, _, transition = min(learned, key=lambda item: (item[0].tick, item[0].order, item[1]))
+        until = assertion.valid_until
+        connection.execute("INSERT INTO generational_knowledge_assertion VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)",
+                           (record.id, record.frontmatter["knower"], assertion.kind,
+                            assertion.valid_from.timeline, assertion.valid_from.tick, assertion.valid_from.order,
+                            None if until is None else until.tick, None if until is None else until.order,
+                            canonical_json(value["payload"]), canonical_json(value.get("labels", {})),
+                            point.tick, point.order, transition["id"]))
+        for field, endpoint in value["payload"].items():
+            if field.endswith("_id") or field == "participant_ids":
+                for ordinal, identifier in enumerate(endpoint if isinstance(endpoint, list) else [endpoint]):
+                    if identifier is not None:
+                        connection.execute("INSERT INTO generational_knowledge_endpoint VALUES (?,?,?,?)",
+                                           (record.id, field, ordinal, identifier))
+        for ordinal, evidence in enumerate(value.get("evidence", [])):
+            field = next(key for key in evidence if key not in {"kind", "entity_id"})
+            target = world.get(evidence["entity_id"])
+            collection = {"knowledge": "transitions", "observation": "observations",
+                          "turn": "turns", "recollection": "recollections"}[evidence["kind"]]
+            exact = next(item for item in target.frontmatter[collection] if item["id"] == evidence[field])
+            evidence_at = (turn_time(exact, target, world.default_timeline) if evidence["kind"] == "turn"
+                           else StoryTime.from_value(exact["time" if evidence["kind"] == "knowledge" else "at"], world.default_timeline))
+            connection.execute("INSERT INTO generational_knowledge_evidence VALUES (?,?,?,?,?,?,?,?)",
+                               (record.id, ordinal, evidence["kind"], evidence["entity_id"], evidence[field],
+                                evidence_at.timeline, evidence_at.tick, evidence_at.order))
+        count += 1
+    return count
+
+
+def fold_knowledge_assertion(connection: sqlite3.Connection, knowledge_id: str, *,
+                             knower_id: str, at: StoryTime,
+                             include_forgotten: bool = False) -> dict[str, Any] | None:
+    """Internal literal replay; held knowledge and current applicability differ.
+
+    This primitive never admits another knower or resolves author metadata.
+    Non-held states retain private history but cannot supply an affirmative edge.
+    Callers own bounded selection and character-facing output projection.
+    """
+    assertion = connection.execute(
+        "SELECT * FROM generational_knowledge_assertion WHERE knowledge_id=? AND knower_id=? AND timeline=? "
+        "AND (learned_tick<? OR (learned_tick=? AND learned_order<=?))",
+        (knowledge_id, knower_id, at.timeline, at.tick, at.tick, at.order)).fetchone()
+    if assertion is None:
+        return None
+    transition = connection.execute(
+        "SELECT transition_id,tick,ordering,state,confidence FROM knowledge_transition "
+        "WHERE knowledge_id=? AND timeline=? AND (tick<? OR (tick=? AND ordering<=?)) "
+        "ORDER BY tick DESC,ordering DESC,ordinal DESC,transition_id DESC LIMIT 1",
+        (knowledge_id, at.timeline, at.tick, at.tick, at.order)).fetchone()
+    if transition is None or (transition["state"] == "forgotten" and not include_forgotten):
+        return None
+    held = transition["state"] in AFFIRMATIVE_STATES
+    coordinate = (at.tick, at.order)
+    applicable = ((assertion["from_tick"], assertion["from_order"]) <= coordinate and
+                  (assertion["until_tick"] is None or coordinate <= (assertion["until_tick"], assertion["until_order"])))
+    evidence = [{"kind": row["kind"], "entityId": row["entity_id"], "itemId": row["item_id"],
+                 "time": {"timeline": row["timeline"], "tick": row["tick"], "order": row["ordering"]}}
+                for row in connection.execute(
+                    "SELECT kind,entity_id,item_id,timeline,tick,ordering FROM generational_knowledge_evidence WHERE knowledge_id=? ORDER BY ordinal",
+                    (knowledge_id,))]
+    return {"knowledgeId": knowledge_id, "kind": assertion["kind"], "state": transition["state"],
+            "learnedAt": {"timeline": assertion["timeline"], "tick": assertion["learned_tick"], "order": assertion["learned_order"]},
+            "learningTransitionId": assertion["learning_transition_id"],
+            "confidence": transition["confidence"], "held": held, "applicable": applicable,
+            "affirmativeEdge": held and applicable, "payload": json.loads(assertion["payload_json"]),
+            "labels": json.loads(assertion["labels_json"]), "evidence": evidence,
+            "citation": {"knowledgeId": knowledge_id, "transitionId": transition["transition_id"],
+                         "time": {"timeline": at.timeline, "tick": transition["tick"], "order": transition["ordering"]},
+                         "state": transition["state"]}}
+
+
 def insert_generational_index(
     connection: sqlite3.Connection, world: World, at: StoryTime | None = None,
 ) -> dict[str, int]:
     """Insert deterministic rows after validated entities, before SQL indexes."""
     current = at or effective_time(world)
+    knowledge_count = _insert_knowledge_assertions(connection, world)
     records = [record for record in sorted(world.records.values(), key=lambda item: item.source_path)
                if record.kind in GENERATIONAL_KINDS]
     # These are disposable, private name admissions. A linked entity's source
@@ -574,4 +660,5 @@ def insert_generational_index(
                  folded["state"], canonical_json(folded)),
             )
     return {"generationalRecords": len(records),
+            "generationalKnowledgeAssertions": knowledge_count,
             "generationalTransitions": connection.execute("SELECT COUNT(*) FROM generational_transition").fetchone()[0]}

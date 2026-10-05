@@ -402,7 +402,7 @@ def test_private_discovery_shape_and_generation_reject_old_cache(tmp_path: Path)
     from wedl.compiler import COMPILER_FINGERPRINT_PREFIX, GENERATIONAL_INDEX_GENERATION_TOKEN
 
     assert SQLITE_SCHEMA == "wedl-sqlite/v15"
-    assert GENERATIONAL_INDEX_GENERATION_TOKEN == "wedl-generational-index/v8"
+    assert GENERATIONAL_INDEX_GENERATION_TOKEN == "wedl-generational-index/v9"
     assert GENERATIONAL_INDEX_GENERATION_TOKEN in COMPILER_FINGERPRINT_PREFIX
     database = tmp_path / "discovery-shape.sqlite"
     connection = sqlite3.connect(database)

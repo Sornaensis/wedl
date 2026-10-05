@@ -43,7 +43,7 @@ CHRONOLOGY_INDEX_GENERATION_TOKEN = "wedl-chronology-index/v3"
 # a database created before its DDL must never be mistaken for a compatible
 # read model by a later opt-in caller.
 SPATIAL_INDEX_GENERATION_TOKEN = "wedl-spatial-index/v5"
-GENERATIONAL_INDEX_GENERATION_TOKEN = "wedl-generational-index/v8"
+GENERATIONAL_INDEX_GENERATION_TOKEN = "wedl-generational-index/v9"
 COMPILER_FINGERPRINT_PREFIX = f"{DOCUMENT_GENERATION_TOKEN}:{CHRONOLOGY_INDEX_GENERATION_TOKEN}:{SPATIAL_INDEX_GENERATION_TOKEN}:{GENERATIONAL_INDEX_GENERATION_TOKEN}:"
 
 DDL = r"""
@@ -125,6 +125,9 @@ CREATE TABLE generational_discovery_name(audience TEXT NOT NULL,perspective TEXT
 CREATE TABLE generational_discovery_time(audience TEXT NOT NULL,perspective TEXT NOT NULL,timeline TEXT NOT NULL,tick INTEGER NOT NULL,ordering INTEGER NOT NULL,time_rank INTEGER NOT NULL,PRIMARY KEY(audience,perspective,timeline,tick,ordering),UNIQUE(audience,perspective,timeline,time_rank));
 CREATE TABLE generational_discovery_segment(audience TEXT NOT NULL,perspective TEXT NOT NULL,timeline TEXT NOT NULL,kind TEXT NOT NULL,node INTEGER NOT NULL,name_key TEXT NOT NULL,entity_id TEXT NOT NULL REFERENCES entity(id),name TEXT NOT NULL,title TEXT NOT NULL,PRIMARY KEY(audience,perspective,timeline,kind,node,name_key,entity_id));
 CREATE TABLE generational_discovery_lens(audience TEXT NOT NULL,perspective TEXT NOT NULL,PRIMARY KEY(audience,perspective));
+CREATE TABLE generational_knowledge_assertion(knowledge_id TEXT PRIMARY KEY REFERENCES knowledge(entity_id),knower_id TEXT NOT NULL REFERENCES entity(id),kind TEXT NOT NULL,timeline TEXT NOT NULL,from_tick INTEGER NOT NULL,from_order INTEGER NOT NULL,until_tick INTEGER,until_order INTEGER,payload_json TEXT NOT NULL,labels_json TEXT NOT NULL,learned_tick INTEGER NOT NULL,learned_order INTEGER NOT NULL,learning_transition_id TEXT NOT NULL REFERENCES knowledge_transition(transition_id));
+CREATE TABLE generational_knowledge_endpoint(knowledge_id TEXT NOT NULL REFERENCES generational_knowledge_assertion(knowledge_id),field TEXT NOT NULL,ordinal INTEGER NOT NULL,entity_id TEXT NOT NULL REFERENCES entity(id),PRIMARY KEY(knowledge_id,field,ordinal));
+CREATE TABLE generational_knowledge_evidence(knowledge_id TEXT NOT NULL REFERENCES generational_knowledge_assertion(knowledge_id),ordinal INTEGER NOT NULL,kind TEXT NOT NULL,entity_id TEXT NOT NULL REFERENCES entity(id),item_id TEXT NOT NULL,timeline TEXT NOT NULL,tick INTEGER NOT NULL,ordering INTEGER NOT NULL,PRIMARY KEY(knowledge_id,ordinal));
 """
 INDEX_DDL = r"""
 CREATE INDEX entity_kind_idx ON entity(kind,status,title);
@@ -189,6 +192,9 @@ CREATE INDEX generational_discovery_key_idx ON generational_discovery_name(audie
 CREATE INDEX generational_discovery_id_idx ON generational_discovery_name(entity_id,audience,perspective,timeline,start_tick,start_order);
 CREATE INDEX generational_discovery_label_idx ON generational_discovery_name(entity_id,audience,perspective,timeline,start_tick,start_order,source_ordinal) WHERE name=title;
 CREATE INDEX generational_discovery_segment_idx ON generational_discovery_segment(audience,perspective,timeline,kind,node,name_key,entity_id);
+CREATE INDEX generational_knowledge_knower_idx ON generational_knowledge_assertion(knower_id,timeline,kind,learned_tick,learned_order,knowledge_id);
+CREATE INDEX generational_knowledge_endpoint_idx ON generational_knowledge_endpoint(entity_id,field,knowledge_id);
+CREATE INDEX generational_knowledge_state_idx ON knowledge_transition(knowledge_id,timeline,tick,ordering,ordinal,transition_id);
 """
 
 _REQUIRED_SPATIAL_TABLES = frozenset({
@@ -218,6 +224,7 @@ _REQUIRED_GENERATIONAL_TABLES = frozenset({
     "generational_vital", "generational_transition", "generational_current",
     "generational_candidate", "generational_search_prefix", "generational_discovery_name",
     "generational_discovery_lens", "generational_discovery_time", "generational_discovery_segment",
+    "generational_knowledge_assertion", "generational_knowledge_endpoint", "generational_knowledge_evidence",
 })
 _REQUIRED_GENERATIONAL_INDEXES = frozenset({
     "generational_record_kind_idx", "generational_organization_parent_idx",
@@ -231,6 +238,7 @@ _REQUIRED_GENERATIONAL_INDEXES = frozenset({
     "generational_search_lookup_idx", "generational_discovery_key_idx",
     "generational_discovery_id_idx", "generational_discovery_label_idx",
     "generational_discovery_segment_idx",
+    "generational_knowledge_knower_idx", "generational_knowledge_endpoint_idx", "generational_knowledge_state_idx",
 })
 
 
