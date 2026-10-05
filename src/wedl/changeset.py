@@ -22,6 +22,7 @@ from .transaction_recovery import JournalLiveByteBudget, SurfaceEnrollment, Tran
 from .source import generated_path, serialize_record
 from .util import atomic_write, canonical_json, deep_replace, slugify
 from .validation import validate_world
+from . import consequence_operations
 
 
 _DIRECT_COMPILE_WORLD = compile_world
@@ -490,6 +491,18 @@ CHANGESET_OPERATION_SCHEMA = [
 # one place.  The schema is user-facing, so accepting an operation that it
 # does not advertise (or advertising one that cannot be applied) is a
 # contract error rather than merely a documentation drift.
+CHANGESET_OPERATION_SCHEMA.extend([
+    {"type": operation_type, "summary": "append an explicitly authored consequence without replacing history",
+     "fields": fields}
+    for operation_type, fields in (
+        ("knowledge.create", ["temporaryId", "value.frontmatter", "value.bodyMarkdown"]),
+        ("relationship.create", ["temporaryId", "value.frontmatter", "value.bodyMarkdown"]),
+        ("knowledge.transition.append", ["knowledge", "transition.time", "transition.state", "transition.causing_event"]),
+        ("relationship.transition.append", ["relationship", "transition.time", "transition.causing_event"]),
+        ("story-point.transition.append", ["storyPoint", "transition.time", "transition.state", "transition.causing_event"]),
+        ("outcome.link", ["event", "storyPoints", "scenes"]),
+    )
+])
 CHANGESET_OPERATION_TYPES = tuple(item["type"] for item in CHANGESET_OPERATION_SCHEMA)
 
 
@@ -541,7 +554,7 @@ def scaffold(repository: Repository) -> dict[str, Any]:
 
 
 def _request_hash(payload: dict[str, Any]) -> str:
-    value = deepcopy(payload)
+    value = consequence_operations.normalize(payload) if _has_consequence_operations(payload) else deepcopy(payload)
     value.pop("requestId", None)
     return hashlib.sha256(canonical_json(value).encode()).hexdigest()
 
@@ -573,6 +586,15 @@ def _full_payload_hash(payload: dict[str, Any]) -> str:
 
 def _temporary(value: dict[str, Any]) -> str | None:
     return value.get("temporaryId") or value.get("tempId")
+
+
+def _has_consequence_operations(payload: dict[str, Any]) -> bool:
+    return any(
+        isinstance(operation, dict) and (
+            operation.get("type") in consequence_operations.TYPES
+            or consequence_operations.is_typed_event(operation)
+        ) for operation in payload.get("operations") or []
+    )
 
 
 def _allocate(payload: dict[str, Any]) -> dict[str, str]:
@@ -614,7 +636,7 @@ def _allocate(payload: dict[str, Any]) -> dict[str, str]:
                 if isinstance(item, dict) and isinstance(item.get("temporaryId"), str):
                     temporary = item["temporaryId"]
                     generated[temporary] = id_from_seed("chronology", f"{digest}:{index}:{temporary}")
-    return generated
+    return consequence_operations.allocate(payload, generated, digest) if _has_consequence_operations(payload) else generated
 
 
 def _replace_chronology_identifiers(value: Any, replacements: dict[str, str], *, declaration: bool = False) -> Any:
@@ -777,16 +799,29 @@ def _canonical_frontmatter_patch(record: Record, patch: dict[str, Any]) -> dict[
 def _apply(payload: dict[str, Any], world: World, replacements: dict[str, str]) -> tuple[dict[str, Record], set[str]]:
     records = {entity_id: Record(deepcopy(record.frontmatter), record.body, record.source_path, record.raw_bytes, record.blob_oid, record.revision) for entity_id, record in world.records.items()}
     touched: set[str] = set()
-    for index, raw_operation in enumerate(payload.get("operations") or []):
-        operation = _replace_operation_references(raw_operation, replacements)
+    typed = _has_consequence_operations(payload)
+    digest = _request_hash(payload)
+    operations = (consequence_operations.normalize(payload) if typed else payload).get("operations") or []
+    links: list[dict[str, Any]] = []
+    declared: list[dict[str, Any]] = []
+    for index, raw_operation in enumerate(operations):
+        operation = (consequence_operations.expand(raw_operation, replacements, digest, index, world)
+                     if raw_operation.get("type") in consequence_operations.TYPES or consequence_operations.is_typed_event(raw_operation)
+                     else _replace_operation_references(raw_operation, replacements))
         operation_type = operation.get("type")
+        if operation_type in consequence_operations.TYPES or consequence_operations.is_typed_event(raw_operation):
+            declared.append(operation)
         if operation_type not in CHANGESET_OPERATION_TYPES:
             raise ProtocolError(f"unsupported operation {operation_type!r}")
         candidate = operation.get("value") or {}
         if (isinstance(operation.get("frontmatterPatch"), dict) and "importance" in operation["frontmatterPatch"]) or (isinstance(candidate, dict) and ("importance" in candidate or (isinstance(candidate.get("frontmatter"), dict) and "importance" in candidate["frontmatter"]))):
             raise ProtocolError("importance is calculated output and cannot appear in changesets")
-        seed = f"{_request_hash(payload)}:{index}"
-        if operation_type in {"entity.create", "entity.upsert"}:
+        seed = f"{digest}:{index}"
+        if operation_type == "outcome.link":
+            links.append(operation)
+        elif operation_type in consequence_operations.TYPES:
+            touched.update(consequence_operations.apply_operation(operation, records, world))
+        elif operation_type in {"entity.create", "entity.upsert"}:
             touched.add(_upsert(operation, records, world.source_root))
         elif operation_type == "entity.delete":
             entity_id = str(operation.get("entity") or operation.get("entityId"))
@@ -794,7 +829,16 @@ def _apply(payload: dict[str, Any], world: World, replacements: dict[str, str]) 
                 raise ProtocolError(f"unknown entity {entity_id}")
             records.pop(entity_id); touched.add(entity_id)
         elif operation_type == "event.create":
-            touched.add(_event(operation, records, world.source_root, seed))
+            new_typed_event = consequence_operations.is_typed_event(raw_operation)
+            event_id = str(_temporary(operation) or operation.get("id") or id_from_seed("event", seed))
+            if new_typed_event and event_id in records:
+                raise UsageError("typed event cannot replace an existing record")
+            identifier = _event(operation, records, world.source_root, seed)
+            if new_typed_event:
+                record = records[identifier]
+                record.frontmatter["schema"] = world.schema
+                record.raw_bytes = serialize_record(record.frontmatter, record.body)
+            touched.add(identifier)
         elif operation_type == "conversation.create":
             touched.add(_conversation(operation, records, world.source_root, seed))
         elif operation_type == "conversation.turn.append":
@@ -838,6 +882,10 @@ def _apply(payload: dict[str, Any], world: World, replacements: dict[str, str]) 
             if changed:
                 record.raw_bytes = serialize_record(record.frontmatter, record.body)
                 touched.add(entity_id)
+    for operation in links:
+        touched.update(consequence_operations.apply_operation(operation, records, world))
+    for operation in declared:
+        consequence_operations.admit_references(operation, records, world)
     return records, touched
 
 
