@@ -66,6 +66,9 @@ export function createApiClient() {
     },
     get(path, options = {}) { return this.request(path, { ...options, method: "GET" }); },
     post(path, body, options = {}) { return this.request(path, { ...options, method: "POST", body }); },
+    eventConsequences(request, options = {}) {
+      return request ? this.post("/api/events/consequences", request, options) : Promise.resolve(null);
+    },
   };
 }
 

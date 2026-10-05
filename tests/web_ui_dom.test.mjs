@@ -948,3 +948,96 @@ test("Whereabouts sends exact signed horizons and caches each coordinate indepen
     ], "signed coordinates retain their exact query values and only an identical coordinate hits the cache");
   } finally { Object.assign(globalThis, previous); }
 });
+
+async function withConsequenceArticle(handler, exercise) {
+  const previous = Object.fromEntries(["document", "fetch", "history", "location", "requestAnimationFrame", "window", "WebSocket", "sessionStorage"].map((key) => [key, globalThis[key]]));
+  const { document, elements } = makeDom(); const revision = "a".repeat(40); const calls = []; const historyCalls = [];
+  const entities = [{ id: "event_rescue", kind: "event", title: "Rescue" }, { id: "event_after", kind: "event", title: "Afterwards" },
+    { id: "char_mara", kind: "character", title: "<svg onload=evil()>Mara</svg>" }, { id: "char_rook", kind: "character", title: "Rook" }];
+  const response = (payload, status = 200) => ({ ok: status === 200, status, json: async () => payload, text: async () => JSON.stringify(payload) });
+  const ok = (request, extra = {}) => ({ protocol: request.protocol, outcome: "ok", revision, event: entities[0], eventTime: { timeline: "main", tick: "10", order: "0" }, at: request.at,
+    timeScope: { mode: "author-as-of", at: request.at }, effects: [], changes: [], causedTransitions: [], outcomes: [], causalSuccessors: [], currentAtHorizon: [], advisories: [], expectations: [], applyAllowed: true, ...extra });
+  globalThis.document = document; globalThis.location = { pathname: "/", protocol: "http:", host: "wedl.test" }; globalThis.history = { state: null, pushState(value) { historyCalls.push(value); }, replaceState() {} };
+  globalThis.requestAnimationFrame = (callback) => callback(); globalThis.window = { addEventListener() {}, matchMedia: () => ({ matches: false }) }; globalThis.WebSocket = undefined; globalThis.sessionStorage = undefined;
+  globalThis.fetch = async (path, options = {}) => {
+    calls.push({ path, options });
+    if (path === "/api/events/consequences" || path.includes("?perspective=author")) return handler(path, options, { ok, response, revision });
+    const entity = entities.find((entry) => path === `/api/entities/${entry.id}`);
+    return response(path === "/api/session" ? { token: "session" } : path === "/api/status" ? { revision, timeModel: { timelineDeclarations: [{ id: "main", label: "Main story" }], defaultTimeline: "main" } }
+      : path === "/api/entities" ? entities : path === "/api/threads" ? { revision, groupingAvailable: false, threads: [] }
+      : path === "/api/timeline?timeline=main" ? { revision, timeline: { id: "main" }, points: entities.slice(0, 2).map((entry, i) => ({ at: { timeline: "main", tick: String(10 + i), order: "0" }, kind: "event", entity: entry })), spans: [] }
+      : entity ? { ...entity, revision, bodyMarkdown: "Article prose remains.", frontmatter: entity.kind === "event" ? { effects: [{ target: "char_rook", key: "condition", operation: "set", value: "alert" }] } : {} } : { revision });
+  };
+  const settle = async () => { for (let i = 0; i < 10; i++) await waitForUi(); };
+  const open = (id) => elements.entities.querySelectorAll(".entity-select").find((button) => button.dataset.entityId === id).click();
+  try { await loadBrowserModule(); await settle(); await exercise({ elements, calls, historyCalls, open, settle, revision }); }
+  finally { Object.assign(globalThis, previous); }
+}
+test("event article renders pinned explicit consequences with safe named direction and no verification badge", async () => {
+  let requested;
+  await withConsequenceArticle((path, options, { ok, response, revision }) => {
+    if (path === "/api/events/consequences") {
+      requested = JSON.parse(options.body); const citation = { recordId: "event_rescue", sourcePath: "hidden/path.md", section: "effects" };
+      return response(ok(requested, { causedTransitions: [{ kind: "relationship", record: { id: "rel_trust", kind: "relationship", title: "Trust" }, transition: { relationship_status: "strained", metrics: { trust: 0 }, facets: [] }, atEventTime: false, time: { timeline: "main", tick: "11", order: "0" }, citation }] }));
+    }
+    return response({ id: "rel_trust", kind: "relationship", revision, frontmatter: { from: "char_mara", to: "char_rook" } });
+  }, async ({ elements, calls, open, settle, revision }) => {
+    open("event_rescue"); await settle();
+    assert.equal(requested.revision, revision); assert.deepEqual(requested.at, { timeline: "main", tick: "9223372036854775807", order: "2147483647" });
+    assert.equal(calls.find((call) => call.path === "/api/events/consequences").options.headers["X-Wedl-Token"], "session");
+    const prose = elements.article.textContent;
+    for (const label of ["What changes", "Article prose remains.", "Full story — through the terminal story boundary in Main story", "Changes at this event", "Later recorded transition", "Trust", "<svg onload=evil()>Mara</svg>", "→ Rook", "Recorded in Rescue", "No recorded links"]) assert.ok(prose.includes(label), label + ": " + prose);
+    assert.doesNotMatch(prose, /verified|hidden\/path|rel_trust|char_mara|9223372036854775807/i);
+    assert.equal(elements.article.querySelectorAll(".event-consequences")[0].querySelectorAll(".lore-link").find((button) => button.textContent === "<svg onload=evil()>Mara</svg>").tagName, "button");
+    const tags = []; const visit = (entry) => { if (entry instanceof Element) { tags.push(entry.tagName); entry.children.forEach(visit); } }; visit(elements.article); assert.ok(!tags.includes("svg"));
+  });
+});
+test("event article preserves prose and effects through closed unavailable, limit and invalid failures", async () => {
+  for (const outcome of ["unavailable", "limit", "invalid", "error"]) {
+    await withConsequenceArticle((path, options, { response }) => response(outcome === "error" ? { private: "<img>secret</img>" } : { protocol: "wedl-event-consequences/v1", outcome, code: "fixed", message: "<img>secret</img>" }, outcome === "error" ? 500 : 409),
+      async ({ elements, calls, open, settle }) => {
+        open("event_rescue"); await settle(); assert.match(elements.article.textContent, /Article prose remains/); assert.match(elements.article.textContent, /What changes/);
+        assert.match(elements.article.textContent, outcome === "limit" ? /exceed the report limit/ : outcome === "unavailable" ? /unavailable at this reading horizon/ : outcome === "invalid" ? /request could not be read/ : /could not be loaded/);
+        assert.doesNotMatch(elements.article.textContent, /secret|<img>|Changes at this event/);
+        assert.equal(calls.filter((call) => call.path.includes("?perspective=author")).length, 0);
+      });
+  }
+});
+test("event article ignores delayed responses after navigation and retries without a stale cache", async () => {
+  let release; let reads = 0;
+  await withConsequenceArticle((path, options, { response, ok }) => {
+    const request = JSON.parse(options.body); reads++;
+    if (reads === 1) return new Promise((resolve) => { release = () => resolve(response(ok(request, { event: { id: "event_rescue", kind: "event", title: "STALE report" } }))); });
+    return response(ok(request));
+  }, async ({ elements, historyCalls, open, settle }) => {
+    open("event_rescue"); await settle(); assert.ok(historyCalls.some((entry) => entry.view === "article" && entry.entryId === "event_rescue"), "visible article history is available while its report loads"); assert.match(elements.article.textContent, /Loading recorded consequences/); assert.match(elements.article.textContent, /What changes/);
+    elements.back.click(); await settle(); open("event_after"); await settle(); release(); await settle();
+    assert.doesNotMatch(elements.article.textContent, /STALE report/);
+    elements.back.click(); await settle(); open("event_rescue"); await settle(); assert.equal(reads, 3);
+    assert.match(elements.article.textContent, /No recorded links/);
+  });
+});
+
+test("event article pins changed horizons and discards mismatched linked HEAD details", async () => {
+  let release; const requests = [];
+  await withConsequenceArticle((path, options, { response, ok, revision }) => {
+    if (path === "/api/events/consequences") {
+      const request = JSON.parse(options.body); requests.push(request);
+      const citation = { recordId: "event_rescue", section: "causes" };
+      const payload = ok(request, { causedTransitions: [{ kind: "relationship", record: { id: "rel_trust", kind: "relationship", title: "Trust record" }, transition: { relationship_status: "strained", metrics: {}, facets: [] }, atEventTime: false, citation }] });
+      if (requests.length === 1) return new Promise((resolve) => { release = () => resolve(response({ ...payload, outcomes: [{ target: { id: "scene_stale", kind: "scene", title: "STALE HORIZON" }, event: payload.event, reciprocal: true, citations: [] }] })); });
+      return response(payload);
+    }
+    return response({ id: "rel_trust", kind: "relationship", revision: "b".repeat(40), frontmatter: { from: "char_mara", to: "char_rook" } });
+  }, async ({ elements, calls, open, settle }) => {
+    open("event_rescue"); await settle();
+    elements.horizon.value = "main\u000010\u00000"; elements.horizon.dispatch("change"); await settle();
+    assert.equal(requests.length, 2); assert.deepEqual(requests[1].at, { timeline: "main", tick: "10", order: "0" });
+    release(); await settle();
+    assert.match(elements.article.textContent, /Through Rescue/); assert.match(elements.article.textContent, /Trust record/); assert.doesNotMatch(elements.article.textContent, /STALE HORIZON|→ Rook/);
+    const reads = calls.filter((call) => call.path.includes("?perspective=author")); assert.equal(reads.length, 1);
+    const url = new URL(reads[0].path, "http://example.test"); assert.equal(url.searchParams.get("tick"), "10");
+    elements.horizon.value = ""; elements.horizon.dispatch("change"); await settle();
+    assert.equal(requests.length, 3, "stale terminal response never populated its cache");
+  });
+});

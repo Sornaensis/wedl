@@ -1,7 +1,7 @@
 import { ApiError, createApiClient } from "./api.js";
 import { CHRONOLOGY_PROTOCOL, SEARCH_PREDICATES, ERA_MODES, buildChronologyReplaceIntent, buildConvertRequest, buildFormatRequest, buildSearchRequest, buildStoryTimesRequest, capabilityIsEnabled, chronologyValueAriaLabel, chronologyValueLabel, cloneChronologyAnnotations, cloneChronologyValue } from "./chronology.mjs";
-import { characterKnowledgeRequestPath, conversationRequestPath, entityStateRequestPath, authorSearchRequestPath, threadMembershipRequestPaths, whereaboutsRequestPath } from "./query.mjs";
-import { authorText, buildLoreArticle, conversationTranscriptBeats, createEntityRegistry, effectOperationLabel, humanizeToken, kindLabel, safeDisplayName } from "./lore.mjs";
+import { eventConsequenceDetails, eventConsequenceKey, eventConsequenceMatches, eventConsequenceRequest, characterKnowledgeRequestPath, conversationRequestPath, entityStateRequestPath, authorSearchRequestPath, threadMembershipRequestPaths, whereaboutsRequestPath } from "./query.mjs";
+import { authorText, buildLoreArticle, conversationTranscriptBeats, createEntityRegistry, effectOperationLabel, effectValueParts, eventConsequenceModel, humanizeToken, kindLabel, safeDisplayName } from "./lore.mjs";
 import { filterSearchResultsByKind, presentSearchResults, refreshAuthorSearch } from "./search.mjs";
 import { compareCharacters, indexSortConfiguration, NAME_ASC, prominenceBand, PROMINENCE_SORT_HIGH, possibilitiesSortConfiguration, sortIndex, sortPossibilities, sortWhereabouts, validSort, whereaboutsSortConfiguration } from "./sorting.mjs";
 import { clearSupersededNavigationLoading, createNavigationGeneration, historyAction, navigationSnapshot, restoreNavigation } from "./navigation.mjs";
@@ -13,7 +13,7 @@ const el = {
   indexHeading: document.querySelector("#entries-heading"), mobileBack: document.querySelector("#back-to-navigation"), nav: document.querySelector(".compendium-nav"), shell: document.querySelector(".compendium-shell"), worldName: document.querySelector("#world-name"),
 };
 const api = createApiClient();
-const state = { activeTimelineId: "", chronologyCatalog: null, chronologyEditor: null, chronologyFormatCache: new Map(), chronologyRequestId: 0, detailRequestId: 0, details: new Map(), entities: [], horizon: null, horizonEntries: new Map(), importanceByCharacter: new Map(), importanceError: "", importanceKey: "", importanceLoaded: false, indexSort: "", kind: "", membershipCache: new Map(), membershipError: "", membershipMap: new Map(), membershipRequestId: 0, mobilePane: "nav", possibilitiesSort: "", query: "", registry: new Map(), revision: "", restoreRequestId: 0, returnView: "index", searchError: "", searchKind: "", searchMatch: null, searchResults: null, selectedEntityId: "", selectedThreadIds: [], threadCatalog: { groupingAvailable: false, threads: [] }, threadCatalogError: "", threadSelectionRevisionChanged: false, threadSearchNeedsRefresh: false, timelineCache: new Map(), timelineDeclarations: [], timelineDefault: "", timelineRequestId: 0, view: "index", whereaboutsCache: new Map(), whereaboutsRequestId: 0, possibilitiesRequestId: 0, whereaboutsSort: "", worldStateKeys: null, listScroll: 0 };
+const state = { activeTimelineId: "", chronologyCatalog: null, chronologyEditor: null, chronologyFormatCache: new Map(), chronologyRequestId: 0, detailRequestId: 0, eventConsequenceCache: new Map(), consequenceController: null, readerLens: "author", details: new Map(), entities: [], horizon: null, horizonEntries: new Map(), importanceByCharacter: new Map(), importanceError: "", importanceKey: "", importanceLoaded: false, indexSort: "", kind: "", membershipCache: new Map(), membershipError: "", membershipMap: new Map(), membershipRequestId: 0, mobilePane: "nav", possibilitiesSort: "", query: "", registry: new Map(), revision: "", restoreRequestId: 0, returnView: "index", searchError: "", searchKind: "", searchMatch: null, searchResults: null, selectedEntityId: "", selectedThreadIds: [], threadCatalog: { groupingAvailable: false, threads: [] }, threadCatalogError: "", threadSelectionRevisionChanged: false, threadSearchNeedsRefresh: false, timelineCache: new Map(), timelineDeclarations: [], timelineDefault: "", timelineRequestId: 0, view: "index", whereaboutsCache: new Map(), whereaboutsRequestId: 0, possibilitiesRequestId: 0, whereaboutsSort: "", worldStateKeys: null, listScroll: 0 };
 const navigation = createNavigationGeneration();
 
 async function revisionRead(path) {
@@ -83,7 +83,7 @@ const horizonLabel = () => { const entry = currentHorizonOption(); return entry 
 function writeHistory(mode = "replace") { const snapshot = navigationSnapshot(state, { listScroll: state.listScroll }); if (mode === "push") history.pushState(snapshot, "", location.pathname); else history.replaceState(snapshot, "", location.pathname); }
 function invalidateDetail() { state.detailRequestId += 1; }
 function invalidateTimeline() { state.timelineRequestId += 1; }
-function beginNavigation() { invalidateDetail(); invalidateTimeline(); clearSupersededNavigationLoading(el); return navigation.begin(); }
+function beginNavigation() { state.consequenceController?.abort(); invalidateDetail(); invalidateTimeline(); clearSupersededNavigationLoading(el); return navigation.begin(); }
 function navigationIsCurrent(generation) { return navigation.isCurrent(generation); }
 function syncNavigation() { for (const item of el.nav.querySelectorAll(".nav-item")) item.removeAttribute("aria-current"); const active = [...el.nav.querySelectorAll(".nav-item")].find((item) => item.dataset.view ? item.dataset.view === state.view : (state.view === "index" && item.dataset.kind === state.kind)); if (active) active.setAttribute("aria-current", "page"); }
 function syncHorizonControl() {
@@ -484,13 +484,86 @@ async function loadEventStateKeys(requestId, generation) {
   } catch { /* Direct effects still render without guessing their value types. */ }
 }
 
+
+function consequenceNameParts(container, parts, names) {
+  for (const part of parts) {
+    if (part.type !== "reference") { container.append(node("span", part.text)); continue; }
+    const entry = names.get(part.id); const button = node("button", "", "lore-link"); button.type = "button";
+    const label = entry ? safeDisplayName(entry, names, entry.kind) : "Unavailable reference";
+    button.textContent = effectValueParts(label, new Map()).map((item) => item.text || "Unavailable reference").join("");
+    const destination = state.registry.get(part.id);
+    if (destination && available(destination)) button.addEventListener("click", () => void showEntity(destination, button, { returnView: state.returnView }));
+    else button.disabled = true;
+    container.append(button);
+  }
+}
+function renderConsequenceReport(slot, report, linkedDetails, horizonDescription, capturedHorizon) {
+  const model = eventConsequenceModel(report, state.registry, { stateKeys: state.worldStateKeys, linkedDetails });
+  const heading = node("h2", "Explicit event consequences"); slot.replaceChildren(heading,
+    node("p", horizonDescription), node("p", "Recorded links and authored state; this report does not establish narrative completeness.", "section-help"));
+  for (const sectionModel of model.sections) {
+    const sectionNode = momentSection(sectionModel.title, sectionModel.help);
+    if (!sectionModel.rows.length) sectionNode.append(node("p", "No recorded links in this section.", "section-help"));
+    else {
+      const list = document.createElement("ul");
+      for (const row of sectionModel.rows) {
+        const item = document.createElement("li"); consequenceNameParts(item, row.parts, model.names);
+        if (row.label || row.time) item.append(node("p", [row.label, row.time ? trailPositionLabel(row.time, capturedHorizon) : ""].filter(Boolean).join(" · "), "section-help"));
+        if (row.citations?.length) {
+          const citations = document.createElement("ul"); citations.className = "consequence-citations";
+          for (const citation of row.citations) { const entry = document.createElement("li"); consequenceNameParts(entry, citation.parts, model.names); citations.append(entry); }
+          item.append(citations);
+        }
+        list.append(item);
+      }
+      sectionNode.append(list);
+    }
+    slot.append(sectionNode);
+  }
+}
+async function renderEventConsequences(detail, requestId, generation) {
+  const request = eventConsequenceRequest({ revision: state.revision, event: detail.id, timeline: state.activeTimelineId, horizon: activeHorizon(), lens: state.readerLens });
+  const slot = node("section", "", "event-consequences"); el.article.append(slot);
+  if (!request) { slot.append(node("h2", "Explicit event consequences"), node("p", "Choose an author chronology to read recorded consequences.")); return; }
+  const key = eventConsequenceKey(request); const capturedHorizon = activeHorizon() ? { ...activeHorizon() } : null;
+  const chronology = state.timelineDeclarations.find((item) => item.id === request.at.timeline);
+  const horizonDescription = capturedHorizon ? horizonLabel() : `Full story — through the terminal story boundary in ${chronology ? timelineDisplayLabel(chronology) : "the selected chronology"}.`;
+  const current = () => navigationIsCurrent(generation) && requestId === state.detailRequestId && state.view === "article"
+    && state.selectedEntityId === request.event && state.revision === request.revision
+    && eventConsequenceKey(eventConsequenceRequest({ revision: state.revision, event: detail.id, timeline: state.activeTimelineId, horizon: activeHorizon(), lens: state.readerLens }) || { revision: "", event: "", at: {}, limit: 0 }) === key;
+  state.consequenceController?.abort(); const controller = new AbortController(); state.consequenceController = controller;
+  slot.append(node("h2", "Explicit event consequences"), node("p", "Loading recorded consequences…", "section-help"));
+  const failure = (outcome) => {
+    slot.replaceChildren(node("h2", "Explicit event consequences"), node("p", ({
+      unavailable: "Recorded consequences are unavailable at this reading horizon.",
+      limit: "The recorded consequences exceed the report limit.",
+      invalid: "The consequence request could not be read.",
+    })[outcome] || "Recorded consequences could not be loaded. Open this entry again to retry.", "section-help"));
+  };
+  try {
+    const cached = state.eventConsequenceCache.get(key);
+    let report;
+    try { report = cached?.report || await api.eventConsequences(request, { signal: controller.signal }); }
+    catch (error) { report = error instanceof ApiError ? error.body : null; }
+    if (!current() || controller.signal.aborted) return;
+    if (!eventConsequenceMatches(report, request)) { failure("error"); return; }
+    if (report.outcome !== "ok") { failure(report.outcome); return; }
+    renderConsequenceReport(slot, report, cached?.linkedDetails || new Map(), horizonDescription, capturedHorizon);
+    const linkedDetails = cached?.linkedDetails || await eventConsequenceDetails(report, request, (path, options) => api.get(path, options), current, controller.signal);
+    if (!current() || controller.signal.aborted) return;
+    renderConsequenceReport(slot, report, linkedDetails, horizonDescription, capturedHorizon);
+    state.eventConsequenceCache.set(key, { report, linkedDetails });
+    while (state.eventConsequenceCache.size > 64) state.eventConsequenceCache.delete(state.eventConsequenceCache.keys().next().value);
+  } catch { if (current() && !controller.signal.aborted) failure("error"); }
+}
+
 async function showEntity(entity, trigger, { historyMode = "push", navigationGeneration, returnToTimeline = false, returnView = "", focus = true, searchMatch = null } = {}) {
   const generation = navigationGeneration ?? beginNavigation(); if (!navigationIsCurrent(generation)) return;
   if (state.view === "index" && historyMode === "push") { state.listScroll = el.entities.scrollTop; state.selectedEntityId = entity.id; writeHistory("replace"); }
   state.returnView = returnView || (returnToTimeline ? "timeline" : (state.returnView || "index"));
   if (!available(entity)) { state.selectedEntityId = ""; setView("article"); horizonBoundary(); if (historyMode !== "none") writeHistory(historyMode); if (focus) focusArticle(); return; }
   const requestId = ++state.detailRequestId; state.searchMatch = searchMatch; state.selectedEntityId = entity.id; setView("article"); selectButton(entity.id); renderArticleMessage(`Opening ${name(entity)}`, "Loading this lore entry…"); if (focus) focusArticle(); text(el.articleStatus, `Opening ${name(entity)}…`); busy(el.article, true);
-  try { const requestRevision = state.revision; const detail = state.details.get(entity.id) || await revisionRead(() => `/api/entities/${encodeURIComponent(entity.id)}`); if (!navigationIsCurrent(generation) || requestId !== state.detailRequestId || requestRevision !== state.revision) return; state.details.set(entity.id, detail); await ensureChronologyCatalogForDetail(detail, requestId, generation); if (!navigationIsCurrent(generation) || requestId !== state.detailRequestId) return; if (detail.kind === "event") await loadEventStateKeys(requestId, generation); if (!navigationIsCurrent(generation) || requestId !== state.detailRequestId) return; renderArticle(detail); text(el.articleStatus, ""); if (detail.kind === "conversation") { const horizon = activeHorizon(); try { const record = await revisionRead(() => conversationRequestPath(detail.id, horizon ? "as-of" : "all-time", horizon)); if (navigationIsCurrent(generation) && requestId === state.detailRequestId) renderConversation(record); } catch { if (navigationIsCurrent(generation) && requestId === state.detailRequestId) renderConversationError(); } } if (detail.kind === "character") await renderCharacterMoment(detail, requestId, generation); if (!navigationIsCurrent(generation) || requestId !== state.detailRequestId) return; if (historyMode !== "none") writeHistory(historyMode); if (focus) focusArticle(); }
+  try { const requestRevision = state.revision; const detail = state.details.get(entity.id) || await revisionRead(() => `/api/entities/${encodeURIComponent(entity.id)}`); if (!navigationIsCurrent(generation) || requestId !== state.detailRequestId || requestRevision !== state.revision) return; state.details.set(entity.id, detail); await ensureChronologyCatalogForDetail(detail, requestId, generation); if (!navigationIsCurrent(generation) || requestId !== state.detailRequestId) return; if (detail.kind === "event") await loadEventStateKeys(requestId, generation); if (!navigationIsCurrent(generation) || requestId !== state.detailRequestId) return; renderArticle(detail); text(el.articleStatus, ""); if (detail.kind === "event") void renderEventConsequences(detail, requestId, generation); if (detail.kind === "conversation") { const horizon = activeHorizon(); try { const record = await revisionRead(() => conversationRequestPath(detail.id, horizon ? "as-of" : "all-time", horizon)); if (navigationIsCurrent(generation) && requestId === state.detailRequestId) renderConversation(record); } catch { if (navigationIsCurrent(generation) && requestId === state.detailRequestId) renderConversationError(); } } if (detail.kind === "character") await renderCharacterMoment(detail, requestId, generation); if (!navigationIsCurrent(generation) || requestId !== state.detailRequestId) return; if (historyMode !== "none") writeHistory(historyMode); if (focus) focusArticle(); }
   catch { if (navigationIsCurrent(generation) && requestId === state.detailRequestId) { renderArticleMessage("Lore unavailable", "The requested lore could not be loaded. Please try again."); text(el.articleStatus, ""); if (focus) focusArticle(); } }
   finally { if (navigationIsCurrent(generation) && requestId === state.detailRequestId) busy(el.article, false); }
 }
@@ -663,7 +736,7 @@ async function restore(snapshot) {
 }
 function declaredTimelineId(requested, defaultTimeline, declarations) { return declarations.some((item) => item.id === requested) ? requested : (declarations.some((item) => item.id === defaultTimeline) ? defaultTimeline : (declarations[0] && declarations[0].id) || ""); }
 async function revisionSnapshot(expectedRevision = "") { for (let attempt = 0; attempt < 3; attempt += 1) { const before = await api.get("/api/status"); const revision = before && before.revision || expectedRevision || ""; const entities = await api.get("/api/entities"); let threadCatalog; let threadCatalogError = ""; try { threadCatalog = await api.get("/api/threads"); if (revision && (!threadCatalog || threadCatalog.revision !== revision)) continue; } catch { threadCatalog = { revision, groupingAvailable: false, threads: [] }; threadCatalogError = "Narrative group filters are unavailable; author search remains unfiltered."; } const after = await api.get("/api/status"); if (revision && after && after.revision && after.revision !== revision) continue; const declarations = (after.timeModel && after.timeModel.timelineDeclarations) || []; const defaultTimeline = (after.timeModel && after.timeModel.defaultTimeline) || ""; const activeTimelineId = declaredTimelineId(state.activeTimelineId, defaultTimeline, declarations); let timelinePayload = null; if (activeTimelineId) { timelinePayload = await api.get(`/api/timeline?timeline=${encodeURIComponent(activeTimelineId)}`); if (revision && timelinePayload && timelinePayload.revision && timelinePayload.revision !== revision) continue; const confirmed = await api.get("/api/status"); if (revision && confirmed && confirmed.revision && confirmed.revision !== revision) continue; } return { revision, status: after, entities, declarations, defaultTimeline, activeTimelineId, timelinePayload, threadCatalog, threadCatalogError }; } return null; }
-async function refreshRevision(revision = "", generation = null) { const snapshot = await revisionSnapshot(revision); if (!snapshot || (generation !== null && !navigationIsCurrent(generation))) return false; const previousThreadIds = selectedThreadIds(); state.membershipRequestId += 1; state.revision = snapshot.revision; state.details.clear(); state.worldStateKeys = null; state.timelineCache.clear(); state.whereaboutsCache.clear(); state.membershipCache.clear(); state.membershipMap = new Map(); state.membershipError = ""; state.importanceByCharacter = new Map(); state.importanceError = ""; state.importanceLoaded = false; state.searchResults = null; state.entities = snapshot.entities; state.registry = createEntityRegistry(snapshot.entities); state.threadCatalog = snapshot.threadCatalog; state.threadCatalogError = snapshot.threadCatalogError; state.selectedThreadIds = previousThreadIds.filter((id) => catalogThreadIds().has(id)); state.threadSelectionRevisionChanged = previousThreadIds.join("\u0000") !== selectedThreadIds().join("\u0000"); state.threadSearchNeedsRefresh = previousThreadIds.length > 0; state.timelineDeclarations = snapshot.declarations; state.timelineDefault = snapshot.defaultTimeline; state.activeTimelineId = snapshot.activeTimelineId; state.horizon = horizonForTimeline(state.horizon, state.activeTimelineId); state.horizonEntries.clear(); renderThreadFilter(); if (snapshot.timelinePayload) { state.timelineCache.set(state.activeTimelineId, entriesFromTimeline(snapshot.timelinePayload)); populateHorizons(); } else { el.horizon.replaceChildren(node("option", "Full story")); syncHorizonControl(); } if (!state.registry.has(state.selectedEntityId)) { state.selectedEntityId = ""; state.returnView = "index"; } return true; }
+async function refreshRevision(revision = "", generation = null) { const snapshot = await revisionSnapshot(revision); if (!snapshot || (generation !== null && !navigationIsCurrent(generation))) return false; const previousThreadIds = selectedThreadIds(); state.membershipRequestId += 1; state.revision = snapshot.revision; state.details.clear(); state.consequenceController?.abort(); state.eventConsequenceCache.clear(); state.worldStateKeys = null; state.timelineCache.clear(); state.whereaboutsCache.clear(); state.membershipCache.clear(); state.membershipMap = new Map(); state.membershipError = ""; state.importanceByCharacter = new Map(); state.importanceError = ""; state.importanceLoaded = false; state.searchResults = null; state.entities = snapshot.entities; state.registry = createEntityRegistry(snapshot.entities); state.threadCatalog = snapshot.threadCatalog; state.threadCatalogError = snapshot.threadCatalogError; state.selectedThreadIds = previousThreadIds.filter((id) => catalogThreadIds().has(id)); state.threadSelectionRevisionChanged = previousThreadIds.join("\u0000") !== selectedThreadIds().join("\u0000"); state.threadSearchNeedsRefresh = previousThreadIds.length > 0; state.timelineDeclarations = snapshot.declarations; state.timelineDefault = snapshot.defaultTimeline; state.activeTimelineId = snapshot.activeTimelineId; state.horizon = horizonForTimeline(state.horizon, state.activeTimelineId); state.horizonEntries.clear(); renderThreadFilter(); if (snapshot.timelinePayload) { state.timelineCache.set(state.activeTimelineId, entriesFromTimeline(snapshot.timelinePayload)); populateHorizons(); } else { el.horizon.replaceChildren(node("option", "Full story")); syncHorizonControl(); } if (!state.registry.has(state.selectedEntityId)) { state.selectedEntityId = ""; state.returnView = "index"; } return true; }
 async function handleRevision(revision) {
   const view = state.view; const selectedId = state.selectedEntityId; const generation = beginNavigation(); state.whereaboutsRequestId += 1; state.possibilitiesRequestId += 1;
   if (!await refreshRevision(revision, generation) || !navigationIsCurrent(generation)) return false;

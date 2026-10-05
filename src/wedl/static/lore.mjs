@@ -131,6 +131,72 @@ export function effectOperationLabel(operation) {
   return { set: "Set to", clear: "Clear", "add-to-set": "Add to set", "remove-from-set": "Remove from set" }[operation] || "Unavailable operation";
 }
 
+export function eventConsequenceModel(report, registry, { stateKeys = null, linkedDetails = new Map() } = {}) {
+  const plain = (text) => [{ type: "text", text: effectText(text) }];
+  const ref = (id) => [{ type: "reference", id }];
+  const names = new Map(registry);
+  for (const entry of [...(report.causedTransitions || []).map((item) => item.record),
+    ...(report.outcomes || []).flatMap((item) => [item.event, item.target]),
+    ...(report.causalSuccessors || []).map((item) => item.event), report.event]) {
+    if (entry && typeof entry.id === "string" && typeof entry.title === "string") names.set(entry.id, entry);
+  }
+  const kind = (subject) => subject?.kind || "state";
+  const snapshot = (subject, value) => {
+    if (!value || value.presence === "absent") return plain(kind(subject) === "state" ? "No value remains" : "No applicable authored transition");
+    const data = value.payload || {};
+    if (kind(subject) === "state") {
+      const definition = stateKeys?.[names.get(subject.recordId)?.kind]?.[subject.key];
+      return effectValueParts(data.value, names, definition);
+    }
+    if (kind(subject) === "knowledge") return plain(`Belief: ${humanizeToken(data.state)}${data.confidence != null ? `; confidence ${data.confidence}` : ""}`);
+    if (kind(subject) === "relationship") return [...plain(`Status: ${data.status || "unspecified"}; `), ...effectValueParts(data.metrics || {}, names), ...plain(`; facets: ${(data.facets || []).join(", ") || "none recorded"}`)];
+    if (kind(subject) === "story-point") return plain(`Recorded status: ${humanizeToken(data.storedState)}; current status: ${humanizeToken(data.derivedState)}; ${data.eligible ? "eligible" : "not eligible"}`);
+    return plain(`Event link: ${data.eventLinked ? "recorded" : "not recorded"}; target link: ${data.targetLinked ? "recorded" : "not recorded"}`);
+  };
+  const subjectParts = (subject) => [...ref(subject.recordId), ...(subject.key ? plain(` — ${humanizeToken(effectText(subject.key))}`) : []),
+    ...(subject.targetId ? [...plain(" → "), ...ref(subject.targetId)] : [])];
+  const cited = (values) => (Array.isArray(values) ? values : []).map((citation) => ({
+    parts: [...plain("Recorded in "), ...ref(citation.recordId), ...plain(` — ${humanizeToken(effectText(citation.section || "record"))}`)],
+    time: citation.time,
+  }));
+  const local = (report.changes || []).map((change) => ({
+    parts: [...subjectParts(change.subject), ...plain(": before — "), ...snapshot(change.subject, change.before),
+      ...plain("; after — "), ...snapshot(change.subject, change.after)],
+    citations: cited([...(change.before?.citations || []), ...(change.after?.citations || [])]),
+  }));
+  const caused = (report.causedTransitions || []).map((item) => {
+    const transition = item.transition || {}; const detail = linkedDetails.get(item.record.id);
+    const endpoints = item.kind === "relationship" && detail?.frontmatter?.from && detail?.frontmatter?.to
+      ? [...plain(" — "), ...ref(detail.frontmatter.from), ...plain(" → "), ...ref(detail.frontmatter.to)] : [];
+    const knowledge = item.kind === "knowledge" && detail?.frontmatter
+      ? [...(typeof detail.frontmatter.knower === "string" ? [...plain(" — Known by "), ...ref(detail.frontmatter.knower)] : []),
+        ...(typeof detail.frontmatter.claim?.statement === "string" ? plain(`: ${detail.frontmatter.claim.statement}`) : [])] : [];
+    const summary = item.kind === "relationship"
+      ? [...plain(` — Status: ${transition.relationship_status || "unspecified"}; `), ...effectValueParts(transition.metrics || {}, names),
+        ...plain(`; facets: ${(transition.facets || []).join(", ") || "none recorded"}`)]
+      : plain(` — ${item.kind === "knowledge" ? "Belief" : "Story status"}: ${humanizeToken(transition.state)}`);
+    return { parts: [...ref(item.record.id), ...endpoints, ...knowledge, ...summary],
+      label: item.atEventTime ? "At this event" : "Later recorded transition", time: item.time, citations: cited([item.citation]) };
+  });
+  const outcomes = (report.outcomes || []).map((item) => ({ parts: [...ref(item.target.id),
+    ...plain(item.target.kind === "scene" ? " — Scene records this outcome event" : item.reciprocal ? " — Reciprocal plot outcome link" : " — Authored plot outcome link")],
+    citations: cited(item.citations) }));
+  const successors = (report.causalSuccessors || []).map((item) => ({ parts: [...ref(item.event.id), ...plain(" — Explicitly names this event as a cause")],
+    time: item.time, citations: cited([item.citation]) }));
+  const current = (report.currentAtHorizon || []).map((item) => ({ parts: [...subjectParts(item.subject), ...plain(": "),
+    ...snapshot(item.subject, item.snapshot), ...plain(` — ${{ unchanged: "retains this event’s contribution", superseded: "superseded by later authored evidence", unknown: "contribution status unknown" }[item.supersession] || "contribution status unknown"}`)],
+    citations: cited([...(item.snapshot?.citations || []), ...(item.supersedingCitations || [])]) }));
+  const advisories = (report.advisories || []).map((item) => ({ parts: [...ref(item.target.id), ...plain(" — Outcome link is not reciprocal")], citations: cited(item.citations) }));
+  return { names, sections: [
+    { title: "Changes at this event", help: "Immediately before and after this event, separate from later consequences.", rows: local },
+    { title: "Explicit caused transitions", help: "Only transitions that name this event as their cause.", rows: caused },
+    { title: "Recorded outcomes", help: "Explicit plot and scene links; these do not assert narrative completeness.", rows: outcomes },
+    { title: "Later causal events", help: "Later events with an explicit causal reference.", rows: successors },
+    { title: "Current at the reading horizon", help: "Current authored state and whether later evidence supersedes this event’s contribution.", rows: current },
+    ...(advisories.length ? [{ title: "Link notes", help: "Authored links with missing reciprocal records.", rows: advisories }] : []),
+  ] };
+}
+
 export function displayTime(time) {
   if (!time || typeof time !== "object") return "";
   return "Story beat";

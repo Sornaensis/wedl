@@ -3,8 +3,8 @@ import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import test from "node:test";
 
-import { authorSearchRequestPath, characterKnowledgeRequestPath, contextRequestPath, conversationRequestPath, entityRequestPath, entityStateRequestPath, threadMembershipRequestPaths, whereaboutsRequestPath } from "../src/wedl/static/query.mjs";
-import { authorText, buildLoreArticle, conversationTranscriptBeats, createEntityRegistry, effectValueParts, intervalContains, observationVisibleAt, referenceVisibleAt, safeDisplayName } from "../src/wedl/static/lore.mjs";
+import { eventConsequenceDetails, eventConsequenceKey, eventConsequenceMatches, eventConsequenceRequest, authorSearchRequestPath, characterKnowledgeRequestPath, contextRequestPath, conversationRequestPath, entityRequestPath, entityStateRequestPath, threadMembershipRequestPaths, whereaboutsRequestPath } from "../src/wedl/static/query.mjs";
+import { authorText, buildLoreArticle, conversationTranscriptBeats, createEntityRegistry, eventConsequenceModel, effectValueParts, intervalContains, observationVisibleAt, referenceVisibleAt, safeDisplayName } from "../src/wedl/static/lore.mjs";
 import { authorSearchHeading, filterSearchResultsByKind, isAuthorSearchResult, plainSearchText, presentSearchResults, refreshAuthorSearch } from "../src/wedl/static/search.mjs";
 import { clearSupersededNavigationLoading, createNavigationGeneration, historyAction, navigationSnapshot, restoreNavigation } from "../src/wedl/static/navigation.mjs";
 import { compareCharacters, indexSortConfiguration, prominenceBand, sortIndex, sortPossibilities, sortWhereabouts } from "../src/wedl/static/sorting.mjs";
@@ -687,4 +687,88 @@ test("future timeline cards retain normal-text contrast without parent opacity",
   assert.ok(contrastRatio("#abc4d5", "#14212d") >= 4.5, "future kicker and trail text meets WCAG AA normal-text contrast");
   assert.match(stylesheetSource, /\.timeline-entry\.is-revealed/);
   assert.match(stylesheetSource, /\.timeline-rail\s*\{[^}]*#3d5665/);
+});
+
+const reportRevision = "a".repeat(40);
+const reportRequest = (options = {}) => eventConsequenceRequest({ revision: reportRevision, event: "event_rescue", timeline: "main", ...options });
+const reportOk = (request = reportRequest(), extra = {}) => ({
+  protocol: request.protocol, outcome: "ok", revision: request.revision, event: { id: request.event, kind: "event", title: "Rescue" },
+  eventTime: { timeline: "main", tick: "10", order: "0" }, at: request.at, timeScope: { mode: "author-as-of", at: request.at },
+  effects: [], changes: [], causedTransitions: [], outcomes: [], causalSuccessors: [], currentAtHorizon: [], advisories: [], expectations: [], applyAllowed: true, ...extra,
+});
+test("event consequence requests pin exact decimal horizons and never grant character access", () => {
+  assert.deepEqual(reportRequest().at, { timeline: "main", tick: "9223372036854775807", order: "2147483647" });
+  const selected = reportRequest({ horizon: { timeline: "main", tick: "9007199254740993", order: 4 } });
+  assert.equal(selected.at.tick, "9007199254740993"); assert.equal(selected.at.order, "4");
+  assert.equal(reportRequest({ horizon: { timeline: "main", tick: 9007199254740993 } }), null);
+  assert.equal(reportRequest({ horizon: { timeline: "other", tick: 1 } }), null);
+  assert.equal(reportRequest({ lens: "character" }), null); assert.equal(reportRequest({ revision: "HEAD" }), null);
+  assert.notEqual(eventConsequenceKey(selected), eventConsequenceKey(reportRequest()));
+  assert.deepEqual(Object.keys(selected).sort(), ["at", "event", "limit", "protocol", "revision"]);
+});
+test("event consequence response binding rejects stale, mixed horizon and partial bounded reports", () => {
+  const request = reportRequest({ limit: 1 }); const report = reportOk(request);
+  assert.equal(eventConsequenceMatches(report, request), true);
+  for (const extra of [{ revision: "b".repeat(40) }, { event: { ...report.event, id: "other" } }, { at: { ...request.at, tick: "11" } },
+    { expectations: [{}] }, { applyAllowed: false }, { changes: [{}, {}] }, { event: { ...report.event, title: "x".repeat(262144) } }])
+    assert.equal(eventConsequenceMatches({ ...report, ...extra }, request), false);
+  assert.equal(eventConsequenceMatches({ protocol: request.protocol, outcome: "limit", code: "CONSEQUENCE-LIMIT", message: "safe" }, request), true);
+  assert.equal(eventConsequenceMatches({ protocol: request.protocol, outcome: "limit", code: "CONSEQUENCE-LIMIT", message: "safe", changes: [] }, request), false);
+});
+test("event report API keeps session authentication and no character request is fetched", async () => {
+  const previous = globalThis.fetch; const calls = [];
+  globalThis.fetch = async (path, options) => { calls.push({ path, options }); return { ok: true, json: async () => reportOk() }; };
+  try {
+    const client = createApiClient(); client.setToken("session");
+    assert.equal(await client.eventConsequences(reportRequest({ lens: "character" })), null); assert.equal(calls.length, 0);
+    await client.eventConsequences(reportRequest());
+    assert.equal(calls[0].path, "/api/events/consequences"); assert.equal(calls[0].options.method, "POST");
+    assert.equal(calls[0].options.headers["X-Wedl-Token"], "session");
+    assert.deepEqual(JSON.parse(calls[0].options.body), reportRequest());
+  } finally { globalThis.fetch = previous; }
+});
+test("event consequence enrichment is explicit, deduplicated and bounded to four concurrent reads", async () => {
+  const request = reportRequest(); let running = 0; let peak = 0; const calls = [];
+  const transitions = Array.from({ length: 30 }, (_, i) => ({ kind: "relationship", record: { id: `rel_${i}` } }));
+  transitions.push(transitions[0], { kind: "story-point", record: { id: "plot_never_read" } });
+  const details = await eventConsequenceDetails(reportOk(request, { causedTransitions: transitions }), request, async (path) => {
+    calls.push(path); peak = Math.max(peak, ++running); await new Promise((resolve) => setTimeout(resolve, 0)); running--;
+    const id = decodeURIComponent(path.split("/").pop().split("?")[0]);
+    return { revision: request.revision, id, kind: "relationship", perspective: "author", effectiveTime: request.at };
+  }, () => true);
+  assert.equal(calls.length, 24); assert.equal(details.size, 24); assert.equal(peak, 4);
+  for (const path of calls) { const url = new URL(path, "http://example.test"); assert.equal(url.searchParams.get("perspective"), "author"); assert.equal(url.searchParams.get("tick"), request.at.tick); }
+});
+test("event enrichment discards HEAD, identity, lens and horizon mismatches and stops stale work", async () => {
+  const request = reportRequest(); const records = Array.from({ length: 8 }, (_, i) => ({ kind: "knowledge", record: { id: `know_${i}` } }));
+  const mismatches = [{ revision: "b".repeat(40) }, { id: "wrong" }, { perspective: "character" }, { effectiveTime: { ...request.at, tick: "0" } }, { timeScope: { mode: "all-time" } }];
+  const details = await eventConsequenceDetails(reportOk(request, { causedTransitions: records }), request, async (path) => {
+    const id = path.split("/").pop().split("?")[0]; const i = Number(id.split("_")[1]);
+    if (i === 5) throw new Error("failure");
+    return { revision: request.revision, id, kind: "knowledge", ...mismatches[i] };
+  }, () => true);
+  assert.deepEqual([...details.keys()], ["know_6", "know_7"]);
+  let current = true; let calls = 0;
+  const stale = await eventConsequenceDetails(reportOk(request, { causedTransitions: records }), request, async () => { calls++; current = false; return {}; }, () => current);
+  assert.equal(stale.size, 0); assert.ok(calls <= 4);
+});
+test("event consequence model names explicit rejected beliefs, direction, outcomes and current contribution", () => {
+  const citation = { recordId: "event_rescue", sourcePath: "secret/source.md", section: "effects", time: { timeline: "main", tick: "10", order: "0" } };
+  const registry = createEntityRegistry([{ id: "char_a", kind: "character", title: "<img src=x onerror=evil()>Mara" }, { id: "char_b", kind: "character", title: "Rook" }]);
+  const report = reportOk(undefined, {
+    causedTransitions: [
+      { kind: "knowledge", record: { id: "know_route", kind: "knowledge", title: "Route belief" }, transition: { state: "rejected" }, atEventTime: false, citation },
+      { kind: "relationship", record: { id: "rel_trust", kind: "relationship", title: "Trust" }, transition: { relationship_status: "strained", metrics: { trust: 0 }, facets: ["wary"] }, atEventTime: false, citation },
+      { kind: "story-point", record: { id: "plot_gate", kind: "story-point", title: "Gate opened" }, transition: { state: "resolved" }, atEventTime: true, citation },
+    ],
+    outcomes: [{ event: { id: "event_rescue", kind: "event", title: "Rescue" }, target: { id: "scene_gate", kind: "scene", title: "Gate scene" }, reciprocal: true, citations: [citation] }],
+    currentAtHorizon: [{ subject: { kind: "state", recordId: "char_a", key: "condition" }, snapshot: { presence: "absent", citations: [citation] }, supersession: "superseded", supersedingCitations: [citation] }],
+  });
+  const linkedDetails = new Map([["rel_trust", { frontmatter: { from: "char_a", to: "char_b" } }], ["know_route", { frontmatter: { knower: "char_b", claim: { statement: "<svg>False route</svg>" } } }]]);
+  const model = eventConsequenceModel(report, registry, { linkedDetails }); const all = JSON.stringify(model.sections);
+  assert.match(all, /Rejected/); assert.match(all, /Known by/); assert.match(all, /False route/); assert.match(all, /No value remains/); assert.match(all, /superseded by later authored evidence/);
+  assert.doesNotMatch(all, /secret\/source\.md|verified/i);
+  const relationship = model.sections[1].rows[1].parts; assert.deepEqual(relationship.filter((p) => p.type === "reference").map((p) => p.id), ["rel_trust", "char_a", "char_b"]);
+  assert.ok(relationship.some((p) => p.text?.includes("→"))); assert.equal(model.sections[1].rows[0].label, "Later recorded transition");
+  const fallback = eventConsequenceModel(report, registry); assert.equal(fallback.sections[1].rows[1].parts.filter((p) => p.type === "reference").length, 1);
 });
