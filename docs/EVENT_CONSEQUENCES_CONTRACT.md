@@ -535,6 +535,13 @@ source diff as the authoritative full-operation diff under its existing policy.
 Unattributed static/initial-state/prose changes remain unattributed even when the
 same record also has explicitly attributed transitions; partition differing
 sections by their literal link/effect ownership without duplicating attribution.
+For a differing top-level array section, inspect only members changed between
+the two admitted, horizon-sliced arrays. Assign the whole section to one event
+only when every changed member has that same explicit owner. Multiple owners,
+an old/new cause replacement, or any uncaused changed member place the complete
+section once in `unattributedRecordChanges`. Unchanged historical members do not
+add owners. Preserve the literal array; never manufacture per-event slices.
+Semantic subjects may still cover both old/new explicit event groups separately.
 Record deltas may accompany a semantic delta of the same subject: the former
 describes authored content, the latter describes its fold at H.
 

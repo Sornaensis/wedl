@@ -10,7 +10,7 @@ from copy import deepcopy
 from dataclasses import dataclass
 import re
 from types import MappingProxyType
-from typing import Any, Mapping
+from typing import Any, Mapping, Sequence
 
 from . import COMPILED_SOURCE_SCHEMAS
 from .model import Record, StoryTime, World
@@ -26,12 +26,14 @@ _KINDS = ("state", "knowledge", "relationship", "story-point", "outcome")
 
 
 class ProjectionFailure(Exception):
-    def __init__(self, outcome: str):
+    def __init__(self, outcome: str, *, source: bool = False):
         self.outcome = outcome
         self.code = {"invalid": "CONSEQUENCE-REQUEST-001", "unavailable": "CONSEQUENCE-UNAVAILABLE-001",
                      "limit": "CONSEQUENCE-LIMIT-001"}[outcome]
         self.message = {"invalid": "Invalid consequence request.", "unavailable": "Consequence unavailable.",
                         "limit": "Consequence limit exceeded."}[outcome]
+        if source and outcome == "invalid":
+            self.code, self.message = "CONSEQUENCE-SOURCE-001", "Invalid consequence source."
         super().__init__(self.message)
 
 
@@ -220,7 +222,12 @@ class Projection:
                             projected["effects"].append(deepcopy(member))
                             ordinals.append(ordinal)
                 self._ordinals[identifier, "effects"] = ordinals
-            for section in ("initial_state", "trigger", "dependencies", "related_story_points", "outcome_events", "causes"):
+            if "initial_state" in projected and not scope.permits(identifier, "initial_state"):
+                allowed_keys = {section[len("initial_state."):] for section in (scope.sections or {}).get(identifier, ())
+                                if section.startswith("initial_state.")}
+                initial = fm.get("initial_state") or {}
+                projected["initial_state"] = {key: initial[key] for key in allowed_keys if key in initial}
+            for section in ("trigger", "dependencies", "related_story_points", "outcome_events", "causes"):
                 if section in projected and not scope.permits(identifier, section):
                     if record.kind == "story-point" and section in {"trigger", "dependencies"} and projected[section]:
                         self._incomplete_plots.add(identifier)
@@ -533,3 +540,18 @@ class Projection:
                            "reciprocal": target.kind == "story-point" and payload["eventLinked"] and payload["targetLinked"], "citations": snapshot["citations"]})
         values.sort(key=lambda value: (value["target"]["kind"], value["target"]["id"]))
         return bounded(values, len(values), self.limit)
+
+
+def semantic_delta(base: World, candidate: World, scope: AuthorScope, at: StoryTime, identity: CandidateIdentity, *,
+                   operation_targets: Mapping[str, Sequence[int]], focus_events: Sequence[str] = (),
+                   limit: int = MAX_ITEMS, base_valid: bool = True, candidate_valid: bool = True) -> dict:
+    """Pure revision comparison; record-section logic lives in the delta module."""
+    from .consequence_delta import semantic_delta as compare
+    return compare(base, candidate, scope, at, identity, operation_targets=operation_targets,
+                   focus_events=focus_events, limit=limit, base_valid=base_valid, candidate_valid=candidate_valid)
+
+
+def event_local_changes(projection: Projection, event: str) -> list[dict]:
+    """Separately labeled T comparison, never substituted for revision delta H."""
+    from .consequence_delta import event_local_changes as compare
+    return compare(projection, event)
