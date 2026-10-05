@@ -251,6 +251,17 @@ never executable expressions or arbitrary source paths. Context request/output
 and concrete operation schemas share these definitions and bound checks; no
 parallel documentation-only validator or inferred schema is allowed.
 
+Context describes the installed declarations and typed reference/check behavior;
+it does not expand canonical source validation. `nullable` is true only for the
+basic `null` type and false for the other six types; clearing a key is separate
+from storing null. `allowedValues:null` means no implemented allowed-value
+constraint. Opaque nullable/enum/allowed-value metadata supplies neither field.
+`itemDefinition` and `objectDefinition` contain only sanitized installed `items`
+and `properties` basic type/reference hints, or null when absent. Guessed raw
+`itemDefinition`/`objectDefinition` or underscore aliases remain opaque. These
+hints do not advertise required/default/enum or a general JSON Schema engine;
+genuinely unrepresentable recognized definitions refuse contextual discovery.
+
 Complete the existing
 `event.create` schema with its actual integer-time raw shape: required `type`,
 `temporaryId`, `title`, `time`; optional `id`, `domain`, `status`, `tags`, `aliases`,

@@ -509,10 +509,21 @@ CHANGESET_OPERATION_SCHEMA.append({"type": "expectation.check", "summary": "chec
 CHANGESET_OPERATION_TYPES = tuple(item["type"] for item in CHANGESET_OPERATION_SCHEMA)
 
 
-def schema() -> dict[str, Any]:
-    """Return concise, machine-readable guidance for the changeset protocol."""
+def schema(*, world: World | None = None, scope=None) -> dict[str, Any]:
+    """Guidance plus concrete schemas; optional context is preloaded/authenticated.
 
-    return {
+    Transport owns exact-revision loading and source validation. The static call
+    remains repository-free; this provider never substitutes scaffold or HEAD.
+    """
+    from .consequence_schemas import definitions, ref, schema_context
+    definitions_by_name = definitions()
+    names = definitions_by_name.pop("operationNames")
+    if set(names) != set(CHANGESET_OPERATION_TYPES):
+        raise RuntimeError("consequence schema/dispatcher mismatch")
+    if (world is None) != (scope is None):
+        raise UsageError("schema context requires both World and trusted author scope")
+
+    result = {
         "protocol": "wedl-changeset-schema/v1",
         "changesetProtocol": "wedl-changeset/v1",
         "required": ["protocol", "expectedHead", "idempotencyKey", "summary", "operations"],
@@ -524,8 +535,13 @@ def schema() -> dict[str, Any]:
             "For entity.update, world frontmatterPatch.threads replaces the complete thread declaration list.",
             "For entity.update, an ordinary non-hypothesis record's frontmatterPatch.threadIds replaces its complete membership list and is serialized as source frontmatter threads.",
         ],
-        "operations": CHANGESET_OPERATION_SCHEMA,
+        "operations": [{**deepcopy(item), "schema": ref(names[item["type"]])} for item in CHANGESET_OPERATION_SCHEMA],
+        "$defs": definitions_by_name,
+        "requestSchema": ref("ChangesetRequest"),
     }
+    if world is not None:
+        result["context"] = schema_context(world, scope)
+    return result
 
 
 def scaffold(repository: Repository) -> dict[str, Any]:

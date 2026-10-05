@@ -1204,3 +1204,32 @@ def components() -> dict[str, dict[str, Any]]:
     """Return a copy suitable for incorporation into an OpenAPI document."""
 
     return {"schemas": deepcopy(SCHEMAS)}
+
+
+# The concrete discovery registry is shared with changeset.schema(). Keep the
+# guidance document and the request it describes as separate machine components.
+from .consequence_schemas import components as _consequence_components
+SCHEMAS.update(_consequence_components())
+SCHEMAS["ChangesetRequest"] = {"$ref": "#/components/schemas/ConsequenceChangesetRequest"}
+_AUTHORING_REQUEST["oneOf"].append({"$ref": "#/components/schemas/ConsequenceBatchIntent"})
+SCHEMAS["ChangesetSchemaDocument"]["properties"].update({
+    "$defs": {"type": "object", "additionalProperties": {"type": "object"}},
+    "requestSchema": {"type": "object"}, "context": {"$ref": "#/components/schemas/ConsequenceSchemaContext"}})
+SCHEMAS["ChangesetSchemaDocument"]["required"].extend(["$defs", "requestSchema"])
+for _preview_variant in SCHEMAS["ChangesetPreviewResponse"]["oneOf"]:
+    _preview_variant["properties"].update({"semanticDelta": {"$ref": "#/components/schemas/ConsequenceSemanticDelta"},
+                                          "expectationChecks": {"$ref": "#/components/schemas/ConsequenceCheckReport"}})
+for _apply_name in ("ChangesetApplyResponse", "AuthoringApplyResponse"):
+    SCHEMAS[_apply_name]["properties"].update({"expectationChecks": {"$ref": "#/components/schemas/ConsequenceCheckReport"}})
+    SCHEMAS[_apply_name]["properties"]["status"] = {**SCHEMAS[_apply_name]["properties"]["status"], "not": {"const": "checked"}}
+    _checked = deepcopy(SCHEMAS["ConsequenceCheckOnlyApplyResult"])
+    if _apply_name == "AuthoringApplyResponse":
+        _checked["properties"]["authorImpact"] = {"$ref": "#/components/schemas/AuthorImpact"}
+        _checked["required"].append("authorImpact")
+    SCHEMAS[_apply_name] = {"oneOf": [SCHEMAS[_apply_name], _checked]}
+from .consequence_schemas import definitions as _consequence_definitions
+_static_consequence_defs = _consequence_definitions()
+_static_consequence_defs.pop("operationNames")
+_OPERATIONS["changeset schema"] = ("ChangesetSchemaDocument", {
+    **_OPERATIONS["changeset schema"][1], "$defs": _static_consequence_defs,
+    "requestSchema": {"$ref": "#/$defs/ChangesetRequest"}})
