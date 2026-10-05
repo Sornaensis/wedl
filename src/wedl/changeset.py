@@ -17,7 +17,7 @@ from . import SOURCE_SCHEMA, __version__
 from .compiler import _authoring_preconstruction_admitted, _authoring_preconstruction_bytes, _authoring_source_metadata_bytes, compile_world, compile_world_bytes
 from .errors import ConfirmationMismatch, ConfirmationRequired, ConflictError, RepositoryError, StaleRevision, UsageError, ValidationFailed
 from .ids import id_from_seed, new_id
-from .model import Record, World
+from .model import Record, StoryTime, World
 from .repository import Repository
 from .transaction_recovery import JournalLiveByteBudget, SurfaceEnrollment, TransactionJournal
 from .source import generated_path, serialize_record
@@ -804,7 +804,8 @@ def _canonical_frontmatter_patch(record: Record, patch: dict[str, Any]) -> dict[
     return canonical
 
 
-def _apply(payload: dict[str, Any], world: World, replacements: dict[str, str], *, consequence_batch: bool = False) -> tuple[dict[str, Record], set[str]]:
+def _apply(payload: dict[str, Any], world: World, replacements: dict[str, str], *, consequence_batch: bool = False,
+           operation_targets: dict[str, list[int]] | None = None, focus_events: set[str] | None = None) -> tuple[dict[str, Record], set[str]]:
     records = {entity_id: Record(deepcopy(record.frontmatter), record.body, record.source_path, record.raw_bytes, record.blob_oid, record.revision) for entity_id, record in world.records.items()}
     touched: set[str] = set()
     typed = _has_consequence_operations(payload)
@@ -812,6 +813,12 @@ def _apply(payload: dict[str, Any], world: World, replacements: dict[str, str], 
     operations = (consequence_operations.normalize(payload) if typed else payload).get("operations") or []
     links: list[dict[str, Any]] = []
     declared: list[dict[str, Any]] = []
+    def target(identifier: str, index: int) -> None:
+        if operation_targets is not None:
+            operation_targets.setdefault(identifier, []).append(index)
+        record = records.get(identifier) or world.records.get(identifier)
+        if focus_events is not None and record is not None and record.kind == "event":
+            focus_events.add(identifier)
     for index, raw_operation in enumerate(operations):
         if consequence_batch:
             from .consequence_intents import expand
@@ -831,14 +838,20 @@ def _apply(payload: dict[str, Any], world: World, replacements: dict[str, str], 
         seed = f"{digest}:{index}"
         if operation_type == "outcome.link":
             links.append(operation)
+            for identifier in [operation["event"], *operation["storyPoints"], *operation["scenes"]]:
+                target(identifier, index)
         elif operation_type in consequence_operations.TYPES:
-            touched.update(consequence_operations.apply_operation(operation, records, world))
+            identifiers = consequence_operations.apply_operation(operation, records, world)
+            touched.update(identifiers)
+            for identifier in identifiers: target(identifier, index)
         elif operation_type in {"entity.create", "entity.upsert"}:
-            touched.add(_upsert(operation, records, world.source_root))
+            identifier = _upsert(operation, records, world.source_root)
+            touched.add(identifier); target(identifier, index)
         elif operation_type == "entity.delete":
             entity_id = str(operation.get("entity") or operation.get("entityId"))
             if entity_id not in records:
                 raise ProtocolError(f"unknown entity {entity_id}")
+            target(entity_id, index)
             records.pop(entity_id); touched.add(entity_id)
         elif operation_type == "event.create":
             new_typed_event = consequence_batch or consequence_operations.is_typed_event(raw_operation)
@@ -851,8 +864,10 @@ def _apply(payload: dict[str, Any], world: World, replacements: dict[str, str], 
                 record.frontmatter["schema"] = world.schema
                 record.raw_bytes = serialize_record(record.frontmatter, record.body)
             touched.add(identifier)
+            target(identifier, index)
         elif operation_type == "conversation.create":
-            touched.add(_conversation(operation, records, world.source_root, seed))
+            identifier = _conversation(operation, records, world.source_root, seed)
+            touched.add(identifier); target(identifier, index)
         elif operation_type == "conversation.turn.append":
             entity_id = str(operation.get("conversationId") or operation.get("conversation"))
             record = records.get(entity_id)
@@ -861,6 +876,7 @@ def _apply(payload: dict[str, Any], world: World, replacements: dict[str, str], 
             turn.setdefault("id", str(_temporary(operation) or id_from_seed("conversation-turn", seed)))
             record.frontmatter.setdefault("turns", []).append(turn)
             record.raw_bytes = serialize_record(record.frontmatter, record.body); touched.add(entity_id)
+            target(entity_id, index)
         elif operation_type == "conversation.recollection.record":
             entity_id = str(operation.get("conversationId") or operation.get("conversation"))
             record = records.get(entity_id)
@@ -869,9 +885,11 @@ def _apply(payload: dict[str, Any], world: World, replacements: dict[str, str], 
             value.setdefault("id", str(_temporary(operation) or id_from_seed("conversation-recollection", seed)))
             record.frontmatter.setdefault("recollections", []).append(value)
             record.raw_bytes = serialize_record(record.frontmatter, record.body); touched.add(entity_id)
+            target(entity_id, index)
         elif operation_type == "entity.update":
             entity_id = str(operation.get("entity") or operation.get("entityId")); record = records.get(entity_id)
             if not record: raise ProtocolError(f"unknown entity {entity_id}")
+            target(entity_id, index)
             patch = operation.get("frontmatterPatch") or {}
             if not isinstance(patch, dict):
                 raise ProtocolError("entity.update frontmatterPatch must be an object")
@@ -901,6 +919,29 @@ def _apply(payload: dict[str, Any], world: World, replacements: dict[str, str], 
     return records, touched
 
 
+def _semantic_delta(world: World, candidate: World, request: Any, request_hash: str,
+                    targets: dict[str, list[int]], focus: set[str], candidate_valid: bool) -> dict[str, Any]:
+    from .event_consequences import AuthorScope, CandidateIdentity, MAX_ITEMS, ProjectionFailure, semantic_delta
+    try:
+        consequence_operations._closed(request, {"protocol", "at", "limit"}, set(), "consequence request")
+        if request["protocol"] != "wedl-event-consequence-delta/v1": raise UsageError("unsupported consequence request protocol")
+        point = consequence_operations._point(request["at"], transport=True)
+        limit = request["limit"]
+        if isinstance(limit, bool) or not isinstance(limit, int) or not 1 <= limit <= MAX_ITEMS:
+            raise UsageError("invalid consequence request limit")
+        if point["timeline"] not in world.timeline_ids: raise UsageError("undeclared consequence timeline")
+    except UsageError:
+        failure = ProjectionFailure("invalid")
+        return {"protocol": "wedl-event-consequence-delta/v1", "outcome": failure.outcome,
+                "code": failure.code, "message": failure.message}
+    base_valid = not any(item["severity"] == "error" for item in validate_world(world))
+    scope = AuthorScope(world.world_record.id, frozenset(world.records) | frozenset(candidate.records),
+                        complete_families=frozenset({"state", "knowledge"}))
+    return semantic_delta(world, candidate, scope, StoryTime.from_value(point), CandidateIdentity(world.revision, request_hash),
+                          operation_targets=targets, focus_events=sorted(focus), limit=limit,
+                          base_valid=base_valid, candidate_valid=candidate_valid)
+
+
 def preview(
     repository: Repository,
     payload: dict[str, Any],
@@ -917,9 +958,17 @@ def preview(
     if use_current_head or expected == "HEAD": expected = current
     if expected != current:
         raise StaleRevision("changeset expected a different HEAD", details={"expected": expected, "actual": current})
-    world = repository.load_world(expected, cache_write=cache_write)
+    semantic = "consequenceRequest" in payload
+    world = repository.load_world(expected, cache_write=False if semantic or consequence_batch else cache_write)
+    if semantic or consequence_batch:
+        # Validation and ordinary World lookups populate a fold/kind cache.
+        # Keep those local while preserving the exact loaded source records.
+        world = World(world.revision, world.tree_oid, world.records, world.root, world.source_root)
     replacements = _allocate(payload, consequence_batch=consequence_batch)
-    records, touched = _apply(payload, world, replacements, consequence_batch=consequence_batch)
+    targets: dict[str, list[int]] = {}
+    focus: set[str] = set()
+    records, touched = _apply(payload, world, replacements, consequence_batch=consequence_batch,
+                              operation_targets=targets if semantic else None, focus_events=focus if semantic else None)
     candidate = World(expected, world.tree_oid, records, world.root, world.source_root)
     diagnostics = validate_world(candidate)
     valid = not any(item["severity"] == "error" for item in diagnostics)
@@ -935,7 +984,10 @@ def preview(
         changes[path] = new_data
         diffs.extend(difflib.unified_diff((old_data or b"").decode().splitlines(True), (new_data or b"").decode().splitlines(True), fromfile=f"a/{path}", tofile=f"b/{path}"))
     request_hash = _request_hash(payload)
-    return {"protocol": "wedl-preview/v1", "valid": valid, "expectedHead": expected, "requestHash": request_hash, "confirmationToken": confirmation_token(payload, request_hash=request_hash, expected_head=expected, authoring_intent_hash=authoring_intent_hash if consequence_batch else None), "generatedIds": replacements, "touchedEntityIds": sorted(touched), "diagnostics": diagnostics, "files": sorted(changes), "diff": "".join(diffs), "_changes": changes, "_recordCount": len(records)}
+    result = {"protocol": "wedl-preview/v1", "valid": valid, "expectedHead": expected, "requestHash": request_hash, "confirmationToken": confirmation_token(payload, request_hash=request_hash, expected_head=expected, authoring_intent_hash=authoring_intent_hash if consequence_batch else None), "generatedIds": replacements, "touchedEntityIds": sorted(touched), "diagnostics": diagnostics, "files": sorted(changes), "diff": "".join(diffs), "_changes": changes, "_recordCount": len(records)}
+    if semantic:
+        result["semanticDelta"] = _semantic_delta(world, candidate, payload["consequenceRequest"], request_hash, targets, focus, valid)
+    return result
 
 
 def apply(

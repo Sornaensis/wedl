@@ -276,6 +276,8 @@ def compile_batch(repository: Repository, intent: dict[str, Any]) -> dict[str, A
     current = repository.head()
     if current != expected: raise StaleRevision("consequence batch expected a different HEAD", details={"expected": expected, "actual": current})
     world = repository.load_world(expected, cache_write=False)
+    # Name/type lookup caches belong to this compile, not the caller's World.
+    world = World(world.revision, world.tree_oid, world.records, world.root, world.source_root)
     operations = deepcopy(intent["operations"])
     typed.normalize({"operations": operations})
     declared = _declarations(operations)
