@@ -15,6 +15,7 @@ from .audience import section_audience, sections
 from .conversation import beat_kind, conversation_end, conversation_participant_at, conversation_start, remembered_quotes, scene_end, scene_start, turn_time
 from .errors import UsageError
 from .generational import GENERATIONAL_KINDS
+from .generational_knowledge import AFFIRMATIVE_STATES
 from .lexical import fts_query_parts
 from .model import Record, StoryTime, World
 from .profiles import CompilationProfile
@@ -424,7 +425,16 @@ def build_documents(world: World) -> list[SearchDocument]:
             )
             statement = str(claim.get("statement") or record.title)
             result.append(_author_document(record, 0, statement, world, kind="knowledge-claim", heading="claim", start=start))
-            result.append(_doc(record, "knowledge", 0, statement, audience="knowledge", character=str(record.frontmatter.get("knower")), start=start, metadata={**_metadata(record), "claimKey": claim.get("key")}))
+            metadata = {**_metadata(record), "claimKey": claim.get("key")}
+            if "genealogy" in claim:
+                start = min((StoryTime.from_value(item["time"], world.default_timeline)
+                             for item in transitions if item.get("state") in AFFIRMATIVE_STATES),
+                            key=lambda point: (point.timeline, point.tick, point.order))
+                labels = claim["genealogy"].get("labels", {})
+                statement = "\n".join(["An explicitly authored genealogy assertion.", *labels.values()])
+                metadata = {"title": "Genealogy assertion", "kind": "knowledge", "aliases": [],
+                            "domain": "", "tags": [], "claimKey": "genealogy"}
+            result.append(_doc(record, "knowledge", 0, statement, audience="knowledge", character=str(record.frontmatter.get("knower")), start=start, metadata=metadata))
 
         if record.kind == "scene" and record.status in {"active", "closed"}:
             for index, observation in enumerate(record.frontmatter.get("observations") or []):

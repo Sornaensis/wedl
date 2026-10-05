@@ -470,6 +470,8 @@ def validate_world(world: World) -> list[dict[str, Any]]:
             result.extend(_validate_story_point(world, record))
         elif record.kind == "knowledge":
             result.extend(_validate_transitions(world, record, "transitions", "kt", {"accepted", "suspected", "rejected", "uncertain", "remembered", "forgotten"}))
+            from .generational_knowledge import validate_genealogy_knowledge
+            result.extend(validate_genealogy_knowledge(world, record))
         elif record.kind == "relationship":
             result.extend(_validate_transitions(world, record, "transitions", "rt", None))
         elif record.kind == "event":

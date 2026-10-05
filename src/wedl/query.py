@@ -813,6 +813,7 @@ def search_world(repository: Repository, query: str, *, perspective: str = "auth
         at = _default_scene_time(world, scene) if scene else world.story_time(0, order=effective_order)
     accessible: set[str] = set()
     knowledge_ids: set[str] = set()
+    typed_knowledge: dict[str, dict[str, Any]] = {}
     canonical_character_id: str | None = None
     if perspective == "character":
         if not character_id or not scene:
@@ -821,7 +822,9 @@ def search_world(repository: Repository, query: str, *, perspective: str = "auth
         assert character is not None
         canonical_character_id = character.id
         accessible = accessible_entities(world, character.id, scene, at)
-        knowledge_ids = {item["knowledgeId"] for item in current_knowledge(world, character.id, at)}
+        knowledge = current_knowledge(world, character.id, at)
+        knowledge_ids = {item["knowledgeId"] for item in knowledge}
+        typed_knowledge = {item["knowledgeId"]: item for item in knowledge if "genealogy" in item["claim"]}
     # sqlite3's connection context manager commits/rolls back but does not
     # close the handle.  This read must release its Windows file lock before a
     # following forced compilation atomically replaces the cache database.
@@ -837,7 +840,12 @@ def search_world(repository: Repository, query: str, *, perspective: str = "auth
         results = results[:limit]
     for item in results:
         record = world.maybe_get(item["entityId"])
-        if record:
+        if record and record.id in typed_knowledge:
+            learned = typed_knowledge[record.id]
+            item["citation"] = {"knowledgeId": record.id, "time": learned["time"], "state": learned["state"]}
+            if learned["transitionId"] is not None:
+                item["citation"]["transitionId"] = learned["transitionId"]
+        elif record:
             item["citation"] = {
                 "entityId": record.id,
                 "sourcePath": record.source_path,

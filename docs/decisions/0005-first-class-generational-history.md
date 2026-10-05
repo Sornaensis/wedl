@@ -35,6 +35,24 @@ chronology semantics; the one later `upgrade-v07` preserves both exactly.
 
 ## Shared world, time, and identity
 
+### Additive character knowledge
+
+The project owner authorized typed character genealogy and authored mistaken
+or suspected beliefs on 2026-10-05. Existing `knowledge` records may opt into
+`claim.genealogy` on v0.7 under `generational-knowledge-v1`, which requires
+`generational-core-v1`; legacy claims and migration defaults remain unchanged.
+The literal variants and provenance rules are documented in the
+[generational source contract](../GENERATIONAL_SOURCE_CONTRACT.md).
+
+An assertion is not canonical truth. Its applicability and learning time are
+distinct, and it may conflict with canon or other beliefs. Only explicit timed
+knowledge states grant it; presence, prose or a canonical relationship never
+does. Exact admitted knowledge, observation, heard-turn or same-character
+recollection evidence may explain learning. Corrections preserve the old
+assertion's history through timed rejection/forgetting and a new assertion.
+Character projections use learned labels and knowledge citations without
+exporting author-only canonical provenance or corrections.
+
 There is one shared world, one global signed, exact, ordinal,
 timeline-scoped, unitless `StoryTime` tuple `(timeline, tick, order)`, and one
 canonical fact set.  It is the ordering, causality, applicability, and horizon

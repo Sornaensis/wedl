@@ -36,7 +36,7 @@ from .generational_index import insert_generational_index
 # Bump when search-document construction changes without a SQLite DDL change.
 # The token is persisted inside compiler_fingerprint and is checked before the
 # early cache hit path as well as require_database's compatibility gate.
-DOCUMENT_GENERATION_TOKEN = "wedl-document-generation/v4"
+DOCUMENT_GENERATION_TOKEN = "wedl-document-generation/v5"
 CHRONOLOGY_INDEX_GENERATION_TOKEN = "wedl-chronology-index/v3"
 # The spatial projection is latent until the explicit v0.7 migration task
 # enables generic compilation.  It still participates in the cache contract:

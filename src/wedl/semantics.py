@@ -5,6 +5,7 @@ from itertools import combinations
 from typing import Any
 
 from .conversation import scene_context_time
+from .generational_knowledge import AFFIRMATIVE_STATES
 from .model import Record, StoryTime, World
 
 
@@ -85,6 +86,17 @@ def current_knowledge(world: World, character_id: str, at: StoryTime, include_fo
         if state == "forgotten" and not include_forgotten:
             continue
         claim = deepcopy(record.frontmatter.get("claim") or {})
+        typed_genealogy = "genealogy" in claim
+        if typed_genealogy:
+            if not any(transition.get("state") in AFFIRMATIVE_STATES for _, _, transition in applicable):
+                continue
+            assertion = claim.get("genealogy")
+            claim = {
+                "key": "genealogy", "statement": "An explicitly authored genealogy assertion.",
+                "genealogy": {key: value for key, value in assertion.items()
+                              if key in {"kind", "payload", "valid", "labels"}}
+                if isinstance(assertion, dict) else {},
+            }
         result.append({
             "record": record,
             "knowledgeId": record.id,
@@ -93,10 +105,10 @@ def current_knowledge(world: World, character_id: str, at: StoryTime, include_fo
             "claim": claim,
             "state": state,
             "confidence": active.get("confidence"),
-            "acquisition": active.get("acquisition"),
-            "sourceEntityId": active.get("source_entity"),
-            "causingEventId": active.get("causing_event"),
-            "note": active.get("note"),
+            "acquisition": "authored" if typed_genealogy else active.get("acquisition"),
+            "sourceEntityId": None if typed_genealogy else active.get("source_entity"),
+            "causingEventId": None if typed_genealogy else active.get("causing_event"),
+            "note": None if typed_genealogy else active.get("note"),
             "time": point.to_dict(),
             "transitionId": active.get("id"),
         })

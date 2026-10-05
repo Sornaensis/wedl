@@ -10,8 +10,8 @@ from typing import Any
 
 
 SOURCE_SCHEMA = "wedl/v0.7"
-CAPABILITY_ORDER = ("generational-core-v1", "spatial-core-v1", "geometry-v1", "route-v1", "overlay-v1")
-CAPABILITY_REQUIRES = {"geometry-v1": "spatial-core-v1", "route-v1": "spatial-core-v1", "overlay-v1": "spatial-core-v1"}
+CAPABILITY_ORDER = ("generational-core-v1", "spatial-core-v1", "geometry-v1", "route-v1", "overlay-v1", "generational-knowledge-v1")
+CAPABILITY_REQUIRES = {"geometry-v1": "spatial-core-v1", "route-v1": "spatial-core-v1", "overlay-v1": "spatial-core-v1", "generational-knowledge-v1": "generational-core-v1"}
 
 
 def canonical_capabilities(value: Any) -> tuple[str, ...] | None:
