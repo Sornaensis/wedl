@@ -1,0 +1,12 @@
++++
+schema = "adrai/connection/v1"
+connection = "C01M494R693AJ2E1DR8DT2SC8ZH"
+relation = "amends"
+from_record = "R01M494R693YTNZ3FASDXJAD7Z8"
+subject_adr = "A01M48RX5WAQT5ECH66KTCFVC0T"
+to_records = ["R01M48RX627DECN1KJC0G1GEKFS"]
++++
+
+Retarget retired operational documentation to practical guides and CLI-authoritative contracts; preserve all source semantics.
+
+<!-- @adrai:eyJhIjp7ImkiOiJkb2NzLWNsZWFudXAtZGV2ZWxvcGVyIiwiayI6ImxsbSIsIm0iOiJncHQtNi4xLXNvbCJ9LCJiIjoiNDJhZmI0OTYzOWRjN2IyYzc4OGM4MGE1ZGExNjM0NTZkOTRlYTZkZCIsImkiOiJzaGEyNTY6VWZoM25jc0RsdTQtSmNmSndUdlFJb0ZFTDlJS2hTdkx1cWU5cmJwbE1GdyIsImsiOiJjb25uZWN0aW9uLmFtZW5kcyIsIm8iOiJDMDFNNDk0UjY5M0FKMkUxRFI4RFQyU0M4WkgiLCJvcCI6Ik8wMU00OTRSNjkzWVROWjNGQVNEWEpBRDdaOCIsInAiOlsiUjAxTTQ4Ulg2MjdERUNOMUtKQzBHMUdFS0ZTIl0sInIiOiJtYXN0ZXIiLCJzIjoic2hhMjU2OjVmTlROVHk5dzRuTEhITTU3aDR0Q08zblRxS284VzN3eDdtNnhpRHVZdVUiLCJ0IjoxNzkxMzA4MzM5NDkxLCJ2IjoxLCJ4IjoiYWRyYWkvMS4wLjAifQ -->
