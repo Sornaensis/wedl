@@ -1,0 +1,12 @@
++++
+schema = "adrai/connection/v1"
+connection = "C01M4973ZSWYE1YK5YKBG01S7PE"
+relation = "amends"
+from_record = "R01M4973ZSWVCHYX5CVARF8HRDT"
+subject_adr = "A01M3Y3S5QMJWMBMQT42HDQPDJS"
+to_records = ["R01M48NTY3JQB1XGHTVQB4V60EX"]
++++
+
+Retarget retired testing and historical cleanup documentation paths only; preserve accepted policy, historical evidence protection and authority.
+
+<!-- @adrai:eyJhIjp7ImkiOiJkb2NzLWNsZWFudXAtZGV2ZWxvcGVyIiwiayI6ImxsbSIsIm0iOiJncHQtNi4xLXNvbCJ9LCJiIjoiNmMyNjc3NzJiNmRhNmM4NTRmM2Y2NzZiZGMxMTA1OTQyYjU2N2YzYiIsImkiOiJzaGEyNTY6ODBrT3hyQTcwSmRnQURYVmpvNS1abE1oNG1xYzIxX3hrTm1UZFl0Wk1hMCIsImsiOiJjb25uZWN0aW9uLmFtZW5kcyIsIm8iOiJDMDFNNDk3M1pTV1lFMVlLNVlLQkcwMVM3UEUiLCJvcCI6Ik8wMU00OTczWlNXVkNIWVg1Q1ZBUkY4SFJEVCIsInAiOlsiUjAxTTQ4TlRZM0pRQjFYR0hUVlFCNFY2MEVYIl0sInIiOiJtYXN0ZXIiLCJzIjoic2hhMjU2OkRfLW9STXk2bTB0QkpkNGJFcEY5NWpMZmk3UDMzRWxNdkJSdWxPZkJHWFEiLCJ0IjoxNzkxMzEwODIzMjI4LCJ2IjoxLCJ4IjoiYWRyYWkvMS4wLjAifQ -->
