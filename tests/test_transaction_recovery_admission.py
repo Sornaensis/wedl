@@ -265,3 +265,137 @@ def test_loaded_identity_and_same_byte_journal_cas_substitution_still_refuse(tmp
     with pytest.raises(RepositoryError, match="invalid WEDL transaction journal"):
         recovery.TransactionJournal.load(tmp_path, path)
     assert path.read_bytes() == payload
+
+
+def _committed_lexical_bound(document: bytes) -> int:
+    """The pre-span committed scanner, retained as a finite equivalence oracle."""
+    quotes = openings = separators = 0
+    in_string = escaped = False
+    for byte in document:
+        if in_string:
+            if escaped:
+                escaped = False
+            elif byte == 0x5C:
+                escaped = True
+            elif byte == 0x22:
+                in_string = False
+                quotes += 1
+        elif byte == 0x22:
+            in_string = True
+            quotes += 1
+        elif byte in (0x5B, 0x7B):
+            openings += 1
+        elif byte in (0x2C, 0x3A):
+            separators += 1
+    return (4 * len(document)
+            + max(recovery.sys.getsizeof({}), recovery.sys.getsizeof([])) * openings
+            + recovery.sys.getsizeof("") * ((quotes + 1) // 2)
+            + 32 * separators)
+
+
+def test_graph_bound_exact_lexical_corpus_and_escape_parity():
+    from itertools import product
+
+    container = max(recovery.sys.getsizeof({}), recovery.sys.getsizeof([]))
+    string = recovery.sys.getsizeof("")
+    # Expected counts are stated independently of either scanner.
+    cases = [
+        (b"", 0, 0, 0), (b"[{,:]", 0, 2, 2),
+        (b'"[{,:]"', 2, 0, 0), (b'"unterminated[{,:', 1, 0, 0),
+        (b'\\[{,:', 0, 2, 2), (b'\xff\x00', 0, 0, 0),
+    ]
+    for document, quotes, openings, separators in cases:
+        expected = 4 * len(document) + container * openings + string * ((quotes + 1) // 2) + 32 * separators
+        assert recovery._budgeted_json_graph_upper_bound(document) == expected
+    for run in (*range(66), 1023, 1024):
+        document = b'"' + b"\\" * run + b'"[,:'
+        quotes, openings, separators = (1, 0, 0) if run % 2 else (2, 1, 2)
+        expected = 4 * len(document) + string * ((quotes + 1) // 2) + container * openings + 32 * separators
+        assert recovery._budgeted_json_graph_upper_bound(document) == expected
+        for tail in (b"", b"\\", b'"', b'\xff[{,:'):
+            malformed = document + tail
+            assert recovery._budgeted_json_graph_upper_bound(malformed) == _committed_lexical_bound(malformed)
+    # All 37,449 byte strings of length0..5 over every lexical class, including
+    # invalid UTF-8. The oracle also covers malformed tails without parsing JSON.
+    alphabet = (0x22, 0x5C, 0x5B, 0x7B, 0x2C, 0x3A, 0x78, 0xFF)
+    compared = 0
+    for length in range(6):
+        for values in product(alphabet, repeat=length):
+            document = bytes(values)
+            assert recovery._budgeted_json_graph_upper_bound(document) == _committed_lexical_bound(document)
+            compared += 1
+    assert compared == 37449
+
+
+def test_graph_bound_descriptor_chunk_carry_and_malformed_tail(tmp_path):
+    chunk = recovery._BOUNDED_CAPTURE_CHUNK
+    path = tmp_path / "lexical-document"
+    offset = 13
+    for boundary in (chunk - 1, chunk, chunk + 1, 2 * chunk - 1):
+        for run in (0, 1, 2, 3):
+            # Place an escape run/quote around real descriptor chunk boundaries.
+            prefix = b'["' + b"x" * (boundary - 2)
+            ending = b"\\" * run + b'"'
+            if run % 2:
+                ending += b'[{,:"'
+            document = prefix + ending + b',{"k":[0]}]\n'
+            expected = _committed_lexical_bound(document)
+            assert recovery._budgeted_json_graph_upper_bound(document) == expected
+            path.write_bytes(b"x" * offset + document)
+            descriptor = os.open(path, os.O_RDONLY)
+            try:
+                assert recovery._budgeted_json_graph_upper_bound_from_descriptor(
+                    descriptor, offset=offset, document_bytes=len(document)) == expected
+            finally:
+                os.close(descriptor)
+    for tail in (b'"unterminated', b'"trailing\\'):
+        document = b"x" * (chunk - 1) + tail
+        assert recovery._budgeted_json_graph_upper_bound(document) == _committed_lexical_bound(document)
+        path.write_bytes(document)
+        descriptor = os.open(path, os.O_RDONLY)
+        try:
+            with pytest.raises(RepositoryError, match="live-byte budget"):
+                recovery._budgeted_json_graph_upper_bound_from_descriptor(
+                    descriptor, offset=0, document_bytes=len(document))
+        finally:
+            os.close(descriptor)
+
+
+def test_graph_bound_exact_budget_admission_and_checked_overflow(monkeypatch):
+    record = _record()
+    record["padding"] = "[{,:" * 1024 + '\\"' * 17
+    document = _document(record)
+    payload = _wire(document, record)
+    expected_graph = _committed_lexical_bound(document)
+    assert recovery._budgeted_json_graph_upper_bound(document) == expected_graph
+    # Whole-document raw punctuation counts would reject this admitted string.
+    raw_graph = (4 * len(document)
+                 + max(recovery.sys.getsizeof({}), recovery.sys.getsizeof([]))
+                 * (document.count(b"[") + document.count(b"{"))
+                 + recovery.sys.getsizeof("") * ((document.count(b'"') + 1) // 2)
+                 + 32 * (document.count(b",") + document.count(b":")))
+    assert raw_graph > expected_graph
+    reserve = 128
+    peak = reserve + 5 * len(payload) + expected_graph
+    phases = []
+    original_canonical = recovery._reject_noncanonical_budgeted_json
+    canonical_calls = []
+    def canonical(admitted):
+        canonical_calls.append(admitted)
+        return original_canonical(admitted)
+    monkeypatch.setattr(recovery, "_reject_noncanonical_budgeted_json", canonical)
+    monkeypatch.setattr(recovery, "_live_byte_observer", lambda phase, terms: phases.append((phase, terms)))
+    _forbid_document_decode(monkeypatch)
+    with pytest.raises(RepositoryError, match="live-byte budget exceeded"):
+        recovery._budgeted_document(payload, authoritative_budget=(peak - 1, reserve))
+    assert canonical_calls == []
+    for total in (peak, peak + 1):
+        assert recovery._budgeted_document(payload, authoritative_budget=(total, reserve)) == document
+    assert canonical_calls == [document, document]
+    observed = [terms for phase, terms in phases if phase == "budgeted-json-preparse"]
+    assert len(observed) == 3
+    assert all(terms["parsed_graph"] == expected_graph and terms["projected_peak"] == peak for terms in observed)
+    # Force an otherwise tiny graph term over the same installed integer ceiling.
+    monkeypatch.setattr(recovery.sys, "getsizeof", lambda _value: recovery.sys.maxsize)
+    with pytest.raises(RepositoryError, match="live-byte budget"):
+        recovery._budgeted_json_graph_upper_bound(b"[")

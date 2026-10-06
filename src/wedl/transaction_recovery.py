@@ -724,24 +724,34 @@ def _budgeted_json_graph_upper_bound(document: bytes) -> int:
     accounting remains conservative for hostile strings before ``json.loads``.
     """
     quote_count = opening_count = separator_count = 0
-    in_string = escaped = False
-    for byte in document:
-        if in_string:
-            if escaped:
-                escaped = False
-            elif byte == 0x5C:
-                escaped = True
-            elif byte == 0x22:
-                in_string = False
+    cursor, end = 0, len(document)
+    while cursor < end:
+        quote = document.find(b'"', cursor)
+        span_end = end if quote < 0 else quote
+        # Only bytes outside strings contribute containers or separators.
+        # Native bounded-span counts retain no slices or document-sized state.
+        opening_count += document.count(b"[", cursor, span_end)
+        opening_count += document.count(b"{", cursor, span_end)
+        separator_count += document.count(b",", cursor, span_end)
+        separator_count += document.count(b":", cursor, span_end)
+        if quote < 0:
+            break
+        quote_count += 1
+        cursor = quote + 1
+        while True:
+            quote = document.find(b'"', cursor)
+            if quote < 0:
+                # Match the lexical bound for an unterminated string; JSON
+                # validity remains the responsibility of later admission.
+                cursor = end
+                break
+            slash_start = quote
+            while slash_start > cursor and document[slash_start - 1] == 0x5C:
+                slash_start -= 1
+            cursor = quote + 1
+            if (quote - slash_start) % 2 == 0:
                 quote_count += 1
-            continue
-        if byte == 0x22:
-            in_string = True
-            quote_count += 1
-        elif byte in (0x5B, 0x7B):  # [ {
-            opening_count += 1
-        elif byte in (0x2C, 0x3A):  # , :
-            separator_count += 1
+                break
     container_overhead = max(sys.getsizeof({}), sys.getsizeof([]))
     string_overhead = sys.getsizeof("")
     # A comma/colon can add at most one list slot or mapping entry.  This is
