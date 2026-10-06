@@ -1,0 +1,12 @@
++++
+schema = "adrai/connection/v1"
+connection = "C01M48Y1NK11REHVQ5RVVTZJX71"
+relation = "amends"
+from_record = "R01M48Y1NK1VV4ES3RAWRV82SWW"
+subject_adr = "A01M48RYDXG6N84N3XSTH44WS81"
+to_records = ["R01M48RYE3J1GA5NEZ52PXCVCG2"]
++++
+
+Retarget the chronology contract link to its migrated stable ADRAI identity; preserve all existing semantics, approval text, aliases, and history.
+
+<!-- @adrai:eyJhIjp7ImkiOiJkb2NzLWNsZWFudXAtZGV2ZWxvcGVyIiwiayI6ImxsbSIsIm0iOiJncHQtNi4xLXNvbCJ9LCJiIjoiOGRjZTNmMmViNmNiYTdmOTNmNjkzMmFjZjBlYWZmMmYwYjJjMzZkNSIsImkiOiJzaGEyNTY6WFo3NFdFbU44TDBycXFpOXo2TzRDWVNRZDBuNUtDYmRIMjFqX2NPWWZ4dyIsImsiOiJjb25uZWN0aW9uLmFtZW5kcyIsIm8iOiJDMDFNNDhZMU5LMTFSRUhWUTVSVlZUWkpYNzEiLCJvcCI6Ik8wMU00OFkxTksxVlY0RVMzUkFXUlY4MlNXVyIsInAiOlsiUjAxTTQ4UllFM0oxR0E1TkVaNTJQWENWQ0cyIl0sInIiOiJtYXN0ZXIiLCJzIjoic2hhMjU2OmhjdzhLUEdOWHZjczYtUm50OFd6aVpnWVJrZS0wSzRTeEJtRDl0amZVSDAiLCJ0IjoxNzkxMzAxMzEwMDQ5LCJ2IjoxLCJ4IjoiYWRyYWkvMS4wLjAifQ -->
