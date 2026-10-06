@@ -9,6 +9,9 @@ Markdown committed to Git is canonical. SQLite is a disposable,
 revision-stamped read model used for temporal queries, FTS5 search, normalized dense-vector retrieval, compact LLM writing packets, and the local browser
 interface.
 
+See the [documentation index](docs/README.md) for current usage, stories,
+historical measurements and the ADRAI architecture workflow.
+
 ## What works
 
 - Strict UTF-8 Markdown/YAML records with duplicate-key rejection.
@@ -31,22 +34,24 @@ interface.
   implicit local rebuild.
 - A local FastAPI service and bundled inspection/authoring interface.
 - Horizon-aware calculated character prominence in whereabouts: a disposable,
-  noncanonical 40/25/20/15 scene/POV/event/relationship navigation aid that
+  noncanonical navigation aid that
   is never written to Markdown, frontmatter, changesets, or source schemas.
 - A **262-record completed Ash Archive fixture** spanning a full mystery and epilogue.
-- A **308-record open-campaign Frontiersmen fixture** spanning arrival, caravan duty, a slaughtered crossroads watch, amber manifestations, mine collapse, two days underground, the Tree King, blood-sport escape, the Drowned Waymark, and an uncertain southward road.
+- A **309-record open-campaign Frontiersmen fixture** spanning arrival, caravan duty, a slaughtered crossroads watch, amber manifestations, mine collapse, two days underground, the Tree King, blood-sport escape, the Drowned Waymark, and an uncertain southward road.
 - Generated stress worlds at 594, 4,302, and 10,662 records.
 - A local-only, preview-confirmed source migration/recovery kernel for the
-  narrow v0.3-to-v0.5 and quarantined v0.4 cases; see
-  [Migration and recovery](docs/MIGRATION_AND_RECOVERY.md).
+  v0.3/v0.5/v0.6-to-v0.7 upgrade and quarantined v0.4 recovery; see
+  [Migration and recovery](docs/guides/migration-and-recovery.md).
 - Calendar and historical chronology with explicit conversion anchors,
   qualitative uncertainty, and a 500-year packaged conformance fixture. Ticks
   order replay and never imply elapsed calendar time; see
   [Chronology guide](docs/guides/chronology.md).
 - Compiled-only `wedl-spatial/v1` reads for authored containment, geometry,
   directed routes, and horizon-authorized overlays; see the
-  [spatial transport contract](docs/HTTP_API.md#spatial-reads). Seven closed
+  [spatial HTTP usage](docs/guides/http-api.md#domain-reads). Seven closed
   spatial source intents use the existing preview-confirmed authoring workflow.
+- Generational reads and typed-knowledge authoring in the coordinated v0.7
+  envelope; see the [generational guide](docs/guides/generational.md).
 
 ## Install
 
@@ -97,8 +102,9 @@ py -3.13 -m venv .venv
 ```
 
 Use another compatible Python command instead of `py -3.13` when necessary.
-This workaround neither changes global policy nor removes files outside the
-workspace.
+Restore the previous TEMP/TMP values when finished and remove only the
+disposable build directory you created after its work is complete. See the
+[testing guide](docs/guides/testing.md) for scratch ownership and retention.
 
 ## Start with either executable story
 
@@ -113,7 +119,7 @@ wedl init frontiersmen --example frontiersmen
 To opt into the coordinated v0.7 source envelope for a fresh world, use
 `--example ash-archive-v07` or `--example frontiersmen-v07`. These are separate
 copies; the legacy names and default still use their pinned source versions.
-The [migration guide](docs/MIGRATION_AND_RECOVERY.md#packaged-examples) covers
+The [migration guide](docs/guides/migration-and-recovery.md#start-from-a-packaged-example) covers
 reproduction, confirmed conversion of an existing repository, and recovery.
 
 The `--repo` path is resolved from the shell's current working directory. From
@@ -149,7 +155,7 @@ With `--compact`, readiness is a one-line JSON object such as
 `{"url":"http://127.0.0.1:8765"}`. Write operations require the per-repository
 token stored in `.wedl/session.json`; the same-origin UI loads it automatically.
 For programmatic local integrations, see the parser-derived
-[HTTP API reference](docs/HTTP_API.md), including the reviewed changeset
+[HTTP API reference](docs/guides/http-api.md), including the reviewed changeset
 preview/apply workflow and its header requirements.
 
 ### Shell completion
@@ -236,7 +242,7 @@ The example begins with Ilyra Sorn’s disappearance and now continues through:
 - the Ember Hall reckoning;
 - and the closed epilogue **An Honest Absence**, where the Archive records protected omission without preserving a central reconstruction key.
 
-See [`docs/COMPLETED_STORY_WALKTHROUGH.md`](docs/COMPLETED_STORY_WALKTHROUGH.md) and the novella [`docs/THE_ASH_ARCHIVE.md`](docs/THE_ASH_ARCHIVE.md).
+See [`docs/stories/ash-archive/walkthrough.md`](docs/stories/ash-archive/walkthrough.md) and the novella [`docs/stories/ash-archive/novella.md`](docs/stories/ash-archive/novella.md).
 
 ### The Frontiersmen
 
@@ -257,9 +263,9 @@ The second packaged world begins with five new Lantern Pike hires arriving at Ke
 - recovery of a narrowly corroborating Blackroot counterfoil;
 - and the active southward journey along an abandoned warden road that is not confirmed to reach Harrowcross.
 
-The Frontiersmen fixture contains **308 records, 19 conversations, 248 verbatim turns, and 76 recollections**. Its current scene is `Southward Cut` at `main 210:0`; it is deliberately a live campaign rather than a closed novel.
+The Frontiersmen fixture contains **309 records, 19 conversations, 248 verbatim turns, and 76 recollections**. Its current scene is `Southward Cut` at `main 210:0`; it is deliberately a live campaign rather than a closed novel.
 
-See [`docs/FRONTIERSMEN_WORLD_GUIDE.md`](docs/FRONTIERSMEN_WORLD_GUIDE.md), [`docs/FRONTIERSMEN_NARRATIVE_WALKTHROUGH.md`](docs/FRONTIERSMEN_NARRATIVE_WALKTHROUGH.md), and the campaign chronicle [`docs/THE_FRONTIERSMEN.md`](docs/THE_FRONTIERSMEN.md).
+See [`docs/stories/frontiersmen/world-guide.md`](docs/stories/frontiersmen/world-guide.md), [`docs/stories/frontiersmen/walkthrough.md`](docs/stories/frontiersmen/walkthrough.md), and the campaign chronicle [`docs/stories/frontiersmen/chronicle-through-pursuit.md`](docs/stories/frontiersmen/chronicle-through-pursuit.md).
 
 ## Curated character context
 
@@ -271,16 +277,9 @@ wedl context "Mara Vale" \
 ```
 
 The result is a compact Markdown writing packet, not a procedural object graph.
-It prioritizes:
-
-1. Voice and immediate intention.
-2. The present physical and social situation.
-3. The latest audible verbatim exchange.
-4. Query-relevant beliefs and uncertainties.
-5. Remembered conversations.
-6. Relationship pressure.
-7. A small amount of authorized retrieval.
-8. A perspective boundary and compact provenance footer.
+It includes voice, situation, accessible dialogue, beliefs, memories and
+compact provenance. The [context guide](docs/guides/context-briefs.md) shows
+how to choose the scene, perspective and output budget.
 
 The entire serialized response obeys the requested character budget. Author and
 dramatic-irony modes are explicit:
@@ -339,30 +338,15 @@ multiple active scenes on the same canonical timeline: they share an explicit
 Generic reads select a scene explicitly when the active front is ambiguous;
 character reads can infer that character's unique front.
 
-### Story-time policy
+### Choose a story-time snapshot
 
-Story time is a unitless ordinal coordinate, not a clock or calendar. Its key
-is `(timeline, tick, order)`: `tick` is a signed 64-bit integer (including
-negative values for pre-origin history), and `order` is a signed 32-bit
-integer that deterministically orders facts sharing a tick. It has no duration
-or date-conversion semantics. `wedl status` and `GET /api/status` expose this
-contract in their additive `timeModel` field, including the selected default
-timeline and its declared labels/origins.
-
-An optional timeline origin is a display anchor only; it does not establish a
-first legal tick or prevent earlier history. Bounded scene, participant,
-observation, conversation, and environment intervals include both endpoints.
-For example, a scene from `main:-20:0` through `main:5:0` includes actions at
-both `-20:0` and `5:0`. Keep a real-world calendar, uncertain date, or
-"three days later" explanation in authored prose rather than deriving it from
-ticks.
-
-`context --max-characters` is a hard serialized-character ceiling. Its minimum
-is never below 1,800, but the required structural packet can be larger for a
-specific scene or perspective; if so, the usage error reports the exact
-minimum. `--query` focuses ranking of optional context and retrieval candidates
-without bypassing the perspective boundary. Character mode sees only accessible
-knowledge and audible turns; `author` and `dramatic-irony` are explicit modes.
+Use `--timeline`, `--tick` and `--order` to select a snapshot. Ticks order
+the story; a calendar date or duration needs explicit authored chronology.
+Inspect `wedl status` for the declared timeline. For date conversion and
+uncertainty examples, use the [chronology guide](docs/guides/chronology.md).
+For writing-packet sizes and perspective options, use the
+[context guide](docs/guides/context-briefs.md). Architecture and interval
+semantics are discovered through the [ADRAI workflow](docs/README.md#architecture-with-adrai).
 
 ## Conversation provenance
 
@@ -480,6 +464,8 @@ wedl --compact changeset apply change.json --confirm "$token"
 
 Thread grouping is an optional narrative label system inside the one shared
 world: it does not create a separate canon, clock, state, or search corpus.
+The public thread catalogue/filter currently admits v0.5/v0.6 worlds; v0.7
+canonical thread inheritance is documented separately in ADRAI.
 Use target-specific, complete-list replacements in an `entity.update`
 `frontmatterPatch`. World declarations use canonical source `threads`:
 
@@ -514,7 +500,7 @@ Every apply validates the complete candidate world, creates one Git commit,
 advances the branch with expected-HEAD protection, recompiles the resulting
 revision, preserves unrelated staged files, and returns stable generated IDs.
 The HTTP equivalent uses the same raw changeset object, but carries its session
-token and review confirmation in headers; see [HTTP API](docs/HTTP_API.md).
+token and review confirmation in headers; see [HTTP API](docs/guides/http-api.md).
 
 ### Local source migration and recovery
 
@@ -532,7 +518,7 @@ its target capabilities are derived by WEDL and included in the confirmed
 request. The earlier `upgrade-v03`, `upgrade-v06`, quarantined `recover-v04`,
 and forward `rollback` modes remain available for their established routes. It
 never migrates SQLite in place. See the
-[migration and recovery runbook](docs/MIGRATION_AND_RECOVERY.md).
+[migration and recovery runbook](docs/guides/migration-and-recovery.md).
 
 ### Name-oriented authoring
 
@@ -554,8 +540,11 @@ wedl author conversation append "The Southward Cut" "Hold the road." \
   --speaker Rhea --addressee Pip --interrupt-last
 ```
 
-The available actions are `current-time set`, `scene create|advance|close`,
-`move`, and `conversation create|append`. Conversation creation uses the named
+Use `wedl author --help` for the current actions, including `current-time set`,
+`scene create|advance|close`, `move`, `conversation create|append`, spatial source
+intents and generational/typed-knowledge actions. See the
+[command guide](docs/guides/command-line.md) and
+[generational guide](docs/guides/generational.md). Conversation creation uses the named
 active scene's location and current time; it includes all independently present
 characters unless `--character` selects a subset. When more than one scene is
 active, name the scene explicitly. A scene creation or reconciled move ends
@@ -567,8 +556,9 @@ the cursor advances that shared horizon too. Speech appends support `--addressee
 action appends use `--kind action --actor NAME` (repeat `--actor` as needed).
 Authoring preview and apply responses include an `authorImpact` name-only
 summary; the raw changeset payload and response fields remain available for
-automation. Use `--yes` only for deliberate CLI automation; spatial source
-intents always require their exact preview confirmation.
+automation. Use `--yes` only for deliberate CLI automation; spatial and
+generational intents and consequence batches always require their exact
+preview confirmation; `--yes` cannot bypass it.
 
 ## Performance and profile benchmarking
 
@@ -610,9 +600,9 @@ scale.
 The exact values are environment-specific. Cold local LSA fitting dominates
 vector builds; warm forced compilation reuses the cached model and normalized
 vectors by content hash. Detailed measurements are in
-[`docs/PERFORMANCE.md`](docs/PERFORMANCE.md),
-[`docs/SEARCH_PROFILE_BENCHMARKS.json`](docs/SEARCH_PROFILE_BENCHMARKS.json),
-and [`docs/MEDIUM_SEARCH_PROFILE_BENCHMARKS.json`](docs/MEDIUM_SEARCH_PROFILE_BENCHMARKS.json).
+[`docs/reports/performance-baselines.md`](docs/reports/performance-baselines.md),
+[`docs/reports/SEARCH_PROFILE_BENCHMARKS.json`](docs/reports/SEARCH_PROFILE_BENCHMARKS.json),
+and [`docs/reports/MEDIUM_SEARCH_PROFILE_BENCHMARKS.json`](docs/reports/MEDIUM_SEARCH_PROFILE_BENCHMARKS.json).
 
 ## Tests
 
@@ -632,7 +622,7 @@ extend the command's total wall time beyond the execution deadline.
 A successful run verifies one passing call outcome for every collected normal
 node and prints the live test counts and elapsed time. The separate performance
 suite uses the exact active performance IDs in `pytest.ini`; test intent alone
-does not select execution. See [docs/TESTING.md](docs/TESTING.md) for the commands
+does not select execution. See [docs/guides/testing.md](docs/guides/testing.md) for the commands
 and accounting rules.
 
 ## Project layout
@@ -666,5 +656,7 @@ examples/
   conversation-changeset.json
 ```
 
-Detailed design, validation, performance, and interaction notes are under
-`docs/`.
+Start with the [documentation index](docs/README.md) for guides, stories and
+historical reports. Architecture discovery and writing use the
+[ADRAI CLI workflow](docs/README.md#architecture-with-adrai) in this development
+checkout; executable architectural vectors are outside docs/.
