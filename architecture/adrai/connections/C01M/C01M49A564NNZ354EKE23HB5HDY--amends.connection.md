@@ -1,0 +1,12 @@
++++
+schema = "adrai/connection/v1"
+connection = "C01M49A564NNZ354EKE23HB5HDY"
+relation = "amends"
+from_record = "R01M49A564N2WXCF5EV0BCKAME6"
+subject_adr = "A01M48S1T65PSN638XCB59539Q8"
+to_records = ["R01M4920B6EEK0AE1R3MDGA7YG3"]
++++
+
+Update the historical performance report link after its reviewed documentation relocation; preserve all storage semantics and approval metadata.
+
+<!-- @adrai:eyJhIjp7ImkiOiJkb2NzLWNsZWFudXAtZGV2ZWxvcGVyIiwiayI6ImxsbSIsIm0iOiJncHQtNi4xLXNvbCJ9LCJiIjoiZmY1YzAzODJjMTNiM2QyYmM4M2JjYjhlNjk2OTFkYmQ0ZDY2MGUwYiIsImkiOiJzaGEyNTY6LUlUTUVIUTFNSmZFdzFhMFpjdWpuNHA3eEc3d1hkTUxFLTZJd2x6dl9ZSSIsImsiOiJjb25uZWN0aW9uLmFtZW5kcyIsIm8iOiJDMDFNNDlBNTY0Tk5aMzU0RUtFMjNIQjVIRFkiLCJvcCI6Ik8wMU00OUE1NjROMldYQ0Y1RVYwQkNLQU1FNiIsInAiOlsiUjAxTTQ5MjBCNkVFSzBBRTFSM01ER0E3WUczIl0sInIiOiJtYXN0ZXIiLCJzIjoic2hhMjU2OnpPMWhldFk4czAwYzg4WV9IWno1YncwM3JydEVOcko2R0EzX0QydklFRUUiLCJ0IjoxNzkxMzE0MDA4MjEzLCJ2IjoxLCJ4IjoiYWRyYWkvMS4wLjAifQ -->
