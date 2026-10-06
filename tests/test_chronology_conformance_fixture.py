@@ -20,7 +20,7 @@ from wedl.validation import validate_world
 def test_release_docs_share_the_local_v06_capability_boundary() -> None:
     root = Path(__file__).resolve().parents[1]
     decisions = {'ARCHITECTURE.md': 'A01M48RX5WAQT5ECH66KTCFVC0T', 'CHRONOLOGY_ROLLOUT.md': 'A01M48Y06MMHSR2E0A4R094QQ15', 'CHRONOLOGY_MIGRATION_CONTRACT.md': 'A01M48XY4R2CJ698Z2VQM9SG4ZZ', 'CHRONOLOGY_API_CONTRACT.md': 'A01M48XZJ6V1X1QSM4QEZJZS81M', 'CHRONOLOGY_SCHEMA_CONTRACT.md': 'A01M48XWQD0809VQ3RD9NBYPSKB', 'CHRONOLOGY_VALIDATION.md': 'A01M48XXBREJY497SNXZVCW85EC'}
-    texts = {name: (current_decision(decisions[name]).read_text(encoding="utf-8") if name in decisions else (root / "docs" / name).read_text(encoding="utf-8")) for name in ("ARCHITECTURE.md", "CHRONOLOGY_ROLLOUT.md", "CHRONOLOGY_MIGRATION_CONTRACT.md", "CHRONOLOGY_API_CONTRACT.md", "CHRONOLOGY_SCHEMA_CONTRACT.md", "CHRONOLOGY_VALIDATION.md", "HTTP_API.md", "MIGRATION_AND_RECOVERY.md")}
+    texts = {name: (current_decision(decisions[name]).read_text(encoding="utf-8") if name in decisions else (root / "docs" / {"HTTP_API.md": "guides/http-api.md", "MIGRATION_AND_RECOVERY.md": "guides/migration-and-recovery.md"}[name]).read_text(encoding="utf-8")) for name in ("ARCHITECTURE.md", "CHRONOLOGY_ROLLOUT.md", "CHRONOLOGY_MIGRATION_CONTRACT.md", "CHRONOLOGY_API_CONTRACT.md", "CHRONOLOGY_SCHEMA_CONTRACT.md", "CHRONOLOGY_VALIDATION.md", "HTTP_API.md", "MIGRATION_AND_RECOVERY.md")}
     assert all("v0.6" in text for text in texts.values())
     assert "local" in texts["CHRONOLOGY_ROLLOUT.md"] and "no HTTP" in texts["HTTP_API.md"]
     assert "tick gap never" in texts["CHRONOLOGY_ROLLOUT.md"]
