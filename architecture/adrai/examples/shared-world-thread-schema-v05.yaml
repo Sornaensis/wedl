@@ -1,5 +1,5 @@
-contract: ../../../docs/THREAD_SCHEMA_CONTRACT.md
-adr: ../decisions/R01M/R01M48NHJBX1HWE7RG8G2S3DD9H--shared-world-concurrent-narrative-threads.decision.md
+contract: A01M48RX5WAQT5ECH66KTCFVC0T
+adr: A01M48NHJ5Z6AX617K56WRVFYWT
 status: validation-slice-implemented
 source_schema: wedl/v0.5
 supported_schemas: [wedl/v0.3, wedl/v0.5]
@@ -33,7 +33,7 @@ vectors:
   - id: global-cause-state-cursor
     expected: strict-global-story-time-only
 validation:
-  v04: 'v04_superseded; see docs/THREAD_SCHEMA_CONTRACT.md#4-quarantined-v04-recovery'
+  v04: 'v04_superseded; see ADRAI in the WEDL development/source checkout: adrai --repo WEDL_SOURCE_CHECKOUT show A01M48RX5WAQT5ECH66KTCFVC0T --json (section 4: Quarantined v0.4 recovery)'
   schema:
     mixed: {code: WDL-SRC-008, field: schema, message: source records must use one homogeneous schema}
     incompatible_member: {code: WDL-SRC-009, field: offending-member-path, message: member is incompatible with this source schema}

@@ -291,7 +291,7 @@ wedl context "Mara Vale" --scene "An Honest Absence" --perspective dramatic-iron
 ```
 
 Dramatic-irony output physically separates the character packet from the author
-margin. See [`docs/CONTEXT_BRIEFS.md`](docs/CONTEXT_BRIEFS.md).
+margin. See the [context brief guide](docs/guides/context-briefs.md).
 
 ### Explore the Frontiersmen from the command line
 
@@ -391,7 +391,7 @@ Canonical transcript and memory are deliberately separate:
 - exact remembered lines cite turn IDs;
 - approximate remembered wording may disagree without altering history.
 
-See [`docs/CONVERSATIONS.md`](docs/CONVERSATIONS.md).
+See the [conversation guide](docs/guides/conversations.md).
 
 ## Search profiles and vector providers
 
@@ -439,7 +439,7 @@ vector space or visible ranking.
 
 Vectors are stored once per `(model, normalized input hash)` and linked to any
 number of documents. In the completed authored fixture, 1,171 document links use 683 unique
-normalized vectors. See [`docs/SEARCH_PROFILES.md`](docs/SEARCH_PROFILES.md).
+normalized vectors. See the [search profile guide](docs/guides/search-profiles.md).
 
 ## Narrative changes
 

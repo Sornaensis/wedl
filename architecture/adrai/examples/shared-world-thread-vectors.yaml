@@ -1,4 +1,4 @@
-adr: ../decisions/R01M/R01M48NHJBX1HWE7RG8G2S3DD9H--shared-world-concurrent-narrative-threads.decision.md
+adr: A01M48NHJ5Z6AX617K56WRVFYWT
 status: Accepted
 named_approver: Sornaensis
 approval_date: 2026-08-26
@@ -30,6 +30,6 @@ assertions:
     outcome: forbidden
     statement: Presentation grouping has no canon or chronology effect.
 withdrawal:
-  superseded_adr: ../decisions/R01M/R01M48NJHZTGCYRTBBJQ9D7XG9M--multi-strand-chronology-and-fictional-continuities.decision.md
-  continuity_contract: ../../../docs/CONTINUITY_SCHEMA_CONTRACT.md
+  superseded_adr: A01M48NJH26YJTG9XWA0SKCPR2Z
+  continuity_contract: A01M48NJH26YJTG9XWA0SKCPR2Z
   statement: Archived continuity material is nonnormative and supplies no schema or migration.

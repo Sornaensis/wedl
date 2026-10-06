@@ -1,10 +1,12 @@
+from adrai_fixtures import current_decision, current_status
+
 from pathlib import Path
 
 import yaml
 
 
 ROOT = Path(__file__).resolve().parents[1]
-ADR = ROOT / "architecture/adrai/decisions/R01M/R01M48NJHZTGCYRTBBJQ9D7XG9M--multi-strand-chronology-and-fictional-continuities.decision.md"
+ADR = current_decision("A01M48NJH26YJTG9XWA0SKCPR2Z")
 VECTORS = ROOT / "architecture/adrai/examples/multi-strand-continuity-vectors.yaml"
 
 
@@ -17,6 +19,6 @@ def test_multi_strand_adr_is_historical_and_explicitly_superseded() -> None:
     assert "Historical decision — superseded" in document
     assert vectors == {
         "status": "withdrawn-nonnormative",
-        "superseded_by": "../decisions/R01M/R01M48NHJBX1HWE7RG8G2S3DD9H--shared-world-concurrent-narrative-threads.decision.md",
+        "superseded_by": "A01M48NHJ5Z6AX617K56WRVFYWT",
         "statement": "Historical ADR 0001 vectors are withdrawn. This tombstone defines no continuity, fork, domain, horizon, projection, canon, or schema behavior.",
     }

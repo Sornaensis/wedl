@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from adrai_fixtures import current_decision, current_status
+
 import re
 from pathlib import Path
 
@@ -9,7 +11,7 @@ import yaml
 
 
 ROOT = Path(__file__).resolve().parents[1]
-ADR = ROOT / "architecture/adrai/decisions/R01M/R01M48NQZAYXMAHXD49NWZ9M8YZ--first-class-generational-history-and-coordinated-v0-7-contract.decision.md"
+ADR = current_decision("A01M48NQZ50KH9V094Q5A3138R0")
 SCHEMA = ROOT / "architecture/adrai/examples/generational-schema-v07.yaml"
 QUERIES = ROOT / "architecture/adrai/examples/generational-query-v1.yaml"
 MIGRATION = ROOT / "architecture/adrai/examples/generational-migration-v07.yaml"
@@ -30,13 +32,16 @@ def _citations(value: object) -> list[dict]:
 
 def test_adr_is_accepted_indexed_and_contract_only() -> None:
     text = ADR.read_text(encoding="utf-8")
-    index = (ROOT / "docs/ADR.md").read_text(encoding="utf-8")
+    index = ADR.metadata
+    assert current_status(index["adr"])["state"] == "active"
     assert "**Status:** Accepted" in text
     assert "**Ratification:** The current project owner explicitly approved this exact proposal on 2026-08-30 after independent review." in text
     assert "not a parser,\nruntime, canonical story source, SQLite schema" in text
     assert "d76aacb1-671c-458e-b6a3-ce132c82c83a" in text
     assert "1910b6ab-b0ec-4dae-8263-e54f570687df" in text
-    assert "0005 — First-class generational history" in index and ADR.name in index
+    assert index["adr"] == "A01M48NQZ50KH9V094Q5A3138R0" and ADR.path.is_file()
+    assert index["title"] == "First-class generational history and coordinated v0.7 contract"
+    assert "# ADR 0005:" in text
     assert 'schema = "adrai/decision/v1"' in text
     for document in ("ADR 0002", "ADR 0003", "ADR 0004", "THREAD_SCHEMA_CONTRACT", "CHRONOLOGY_MIGRATION_CONTRACT"):
         assert document in text

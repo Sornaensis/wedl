@@ -1,11 +1,12 @@
+from adrai_fixtures import current_decision, current_status
+
 from pathlib import Path
 
 import yaml
 
 
 ROOT = Path(__file__).resolve().parents[1]
-ADR = ROOT / "architecture/adrai/decisions/R01M/R01M48NHJBX1HWE7RG8G2S3DD9H--shared-world-concurrent-narrative-threads.decision.md"
-INDEX = ROOT / "docs/ADR.md"
+ADR = current_decision("A01M48NHJ5Z6AX617K56WRVFYWT")
 VECTORS = ROOT / "architecture/adrai/examples/shared-world-thread-vectors.yaml"
 MANIFEST = ROOT / "architecture/adrai/examples/wedl-v04-coordination-manifest.yaml"
 
@@ -32,12 +33,19 @@ def test_shared_world_thread_adr_governs_one_global_world_without_schema_inventi
     assert "nonnormative withdrawals" in document
     assert "parser, API, protocol,\ncompiler, query route, or runtime behavior" in document
 
-    assert "0001 — Multi-strand chronology" in INDEX.read_text(encoding="utf-8")
+    historical = current_decision("A01M48NJH26YJTG9XWA0SKCPR2Z")
+    assert historical.metadata["title"] == "Multi-strand chronology and fictional continuities"
+    assert "# ADR 0001:" in historical.text
+    status = current_status(historical.metadata["adr"])
+    assert status["state"] == "obsolete"
+    assert status["replacement_adr"] == ADR.metadata["adr"]
     assert "This decision supersedes ADR 0001 in full." in document
-    assert ADR.name in INDEX.read_text(encoding="utf-8")
+    assert ADR.metadata["adr"] == "A01M48NHJ5Z6AX617K56WRVFYWT" and ADR.path.is_file()
+    assert current_status(ADR.metadata["adr"])["state"] == "active"
     assert 'schema = "adrai/decision/v1"' in document
-    assert "0002 — Shared-world concurrent narrative threads" in INDEX.read_text(encoding="utf-8")
-    assert vectors["adr"] == "../decisions/R01M/R01M48NHJBX1HWE7RG8G2S3DD9H--shared-world-concurrent-narrative-threads.decision.md"
+    assert ADR.metadata["title"] == "Shared-world concurrent narrative threads"
+    assert "# ADR 0002:" in document
+    assert vectors["adr"] == "A01M48NHJ5Z6AX617K56WRVFYWT"
     assert vectors["source_schema"] == "wedl/v0.3"
     assert vectors["scope"] == "governance-only"
     outcomes = {item["id"]: item["outcome"] for item in vectors["assertions"]}
@@ -51,7 +59,7 @@ def test_shared_world_thread_adr_governs_one_global_world_without_schema_inventi
         "thread-local-corpus": "forbidden",
         "presentation-rewrites-canon": "forbidden",
     }
-    assert vectors["withdrawal"]["superseded_adr"] == "../decisions/R01M/R01M48NJHZTGCYRTBBJQ9D7XG9M--multi-strand-chronology-and-fictional-continuities.decision.md"
+    assert vectors["withdrawal"]["superseded_adr"] == "A01M48NJH26YJTG9XWA0SKCPR2Z"
 
 
 def test_coordination_manifest_withdraws_only_thread_reservation_and_preserves_other_projects() -> None:
@@ -66,7 +74,7 @@ def test_coordination_manifest_withdraws_only_thread_reservation_and_preserves_o
     assert by_project["88d1d538-452a-4eb5-8b2e-1c42a0361ea8"] == {
         "project": "88d1d538-452a-4eb5-8b2e-1c42a0361ea8",
         "scope": "shared-world-thread-schema-and-migration",
-        "contract": "../../../docs/THREAD_SCHEMA_CONTRACT.md",
+        "contract": "A01M48RX5WAQT5ECH66KTCFVC0T",
         "gate": "reserved-by-this-contract",
         "id_prefixes": ["thread_"],
         "diagnostic_family": None,

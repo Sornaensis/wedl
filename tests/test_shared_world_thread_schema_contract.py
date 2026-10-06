@@ -1,3 +1,5 @@
+from adrai_fixtures import current_decision
+
 from pathlib import Path
 import re
 
@@ -5,7 +7,7 @@ import yaml
 
 
 ROOT = Path(__file__).resolve().parents[1]
-CONTRACT = ROOT / "docs/THREAD_SCHEMA_CONTRACT.md"
+CONTRACT = current_decision("A01M48RX5WAQT5ECH66KTCFVC0T")
 VECTORS = ROOT / "architecture/adrai/examples/shared-world-thread-schema-v05.yaml"
 MANIFEST = ROOT / "architecture/adrai/examples/wedl-v04-coordination-manifest.yaml"
 
@@ -31,7 +33,7 @@ def test_v05_thread_reservation_has_one_global_timeline_and_grouping_only_member
     assert "`timeline`, `domain`,\n`fork`, `continuity`, `strand`, `sync`, `retcon`, `projection`, and\n`author-all`" in document
     assert "may infer a thread" in document
 
-    assert vectors["contract"] == "../../../docs/THREAD_SCHEMA_CONTRACT.md"
+    assert vectors["contract"] == "A01M48RX5WAQT5ECH66KTCFVC0T"
     assert vectors["status"] == "validation-slice-implemented"
     assert vectors["source_schema"] == "wedl/v0.5"
     assert vectors["supported_schemas"] == ["wedl/v0.3", "wedl/v0.5"]
@@ -55,7 +57,7 @@ def test_v05_thread_reservation_has_one_global_timeline_and_grouping_only_member
     assert len(set(cases["many-membership"]["memberships"])) == 2
     assert cases["duplicate-membership"]["expected"] == "rejected-duplicate"
     assert cases["global-cause-state-cursor"]["expected"] == "strict-global-story-time-only"
-    assert vectors["validation"]["v04"] == "v04_superseded; see docs/THREAD_SCHEMA_CONTRACT.md#4-quarantined-v04-recovery"
+    assert vectors["validation"]["v04"] == "v04_superseded; see ADRAI in the WEDL development/source checkout: adrai --repo WEDL_SOURCE_CHECKOUT show A01M48RX5WAQT5ECH66KTCFVC0T --json (section 4: Quarantined v0.4 recovery)"
     assert vectors["validation"]["schema"]["mixed"]["code"] == "WDL-SRC-008"
     assert vectors["validation"]["timeline"]["code"] == "WDL-TIMELINE-012"
     assert list(vectors["validation"]["threads"]) == [f"WDL-THREAD-00{index}" for index in range(1, 10)]

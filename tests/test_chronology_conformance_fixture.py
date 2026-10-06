@@ -1,5 +1,7 @@
 from __future__ import annotations
 
+from adrai_fixtures import current_decision
+
 from importlib import resources
 import json
 from pathlib import Path
@@ -17,7 +19,7 @@ from wedl.validation import validate_world
 
 def test_release_docs_share_the_local_v06_capability_boundary() -> None:
     root = Path(__file__).resolve().parents[1]
-    texts = {name: (root / "docs" / name).read_text(encoding="utf-8") for name in ("ARCHITECTURE.md", "CHRONOLOGY_ROLLOUT.md", "CHRONOLOGY_MIGRATION_CONTRACT.md", "CHRONOLOGY_API_CONTRACT.md", "CHRONOLOGY_SCHEMA_CONTRACT.md", "CHRONOLOGY_VALIDATION.md", "HTTP_API.md", "MIGRATION_AND_RECOVERY.md")}
+    texts = {name: (current_decision("A01M48RX5WAQT5ECH66KTCFVC0T").read_text(encoding="utf-8") if name == "ARCHITECTURE.md" else (root / "docs" / name).read_text(encoding="utf-8")) for name in ("ARCHITECTURE.md", "CHRONOLOGY_ROLLOUT.md", "CHRONOLOGY_MIGRATION_CONTRACT.md", "CHRONOLOGY_API_CONTRACT.md", "CHRONOLOGY_SCHEMA_CONTRACT.md", "CHRONOLOGY_VALIDATION.md", "HTTP_API.md", "MIGRATION_AND_RECOVERY.md")}
     assert all("v0.6" in text for text in texts.values())
     assert "local" in texts["CHRONOLOGY_ROLLOUT.md"] and "no HTTP" in texts["HTTP_API.md"]
     assert "tick gap never" in texts["CHRONOLOGY_ROLLOUT.md"]

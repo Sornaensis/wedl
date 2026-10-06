@@ -108,7 +108,7 @@ def test_exact_v04_is_quarantined_before_record_construction_with_recovery_link(
         parse_record(data, "story/world.md")
 
     assert raised.value.code == "v04_superseded"
-    assert str(raised.value) == "story/world.md: wedl/v0.4 is superseded; see docs/THREAD_SCHEMA_CONTRACT.md#4-quarantined-v04-recovery"
+    assert str(raised.value) == "story/world.md: wedl/v0.4 is superseded; see ADRAI in the WEDL development/source checkout: adrai --repo WEDL_SOURCE_CHECKOUT show A01M48RX5WAQT5ECH66KTCFVC0T --json (section 4: Quarantined v0.4 recovery)"
     assert raised.value.details == {
         "schema": "wedl/v0.4",
         "recoveryContract": V04_RECOVERY_CONTRACT,

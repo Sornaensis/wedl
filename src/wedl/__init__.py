@@ -9,7 +9,7 @@ CHRONOLOGY_SOURCE_SCHEMA = "wedl/v0.6"
 SUPPORTED_SOURCE_SCHEMAS = frozenset((SOURCE_SCHEMA, THREAD_SOURCE_SCHEMA))
 COMPILED_SOURCE_SCHEMAS = frozenset((*SUPPORTED_SOURCE_SCHEMAS, CHRONOLOGY_SOURCE_SCHEMA))
 V04_SOURCE_SCHEMA = "wedl/v0." + "4"
-V04_RECOVERY_CONTRACT = "docs/THREAD_SCHEMA_CONTRACT.md#4-quarantined-v04-recovery"
+V04_RECOVERY_CONTRACT = "ADRAI in the WEDL development/source checkout: adrai --repo WEDL_SOURCE_CHECKOUT show A01M48RX5WAQT5ECH66KTCFVC0T --json (section 4: Quarantined v0.4 recovery)"
 # v0.7 is the coordinated generational/spatial source envelope.  Its optional
 # authored capabilities are validated from the world record, rather than being
 # guessed from the presence of individual records.

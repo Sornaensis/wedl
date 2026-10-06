@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from adrai_fixtures import current_decision
+
 from copy import deepcopy
 import hashlib
 import json
@@ -21,7 +23,7 @@ from wedl.validation import validate_world
 ROOT = Path(__file__).resolve().parents[1]
 DOC = ROOT / "docs/CHRONOLOGY_MIGRATION_CONTRACT.md"
 VECTOR = ROOT / "docs/examples/chronology-migration-v06.yaml"
-THREAD_CONTRACT = ROOT / "docs/THREAD_SCHEMA_CONTRACT.md"
+THREAD_CONTRACT = current_decision("A01M48RX5WAQT5ECH66KTCFVC0T")
 MIGRATION_RECOVERY = ROOT / "docs/MIGRATION_AND_RECOVERY.md"
 EMPTY_CHRONOLOGY = {"calendars": [], "eras": [], "anchors": []}
 

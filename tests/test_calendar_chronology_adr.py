@@ -6,6 +6,8 @@ runtime code and must not be imported by production modules.
 
 from __future__ import annotations
 
+from adrai_fixtures import current_decision, current_status
+
 from math import lcm
 from pathlib import Path
 
@@ -13,7 +15,7 @@ import yaml
 
 
 ROOT = Path(__file__).resolve().parents[1]
-ADR = ROOT / "architecture/adrai/decisions/R01M/R01M48NNHA0JJP2Y13F9FPEK43C--calendar-and-historical-chronology-semantics.decision.md"
+ADR = current_decision("A01M48NNH43QCFRPC68NQQTFT63")
 VECTORS = ROOT / "architecture/adrai/examples/calendar-chronology-semantics-v1.yaml"
 
 
@@ -156,12 +158,13 @@ def _assert_outcome(case: dict, actual: dict) -> None:
 def test_vector_is_parseable_concrete_and_adr_defines_every_semantic_id() -> None:
     vector = _vector()
     text = " ".join(ADR.read_text(encoding="utf-8").split())
-    index = (ROOT / "docs/ADR.md").read_text(encoding="utf-8")
+    index = ADR.metadata
+    assert current_status(index["adr"])["state"] == "active"
     assert vector["status"] == "accepted-semantic-only"
     assert "**Status:** Accepted" in text
     assert "**Approved:** 2026-08-27 by Project owner (user)" in text
     assert "The conservative decisions listed in this ADR only." in text
-    assert ADR.name in index
+    assert index["adr"] == "A01M48NNH43QCFRPC68NQQTFT63" and ADR.path.is_file()
     assert 'schema = "adrai/decision/v1"' in text
     assert "proposed semantic contract" not in text.lower()
     assert "## Proposed decision" not in text

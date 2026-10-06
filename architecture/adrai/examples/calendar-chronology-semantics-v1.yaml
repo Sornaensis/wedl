@@ -1,4 +1,4 @@
-adr: ../decisions/R01M/R01M48NNHA0JJP2Y13F9FPEK43C--calendar-and-historical-chronology-semantics.decision.md
+adr: A01M48NNH43QCFRPC68NQQTFT63
 status: accepted-semantic-only
 semantic_fixture:
   i64: {min: -9223372036854775808, max: 9223372036854775807}
