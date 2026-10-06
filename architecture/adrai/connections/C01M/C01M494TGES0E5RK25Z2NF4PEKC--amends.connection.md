@@ -1,0 +1,12 @@
++++
+schema = "adrai/connection/v1"
+connection = "C01M494TGES0E5RK25Z2NF4PEKC"
+relation = "amends"
+from_record = "R01M494TGES9D9H76YP16Y5YJ5A"
+subject_adr = "A01M48S4ZSCWHKWP8ZXFZ3HQJB2"
+to_records = ["R01M48S50Q7V5MZ071XEFA1Q77F"]
++++
+
+Navigation-only amendment to the historical proposal; preserve its original nonnormative meaning and immediately restore original obsolete replacement.
+
+<!-- @adrai:eyJhIjp7ImkiOiJkb2NzLWNsZWFudXAtZGV2ZWxvcGVyIiwiayI6ImxsbSIsIm0iOiJncHQtNi4xLXNvbCJ9LCJiIjoiNTI2OGQ2MDI5NjNmNTBmYzVjOWI5MGYzYjQ2MmViOTVhNmM2ZDJjYiIsImkiOiJzaGEyNTY6STVJVm82aV9nWXAzUlJ5Y3BEM1FIcXhOS2EyYzJRZG9JVC1RWXBybFhiWSIsImsiOiJjb25uZWN0aW9uLmFtZW5kcyIsIm8iOiJDMDFNNDk0VEdFUzBFNVJLMjVaMk5GNFBFS0MiLCJvcCI6Ik8wMU00OTRUR0VTOUQ5SDc2WVAxNlk1WUo1QSIsInAiOlsiUjAxTTQ4UzUwUTdWNU1aMDcxWEVGQTFRNzdGIl0sInIiOiJtYXN0ZXIiLCJzIjoic2hhMjU2OnRxNVMwN0w3V0ozdDZBRW5wUU9IczFhTFUxOVdWaVlYZFVwNUlOa21CYXciLCJ0IjoxNzkxMzA4NDE1NDQ5LCJ2IjoxLCJ4IjoiYWRyYWkvMS4wLjAifQ -->
