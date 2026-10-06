@@ -1,0 +1,12 @@
++++
+schema = "adrai/connection/v1"
+connection = "C01M49216N560VREXWGXSPJRDZ8"
+relation = "amends"
+from_record = "R01M49216N563PG7HJDWXDM5Y2A"
+subject_adr = "A01M48NQZ50KH9V094Q5A3138R0"
+to_records = ["R01M48Y2C539QCF41DF2R9STX7R"]
++++
+
+Retarget migrated generational contract links to their CLI-authoritative ADRAI records; preserve approved semantics and historical framing.
+
+<!-- @adrai:eyJhIjp7ImkiOiJkb2NzLWNsZWFudXAtZGV2ZWxvcGVyIiwiayI6ImxsbSIsIm0iOiJncHQtNi4xLXNvbCJ9LCJiIjoiM2E4Mjg0MmYxMDM5MzdhNDdiZGNmNzA1OTQ3ZmE5OTIyYjIxOTE0ZSIsImkiOiJzaGEyNTY6bXJxb3JOc2VXN0M0WmNwR2FRblNrNTNIQzhucUJRZmxVN082UmpIeXktbyIsImsiOiJjb25uZWN0aW9uLmFtZW5kcyIsIm8iOiJDMDFNNDkyMTZONTYwVlJFWFdHWFNQSlJEWjgiLCJvcCI6Ik8wMU00OTIxNk41NjNQRzdISkRXWERNNVkyQSIsInAiOlsiUjAxTTQ4WTJDNTM5UUNGNDFERjJSOVNUWDdSIl0sInIiOiJtYXN0ZXIiLCJzIjoic2hhMjU2OmtIV1RGbmJhSzNYRThWcnZUMEpnZ1ZJdDVVYUxkSU12UENkamsxNnphbUUiLCJ0IjoxNzkxMzA1NDg5MDYxLCJ2IjoxLCJ4IjoiYWRyYWkvMS4wLjAifQ -->
