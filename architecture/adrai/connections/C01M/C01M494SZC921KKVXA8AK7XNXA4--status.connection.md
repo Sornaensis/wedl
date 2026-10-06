@@ -1,0 +1,13 @@
++++
+schema = "adrai/connection/v1"
+connection = "C01M494SZC921KKVXA8AK7XNXA4"
+relation = "status"
+parent_connections = ["C01M48SJ0S7KAB0JPNM6XZ86NAV"]
+record_heads = ["R01M48S50Q7V5MZ071XEFA1Q77F"]
+state = "active"
+subject_adr = "A01M48S4ZSCWHKWP8ZXFZ3HQJB2"
++++
+
+Temporary CLI-required reactivation solely for reviewed navigation amendment. This historical proposal remains nonnormative and superseded throughout; restore original obsolete relationship immediately after amendment.
+
+<!-- @adrai:eyJhIjp7ImkiOiJkb2NzLWNsZWFudXAtZGV2ZWxvcGVyIiwiayI6ImxsbSIsIm0iOiJncHQtNi4xLXNvbCJ9LCJiIjoiOGY1MzhkNzBmYzcxMzZlNDA3ZGFlZDk2MzA5MmQyNjgyMDhmNDczYyIsImsiOiJkZWNpc2lvbi5yZWFjdGl2YXRlIiwibyI6IkMwMU00OTRTWkM5MjFLS1ZYQThBSzdYTlhBNCIsIm9wIjoiTzAxTTQ5NFNaQzkyMUtLVlhBOEFLN1hOWEE0IiwicCI6WyJDMDFNNDhTSjBTN0tBQjBKUE5NNlhaODZOQVYiLCJSMDFNNDhTNTBRN1Y1TVowNzFYRUZBMVE3N0YiXSwiciI6Im1hc3RlciIsInMiOiJzaGEyNTY6X2hYU240bExzSGRjY0h1RTZ2TlNPLUY3SVhYelBhaU9aU0NtVE44OWVmbyIsInQiOjE3OTEzMDgzOTc5NjEsInYiOjEsIngiOiJhZHJhaS8xLjAuMCJ9 -->
