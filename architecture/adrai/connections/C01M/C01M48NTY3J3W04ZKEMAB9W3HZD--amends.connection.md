@@ -1,0 +1,12 @@
++++
+schema = "adrai/connection/v1"
+connection = "C01M48NTY3J3W04ZKEMAB9W3HZD"
+relation = "amends"
+from_record = "R01M48NTY3JQB1XGHTVQB4V60EX"
+subject_adr = "A01M3Y3S5QMJWMBMQT42HDQPDJS"
+to_records = ["R01M3Y3S5XZ33Y7SD2K3E20EQ6Q"]
++++
+
+Update ADR authority and navigation after the user-authorized migration of historical ADRs to ADRAI.
+
+<!-- @adrai:eyJhIjp7ImkiOiJjb2RleCIsImsiOiJsbG0iLCJtIjoiZ3B0LTYuMS1zb2wifSwiYiI6IjhiZTFlMjhmNDIyNjFkZjJkMjhiNDNkNGI4NTZlNGNhYTI2YWU4OTkiLCJpIjoic2hhMjU2OjJsOHVTOV80alJtbF82YzZZSTJKeWpsOFdiVzM3TjFXOGVncUZLN0VPSGciLCJrIjoiY29ubmVjdGlvbi5hbWVuZHMiLCJvIjoiQzAxTTQ4TlRZM0ozVzA0WktFTUFCOVczSFpEIiwib3AiOiJPMDFNNDhOVFkzSlFCMVhHSFRWUUI0VjYwRVgiLCJwIjpbIlIwMU0zWTNTNVhaMzNZN1NEMkszRTIwRVE2USJdLCJyIjoibWFzdGVyIiwicyI6InNoYTI1Njo4R3ZYT2k0WVRheTkzS1g2SmpTV3puY2I3TUpaUHctQzNyV1FFWlhoNHZVIiwidCI6MTc5MTI5MjcwMDc4NiwidiI6MSwieCI6ImFkcmFpLzEuMC4wIn0 -->
