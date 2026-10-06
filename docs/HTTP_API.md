@@ -124,8 +124,8 @@ Author as-of is the default read scope; all-time is explicit and forbids `at`.
 StoryTime ticks and orders are canonical signed decimal strings. Semantic
 `available` and `unknown` use 200, `invalid` uses 400, `unavailable` uses 409,
 and `limit` uses 422. The generic WEDL error envelope remains in use for
-authentication, parse, and repository errors. See [Generational query](GENERATIONAL_QUERY.md)
-and [Generational authoring](GENERATIONAL_AUTHORING.md).
+authentication, parse, and repository errors. See the ADRAI query contract (`adrai --repo WEDL_SOURCE_CHECKOUT show A01M491YZG40BC65JPVT4JMYR7D --json`, in the WEDL development/source checkout)
+and [the practical generational guide](guides/generational.md).
 
 ## Spatial reads
 
