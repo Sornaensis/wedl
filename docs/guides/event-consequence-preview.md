@@ -1,18 +1,18 @@
-# Reviewing an explicit consequence preview
+# Review an explicit consequence preview
 
-A consequence batch records the facts the author supplies. The rescue below moves
-ledger custody through the declared `object.holder` entity key, adds Mara's
-accepted belief, records Mara's directional trust toward Oren, resolves a story
-point one tick later, and links the event to that story point and a scene.
-Acceptance of the belief records Mara's belief; it does not establish its claim as
-canonical truth. The independent blue-coat prose edit remains unattributed.
+This Ash Archive walkthrough rescues a ledger and records a belief, directional
+trust, a later plot resolution and an outcome link. It also includes a separate
+prose edit so you can compare what the preview attributes to the rescue.
 
-The example names match the Ash Archive seed. Its zero `expectedHead` is a
-placeholder, not a Git revision claim. Replace it with the exact session HEAD.
-Use authenticated contextual `changeset schema` discovery at that revision to
-check the installed source schema, holder reference kind and trust bounds.
-Replace the source `schema` members if that world uses a different supported
-version. Match names/declarations in another world before previewing.
+Replace the zero `expectedHead` with the exact HEAD of your world repository.
+Check the installed schema at that revision before using the example:
+
+```powershell
+wedl changeset schema --repo PATH --revision HEAD_SHA
+```
+
+Use your world's names and supported source version in the source `schema`
+members. Save the following request as `rescue.json`:
 
 ```json
 {
@@ -296,69 +296,35 @@ version. Match names/declarations in another world before previewing.
 }
 ```
 
-Save that object as `rescue.json`. Direct Python callers use
-`authoring.preview_intent(repository, intent)`. CLI callers run
-`wedl author request preview rescue.json --repo PATH`. HTTP callers first obtain
-`GET /api/session`, then POST the JSON object itself to
-`/api/authoring/preview` with `X-Wedl-Token`. The same executable example is
-published in OpenAPI; it contains no request-body authorization or scope grants.
+Preview it with:
 
-An author response retains `wedl-author-preview/v1`, the complete original
-`intent`, the resolved raw `changeset`, `authorImpact`, and its nested
-`wedl-preview/v1` preview. Ordinary `files`, `diff`, `diagnostics`,
-`generatedIds`, `requestHash` and `confirmationToken` remain authoritative.
-The optional `preview.semanticDelta` uses
-`wedl-event-consequence-delta/v1`. Raw `changeset preview` returns the same
-delta under its own `semanticDelta` member.
+```powershell
+wedl author request preview rescue.json --repo PATH
+```
 
-Read generated references from the response rather than guessing them:
-`preview.generatedIds["tmp:rescue"]` is the actual allocated event ID;
-`tmp:custody`, `tmp:learned`, `tmp:trust-raised` and `tmp:resolved` similarly
-resolve to effect and transition IDs. Each delta citation carries a source
-revision/blob identity or a candidate `{baseRevision, requestHash}`. A candidate
-has no commit SHA until an actual write. The delta's request hash matches the
-returned raw preview hash, while author confirmation also binds the original
-name-based intent.
+Python callers use `authoring.preview_intent(repository, intent)`. For HTTP,
+obtain `GET /api/session` and POST the JSON object to `/api/authoring/preview`
+with `X-Wedl-Token`.
 
-At H = `{"timeline":"main","tick":"302","order":"0"}`, every delta subject
-compares the full base and final candidate at that same H. Event groups attribute
-those changes only through literal effects, causes and outcome links. The delayed
-plot resolution at tick 301 belongs to the rescue group; static creation fields
-and the unrelated coat prose remain in `unattributedRecordChanges`. Directional
-trust preserves `from=Mara`, `to=Oren`; it creates no reverse relationship.
-An empty net semantic change still has an operation record delta where applicable.
+Inspect `preview.files`, `diff`, `diagnostics` and `confirmationToken`.
+Read `preview.generatedIds` for `tmp:rescue`, `tmp:custody`, `tmp:learned`,
+`tmp:trust-raised` and `tmp:resolved`; use those returned IDs when following up.
+In `preview.semanticDelta`, compare the rescue's `eventGroups` with
+`unattributedRecordChanges`: the separate blue-coat prose belongs to the latter.
+Inspect the five requested results in `preview.expectationChecks` and resolve
+a blocked result before applying. To inspect current or delayed consequences
+in the reader, follow the [reader guide](event-consequences-reader.md).
 
-A separate event report compares before/after at the event's T = tick 300.
-Its before view excludes that event's own effects and transitions literally
-caused by it at T, while retaining disjoint equal-coordinate events and uncaused
-transitions. It keeps the event record and never calculates a numeric predecessor,
-including at signed time extrema. Thus the delayed plot resolution is in the
-same-H revision delta and historical caused transitions, but not the event-local
-T change. The [shared contract](EVENT_CONSEQUENCES_CONTRACT.md) defines both views.
+Keep the complete original request unchanged and apply with the returned author
+preview token:
 
-`preview.expectationChecks` reports this batch's five explicit required checks.
-Its ordered groups identify the operation, event, evaluation coordinate and
-policy, with typed comparison identities, actuals and citations. A non-pass
-required check blocks apply; an advisory non-pass remains visible and permits
-otherwise valid accompanying writes. Missing or inaccessible evidence is unknown,
-not a false claim of absence. Checks do not prove narrative completeness.
+```powershell
+wedl author request apply rescue.json --repo PATH --confirm TOKEN
+```
 
-Semantic `invalid`, `unavailable` and `limit` outcomes are closed failures,
-containing only protocol, outcome, code and message; they never return partial
-assertions. Structural invalidity keeps ordinary source diagnostics and prevents
-candidate semantic folding. A valid source preview can still have an unavailable
-or limited semantic result. Omit `consequenceRequest` to omit the delta;
-expectation-only reporting does not depend on it. A check-only no-op returns
-`status:"checked"`, equal previous/new HEAD, no touched records and no compile.
+HTTP callers POST the same object to `/api/authoring/apply` with
+`X-Wedl-Token` and `X-Wedl-Confirmation`. Use the author preview token returned
+for this request. Preview again after editing a name, policy or horizon.
 
-Apply requires the unchanged complete original intent and the returned author
-preview token. CLI uses `wedl author request apply rescue.json --repo PATH --confirm TOKEN`;
-HTTP uses `POST /api/authoring/apply` with both `X-Wedl-Token` and
-`X-Wedl-Confirmation`. Do not substitute the raw changeset token for the author
-token. Editing names, policy or H requires another preview. Identical confirmed
-retries return the saved receipt without another revision.
-
-The focused parity tests execute this example, validate real responses against
-the published shared JSON Schemas, compare direct/CLI/HTTP serialization, check
-actual generated IDs and provenance, and verify preview/refusal leaves source and
-cache bytes unchanged. No illustration invents an applied commit SHA.
+For the architectural contract, search in the WEDL development/source checkout:
+`adrai --repo WEDL_SOURCE_CHECKOUT search 'Event consequences and candidate verification' --mode fts --json`.

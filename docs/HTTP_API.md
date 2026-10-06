@@ -506,7 +506,7 @@ with optional required/advisory expectation checks. `expectationChecks` is repor
 independently of the optional delta. Apply binds the complete original intent and
 requires the exact author preview token; no scope or confirmation body fields are
 accepted. A check-only no-op returns a checked receipt without advancing HEAD.
-See the [executable rescue example](EVENT_CONSEQUENCE_PREVIEW.md) for custody,
+See the [executable rescue example](guides/event-consequence-preview.md) for custody,
 belief, directed trust, delayed plot resolution, scene outcome and unattributed
 prose, plus generated-reference and candidate-provenance handling.
 
