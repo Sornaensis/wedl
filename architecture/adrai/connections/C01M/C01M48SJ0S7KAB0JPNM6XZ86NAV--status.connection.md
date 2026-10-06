@@ -1,0 +1,14 @@
++++
+schema = "adrai/connection/v1"
+connection = "C01M48SJ0S7KAB0JPNM6XZ86NAV"
+relation = "status"
+parent_connections = ["C01M48S50Q7ABA8JJ7HX6XX5DXA"]
+record_heads = ["R01M48S50Q7V5MZ071XEFA1Q77F"]
+replacement_adr = "A01M48S0B8N1M7HRABA7YSM5ZR7"
+state = "obsolete"
+subject_adr = "A01M48S4ZSCWHKWP8ZXFZ3HQJB2"
++++
+
+The archived Haskell/Elm proposal is nonnormative history; current source and runtime architecture are documented by the migrated current contracts.
+
+<!-- @adrai:eyJhIjp7ImkiOiJkb2NzLWNsZWFudXAtZGV2ZWxvcGVyIiwiayI6ImxsbSIsIm0iOiJncHQtNi4xLXNvbCJ9LCJiIjoiMmE5ZDA0ZjkxMzdjZmI0NGVjMTg3NjBlM2E4NzVmMGQ2MWUzYmJiNSIsImsiOiJkZWNpc2lvbi5vYnNvbGV0ZSIsIm8iOiJDMDFNNDhTSjBTN0tBQjBKUE5NNlhaODZOQVYiLCJvcCI6Ik8wMU00OFNKMFM3S0FCMEpQTk02WFo4Nk5BViIsInAiOlsiQzAxTTQ4UzUwUTdBQkE4Sko3SFg2WFg1RFhBIiwiUjAxTTQ4UzUwUTdWNU1aMDcxWEVGQTFRNzdGIl0sInIiOiJtYXN0ZXIiLCJzIjoic2hhMjU2OjhoakI4R09CYzRBSUFvdDQ2SnRwcTUtR0M4dVVqVG4td0ZCSHlVRUVDemsiLCJ0IjoxNzkxMjk2NjAyOTE5LCJ2IjoxLCJ4IjoiYWRyYWkvMS4wLjAifQ -->
