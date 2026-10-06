@@ -1199,8 +1199,11 @@ def _budget_header_length(header: tuple[int, int, int, int, int, bytes]) -> int:
 
 
 def _load_journal_payload(path: Path, *, budgeted_temp_limit: int | None = None,
-                          authoritative_budget: tuple[int, int] | None = None) -> tuple[bytes, tuple[int, int, int]]:
-    """Read a budgeted journal in bounded chunks after early cap admission."""
+                          authoritative_budget: tuple[int, int] | None = None,
+                          include_document: bool = False) -> (
+                              tuple[bytes, tuple[int, int, int]]
+                              | tuple[bytes, tuple[int, int, int], bytes]):
+    """Read admitted chunks and optionally return their authenticated document."""
     try:
         descriptor = os.open(path, os.O_RDONLY)
     except OSError as exc:
@@ -1223,7 +1226,8 @@ def _load_journal_payload(path: Path, *, budgeted_temp_limit: int | None = None,
             if budgeted_temp_limit is not None:
                 raise RepositoryError("invalid WEDL transaction journal live-byte budget")
             # Pre-budget records retain their existing compatibility semantics.
-            return path.read_bytes(), _identity(os.stat(path))
+            legacy = path.read_bytes(), _identity(os.stat(path))
+            return (*legacy, legacy[0]) if include_document else legacy
         if not budgeted_envelope:
             raise RepositoryError("invalid WEDL transaction journal live-byte budget")
         total, reserve, _admitted, count, document_bytes, _digest = header
@@ -1276,9 +1280,14 @@ def _load_journal_payload(path: Path, *, budgeted_temp_limit: int | None = None,
         if not _path_has_identity(path, identity):
             raise RepositoryError("invalid WEDL transaction journal")
         payload = b"".join(chunks)
-        _budgeted_document(payload, scanned_graph_bytes=scanned_graph,
-                           authoritative_budget=authoritative_budget)
-        return payload, identity
+        # A returned document is the exact joined-byte image that the caller
+        # will parse. Re-admit that image rather than trusting a descriptor scan
+        # against possible same-size in-place changes; authenticate it once.
+        document = _budgeted_document(
+            payload, scanned_graph_bytes=None if include_document else scanned_graph,
+            authoritative_budget=authoritative_budget,
+        )
+        return (payload, identity, document) if include_document else (payload, identity)
     except OSError as exc:
         raise RepositoryError("invalid WEDL transaction journal") from exc
     finally:
@@ -2223,8 +2232,7 @@ class TransactionJournal:
         if path.parent != directory or path.suffix != ".json":
             raise RepositoryError("invalid WEDL transaction journal path")
         try:
-            payload, identity = _load_journal_payload(path)
-            document = _budgeted_document(payload)
+            payload, identity, document = _load_journal_payload(path, include_document=True)
             record = json.loads(document.decode("utf-8"))
         except (OSError, ValueError) as exc:
             raise RepositoryError("invalid WEDL transaction journal") from exc
