@@ -1,0 +1,12 @@
++++
+schema = "adrai/connection/v1"
+connection = "C01M48SFJ2R1D3VYRR2Y0YC56SE"
+relation = "amends"
+from_record = "R01M48SFJ2RN244NJ28X5VSGYZG"
+subject_adr = "A01M48NJH26YJTG9XWA0SKCPR2Z"
+to_records = ["R01M48NJHZTGCYRTBBJQ9D7XG9M"]
++++
+
+Replace the retired docs ADR bridge with stable ADRAI decision references; preserve historical approval and semantic text. Preserve the withdrawn continuity tombstone as obsolete decision history.
+
+<!-- @adrai:eyJhIjp7ImkiOiJkb2NzLWNsZWFudXAtZGV2ZWxvcGVyIiwiayI6ImxsbSIsIm0iOiJncHQtNi4xLXNvbCJ9LCJiIjoiODE2NjNjNGJkOWI0NDE4MzQzM2U4NzdjZDQwOTc1NWNjNWVkMzg1MiIsImkiOiJzaGEyNTY6czduaE01eFkxS1Q5VlJjSVExblZlVHB1LUFwV2dBdUZEQVNYTEQzS0k3VSIsImsiOiJjb25uZWN0aW9uLmFtZW5kcyIsIm8iOiJDMDFNNDhTRkoyUjFEM1ZZUlIyWTBZQzU2U0UiLCJvcCI6Ik8wMU00OFNGSjJSTjI0NE5KMjhYNVZTR1laRyIsInAiOlsiUjAxTTQ4TkpIWlRHQ1lSVEJCSlE5RDdYRzlNIl0sInIiOiJtYXN0ZXIiLCJzIjoic2hhMjU2Ok95U2V3Zjl6SjdvdnRZekd0aUtreGM2R1JOVXlqRXdyTnpDakFQTGVmS3MiLCJ0IjoxNzkxMjk2NTIyMzI4LCJ2IjoxLCJ4IjoiYWRyYWkvMS4wLjAifQ -->
