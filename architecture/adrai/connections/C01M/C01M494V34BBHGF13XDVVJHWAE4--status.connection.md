@@ -1,0 +1,14 @@
++++
+schema = "adrai/connection/v1"
+connection = "C01M494V34BBHGF13XDVVJHWAE4"
+relation = "status"
+parent_connections = ["C01M494SZC921KKVXA8AK7XNXA4"]
+record_heads = ["R01M494TGES9D9H76YP16Y5YJ5A"]
+replacement_adr = "A01M48S0B8N1M7HRABA7YSM5ZR7"
+state = "obsolete"
+subject_adr = "A01M48S4ZSCWHKWP8ZXFZ3HQJB2"
++++
+
+Restore the original obsolete relationship after the CLI-required navigation amendment. The historical proposal remains nonnormative and superseded; original approval and edition history are preserved.
+
+<!-- @adrai:eyJhIjp7ImkiOiJkb2NzLWNsZWFudXAtZGV2ZWxvcGVyIiwiayI6ImxsbSIsIm0iOiJncHQtNi4xLXNvbCJ9LCJiIjoiZjQ0NjQwNTZiMjlmOWE1NDM5OWFiMGY3MzYwMTMwOTgxYTJmODdkNiIsImsiOiJkZWNpc2lvbi5vYnNvbGV0ZSIsIm8iOiJDMDFNNDk0VjM0QkJIR0YxM1hEVlZKSFdBRTQiLCJvcCI6Ik8wMU00OTRWMzRCQkhHRjEzWERWVkpIV0FFNCIsInAiOlsiQzAxTTQ5NFNaQzkyMUtLVlhBOEFLN1hOWEE0IiwiUjAxTTQ5NFRHRVM5RDlINzZZUDE2WTVZSjVBIl0sInIiOiJtYXN0ZXIiLCJzIjoic2hhMjU2OlJfb296QTJPZlVfVWpRNUljS3hFYU1idFJXOERSUm8zSURqbWJIYkxBUlUiLCJ0IjoxNzkxMzA4NDM0NTcxLCJ2IjoxLCJ4IjoiYWRyYWkvMS4wLjAifQ -->
