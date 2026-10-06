@@ -1,5 +1,6 @@
 # Authoring The Frontiersmen with wedl
 
+> Historical authoring case study. Incident/rebuild observations below retain their original stage; current architecture is read through ADRAI A01M498R304BB0EEZ27RKTSN6QW. This cleanup does not reauthor the story or certify a rebuild.
 ## Method
 
 The world was not written as one static YAML generation. It was authored in seven act-sized Git revisions through wedl changesets, followed by a reviewed boundary-tightening changeset and a deterministic-ID normalization changeset:
@@ -12,17 +13,9 @@ The world was not written as one static YAML generation. It was authored in seve
 6. **Perspective cleanup** — recollections, scene-presence correction, relationship timing, compact object grouping.
 7. **Drowned Waymark** — running water breaks the immediate pursuit, a tightly bounded Blackroot counterfoil is recovered, and the five take an uncertain abandoned road south.
 
-The boundary-tightening follow-up ends the closed Hunt and Running intervals at
-`main 195:99`, strictly before the Drowned Waymark begins at `main 196:0` under
-wedl's inclusive endpoint semantics. It also removes the Hunt's stale `active`
-tag without changing the narrative sequence.
+The boundary-tightening follow-up ended the Hunt and Running intervals at `main 195:99`, before the Drowned Waymark at `main 196:0`, and removed the Hunt's stale `active` tag. Historical software design rationale is preserved in ADRAI A01M498R304BB0EEZ27RKTSN6QW. Read it with `adrai --repo WEDL_SOURCE_CHECKOUT show A01M498R304BB0EEZ27RKTSN6QW --json` in the WEDL development/source checkout.
 
-The ID normalization replaces request-hash-derived recollection identifiers
-with stable IDs seeded by conversation and authoring slug. A clean seven-act
-rebuild reproduces the 307 non-world canonical Markdown records byte-for-byte.
-The remaining `story/world.md` record retains the repository-local ID generated
-when the rebuild target is initialized, so it is byte-for-byte identical only
-when that target was initialized with the same world ID.
+The earlier authoring notes reported a clean seven-act rebuild of 307 non-world canonical Markdown records byte-for-byte, with `story/world.md` dependent on the initialization world ID. That is preserved historical rebuild provenance, not a rebuild performed here. Maintained legacy/v0.7 packages currently contain 309 records each. The normalization rationale is in ADRAI A01M498R304BB0EEZ27RKTSN6QW.
 
 After each act I ran:
 
@@ -91,7 +84,7 @@ Rootjaw bellows from a distance during the final pursuit conversation. Initially
 
 The final party scene contains five functionally identical Lantern Pike badges. Listing each badge separately consumed context space that should have gone to Moth's bone key, the reliquary, the map, or the broken spear.
 
-**Fix:** the context composer groups equivalent objects into one compact phrase when their narrative role and state are identical.
+The recorded correction reduced the repeated badge listing. Its grouping algorithm is historical rationale in ADRAI A01M498R304BB0EEZ27RKTSN6QW.
 
 ### 4. Wrong compilation profile during authoring
 
@@ -103,13 +96,9 @@ An early scratch repository used an FTS-only compiled database while the context
 
 One expansion record carried a duplicate tag. SQLite's normalized tag table rejected it during post-commit compilation.
 
-**Fixes:**
+The exercise reported compiler, validation and fixture-generation fixes for this duplicate-tag incident. Their implementation rationale is in ADRAI A01M498R304BB0EEZ27RKTSN6QW.
 
-- compiler insertion defensively deduplicates tags and aliases;
-- source validation reports duplicate tags/aliases before apply;
-- fixture generation uses stable set-like construction.
-
-The incident also highlighted an architectural concern: a changeset can advance Git and then fail during derived compilation. Source remains valid and canonical, but the user receives a failed post-commit compile. Future work should make the receipt distinguish `committed-but-compile-failed` explicitly and improve automatic last-good behavior.
+The duplicate-tag incident advanced Git before the derived compile failed. The proposed receipt/last-good behavior is historical design rationale in ADRAI A01M498R304BB0EEZ27RKTSN6QW; this note does not grant a new guarantee.
 
 ### 6. Builder reruns
 
@@ -131,19 +120,19 @@ The initial builder assumed a fresh repository. Rerunning from act zero collided
 
 ### Large frontmatter records
 
-Conversations with many turns and recollections are powerful but verbose. For human authors, a transcript-oriented Markdown syntax or dedicated conversation editor would be more ergonomic than editing large arrays.
+The authoring pass found conversation arrays verbose to edit. Its proposed transcript syntax/editor is preserved in ADRAI A01M498R304BB0EEZ27RKTSN6QW.
 
 ### Cross-record event consequences
 
-A major beat can legitimately affect five characters' knowledge, several relationships, object state, and multiple story points. The changeset model handles this correctly, but manually building such payloads is laborious. Higher-level authoring macros such as `record_scene_outcome` would help.
+Manually building one beat's five-character payload was reported as laborious. The proposed macros are in ADRAI A01M498R304BB0EEZ27RKTSN6QW; current practical [consequence preview](../../guides/event-consequence-preview.md) is available.
 
-### Source-path readability
+### Source browsing
 
-Generated IDs are stable and safe, but the Git tree remains easier to browse when paths include human slugs. The current generator does this reasonably well; it should remain a contract.
+The exercise found human slugs useful while browsing the Git tree. Its proposed path contract is historical rationale in ADRAI A01M498R304BB0EEZ27RKTSN6QW.
 
-### Current versus completed campaign
+### Current campaign
 
-This example intentionally stops on an active southward journey after resolving only the immediate pursuit. The UI should make “campaign currently live” distinct from “fixture incomplete.” A campaign dashboard could show active scene, unresolved high-priority points, outstanding duties, and last canonical conversation.
+The campaign remains on the active Southward Cut at main210:0 after resolving the immediate pursuit. Its dashboard proposal is preserved in ADRAI A01M498R304BB0EEZ27RKTSN6QW.
 
 ## Recommended next authoring iteration
 
@@ -156,3 +145,5 @@ The next movement should not immediately explain Moth. Act 6 has already forced 
 - confront Lantern Pike with evidence that is still partly Aldren's testimony.
 
 A strong continuation would make Moth's identity a consequence of how the party treats captured or masked people, not merely a lore reveal.
+
+The [older performance exercise](../../reports/frontiersmen-performance-historical.md) measured a different 294-record pursuit snapshot. Its timings and 307/308-era rebuild claims are not current corpus counts.

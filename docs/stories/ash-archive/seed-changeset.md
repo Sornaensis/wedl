@@ -1,6 +1,7 @@
 # Change-Set Example
 
-The following illustrates temporary IDs and a scene outcome. It is deliberately marked for preview because the chosen container may not match the author’s intended prose; this demonstrates that validation/preview is not merely ceremonial.
+> Historical tick121 seed material. Maintained packaged Ash is completed at tick208; this page preserves the earlier narrative/IDs, not a current active-world inventory.
+This is a historical, preview-only tick121 seed illustration of temporary IDs and a scene outcome. The JSON is preserved unchanged. It closes After the Exchange at tick122, but the maintained completed package already closes that scene at tick124 and has later events; this payload does not promise a valid apply there. The satchel choice also requires author review. Do not change story source to make this old illustration pass.
 
 ```json
 {
@@ -95,3 +96,14 @@ The following illustrates temporary IDs and a scene outcome. It is deliberately 
   ]
 }
 ```
+
+For a current authoring session, start from the actual repository HEAD:
+
+```text
+wedl changeset scaffold --repo PATH --output change.json
+wedl changeset schema --repo PATH
+wedl changeset preview change.json --repo PATH
+wedl changeset apply change.json --repo PATH --confirm PREVIEW_TOKEN
+```
+
+Inspect and edit the scaffold's operation for the current scene while retaining its current-HEAD guard; choose an appropriate idempotency key and use the exact token from the unchanged successful preview. See the [command guide](../../guides/command-line.md).

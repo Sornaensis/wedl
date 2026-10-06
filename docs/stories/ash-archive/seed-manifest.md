@@ -1,5 +1,8 @@
 # Ash Archive Entity Manifest
 
+> Historical tick121 seed material. Maintained packaged Ash is completed at tick208; this page preserves the earlier narrative/IDs, not a current active-world inventory.
+This is the historical seed manifest: 119 listed stable IDs and claim-key mappings, plus the world record (120 total), at tick121. Those IDs remain in maintained completed source; this list is not its full 262-record inventory.
+
 **Seed transaction:** `tx_0FTNG8NC7TB5NYJ6C6GKEGW9KQ`
 
 ## Characters
@@ -148,8 +151,6 @@
 - `sable/sable-letter-origin-unknown` — `know_0YFNJ8MNKP9SSBJQ7ZR6ADAKVM` — `letter.author.unknown-to-sable`
 - `sable/sable-map-lost` — `know_0TZR50W0EWF9RG5ACQSQP406P6` — `map.held-by-rusk`
 
-## Latent v0.7 component fixture
+## Separate conformance asset
 
-`spatial-source-component-v07.yaml` exercises component-only maps, opaque
-references, directed routes, and bounded overlays.  It does not activate a
-migration, public endpoint, compiled index, or UI.
+The [spatial conformance asset](../../../architecture/adrai/examples/spatial-source-component-v07.yaml) is retained separately under ADRAI. Its historical stage explanation is preserved in ADRAI A01M498R304BB0EEZ27RKTSN6QW.

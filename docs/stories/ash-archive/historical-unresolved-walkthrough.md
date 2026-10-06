@@ -2,12 +2,12 @@
 
 The 0.4 fixture contains **238 canonical records**, including **15 scenes**, **41 events**, **13 conversations**, **95 verbatim turns**, and **38 character recollections**.
 
-The story now covers two substantial acts:
+At this historical stage the story covered two substantial acts:
 
 1. Ilyra’s disappearance, the erased-wing letter, the seventh-drawer mechanism, the listening-tube route, and the discovery of Flood Gallery N.
 2. The pressure-gate escape, opening Ilyra’s letter, exposure of the Council listening office, a public ledger hearing, Ilyra’s return, and the unresolved question of how dangerous records should be divided among custodians.
 
-The active scene is **The Choice of Records** at tick 178:10. Mara, Ilyra, Nessa, Ysabet, and Sister Ansel must decide how to divide a proof copy, route key, and descendant identities without recreating the same centralized index that enabled the abuse.
+At this historical stage the active scene was **The Choice of Records** at tick 178:10. Mara, Ilyra, Nessa, Ysabet, and Sister Ansel must decide how to divide a proof copy, route key, and descendant identities without recreating the same centralized index that enabled the abuse.
 
 ## Conversation provenance in practice
 
@@ -266,3 +266,5 @@ Each section below distinguishes the immutable transcript from the later, subjec
 - Different recollections preserve conflicting interpretations without altering the transcript.
 - Author-secret markers, planned scenes, completed story points, and unresolved choices coexist.
 - The final scene is intentionally unresolved so changeset preview/apply can continue the story rather than merely inspect a finished archive.
+
+This preserves the unresolved 0.4/tick178:10 transcript and recollection snapshot. For the maintained completed 262-record/tick208 package, see the [completed walkthrough](walkthrough.md) and [novella](novella.md).

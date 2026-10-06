@@ -1,5 +1,6 @@
 # The Ash Archive — Story Guide
 
+> Historical tick121 seed material. Maintained packaged Ash is completed at tick208; this page preserves the earlier narrative/IDs, not a current active-world inventory.
 ## Premise
 
 Chief Archivist Ilyra Sorn disappears after discovering that accession cards 7A–7D have been removed from the Ash Archive. The missing catalog run points toward old river-evacuation records and an obsolete emergency courier network marked by an erased-wing heron.
@@ -56,9 +57,9 @@ Mara Vale, Ilyra’s protégé, is trying to investigate without surrendering th
 - The map tile reveals a drainage route into the undercroft.
 - Nessa is approaching the Reading Room but has not entered.
 
-## Current choice space
+## Seed-stage choice space
 
-The active scene supports several legitimate continuations:
+At tick121, the seed's active scene supported several continuations:
 
 - Mara questions Oren before touching the seal.
 - Mara hides the letter when Nessa enters.
@@ -67,4 +68,4 @@ The active scene supports several legitimate continuations:
 - Oren reveals or withholds Sable’s role.
 - The soft catalog footstep becomes an interruption.
 
-None is canon until a new event/change set is committed.
+These were alternative continuations at the historical seed stage. The maintained completed package has an authored ending; see the [completed walkthrough](walkthrough.md).

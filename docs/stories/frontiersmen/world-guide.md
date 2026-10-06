@@ -44,7 +44,7 @@ Secret-marker regression token:
 FRONTIER-SECRET-AMBER-ROOT-MEMORY-7K4M
 ```
 
-Character search must never expose that token.
+This fixture marker is an author-only probe; inspect the character-scoped result when exercising the example. Its software authorization contract is in ADRAI A01M48RW32X6AEHK2376V4YH3KP, with the historical case explanation in ADRAI A01M498R304BB0EEZ27RKTSN6QW.
 
 ## Major locations
 
@@ -131,7 +131,7 @@ wedl validate
 wedl compile --profile hybrid --vector-provider lsa
 ```
 
-Build one of the final viewpoint packets:
+Build a current viewpoint packet:
 
 ```bash
 wedl context "Rhea" \
@@ -158,7 +158,7 @@ Inspect Rootjaw's limited audible portion of the pursuit:
 ```bash
 wedl conversation show "Running Under the Drums" \
   --perspective character \
-  --character "Rootjaw"
+  --character "Rootjaw" --timeline main --tick 195 --order 99
 ```
 
 Run independent retrieval lanes:
@@ -168,3 +168,5 @@ wedl search "blood quickens amber" --mode fts
 wedl search "memory of wounded animals taking shape" --mode vector
 wedl search "guild concealed amber manifestations" --mode hybrid
 ```
+
+Maintained legacy/v0.7 packages contain 309 records, 19 conversations and 248 turns, with Southward Cut active at main210:0. The [campaign chronicle](chronicle-through-pursuit.md) is an earlier manuscript ending at pursuit; it is preserved unchanged and does not cover Act VI. The [walkthrough](walkthrough.md) covers the maintained source through Drowned Waymark.

@@ -1,5 +1,6 @@
 # Authoring a Complete Story with wedl
 
+> Historical authoring case study. Incident/rebuild observations below retain their original stage; current architecture is read through ADRAI A01M498R304BB0EEZ27RKTSN6QW. This cleanup does not reauthor the story or certify a rebuild.
 This document records an interactive authoring pass over the bundled Ash Archive world. The goal was not to add another collection of entities, but to determine whether wedl could support a coherent mystery from its opening clues through a thematic ending while preserving character-specific knowledge, exact dialogue provenance, temporal state, and retrievable author intent.
 
 ## Result
@@ -20,7 +21,7 @@ The authored world now contains **262 canonical records**:
 | Story points | 22 |
 | World | 1 |
 
-The final corpus contains **138 canonical verbatim turns** and **58 character recollections**. The finished novella is available as [`THE_ASH_ARCHIVE.md`](THE_ASH_ARCHIVE.md).
+The final corpus contains **138 canonical verbatim turns** and **58 character recollections**. The finished novella is available as [the novella](novella.md).
 
 The story now has three complete movements:
 
@@ -64,7 +65,7 @@ The ending was authored as one validated multi-record changeset. It added or upd
 
 The preview exposed the semantic consequences before committing them. This mattered because the ending touched object custody, knowledge, relationships, scenes, conversations, and story-point histories simultaneously. A prose-only edit would not have shown whether the actual world state agreed with the intended ending.
 
-The historical changeset is retained as [`../examples/complete-ash-archive-ending.json`](../examples/complete-ash-archive-ending.json).
+The historical changeset is retained as [the original ending changeset](../../../examples/complete-ash-archive-ending.json).
 
 ### 3. Interrogate the finished world
 
@@ -83,13 +84,13 @@ The checks found two coherence problems.
 
 Mara, Nessa, and Oren still had active `Ilyra is missing` beliefs after direct later encounters with her. The canonical events were correct, but the subjective state had not been transitioned. A small follow-up changeset added explicit rejected transitions and updated Oren's post-contingency goal.
 
-This is an example of useful friction. wedl does not silently infer that seeing Ilyra must rewrite every person's belief. The author has to state the epistemic consequence, but the query system then makes the omission visible.
+The explicit follow-up made the stale beliefs visible and corrected the authored case. Historical software design rationale is preserved in ADRAI A01M498R304BB0EEZ27RKTSN6QW. Read it with `adrai --repo WEDL_SOURCE_CHECKOUT show A01M498R304BB0EEZ27RKTSN6QW --json` in the WEDL development/source checkout.
 
 #### Future-knowledge search leak
 
 A historical search at tick 121 could retrieve the body of a future knowledge record through a generic character-self document. The dedicated knowledge search document was time-scoped correctly; the generic prose index was not.
 
-The search compiler now excludes knowledge records from generic section indexing. Knowledge is indexed only through its dedicated temporal lane. Regression coverage verifies that the tick-121 character search cannot return the later records for:
+The recorded regression checked that tick-121 character search did not return the later records for:
 
 - threefold custody;
 - the honest-absence rule;
@@ -142,39 +143,29 @@ The thematic claim—no one office should hold proof, route, and identity—ther
 
 The final Mara packet at `An Honest Absence` emphasizes institutional design and defensibility. Oren's packet emphasizes the completed contingency, river routes, and his altered relationship to Ilyra. Rusk's River Gate view begins only at his entrance at tick 184.
 
-The packets differ because the underlying knowledge and recollection records differ, not because a prompt asks the model to role-play harder.
+Historical software design rationale is preserved in ADRAI A01M498R304BB0EEZ27RKTSN6QW. Read it with `adrai --repo WEDL_SOURCE_CHECKOUT show A01M498R304BB0EEZ27RKTSN6QW --json` in the WEDL development/source checkout.
 
 ## Friction and limitations
 
-### Large coordinated changesets are hard to author manually
+### Large coordinated changesets were cumbersome
 
-The ending changeset was correct and valuable, but constructing dozens of interdependent operations by hand is still cumbersome. A higher-level scene-outcome editor should be able to generate:
+Constructing the ending's dozens of interdependent operations was reported as cumbersome. The proposed editor/macros are historical rationale in ADRAI A01M498R304BB0EEZ27RKTSN6QW.
 
-- an event;
-- knowledge transitions caused by it;
-- relationship transitions;
-- object placement;
-- story-point transitions;
-- scene closure and next-scene creation;
-- conversation turns and recollections;
+### Historical knowledge titles
 
-from one event-centered form.
+The authoring pass found the unchanged title `Oren believes Ilyra has disappeared` misleading after its state became `rejected`. Its proposed UI remedy is in ADRAI A01M498R304BB0EEZ27RKTSN6QW.
 
-### Titles of historical knowledge records can become misleading
+### Selecting a completed-story scene
 
-A knowledge record titled `Oren believes Ilyra has disappeared` remains the same source entity after its active transition becomes `rejected`. Query output is correct, but source browsing may overemphasize the initial state. A future UI should display the active stance beside the record title or support a neutral title such as `Ilyra's missing status according to Oren`.
+The completed package has no active scene. Specify `An Honest Absence` or another historical scene when building a context. See the [command guide](../../guides/command-line.md). The old UI proposal is in ADRAI A01M498R304BB0EEZ27RKTSN6QW.
 
-### A completed world has no implicit context cursor
+### Historical search observations
 
-The final example intentionally has no active scene. Context commands must specify `An Honest Absence` or another historical scene explicitly. This is semantically honest, but the UI should make a completed world's latest closed scene easy to select without pretending it is still active.
-
-### Search remains associative
-
-Removing the future-knowledge document leak prevents direct temporal disclosure, but hybrid/vector search may still return older records that share terms with a future concept. That is expected associative retrieval. Tests therefore assert that future record IDs are absent rather than requiring all results to be lexically unrelated.
+The exercise still retrieved older records sharing terms with later concepts. Its regression checked future record IDs rather than requiring lexically unrelated results. The design explanation is in ADRAI A01M498R304BB0EEZ27RKTSN6QW.
 
 ## Writing the novella
 
-After the canonical world passed the final checks, I wrote [`THE_ASH_ARCHIVE.md`](THE_ASH_ARCHIVE.md) as a close-third novella centered on Mara.
+After the canonical world passed the final checks, I wrote [the novella](novella.md) as a close-third novella centered on Mara.
 
 The manuscript follows the world's information order rather than simply summarizing its database:
 
@@ -191,9 +182,9 @@ The manuscript follows the world's information order rather than simply summariz
 
 The final line—“The Archive admitted what it did not hold.”—is supported by the actual final objects, events, knowledge records, and custody design.
 
-## Regression conclusions
+## Recorded regression conclusions
 
-The completed story is now part of the executable fixture. Tests verify:
+The completed-story exercise recorded these regression checks:
 
 - 262 canonical records;
 - 16 conversations;
@@ -208,3 +199,5 @@ The completed story is now part of the executable fixture. Tests verify:
 - historical search exclusion for future knowledge bodies;
 - author-only secret-marker protection;
 - source/SQLite/cache/vector behavior inherited from the 0.5 profile suite.
+
+The dated [0.5.1 validation receipt](../../reports/validation-0.5.1.md) retains its original measurements and packaging provenance. The original ending payload is historical input; its recorded expected HEAD is not a current-package apply instruction.

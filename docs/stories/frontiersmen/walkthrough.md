@@ -66,9 +66,9 @@ Before the blood ring, the party plans with incomplete equipment and incomplete 
 
 The Root Host raises drums and pursuit calls. Rain turns the spruce dark and the ground unreliable. The party follows water where possible because Sylvi believes the masks read root and trail better than running current.
 
-The active conversation records a distant boar-like bellow from Rootjaw. He is audible through the rain, but he is not physically present in the scene. That distinction became a regression test after authoring exposed how easily audible dialogue can accidentally imply scene participation.
+At that stage, the pursuit conversation recorded a distant boar-like bellow from Rootjaw. He is audible through the rain, but he is not physically present in the scene. That distinction became a regression test after authoring exposed how easily audible dialogue can accidentally imply scene participation.
 
-The final scene stops at a live decision point:
+Act V stopped at this then-live decision point before Act VI:
 
 - Rootjaw and the host have cut south of the party.
 - Pip's map no longer predicts which notches belong to old travelers and which belong to the pursuers.
