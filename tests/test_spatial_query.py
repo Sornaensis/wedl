@@ -664,7 +664,7 @@ def test_signed_i64_story_time_boundaries_and_cross_map_discontinuity_are_closed
 
 
 def test_canonical_query_vector_and_source_compiled_fixture_stay_in_parity() -> None:
-    vector = yaml.safe_load((ROOT / "docs/decisions/examples/spatial-query-v1.yaml").read_text())
+    vector = yaml.safe_load((ROOT / "architecture/adrai/examples/spatial-query-v1.yaml").read_text())
     fixture = yaml.safe_load((ROOT / "tests/fixtures/spatial_v07/valid-multimap.yaml").read_text())
     store = _store()
     assert vector["protocol"] == store.context.protocol

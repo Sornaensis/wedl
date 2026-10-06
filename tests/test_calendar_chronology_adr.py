@@ -13,8 +13,8 @@ import yaml
 
 
 ROOT = Path(__file__).resolve().parents[1]
-ADR = ROOT / "docs/decisions/0003-calendar-and-historical-chronology-semantics.md"
-VECTORS = ROOT / "docs/decisions/examples/calendar-chronology-semantics-v1.yaml"
+ADR = ROOT / "architecture/adrai/decisions/R01M/R01M48NNHA0JJP2Y13F9FPEK43C--calendar-and-historical-chronology-semantics.decision.md"
+VECTORS = ROOT / "architecture/adrai/examples/calendar-chronology-semantics-v1.yaml"
 
 
 def _vector() -> dict:
@@ -156,12 +156,13 @@ def _assert_outcome(case: dict, actual: dict) -> None:
 def test_vector_is_parseable_concrete_and_adr_defines_every_semantic_id() -> None:
     vector = _vector()
     text = " ".join(ADR.read_text(encoding="utf-8").split())
-    index = (ROOT / "docs/decisions/README.md").read_text(encoding="utf-8")
+    index = (ROOT / "docs/ADR.md").read_text(encoding="utf-8")
     assert vector["status"] == "accepted-semantic-only"
     assert "**Status:** Accepted" in text
     assert "**Approved:** 2026-08-27 by Project owner (user)" in text
     assert "The conservative decisions listed in this ADR only." in text
-    assert "**Accepted** (approved by Project owner (user) on 2026-08-27)" in index
+    assert ADR.name in index
+    assert 'schema = "adrai/decision/v1"' in text
     assert "proposed semantic contract" not in text.lower()
     assert "## Proposed decision" not in text
     assert "no source schema, parser, API, model, compiler, query, UI" in text

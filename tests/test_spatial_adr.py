@@ -11,7 +11,7 @@ from wedl.api_schemas import components
 
 
 ROOT = Path(__file__).resolve().parents[1]
-ADR = ROOT / "docs/decisions/0004-spatial-domain-query-and-version-contract.md"
+ADR = ROOT / "architecture/adrai/decisions/R01M/R01M48NPY7BSP5A8EMP5MFVD8MN--spatial-domain-queries-and-schema-version-contract.decision.md"
 
 
 def test_explorer_adjunct_decision_records_bounded_selected_lens() -> None:
@@ -21,8 +21,8 @@ def test_explorer_adjunct_decision_records_bounded_selected_lens() -> None:
     assert "reverse-edge index" in text
     assert "before counting or paging" in text
     assert "not a trusted character identity" in text or "does not confer trusted character identity" in text
-SCHEMA = ROOT / "docs/decisions/examples/spatial-schema-v07.yaml"
-QUERIES = ROOT / "docs/decisions/examples/spatial-query-v1.yaml"
+SCHEMA = ROOT / "architecture/adrai/examples/spatial-schema-v07.yaml"
+QUERIES = ROOT / "architecture/adrai/examples/spatial-query-v1.yaml"
 
 
 def _yaml(path: Path) -> dict:
@@ -31,11 +31,12 @@ def _yaml(path: Path) -> dict:
 
 def test_adr_is_accepted_indexed_and_explicitly_non_runtime() -> None:
     text = ADR.read_text(encoding="utf-8")
-    index = (ROOT / "docs/decisions/README.md").read_text(encoding="utf-8")
+    index = (ROOT / "docs/ADR.md").read_text(encoding="utf-8")
     assert "**Status:** Accepted" in text
     assert "**Approved:** 2026-08-30 by Project owner (user)" in text
     assert "not a runtime, source-parser, transport, renderer, migration command" in text
-    assert "0004 — Spatial domain" in index and "**Accepted**" in index
+    assert "0004 — Spatial domain" in index and ADR.name in index
+    assert 'schema = "adrai/decision/v1"' in text
     for phrase in ("hybrid", "ID path", "local planar", "axis order", "anchors", "portals", "one-way", "two-way"):
         assert phrase.lower() in text.lower()
 

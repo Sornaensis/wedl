@@ -6,8 +6,8 @@ import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
 CONTRACT = ROOT / "docs/THREAD_SCHEMA_CONTRACT.md"
-VECTORS = ROOT / "docs/decisions/examples/shared-world-thread-schema-v05.yaml"
-MANIFEST = ROOT / "docs/decisions/examples/wedl-v04-coordination-manifest.yaml"
+VECTORS = ROOT / "architecture/adrai/examples/shared-world-thread-schema-v05.yaml"
+MANIFEST = ROOT / "architecture/adrai/examples/wedl-v04-coordination-manifest.yaml"
 
 
 THREAD_ID = re.compile(r"^thread_[0-9A-HJKMNP-TV-Z]{26}$")
@@ -31,7 +31,7 @@ def test_v05_thread_reservation_has_one_global_timeline_and_grouping_only_member
     assert "`timeline`, `domain`,\n`fork`, `continuity`, `strand`, `sync`, `retcon`, `projection`, and\n`author-all`" in document
     assert "may infer a thread" in document
 
-    assert vectors["contract"] == "../../THREAD_SCHEMA_CONTRACT.md"
+    assert vectors["contract"] == "../../../docs/THREAD_SCHEMA_CONTRACT.md"
     assert vectors["status"] == "validation-slice-implemented"
     assert vectors["source_schema"] == "wedl/v0.5"
     assert vectors["supported_schemas"] == ["wedl/v0.3", "wedl/v0.5"]

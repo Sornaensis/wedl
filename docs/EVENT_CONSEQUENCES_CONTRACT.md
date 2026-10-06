@@ -11,11 +11,11 @@ Markdown and Git remain authoritative. A consequence is an expressly authored
 effect, timed transition, or outcome link, never an inference from prose, presence,
 participants, genealogy, thread membership, a trigger, or a search result. This
 contract adds no alternate canon, identity system, migration, or source field.
-It follows [ADR 0002](decisions/0002-shared-world-concurrent-narrative-threads.md),
-[ADR 0003](decisions/0003-calendar-and-historical-chronology-semantics.md),
-[ADR 0004](decisions/0004-spatial-domain-query-and-version-contract.md),
-[ADR 0005](decisions/0005-first-class-generational-history.md), and
-[ADR 0006](decisions/0006-preserve-object-affordances-in-v07.md).
+It follows [ADR 0002](../architecture/adrai/decisions/R01M/R01M48NHJBX1HWE7RG8G2S3DD9H--shared-world-concurrent-narrative-threads.decision.md),
+[ADR 0003](../architecture/adrai/decisions/R01M/R01M48NNHA0JJP2Y13F9FPEK43C--calendar-and-historical-chronology-semantics.decision.md),
+[ADR 0004](../architecture/adrai/decisions/R01M/R01M48NPY7BSP5A8EMP5MFVD8MN--spatial-domain-queries-and-schema-version-contract.decision.md),
+[ADR 0005](../architecture/adrai/decisions/R01M/R01M48NQZAYXMAHXD49NWZ9M8YZ--first-class-generational-history-and-coordinated-v0-7-contract.decision.md), and
+[ADR 0006](../architecture/adrai/decisions/R01M/R01M48NSE20KVVH8NHZ794W57YB--preserve-authored-object-affordances-in-v0-7.decision.md).
 
 ## Exact values and schema notation
 

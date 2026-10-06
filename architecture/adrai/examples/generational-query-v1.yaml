@@ -1,4 +1,4 @@
-adr: ../0005-first-class-generational-history.md
+adr: ../decisions/R01M/R01M48NQZAYXMAHXD49NWZ9M8YZ--first-class-generational-history-and-coordinated-v0-7-contract.decision.md
 protocol: wedl-generational/v1
 common:
   revision: 89c703b8b0ff76ba4679a9d7903effd4fc5fae05

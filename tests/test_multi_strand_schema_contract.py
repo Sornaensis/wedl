@@ -5,7 +5,7 @@ import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
 CONTRACT = ROOT / "docs/CONTINUITY_SCHEMA_CONTRACT.md"
-VECTORS = ROOT / "docs/decisions/examples/multi-strand-schema-contract-v04.yaml"
+VECTORS = ROOT / "architecture/adrai/examples/multi-strand-schema-contract-v04.yaml"
 
 
 def test_withdrawn_continuity_schema_material_is_nonnormative_only() -> None:
@@ -18,8 +18,8 @@ def test_withdrawn_continuity_schema_material_is_nonnormative_only() -> None:
     assert "follow-up B" in document
     assert vectors == {
         "status": "withdrawn-nonnormative",
-        "superseded_by": "../0002-shared-world-concurrent-narrative-threads.md",
-        "historical_contract": "../../CONTINUITY_SCHEMA_CONTRACT.md",
+        "superseded_by": "../decisions/R01M/R01M48NHJBX1HWE7RG8G2S3DD9H--shared-world-concurrent-narrative-threads.decision.md",
+        "historical_contract": "../../../docs/CONTINUITY_SCHEMA_CONTRACT.md",
         "source_schema": "wedl/v0.3",
         "statement": "This tombstone preserves a withdrawal notice only; it defines no v0.4 schema, vectors, diagnostics, or upgrade behavior.",
     }

@@ -1,5 +1,5 @@
-contract: ../../THREAD_SCHEMA_CONTRACT.md
-adr: ../0002-shared-world-concurrent-narrative-threads.md
+contract: ../../../docs/THREAD_SCHEMA_CONTRACT.md
+adr: ../decisions/R01M/R01M48NHJBX1HWE7RG8G2S3DD9H--shared-world-concurrent-narrative-threads.decision.md
 status: validation-slice-implemented
 source_schema: wedl/v0.5
 supported_schemas: [wedl/v0.3, wedl/v0.5]

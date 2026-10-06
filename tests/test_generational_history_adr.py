@@ -9,10 +9,10 @@ import yaml
 
 
 ROOT = Path(__file__).resolve().parents[1]
-ADR = ROOT / "docs/decisions/0005-first-class-generational-history.md"
-SCHEMA = ROOT / "docs/decisions/examples/generational-schema-v07.yaml"
-QUERIES = ROOT / "docs/decisions/examples/generational-query-v1.yaml"
-MIGRATION = ROOT / "docs/decisions/examples/generational-migration-v07.yaml"
+ADR = ROOT / "architecture/adrai/decisions/R01M/R01M48NQZAYXMAHXD49NWZ9M8YZ--first-class-generational-history-and-coordinated-v0-7-contract.decision.md"
+SCHEMA = ROOT / "architecture/adrai/examples/generational-schema-v07.yaml"
+QUERIES = ROOT / "architecture/adrai/examples/generational-query-v1.yaml"
+MIGRATION = ROOT / "architecture/adrai/examples/generational-migration-v07.yaml"
 
 
 def _yaml(path: Path) -> dict:
@@ -30,13 +30,14 @@ def _citations(value: object) -> list[dict]:
 
 def test_adr_is_accepted_indexed_and_contract_only() -> None:
     text = ADR.read_text(encoding="utf-8")
-    index = (ROOT / "docs/decisions/README.md").read_text(encoding="utf-8")
+    index = (ROOT / "docs/ADR.md").read_text(encoding="utf-8")
     assert "**Status:** Accepted" in text
     assert "**Ratification:** The current project owner explicitly approved this exact proposal on 2026-08-30 after independent review." in text
     assert "not a parser,\nruntime, canonical story source, SQLite schema" in text
     assert "d76aacb1-671c-458e-b6a3-ce132c82c83a" in text
     assert "1910b6ab-b0ec-4dae-8263-e54f570687df" in text
-    assert "0005 — First-class generational history" in index and "**Accepted** (ratified by the current project owner on 2026-08-30 after independent review)" in index
+    assert "0005 — First-class generational history" in index and ADR.name in index
+    assert 'schema = "adrai/decision/v1"' in text
     for document in ("ADR 0002", "ADR 0003", "ADR 0004", "THREAD_SCHEMA_CONTRACT", "CHRONOLOGY_MIGRATION_CONTRACT"):
         assert document in text
 

@@ -7,7 +7,7 @@ released_protocol_tokens: [wedl-continuity/v1]
 owners:
   - project: 88d1d538-452a-4eb5-8b2e-1c42a0361ea8
     scope: shared-world-thread-schema-and-migration
-    contract: ../../THREAD_SCHEMA_CONTRACT.md
+    contract: ../../../docs/THREAD_SCHEMA_CONTRACT.md
     gate: reserved-by-this-contract
     id_prefixes: [thread_]
     diagnostic_family: null

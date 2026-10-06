@@ -20,7 +20,7 @@ from wedl.source import KIND_DIR, serialize_record
 
 
 ROOT = Path(__file__).resolve().parents[1]
-VECTOR = ROOT / "docs/decisions/examples/generational-schema-v07.yaml"
+VECTOR = ROOT / "architecture/adrai/examples/generational-schema-v07.yaml"
 
 
 def _point(tick: int, order: int = 0) -> dict:

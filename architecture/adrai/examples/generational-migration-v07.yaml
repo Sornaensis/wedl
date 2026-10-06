@@ -1,4 +1,4 @@
-adr: ../0005-first-class-generational-history.md
+adr: ../decisions/R01M/R01M48NQZAYXMAHXD49NWZ9M8YZ--first-class-generational-history-and-coordinated-v0-7-contract.decision.md
 status: accepted-contract-only
 protocol: wedl-migration/v1
 mode: upgrade-v07

@@ -33,7 +33,7 @@ Bounded process checks see absolute canonical prefixes. Relative paths, aliases 
 
 ## Prevention and remaining work
 
-The accepted [bounded scratch and test-signal policy](../architecture/adrai/decisions/R01M/R01M3Y3S5XZ33Y7SD2K3E20EQ6Q--bounded-development-scratch-and-test-signals.decision.md)
+The accepted [bounded scratch and test-signal policy](../architecture/adrai/decisions/R01M/R01M48NTY3JQB1XGHTVQB4V60EX--bounded-development-scratch-and-test-signals.decision.md)
 requires compact routine pass/fail reporting, one owned scratch area per active
 task with a finite lifetime, and bounded diagnostic retention. It governs future
 work; existing required evidence stays protected. The current test runner still

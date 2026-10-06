@@ -3,7 +3,7 @@
 **Status:** Normative staged implementation; v0.5 source validation and the local-only migration/recovery kernel are available.
 
 This contract implements the data boundary approved by
-[ADR 0002](decisions/0002-shared-world-concurrent-narrative-threads.md). It
+[ADR 0002](../architecture/adrai/decisions/R01M/R01M48NHJBX1HWE7RG8G2S3DD9H--shared-world-concurrent-narrative-threads.decision.md). It
 reserves `wedl/v0.5`; the approved source/model/validation slices now enforce
 this contract. Query, search, API, and browser delivery remain separately
 gated from the local migration/recovery kernel.
