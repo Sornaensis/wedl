@@ -1,4 +1,4 @@
-"""Contract oracle for the planned chronology source-upgrade transaction."""
+"""Contract oracle for the active chronology source-upgrade transaction."""
 
 from __future__ import annotations
 
@@ -21,8 +21,8 @@ from wedl.validation import validate_world
 
 
 ROOT = Path(__file__).resolve().parents[1]
-DOC = ROOT / "docs/CHRONOLOGY_MIGRATION_CONTRACT.md"
-VECTOR = ROOT / "docs/examples/chronology-migration-v06.yaml"
+DOC = current_decision("A01M48XY4R2CJ698Z2VQM9SG4ZZ")
+VECTOR = ROOT / "architecture/adrai/examples/chronology-migration-v06.yaml"
 THREAD_CONTRACT = current_decision("A01M48RX5WAQT5ECH66KTCFVC0T")
 MIGRATION_RECOVERY = ROOT / "docs/MIGRATION_AND_RECOVERY.md"
 EMPTY_CHRONOLOGY = {"calendars": [], "eras": [], "anchors": []}

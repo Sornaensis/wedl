@@ -42,7 +42,7 @@ interface.
 - Calendar and historical chronology with explicit conversion anchors,
   qualitative uncertainty, and a 500-year packaged conformance fixture. Ticks
   order replay and never imply elapsed calendar time; see
-  [Chronology rollout](docs/CHRONOLOGY_ROLLOUT.md).
+  [Chronology guide](docs/guides/chronology.md).
 - Compiled-only `wedl-spatial/v1` reads for authored containment, geometry,
   directed routes, and horizon-authorized overlays; see the
   [spatial transport contract](docs/HTTP_API.md#spatial-reads). Seven closed

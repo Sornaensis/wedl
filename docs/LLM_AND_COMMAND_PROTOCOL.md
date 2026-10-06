@@ -169,7 +169,7 @@ arithmetic. Only explicit anchors can map a chronology date to a StoryTime;
 there is no interpolation or tick-to-duration conversion. Use the public
 `wedl chronology` read commands or the documented chronology authoring flow;
 the precise wire and replacement contract is
-[CHRONOLOGY_API_CONTRACT.md](CHRONOLOGY_API_CONTRACT.md).
+`CHRONOLOGY_API_CONTRACT.md` (ADRAI A01M48XZJ6V1X1QSM4QEZJZS81M; read with `adrai --repo WEDL_SOURCE_CHECKOUT show A01M48XZJ6V1X1QSM4QEZJZS81M --json` in the WEDL development/source checkout).
 
 ## Context and conversation boundaries
 
@@ -233,7 +233,7 @@ requires the exact audited `--expected-head`, and accepts the normal
 `--confirm TOKEN` replay of that preview (or CLI-only `--yes`). The resulting
 candidate uses the same validation, atomic commit, compilation, and receipt
 replay guarantees as other authoring actions. See
-[CHRONOLOGY_API_CONTRACT.md](CHRONOLOGY_API_CONTRACT.md) for accepted values,
+`CHRONOLOGY_API_CONTRACT.md` (ADRAI A01M48XZJ6V1X1QSM4QEZJZS81M; read with `adrai --repo WEDL_SOURCE_CHECKOUT show A01M48XZJ6V1X1QSM4QEZJZS81M --json` in the WEDL development/source checkout) for accepted values,
 temporary IDs, legacy upgrade behavior, and HTTP parity.
 
 Automation must preserve the exact previewed JSON and pass the token out of
