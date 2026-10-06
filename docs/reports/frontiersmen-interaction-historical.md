@@ -1,5 +1,9 @@
 # The Frontiersmen — Interactive Exercise Log
 
+> Historical report. Original versions, fixture counts, outcomes and measurements below belong to the recorded exercise. This migration performs no fresh release/performance qualification. Architectural rationale is in ADRAI A01M4971W13BPKM0G1FPZ86MA9Z; custody is in ADRAI A01M49735W4D3CZ2PJ129HTJCGG. Read these with `adrai --repo WEDL_SOURCE_CHECKOUT show ADR_ID --json` in the WEDL development/source checkout.
+
+The 294-record/17-conversation/224-turn pursuit snapshot at main195 is historical. Maintained legacy/v0.7 packages have 309 records, 19 conversations and 248 turns with Southward Cut active at main210:0; those current facts do not replace old timing inputs. No rebuild or replay of the old snapshot was performed.
+
 ## Scope
 
 The authored repository was exercised repeatedly at each act boundary. Outputs are retained under `examples/frontiersmen/interactive/` and include contexts, searches, conversation views, story-point evaluations, preview receipts, apply receipts, and validation results.
@@ -49,7 +53,7 @@ The authored repository was exercised repeatedly at each act boundary. Outputs a
 - Historical tick-55 search does not reveal the Tree King through future relationships.
 - The Frontier secret marker remains absent from character FTS, vector, and hybrid results.
 
-## Final world statistics
+## Historical pursuit-stage world statistics
 
 - Records: 294
 - Characters: 20

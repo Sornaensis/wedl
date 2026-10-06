@@ -1,8 +1,12 @@
 # The Frontiersmen — Performance and Retrieval Exercise
 
+> Historical report. Original versions, fixture counts, outcomes and measurements below belong to the recorded exercise. This migration performs no fresh release/performance qualification. Architectural rationale is in ADRAI A01M4971W13BPKM0G1FPZ86MA9Z; custody is in ADRAI A01M49735W4D3CZ2PJ129HTJCGG. Read these with `adrai --repo WEDL_SOURCE_CHECKOUT show ADR_ID --json` in the WEDL development/source checkout.
+
+The 294-record/17-conversation/224-turn pursuit snapshot at main195 is historical. Maintained legacy/v0.7 packages have 309 records, 19 conversations and 248 turns with Southward Cut active at main210:0; those current facts do not replace old timing inputs. No rebuild or replay of the old snapshot was performed.
+
 ## Test world
 
-The measurements below use the final authored Frontiersmen fixture:
+The measurements below use the historical authored Frontiersmen fixture:
 
 - 294 records
 - 17 conversations
@@ -22,9 +26,9 @@ Values were measured in the validation container and include Python, Git, YAML, 
 | `vector` | 1.67 s | 277 ms | 15.8 ms | 9.95 MB |
 | `hybrid` | 1.91 s | 504 ms | 85.6 ms | 10.83 MB |
 
-The vector and hybrid cold builds include local TF-IDF/truncated-SVD fitting. Warm forced builds reuse the content-addressed model/vector cache. `state` remains suitable when retrieval is unnecessary; `fts` is the inexpensive full-text authoring profile; `hybrid` is the packaged default.
+The exercise attributed vector/hybrid cold cost to local TF-IDF/truncated-SVD fitting. The original cache/profile design interpretation is preserved in ADRAI A01M4971W13BPKM0G1FPZ86MA9Z.
 
-The hybrid exact-reuse measurement is noticeably higher than the other profiles in this particular run. It remains far below a forced rebuild, but the difference is worth profiling further: exact reuse should ideally avoid any work beyond revision/profile verification and opening the existing database.
+The hybrid exact-reuse measurement is noticeably higher than the other profiles in this particular run. It remained far below a forced rebuild. The proposed further profiling is historical rationale in ADRAI A01M4971W13BPKM0G1FPZ86MA9Z.
 
 ## Independent search lanes
 
@@ -37,11 +41,7 @@ Twenty repeated in-process calls were made for each mode and query.
 | `former guild hunter using terror to strengthen masked followers` | 5.2 ms | 5.1 ms | 7.9 ms |
 | `bone key reliquary rain pursuit through spruce` | 4.1 ms | 5.0 ms | 6.8 ms |
 
-These calls use genuinely independent corpora:
-
-- FTS uses weighted BM25 over title, aliases, heading, body, domain, and tags.
-- Vector scans the complete authorized normalized-vector corpus.
-- Hybrid retrieves from each lane independently and fuses the ranked union.
+Historical architectural rationale is preserved in ADRAI A01M4971W13BPKM0G1FPZ86MA9Z; read with `adrai --repo WEDL_SOURCE_CHECKOUT show A01M4971W13BPKM0G1FPZ86MA9Z --json` in the WEDL development/source checkout.
 
 The raw top results, ranks, cosine scores, and fused lane evidence are retained in [`FRONTIERSMEN_BENCHMARKS.json`](FRONTIERSMEN_BENCHMARKS.json).
 
@@ -77,20 +77,6 @@ Write authorization behaved as expected:
 
 Raw HTTP results are in [`FRONTIERSMEN_API_BENCHMARKS.json`](FRONTIERSMEN_API_BENCHMARKS.json).
 
-## Authoring-performance findings
+## Observations retained from the authoring exercise
 
-### Act-sized changesets are the right granularity
-
-A campaign-sized changeset is possible but difficult to inspect. Six act commits made preview diagnostics, temporal reasoning, and idempotent replay manageable. The builder now supports `--start` and `--through` for resumable authoring.
-
-### Search payloads are larger than context packets
-
-A 20-result search response can approach 19 KB because it preserves lane evidence and citations for inspection. The final LLM packet is around 5 KB. This is appropriate for separate inspection and generation APIs, but the browser should not automatically inject raw search responses into model context.
-
-### Local LSA fitting remains the cold-cost center
-
-On this authored world, cold vector/hybrid compilation is dominated by local model fitting. Warm forced builds are much faster due to model and vector reuse. An external neural provider would shift the cost toward network/model latency and should be benchmarked separately.
-
-### Exact hybrid reuse merits another pass
-
-The 85.6 ms exact hybrid reuse is still interactive but unexpectedly above the 3–16 ms measured for the other profiles. The next performance pass should instrument exact-profile verification and retained-database opening separately.
+The exercise used six act commits and reported builder `--start`/`--through` support. A 20-result search response approached 19 KB while the final model packet was around 5 KB. Cold fitting remained the reported cost centre, and exact hybrid reuse measured 85.6 ms versus roughly 3–16 ms for other profiles. The original granularity, browser-context and future-provider recommendations are preserved in ADRAI A01M4971W13BPKM0G1FPZ86MA9Z.

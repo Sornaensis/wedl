@@ -241,14 +241,29 @@ def run_benchmark(*, smoke: bool = False) -> dict[str, Any]:
 def main() -> None:
     parser = argparse.ArgumentParser()
     parser.add_argument("--smoke", action="store_true", help="run the small production-path CI corpus")
-    parser.add_argument("--write", action="store_true", help="replace the checked full evidence JSON (not valid with --smoke)")
+    parser.add_argument("--write", action="store_true", help="write full evidence to an explicit fresh --output path (not valid with --smoke)")
+    parser.add_argument("--output", type=Path, help="fresh caller-owned evidence path; requires --write and an existing parent directory")
     args = parser.parse_args()
     if args.write and args.smoke:
         parser.error("--write requires the full benchmark")
-    evidence = json.dumps(run_benchmark(smoke=args.smoke), indent=2, sort_keys=True) + "\n"
+    if args.write and args.output is None:
+        parser.error("--write requires an explicit fresh --output path")
+    if args.output is not None and not args.write:
+        parser.error("--output requires --write")
+    output = None
     if args.write:
-        (Path(__file__).resolve().parents[1] / "docs" / "chronology-index-benchmark.json").write_text(evidence, encoding="utf-8")
-    print(evidence, end="")
+        try:
+            output = args.output.open("x", encoding="utf-8")
+        except OSError as error:
+            parser.error(f"cannot create fresh output: {error}")
+    try:
+        evidence = json.dumps(run_benchmark(smoke=args.smoke), indent=2, sort_keys=True) + "\n"
+        if output is not None:
+            output.write(evidence)
+        print(evidence, end="")
+    finally:
+        if output is not None:
+            output.close()
 
 
 if __name__ == "__main__":

@@ -57,3 +57,17 @@ uv run python tools/benchmark_chronology_index.py --smoke
 ```
 
 The [chronology benchmark JSON](../reports/chronology-index-benchmark.json) retains its original measured environment, input, timings, and budget result. It is historical evidence. The full runner uses 500 years and 10,000 claims; the original release constraint is retained in the rollout decision. Reproduction creates new evidence for the environment where it runs.
+
+To save a new full run, supply an absent filename within your existing contained,
+task-owned run directory (with a named owner and finite lifetime):
+
+```text
+uv run python tools/benchmark_chronology_index.py --write --output output/CALLER_OWNED_RUN/chronology.json
+```
+
+The parent must already exist. Omitting --output or naming an existing file fails before the
+benchmark starts; archived report JSON cannot be overwritten, even when named
+explicitly. Default/full/smoke calls still print stdout. A failed write-mode run
+may leave its newly reserved file empty; resolve that owned artifact with the
+failure diagnostics. A new run uses current implementation/environment inputs,
+not the archived receipt's old fingerprint or measurements.

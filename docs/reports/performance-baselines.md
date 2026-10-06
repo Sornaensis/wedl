@@ -1,5 +1,7 @@
 # Performance
 
+> Historical report. Original versions, fixture counts, outcomes and measurements below belong to the recorded exercise. This migration performs no fresh release/performance qualification. Architectural rationale is in ADRAI A01M4971W13BPKM0G1FPZ86MA9Z; custody is in ADRAI A01M49735W4D3CZ2PJ129HTJCGG. Read these with `adrai --repo WEDL_SOURCE_CHECKOUT show ADR_ID --json` in the WEDL development/source checkout.
+
 ## 0.5.0 search-profile measurements
 
 wedl now measures compilation and retrieval by explicit profile rather than
@@ -16,9 +18,7 @@ runtime overhead. They are regression baselines, not universal hardware claims.
 | `vector` | 756.3 ms | 95.1 ms | 5.9 ms | 5.89 MB |
 | `hybrid` | 551.6 ms | 102.6 ms | 5.9 ms | 6.30 MB |
 
-The local LSA cold fit is the visible cost. Warm forced compilation reuses the
-content-addressed model/vector cache. The hybrid/vector databases contain 931
-document links backed by 626 unique normalized vectors.
+The reported local LSA cold fit was the visible cost. The measured hybrid/vector databases contained 931 document links backed by 626 unique normalized vectors. Cache-design explanation is in ADRAI A01M4971W13BPKM0G1FPZ86MA9Z.
 
 For `legal authenticity coercion`, median in-process searches were:
 
@@ -44,99 +44,38 @@ FTS candidate set.
 The vector/hybrid databases contain 10,289 document links backed by 9,369
 unique vectors. For `consistency checksum neighboring records`, medians were
 approximately 11 ms for FTS, 38 ms for vector, and 38 ms for hybrid in the
-full benchmark process. A subsequent runtime optimization caches the immutable
-model matrix and query vectors in-process; repeated exact-vector queries no
-longer decode all BLOBs.
+full benchmark process. Historical architectural rationale is preserved in ADRAI A01M4971W13BPKM0G1FPZ86MA9Z; read with `adrai --repo WEDL_SOURCE_CHECKOUT show A01M4971W13BPKM0G1FPZ86MA9Z --json` in the WEDL development/source checkout.
 
-### Current optimization boundary
+### Historical optimization interpretation
 
-- State-only and FTS compilation are already small compared with source authoring
-  operations.
-- Cold LSA fitting dominates local vector compilation.
-- Warm vector builds are bounded mainly by rebuilding the disposable SQLite
-  projection and linking cached vectors.
-- Exact authorized cosine scanning remains practical at roughly ten thousand
-  documents; the medium query returns in tens of milliseconds.
-- ANN should be considered only after a measured repository exceeds its latency
-  budget, and must preserve filter-before-ranking semantics.
-
-Raw profile results are retained in
-[`SEARCH_PROFILE_BENCHMARKS.json`](SEARCH_PROFILE_BENCHMARKS.json) and
-[`MEDIUM_SEARCH_PROFILE_BENCHMARKS.json`](MEDIUM_SEARCH_PROFILE_BENCHMARKS.json).
+Historical architectural rationale is preserved in ADRAI A01M4971W13BPKM0G1FPZ86MA9Z; read with `adrai --repo WEDL_SOURCE_CHECKOUT show A01M4971W13BPKM0G1FPZ86MA9Z --json` in the WEDL development/source checkout.
 
 # SQLite compilation and query performance
 
-wedl performs a safe full rebuild for changed revisions and exact reuse for an
-unchanged revision. Git Markdown remains canonical; SQLite and both content
-caches are disposable.
+Historical architectural rationale is preserved in ADRAI A01M4971W13BPKM0G1FPZ86MA9Z; read with `adrai --repo WEDL_SOURCE_CHECKOUT show A01M4971W13BPKM0G1FPZ86MA9Z --json` in the WEDL development/source checkout.
 
 ## Spatial-index benchmark boundary
 
-The latent v0.7 spatial projection is measured separately before public query
-work lands. Its acceptance envelope is bounded batch insertion, deterministic
-map/location/route/overlay row ordering, Btree-backed map-bounds and adjacency
-candidate reads, and optional-RTree fallback. Repeated builds also compare the
-serialized database SHA-256, canonical row SHA-256, byte size, and representative
-query plans. Large signed-integer bounds stay exact in the NUMERIC Btree model;
-optional outward-rounded RTree bounds remain candidate-only and use an exact
-base-table post-filter. Cache-miss compilation performs one source load/validation pass;
-cache reuse includes structural and integrity checks before the fast path. It
-did not claim a public spatial-query latency before the query contract was
-implemented.
+Historical architectural rationale is preserved in ADRAI A01M4971W13BPKM0G1FPZ86MA9Z; read with `adrai --repo WEDL_SOURCE_CHECKOUT show A01M4971W13BPKM0G1FPZ86MA9Z --json` in the WEDL development/source checkout.
+
 
 ## Latent compiled spatial-query benchmark
 
-The compiled-only v0.7 query boundary uses exact SQLite projection rows and is
-still not generic source, CLI, HTTP, or UI support. On the deterministic full
+This was a synthetic compiled-projection measurement at an earlier implementation stage. It did not qualify authored source, CLI, HTTP or UI performance. Current spatial support is described by the source/query contracts, independently of these old timings. On the deterministic full
 envelope of 100,000 locations (including depth 128), 32 maps, 250,000 routes,
 100 portals, and 10,000 overlays, three median in-memory reads measured 0.262 ms
 indexed containment, 0.052 ms bounds, 0.057 ms same-map nearby, 0.080 ms
 overlay-as-of, and 1.320 ms weighted path. All five results were repeat-stable
 with evidence digest
 `c426b9e7e050302a1c97a96c3728b866972a3cd267af45042b4662292df9029c`.
-Each read remains bounded by the ratified 100-result, 1,000-hierarchy/route
-expansion, 2,000-authorized-overlay-candidate, and 10,000-geometry-candidate
-limits. Full counts, result digests, and timings are in
+Historical architectural rationale is preserved in ADRAI A01M4971W13BPKM0G1FPZ86MA9Z; read with `adrai --repo WEDL_SOURCE_CHECKOUT show A01M4971W13BPKM0G1FPZ86MA9Z --json` in the WEDL development/source checkout. Full counts, result digests, and timings are in
 [`spatial-query-benchmark.json`](spatial-query-benchmark.json), produced by
 `tools/benchmark_spatial_query.py`.
 
 ## Implemented performance work
 
-### Source loading
+Historical architectural rationale is preserved in ADRAI A01M4971W13BPKM0G1FPZ86MA9Z; read with `adrai --repo WEDL_SOURCE_CHECKOUT show A01M4971W13BPKM0G1FPZ86MA9Z --json` in the WEDL development/source checkout.
 
-- One `git ls-tree` plus batched `git cat-file --batch` reads.
-- Parsed records cached by Git blob ID and parser fingerprint in
-  `.wedl/source-cache.sqlite`.
-- An unchanged exact revision can be recognized from commit/tree/compiler
-  metadata before loading or parsing source.
-
-### Semantic projection
-
-- Entity kinds and canonical event times cached inside a loaded world.
-- Effects indexed by target instead of rescanning every event per state query.
-- Knowledge and relationships indexed by owning/source character.
-- Character interactions materialized in one event pass rather than rescanning
-  all events for every character pair.
-- Bulk SQLite insertion followed by ordinary index creation.
-
-### Search and embeddings
-
-- Search documents built once per compile.
-- Embedding cache lookups batched by content hash.
-- Hash vectors generated once per unique input and reused across revisions.
-- Cache-hit timestamps are not rewritten during every forced compile.
-- Hybrid search bounds the bundled lexical feature-vector lane to FTS
-  candidates; explicit vector mode still exact-scores every authorized vector.
-- Detailed substage timing identifies document construction, hashing, cache
-  lookup, vector generation, cache persistence, row preparation, FTS insertion,
-  and embedding insertion separately.
-
-### Runtime queries
-
-- The current compiled `World` is cached inside one repository runtime by
-  revision, tree, database mtime, and database size.
-- Repeated API/context/search calls no longer reconstruct all records from
-  SQLite on every request.
 
 ## Benchmark worlds
 

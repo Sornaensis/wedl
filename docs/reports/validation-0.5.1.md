@@ -1,5 +1,9 @@
 # wedl 0.5.1 Story-Authoring Validation
 
+> Historical report. Original versions, fixture counts, outcomes and measurements below belong to the recorded exercise. This migration performs no fresh release/performance qualification. Architectural rationale is in ADRAI A01M4971W13BPKM0G1FPZ86MA9Z; custody is in ADRAI A01M49735W4D3CZ2PJ129HTJCGG. Read these with `adrai --repo WEDL_SOURCE_CHECKOUT show ADR_ID --json` in the WEDL development/source checkout.
+
+The 2026-08-20 source/wheel receipt and 37-test result remain historical. Backticked `docs/...` archive member paths below retain the original packaging provenance; they are not current navigation links.
+
 **Date:** 2026-08-20  
 **Purpose:** Validate the application after using it to turn the Ash Archive fixture into a coherent completed mystery and novella.
 
@@ -76,7 +80,7 @@ The final state also records:
 
 ### Historical search regression
 
-A defect found during authoring allowed future knowledge prose to enter a timeless generic character-self index. The generic section compiler now excludes knowledge records; knowledge is indexed only through its time-scoped lane.
+A defect found during authoring allowed future knowledge prose to enter a timeless generic character-self index. The recorded implementation explanation is preserved in ADRAI A01M4971W13BPKM0G1FPZ86MA9Z.
 
 At tick 121, Mara's character search cannot return the later knowledge record IDs for:
 

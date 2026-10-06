@@ -1,32 +1,11 @@
 # Validation report — wedl 0.5.0
 
+> Historical report. Original versions, fixture counts, outcomes and measurements below belong to the recorded exercise. This migration performs no fresh release/performance qualification. Architectural rationale is in ADRAI A01M4971W13BPKM0G1FPZ86MA9Z; custody is in ADRAI A01M49735W4D3CZ2PJ129HTJCGG. Read these with `adrai --repo WEDL_SOURCE_CHECKOUT show ADR_ID --json` in the WEDL development/source checkout.
+
 ## Causal and continuity validation (source schema `wedl/v0.3`)
 
-The causal layer is source-only: it adds no SQLite migration and does not infer
-facts from prose, shared cast, proximity, routes, or duration. `event.causes`
-remains a direct list of authored event references. Validation requires its
-members to be unique canonical events on the same timeline and strictly earlier
-than the caused event; cycles are rejected. `causing_event` citations on
-knowledge, relationship, and story-point transitions must reference canonical
-events on the same timeline at or before the transition coordinate (`<=`;
-same-coordinate causation is valid).
+Historical architectural rationale is preserved in ADRAI A01M4971W13BPKM0G1FPZ86MA9Z; read with `adrai --repo WEDL_SOURCE_CHECKOUT show A01M4971W13BPKM0G1FPZ86MA9Z --json` in the WEDL development/source checkout.
 
-`story-point.outcome_events` and optional `scene.outcome_events` are typed
-source relations. The former accepts ordered canonical event references; the
-latter accepts unique canonical events inside the scene interval. The read APIs
-also return advisory-only asymmetric plot links and cross-location causal edges;
-these are prompts to record a handoff, never inferred canon or validation
-failures.
-
-Existing concurrent-place codes are intentionally unchanged:
-
-- `WDL-EVENT-006` still reports an individual participant at two places in
-  same-coordinate events.
-- `WDL-SCENE-025`/`WDL-SCENE-026` still report historical overlapping scene
-  presence and the resulting two-place contradiction.
-
-New event-cause checks therefore begin at `WDL-EVENT-007`, and optional scene
-outcome checks begin at `WDL-SCENE-027`; no existing diagnostic was renumbered.
 
 ## Release result
 
@@ -98,9 +77,7 @@ artifact `wedl-python-0.5.0-smoke.json`.
 - Generated medium world: 4,303 records, zero diagnostics.
 - Medium search projection: 10,289 documents and 9,369 unique vectors.
 
-The stress generator now creates a canonical relocation event before its active
-scene, so generated participants and objects satisfy the same physical-scene
-invariants as authored worlds.
+Historical architectural rationale is preserved in ADRAI A01M4971W13BPKM0G1FPZ86MA9Z; read with `adrai --repo WEDL_SOURCE_CHECKOUT show A01M4971W13BPKM0G1FPZ86MA9Z --json` in the WEDL development/source checkout.
 
 ## Profile benchmarks
 
@@ -137,9 +114,7 @@ both lanes and sixteen vector-only results.
 | `hybrid` | 3.90 s | 949 ms | 8.4 ms | 45.2 MB |
 
 For `consistency checksum neighboring records`, median full-process queries were
-approximately 11 ms FTS, 38 ms vector, and 38 ms hybrid. The runtime now caches
-the immutable normalized matrix and exact query vectors, so repeated in-process
-exact scans avoid BLOB decoding and query reprojection.
+approximately 11 ms FTS, 38 ms vector, and 38 ms hybrid. Historical architectural rationale is preserved in ADRAI A01M4971W13BPKM0G1FPZ86MA9Z; read with `adrai --repo WEDL_SOURCE_CHECKOUT show A01M4971W13BPKM0G1FPZ86MA9Z --json` in the WEDL development/source checkout.
 
 Raw benchmark files:
 
@@ -200,13 +175,7 @@ search rows/ranking, causal edges, entity state, search-document chunk hashes,
 vector payloads, vector model identity/configuration, and document-vector
 links. It does not claim an unavailable general-purpose state or corpus hash.
 
-Thread grouping is checked as empty after conversion and as a projection-only
-layer once a declaration is authored: it does not create a second StoryTime,
-cursor, causal graph, state projection, corpus, rank, vector, or embedding
-space. The bounded membership projection uses one `record_thread`/`entity`
-join for a batch (see the one-statement regression in
-`tests/test_thread_memberships.py`); a no-selection browser view issues no
-membership request.
+Historical architectural rationale is preserved in ADRAI A01M4971W13BPKM0G1FPZ86MA9Z; read with `adrai --repo WEDL_SOURCE_CHECKOUT show A01M4971W13BPKM0G1FPZ86MA9Z --json` in the WEDL development/source checkout.
 
 No standalone migration stress-generator or machine-neutral latency budget is
 available in this repository. Consequently this release records bounded query

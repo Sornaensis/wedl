@@ -1,5 +1,7 @@
 # 0.4 interaction and iteration notes
 
+> Historical report. Original versions, fixture counts, outcomes and measurements below belong to the recorded exercise. This migration performs no fresh release/performance qualification. Architectural rationale is in ADRAI A01M4971W13BPKM0G1FPZ86MA9Z; custody is in ADRAI A01M49735W4D3CZ2PJ129HTJCGG. Read these with `adrai --repo WEDL_SOURCE_CHECKOUT show ADR_ID --json` in the WEDL development/source checkout.
+
 This document records what it was like to use wedl while expanding the example,
 profiling it, and repeatedly querying it rather than merely listing implemented
 features.
@@ -42,9 +44,7 @@ several record types at once. For example, the Flood Gallery sequence created:
 - story-point transitions;
 - and a new active scene.
 
-This is a better fit for wedl than independently filling CRUD forms. The
-changeset should remain event/scene/outcome-oriented even though the source tree
-is entity-oriented.
+Historical architectural rationale is preserved in ADRAI A01M4971W13BPKM0G1FPZ86MA9Z; read with `adrai --repo WEDL_SOURCE_CHECKOUT show A01M4971W13BPKM0G1FPZ86MA9Z --json` in the WEDL development/source checkout.
 
 ### Verbatim transcript plus recollection is materially useful
 
@@ -60,21 +60,9 @@ The active conversation demonstrates the distinction well:
 The transcript gives repeatable provenance. The recollection gives usable
 character continuity. Neither needs to pretend to be the other.
 
-### Context quality improved when coverage was guaranteed
+### Context quality observations
 
-Pure ranking tended to spend too many slots on slightly different evidence
-fragments. The packet became more useful after it guaranteed one atom from each
-available category before filling by score:
-
-- immediate perception;
-- live conversation;
-- relevant belief;
-- present relationship;
-- remembered conversation;
-- optional retrieval.
-
-Per-section quotas also prevented a character with many knowledge records from
-crowding out the current exchange.
+The exercise reported better coverage and less crowding after its packet-selection changes. Historical architectural rationale is preserved in ADRAI A01M4971W13BPKM0G1FPZ86MA9Z; read with `adrai --repo WEDL_SOURCE_CHECKOUT show A01M4971W13BPKM0G1FPZ86MA9Z --json` in the WEDL development/source checkout.
 
 ### Different packet sizes can be correct
 
@@ -91,41 +79,10 @@ referred to earlier phases. These were not parser bugs; they were authoring
 continuity debt made obvious by the query surface. A final example-authoring
 pass now resolves completed points and retains only genuinely open branches.
 
-## Bugs found through use and fixed
+## Bugs observed during the historical exercise
 
-### Temporary conversation IDs were initially untyped
+The exercise found untyped temporary conversation/recollection IDs, quadratic interaction projection, repeated YAML parsing, warm embedding-cache writes, and overly broad hybrid vector scoring. The large stress world had spent roughly 250 ms rewriting unchanged embedding-cache rows. These reported incidents and their original implementation explanations are preserved in ADRAI A01M4971W13BPKM0G1FPZ86MA9Z.
 
-Appending a turn with `$tmp.…` originally persisted the placeholder instead of
-allocating a `turn_…` ID. Recollection IDs had the same risk. Allocation now
-occurs before planning, preview returns the mapping, apply uses the typed IDs,
-and replay returns the same receipt.
-
-### Interaction projection was accidentally quadratic
-
-Materializing interactions by asking every character pair to scan every event
-worked for the small fixture but scaled poorly. It now walks canonical events
-once, emits actual participant pairs, and uses precomputed consequence maps.
-
-### Unchanged YAML was reparsed excessively
-
-Before source caching, validation and every query path paid PyYAML cost for the
-same Git blobs. Parsed records are now cached by blob ID and parser fingerprint,
-and exact compiled revisions can be recognized without source loading.
-
-### Warm embedding reuse still performed useless writes
-
-The cache originally updated `last_used` for every hit. The large stress world
-spent roughly 250 ms rewriting unchanged rows. Cache vectors are immutable and
-no eviction policy uses that field, so warm compiles now write only missing
-hashes.
-
-### Hybrid vector scoring scanned too broadly
-
-The bundled hash vector is a lexical feature representation, not a neural
-semantic encoder. Exact-scanning every authorized vector added cost without a
-corresponding semantic benefit. Hybrid mode now uses FTS candidates and vector
-reranking; explicit vector mode remains available for exact scans and for future
-real embedding providers.
 
 ## Performance observations
 
@@ -152,29 +109,13 @@ small compared with intentionally optional retrieval projection.
 
 ### Likely next performance work
 
-- Normalize vectors by content hash so duplicate document rows reference one
-  stored vector instead of repeating BLOBs.
-- Permit separate compilation profiles: state/FTS only, hash-vector, and external
-  semantic embedding.
-- Reuse unchanged search documents during fast-forward compilation rather than
-  rebuilding the complete search projection.
-- Measure a real embedding provider before designing ANN support.
-- Add a bounded compile-worker process if external embedding failures or memory
-  pressure justify isolation.
+Historical architectural rationale is preserved in ADRAI A01M4971W13BPKM0G1FPZ86MA9Z; read with `adrai --repo WEDL_SOURCE_CHECKOUT show A01M4971W13BPKM0G1FPZ86MA9Z --json` in the WEDL development/source checkout.
 
-## Remaining product limitations
 
-- Changed revisions still perform a safe full SQLite rebuild rather than
-  dependency-scoped row patching.
-- The hash-vector provider is lexical and should not be described as semantic
-  search.
-- Author search may return two sections from the same logical entity; the
-  context composer removes near-duplicates, but the raw search UI could expose
-  a “one result per entity” option.
-- The local FastAPI service is single-user and loopback-oriented.
-- The browser interface remains JavaScript rather than the planned Elm client.
-- The example’s final custody choice is intentionally unresolved; it is a
-  continuation point, not missing fixture data.
+## Fixture-stage limitation
+
+The then-authored example intentionally left its final custody choice unresolved. This belongs to the earlier 238-record stage, not the subsequently completed 262-record package. Other historical implementation limitations and proposals are preserved in ADRAI A01M4971W13BPKM0G1FPZ86MA9Z.
+
 
 ## Overall assessment
 
@@ -187,7 +128,4 @@ one source history:
 - What does this character remember and believe?
 - What does the author know that the character must not use?
 
-Performance is adequate for a single-author local tool at several thousand
-records, and exact revision reuse is effectively immediate. The next major
-technical investment should be incremental search projection, not more source
-schema machinery.
+The exercise assessed local interactive performance as adequate at its measured scale. Its proposed next technical investment is historical rationale in ADRAI A01M4971W13BPKM0G1FPZ86MA9Z, not a current roadmap.
