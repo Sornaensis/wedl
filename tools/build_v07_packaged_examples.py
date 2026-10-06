@@ -10,8 +10,10 @@ from __future__ import annotations
 import argparse
 from copy import deepcopy
 import hashlib
+import importlib.util
 import json
 from pathlib import Path
+import re
 import sys
 
 
@@ -143,6 +145,27 @@ def _assert_safe_target(data_root: Path, target: Path) -> None:
         raise ValueError(f"destination escapes data root: {target}")
 
 
+def _expected_bytecode(relative: Path, files: dict[str, bytes]) -> bool:
+    """Recognize disposable caches for expected modules across supported Python versions."""
+
+    if len(relative.parts) != 2 or relative.parts[0] != "__pycache__":
+        return False
+    parts = relative.name.split(".")
+    if len(parts) not in (3, 4) or parts[-1] != "pyc":
+        return False
+    if len(parts) == 4 and parts[2] not in ("opt-1", "opt-2"):
+        return False
+    tag = parts[1]
+    version = re.fullmatch(r"cpython-3([1-9][0-9]+)", tag)
+    if tag != sys.implementation.cache_tag and not (version and int(version[1]) >= 11):
+        return False
+    try:
+        source = importlib.util.source_from_cache(str(relative))
+    except ValueError:
+        return False
+    return source in files and Path(source).suffix == ".py"
+
+
 def run(*, write: bool, names: tuple[str, ...] = PACKAGES, data_root: Path = ROOT / "src" / "wedl" / "data") -> list[dict[str, str | int]]:
     prepared = []
     for name in names:
@@ -155,8 +178,13 @@ def run(*, write: bool, names: tuple[str, ...] = PACKAGES, data_root: Path = ROO
         if destination.exists():
             for path in destination.rglob("*"):
                 _assert_safe_target(data_root, path)
+                relative = path.relative_to(destination)
                 if path.is_file():
-                    existing[path.relative_to(destination).as_posix()] = path.read_bytes()
+                    if not _expected_bytecode(relative, files):
+                        existing[relative.as_posix()] = path.read_bytes()
+                elif "__pycache__" in relative.parts and relative != Path("__pycache__"):
+                    # Only the direct cache directory is allowed, including when empty.
+                    existing[relative.as_posix()] = b""
         unexpected = sorted(set(existing) - set(files))
         if unexpected:
             raise ValueError(f"{destination}: unexpected files: {unexpected[:5]}")

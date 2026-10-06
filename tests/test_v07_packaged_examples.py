@@ -6,6 +6,7 @@ import os
 from pathlib import Path
 import shutil
 import subprocess
+import sys
 import time
 
 import pytest
@@ -262,3 +263,139 @@ def test_explicit_bootstrap_choices_keep_legacy_default() -> None:
     }
     assert parser().parse_args(["init", "sample"]).example == "ash-archive"
     assert parser().parse_args(["init", "sample", "--example", "frontiersmen-v07"]).example == "frontiersmen-v07"
+
+
+def _converted_chronology(data: Path) -> Path:
+    source = ROOT / "src" / "wedl" / "data" / "chronology_conformance"
+    shutil.copytree(source, data / source.name)
+    builder.run(write=True, names=(source.name,), data_root=data)
+    return data / "chronology_conformance_v07"
+
+
+def _package_bytes(package: Path) -> dict[str, bytes]:
+    return {path.relative_to(package).as_posix(): path.read_bytes()
+            for path in package.rglob("*") if path.is_file()}
+
+
+def test_imported_bytecode_coexists_across_versions_without_rewriting(tmp_path: Path) -> None:
+    data = tmp_path / "data"
+    destination = _converted_chronology(data)
+    source = destination / "__init__.py"
+    spec = importlib.util.spec_from_file_location("isolated_chronology_v07", source)
+    assert spec and spec.loader
+    module = importlib.util.module_from_spec(spec)
+    previous = sys.dont_write_bytecode
+    sys.dont_write_bytecode = False
+    try:
+        spec.loader.exec_module(module)
+    finally:
+        sys.dont_write_bytecode = previous
+    imported_cache = Path(importlib.util.cache_from_source(str(source)))
+    assert imported_cache.is_file()
+    cache = imported_cache.parent
+    for tag in ("cpython-311", "cpython-312", "cpython-313", "cpython-314", sys.implementation.cache_tag):
+        for optimization in ("", ".opt-1", ".opt-2"):
+            path = cache / f"__init__.{tag}{optimization}.pyc"
+            if not path.exists():
+                path.write_bytes(b"retained cache for " + path.name.encode())
+    before = _package_bytes(destination)
+    builder.run(write=False, names=("chronology_conformance",), data_root=data)
+    builder.run(write=True, names=("chronology_conformance",), data_root=data)
+    assert _package_bytes(destination) == before
+    world = destination / "story" / "world.md"
+    world.write_bytes(before["story/world.md"].replace(b"spatial-core-v1", b"route-v1"))
+    builder.run(write=True, names=("chronology_conformance",), data_root=data)
+    assert _package_bytes(destination) == before
+
+
+def test_unexpected_bytecode_entries_refused_without_publication(tmp_path: Path) -> None:
+    data = tmp_path / "data"
+    destination = _converted_chronology(data)
+    world = destination / "story" / "world.md"
+    world.write_bytes(world.read_bytes().replace(b"spatial-core-v1", b"route-v1"))
+    for relative in (
+        "__pycache__/unknown.cpython-313.pyc",
+        "__pycache__/__init__.cpython-310.pyc",
+        "__pycache__/__init__.cpython-3011.pyc",
+        "__pycache__/__init__.cpython-0313.pyc",
+        "__pycache__/__init__.pypy-313.pyc",
+        "__pycache__/__init__.custom.pyc",
+        "__pycache__/__init__.cpython-313.opt-0.pyc",
+        "__pycache__/__init__.cpython-313.opt-3.pyc",
+        "__pycache__/__init__.cpython-313.opt-01.pyc",
+        "__pycache__/__init__.cpython-313.opt-.pyc",
+        "__pycache__/__init__.cpython-313.pyc.extra",
+        "__pycache__/__init__.pyc",
+        "__pycache__/unknown.txt",
+        "__pycache__/nested/__init__.cpython-313.pyc",
+        "story/__pycache__/__init__.cpython-313.pyc",
+        "__init__.pyc",
+    ):
+        path = destination / relative
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(b"unexpected")
+        before = _package_bytes(destination)
+        for write in (False, True):
+            with pytest.raises(ValueError, match="unexpected files"):
+                builder.run(write=write, names=("chronology_conformance",), data_root=data)
+            assert _package_bytes(destination) == before
+        path.unlink()
+        if path.parent.name == "nested" or path.parent == destination / "story" / "__pycache__":
+            path.parent.rmdir()
+    nested = destination / "__pycache__" / "empty-nested"
+    nested.mkdir()
+    with pytest.raises(ValueError, match="unexpected files"):
+        builder.run(write=True, names=("chronology_conformance",), data_root=data)
+    assert b"route-v1" in world.read_bytes()
+    # A later package's invalid cache must prevent earlier prepared repairs too.
+    source = ROOT / "src" / "wedl" / "data" / "ash_archive"
+    shutil.copytree(source, data / source.name)
+    builder.run(write=True, names=(source.name,), data_root=data)
+    earlier = data / "ash_archive_v07"
+    earlier_world = earlier / "story" / "world.md"
+    earlier_world.write_bytes(earlier_world.read_bytes().replace(b"spatial-core-v1", b"route-v1"))
+    before = _package_bytes(earlier)
+    with pytest.raises(ValueError, match="unexpected files"):
+        builder.run(write=True, names=(source.name, "chronology_conformance"), data_root=data)
+    assert _package_bytes(earlier) == before
+
+
+def test_linked_bytecode_cache_refused_before_publication(tmp_path: Path) -> None:
+    data = tmp_path / "data"
+    destination = _converted_chronology(data)
+    world = destination / "story" / "world.md"
+    world.write_bytes(world.read_bytes().replace(b"spatial-core-v1", b"route-v1"))
+    target = tmp_path / "cache-target"
+    target.mkdir()
+    (target / "__init__.cpython-313.pyc").write_bytes(b"protected cache")
+    link = destination / "__pycache__"
+    if os.name == "nt":
+        result = subprocess.run(["cmd", "/c", "mklink", "/J", str(link), str(target)],
+                                capture_output=True, text=True, check=False)
+        assert result.returncode == 0, result.stderr
+    else:
+        link.symlink_to(target, target_is_directory=True)
+    before = _package_bytes(destination)
+    for write in (False, True):
+        with pytest.raises(ValueError, match="symlinked destination"):
+            builder.run(write=write, names=("chronology_conformance",), data_root=data)
+        assert _package_bytes(destination) == before
+    assert (target / "__init__.cpython-313.pyc").read_bytes() == b"protected cache"
+
+
+def test_hardlinked_bytecode_refused_before_publication(tmp_path: Path) -> None:
+    data = tmp_path / "data"
+    destination = _converted_chronology(data)
+    world = destination / "story" / "world.md"
+    world.write_bytes(world.read_bytes().replace(b"spatial-core-v1", b"route-v1"))
+    protected = tmp_path / "protected.pyc"
+    protected.write_bytes(b"protected cache")
+    cache = destination / "__pycache__"
+    cache.mkdir()
+    os.link(protected, cache / "__init__.cpython-313.pyc")
+    before = _package_bytes(destination)
+    for write in (False, True):
+        with pytest.raises(ValueError, match="hard-linked destination"):
+            builder.run(write=write, names=("chronology_conformance",), data_root=data)
+        assert _package_bytes(destination) == before
+    assert protected.read_bytes() == b"protected cache"
