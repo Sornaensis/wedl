@@ -10,13 +10,49 @@ wedl generational parents --help
 wedl migrate preview --help
 ```
 
-From a source checkout without a console script, with dependencies installed:
+## Running from a source checkout
+
+The [installation instructions](../../README.md#install) provide the `wedl`
+console script. If PowerShell blocks virtual environment activation, invoke
+that environment directly:
+
+```powershell
+& .\.venv\Scripts\python.exe -m pip install -e .
+& .\.venv\Scripts\wedl.exe --help
+```
+
+If the console script is unavailable, run the module from the source checkout.
+Install its runtime dependencies in the interpreter first; `PYTHONPATH` only
+makes the source importable.
 
 ```powershell
 $env:PYTHONPATH = 'src'
 python -m wedl.cli --help
 python -m wedl.cli status --repo PATH
 ```
+
+On managed Windows machines, a restricted temporary directory can make `venv`
+fail during `ensurepip`. Use a disposable directory for the current terminal,
+keeping the previous TEMP and TMP values so you can restore them afterward:
+
+```powershell
+$previousTemp = $env:TEMP
+$previousTmp = $env:TMP
+New-Item -ItemType Directory -Path .wedl-build-tmp -ErrorAction Stop | Out-Null
+$env:TEMP = (Resolve-Path .wedl-build-tmp).Path
+$env:TMP = $env:TEMP
+try {
+  python -m venv .venv
+  & .\.venv\Scripts\python.exe -m pip install -e .
+} finally {
+  $env:TEMP = $previousTemp
+  $env:TMP = $previousTmp
+}
+```
+
+Remove only the disposable build directory you created once it is no longer
+needed. See the [testing guide](testing.md#temporary-and-retained-outputs) for
+scratch ownership and retention.
 
 ## Repository and output selection
 
@@ -33,19 +69,66 @@ wedl --compact search "amber manifestations" --repo PATH --tick 195
 
 Data commands normally print JSON. Read JSON diagnostics from stderr on failure.
 Completion commands instead print a raw, sourceable shell script and
-reject `--compact`; evaluate their output as shell source. For a single session:
+reject `--compact`; evaluate their output as shell source.
+
+## Shell completion
+
+Completion is generated from the installed CLI parser, so command and option
+suggestions stay aligned with the version you run. It is deterministic and
+only suggests commands, options, and fixed option choices—never repository
+paths, caches, or authored entity names.
+
+The one-session commands below require `wedl` to be available in that shell,
+normally after activating the project's virtual environment.
+
+For the current Bash session:
 
 ```bash
 eval "$(wedl completion bash)"
 ```
 
+For a persistent Bash setup, create a stable script while the intended virtual
+environment is active, then have `~/.bashrc` source that saved file. The profile
+does not invoke a bare `wedl`, so it remains loadable when that environment is
+not active:
+
+```bash
+completion_file="$HOME/.local/share/wedl/wedl-completion.bash"
+mkdir -p "$(dirname "$completion_file")"
+"$VIRTUAL_ENV/bin/wedl" completion bash > "$completion_file"
+printf '\nsource "$HOME/.local/share/wedl/wedl-completion.bash"\n' >> "$HOME/.bashrc"
+source "$HOME/.bashrc"
+```
+
+Regenerate the saved file after upgrading the virtual environment. If it is not
+active while generating the file, replace `"$VIRTUAL_ENV/bin/wedl"` with the
+quoted absolute path to that environment's `wedl` executable.
+
+For the current PowerShell session:
+
 ```powershell
 Invoke-Expression (& wedl completion powershell | Out-String)
 ```
 
-For persistent completion, use the environment-bound setup in the README's
-completion instructions (`~/.bashrc` or `$PROFILE`); regenerate saved scripts
-after changing the installed command surface.
+For a persistent PowerShell setup, create the script while the intended virtual
+environment is active, then have the profile source that saved script. The
+profile does not need `wedl` on `PATH` when it later loads:
+
+```powershell
+$completionFile = Join-Path $HOME '.local\share\wedl\wedl-completion.ps1'
+New-Item -ItemType Directory -Path (Split-Path -Parent $completionFile) -Force | Out-Null
+& (Join-Path $env:VIRTUAL_ENV 'Scripts\wedl.exe') completion powershell |
+  Set-Content -Path $completionFile -Encoding utf8
+if (-not (Test-Path -LiteralPath $PROFILE)) {
+  New-Item -ItemType File -Path $PROFILE -Force | Out-Null
+}
+Add-Content -Path $PROFILE -Value '. "$HOME\.local\share\wedl\wedl-completion.ps1"'
+. $PROFILE
+```
+
+Regenerate the saved file after upgrading the virtual environment. If it is not
+active while generating the file, use a quoted absolute path instead, for
+example `& 'C:\path with spaces\.venv\Scripts\wedl.exe' completion powershell`.
 
 ## Find the right family
 

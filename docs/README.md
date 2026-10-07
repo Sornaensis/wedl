@@ -1,9 +1,9 @@
 # WEDL documentation
 
-Start with the [repository quick start](../README.md) to install WEDL and
-initialize a packaged world. This directory contains usage guides, story
-material and explicitly historical reports. Read and write architecture
-through ADRAI against the WEDL development/source checkout.
+The [README](../README.md) covers installation and the basic ideas. Use the
+guides below to create a world, read and edit its records, and explore the
+packaged stories. This manual also links to historical reports. Read and write
+architecture through ADRAI against the WEDL development/source checkout.
 
 ## Usage guides
 

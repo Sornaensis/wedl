@@ -77,7 +77,7 @@ def test_top_level_help_includes_completion_and_first_run_sequence() -> None:
 
 def test_completion_docs_cover_one_session_persistent_setup_and_raw_output_contract() -> None:
     root = Path(__file__).resolve().parents[1]
-    readme = (root / "README.md").read_text(encoding="utf-8")
+    readme = (root / "docs" / "guides" / "command-line.md").read_text(encoding="utf-8")
     protocol = (root / "docs" / "guides" / "command-line.md").read_text(encoding="utf-8")
 
     assert 'eval "$(wedl completion bash)"' in readme
