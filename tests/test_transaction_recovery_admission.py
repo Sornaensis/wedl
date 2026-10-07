@@ -326,6 +326,47 @@ def test_graph_bound_exact_lexical_corpus_and_escape_parity():
             compared += 1
     assert compared == 37449
 
+    # These are lexical admission results, including quirks that the later
+    # full JSON/schema validation rejects. They must not become new semantics.
+    surfaces = [
+        (b'{"surfaces":[]}\n', 0),
+        (b'{"surfaces":[{},{}]}\n', 2),
+        (b'{"nested":{"surfaces":[{},{}]},"surfaces":[{}]}\n', 1),
+        (b'{"surfaces":["x"]}\n', 0),
+        (b'{"surfaces":[{},]}\n', 1),
+        (b'{"surfaces":[]} "unterminated', 0),
+    ]
+    for document, expected in surfaces:
+        assert recovery._canonical_surface_count(document) == expected
+    for document in (
+        b'{"nested":{"surfaces":[]}}\n',
+        b'{"surfaces":[],"surfaces":[]}\n',
+        b'{"surfaces":[]}]}\n',
+        b'{"surfaces":["unterminated',
+    ):
+        with pytest.raises(RepositoryError, match="invalid WEDL transaction journal live-byte budget"):
+            recovery._canonical_surface_count(document)
+    for run in (*range(66), 1023, 1024):
+        value = "\\" * run + '"[{,:surfaces'
+        document = (json.dumps({"padding": value, "surfaces": [{}]},
+                               sort_keys=True, separators=(",", ":")) + "\n").encode()
+        assert recovery._reject_noncanonical_budgeted_json(document) is None
+        assert recovery._canonical_surface_count(document) == 1
+    # Long base64-style values remain opaque to both pre-decode scanners.
+    document = b'{"padding":"' + b"YWJj" * (256 * 1024) + b'","surfaces":[{},{}]}\n'
+    assert recovery._reject_noncanonical_budgeted_json(document) is None
+    assert recovery._canonical_surface_count(document) == 2
+    # Non-key value spelling remains for the later UTF-8/JSON parser to reject.
+    assert recovery._reject_noncanonical_budgeted_json(b'{"x":"\xff"}\n') is None
+    for document in (
+        b'{"surfaces":[],"surfaces":[]}\n',
+        b'{"a":0,"\\u0061":1}\n',
+        b'{"surfaces":[]} "unterminated\n',
+        b'{"padding":"unterminated\\\n',
+    ):
+        with pytest.raises(RepositoryError, match="invalid WEDL transaction journal live-byte budget"):
+            recovery._reject_noncanonical_budgeted_json(document)
+
 
 def test_graph_bound_descriptor_chunk_carry_and_malformed_tail(tmp_path):
     chunk = recovery._BOUNDED_CAPTURE_CHUNK

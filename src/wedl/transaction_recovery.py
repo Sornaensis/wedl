@@ -528,6 +528,26 @@ def _budgeted_document(payload: bytes, *, scanned_graph_bytes: int | None = None
     return document
 
 
+def _json_string_close(document: bytes, start: int, limit: int) -> int:
+    """Find an unescaped closing quote without copying the string span.
+
+    ``limit`` is returned for an unterminated string so each admission scanner
+    retains its own malformed-input behavior. Only the contiguous backslashes
+    before a candidate quote need inspection; ordinary value bytes stay native.
+    """
+    cursor = start + 1
+    while True:
+        quote = document.find(b'"', cursor, limit)
+        if quote < 0:
+            return limit
+        slash_start = quote
+        while slash_start > cursor and document[slash_start - 1] == 0x5C:
+            slash_start -= 1
+        if (quote - slash_start) % 2 == 0:
+            return quote
+        cursor = quote + 1
+
+
 def _reject_noncanonical_budgeted_json(document: bytes) -> None:
     """Reject non-canonical JSON and duplicate object keys without parsing it.
 
@@ -569,17 +589,7 @@ def _reject_noncanonical_budgeted_json(document: bytes) -> None:
             index += 1
             continue
         start = index
-        index += 1
-        escaped = False
-        while index < limit:
-            current = document[index]
-            if escaped:
-                escaped = False
-            elif current == ord('\\'):
-                escaped = True
-            elif current == ord('"'):
-                break
-            index += 1
+        index = _json_string_close(document, start, limit)
         if index >= limit:
             raise RepositoryError("invalid WEDL transaction journal live-byte budget")
         # In canonical JSON a member name is immediately followed by a colon.
@@ -637,21 +647,10 @@ def _canonical_surface_count(document: bytes) -> int:
     is eligible. Full JSON/schema validation remains after the bounded load.
     """
     depth = 0
-    in_string = False
-    escaped = False
     array_start: int | None = None
     index = 0
     while index < len(document):
         byte = document[index]
-        if in_string:
-            if escaped:
-                escaped = False
-            elif byte == ord("\\"):
-                escaped = True
-            elif byte == ord('"'):
-                in_string = False
-            index += 1
-            continue
         if byte == ord('"'):
             if depth == 1 and document.startswith(b'"surfaces":[', index):
                 if array_start is not None:
@@ -659,7 +658,8 @@ def _canonical_surface_count(document: bytes) -> int:
                 array_start = index + len(b'"surfaces":')
                 index = array_start
                 continue
-            in_string = True
+            index = _json_string_close(document, index, len(document)) + 1
+            continue
         elif byte in (ord('{'), ord('[')):
             depth += 1
         elif byte in (ord('}'), ord(']')):
@@ -671,8 +671,6 @@ def _canonical_surface_count(document: bytes) -> int:
         raise RepositoryError("invalid WEDL transaction journal live-byte budget")
 
     depth = 0
-    in_string = False
-    escaped = False
     count = 0
     has_value = False
     # Consume the array opener as the scanner boundary. Nested objects/arrays
@@ -681,17 +679,9 @@ def _canonical_surface_count(document: bytes) -> int:
     index = array_start + 1
     while index < len(document):
         byte = document[index]
-        if in_string:
-            if escaped:
-                escaped = False
-            elif byte == ord("\\"):
-                escaped = True
-            elif byte == ord('"'):
-                in_string = False
-            index += 1
-            continue
         if byte == ord('"'):
-            in_string = True
+            index = _json_string_close(document, index, len(document)) + 1
+            continue
         elif byte in (ord('{'), ord('[')):
             depth += 1
             has_value = True
