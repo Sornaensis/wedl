@@ -9,6 +9,7 @@ from __future__ import annotations
 
 import json
 import os
+import time
 from pathlib import Path
 
 
@@ -23,7 +24,21 @@ def _write_snapshot() -> None:
     payload = {"active": _active_node, "completed": _completed[:100]}
     temporary = _snapshot_path.with_suffix(".tmp")
     temporary.write_text(json.dumps(payload), encoding="utf-8")
-    temporary.replace(_snapshot_path)
+    # Bound Windows replacement retries without suppressing persistent failures.
+    deadline = time.monotonic() + 0.25
+    for delay in (0.01, 0.02, 0.04, 0.08, 0.10, None):
+        try:
+            temporary.replace(_snapshot_path)
+            return
+        except OSError as error:
+            if os.name != "nt" or getattr(error, "winerror", None) not in {5, 32, 33}:
+                raise
+            remaining = deadline - time.monotonic()
+            if delay is None or remaining <= 0:
+                raise
+            time.sleep(min(delay, remaining))
+            if time.monotonic() >= deadline:
+                raise
 
 
 def pytest_runtest_logstart(nodeid: str, location: tuple[str, int | None, str]) -> None:
