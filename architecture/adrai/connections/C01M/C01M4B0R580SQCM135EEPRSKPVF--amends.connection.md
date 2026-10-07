@@ -1,0 +1,12 @@
++++
+schema = "adrai/connection/v1"
+connection = "C01M4B0R580SQCM135EEPRSKPVF"
+relation = "amends"
+from_record = "R01M4B0R580BE1Z7SKRBWBZNDW2"
+subject_adr = "A01M494PZVEJB05Y3RDNHAAKMWD"
+to_records = ["R01M494Q024KKA1WA9X61GYKVS5"]
++++
+
+Approve current-schema public examples and exact internal legacy fixture custody; retain the dated additive policy and all unrelated migration/recovery semantics.
+
+<!-- @adrai:eyJhIjp7ImkiOiJ3ZWRsLWV4YW1wbGUtY29uc29saWRhdGlvbi1kZXZlbG9wZXIiLCJrIjoibGxtIiwibSI6ImdwdC02LjEtc29sIn0sImIiOiI5MjdmNzA1YzA4Yzk3NjM3MGYzNDM0ODAwYWU5OTk3YjU4ZWRjMTIwIiwiaSI6InNoYTI1NjoydnFTZlhVSnNDWXlfTElIOVBjVW5POHBVTXdxcThFUko3eC12S2JoLTNZIiwiayI6ImNvbm5lY3Rpb24uYW1lbmRzIiwibyI6IkMwMU00QjBSNTgwU1FDTTEzNUVFUFJTS1BWRiIsIm9wIjoiTzAxTTRCMFI1ODBCRTFaN1NLUkJXQlpORFcyIiwicCI6WyJSMDFNNDk0UTAyNEtLQTFXQTlYNjFHWUtWUzUiXSwiciI6Im1hc3RlciIsInMiOiJzaGEyNTY6RjNFdXNiY2ZGeW1jMnpiVnFXVG5kbUJTRUc4T0hha2QzR1RYQTdDQWl4VSIsInQiOjE3OTEzNzEyNTI5OTIsInYiOjEsIngiOiJhZHJhaS8xLjAuMCJ9 -->
