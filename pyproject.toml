@@ -32,14 +32,12 @@ wedld = "wedl.cli:server_main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
+namespaces = false
 
 [tool.setuptools.package-data]
 wedl = [
   "static/*",
-  "data/ash_archive/story/**/*.md",
   "data/ash_archive_v07/story/**/*.md",
-  "data/chronology_conformance/story/**/*.md",
   "data/chronology_conformance_v07/story/**/*.md",
-  "data/frontiersmen/story/**/*.md",
   "data/frontiersmen_v07/story/**/*.md",
 ]

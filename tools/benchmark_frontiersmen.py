@@ -22,7 +22,7 @@ def git(root: Path, *args: str) -> None:
 
 def repository_at(root: Path) -> Repository:
     root.mkdir(parents=True, exist_ok=True)
-    source = resources.files("wedl.data.frontiersmen").joinpath("story")
+    source = Path(__file__).resolve().parents[1] / "tests" / "fixtures" / "legacy_worlds" / "frontiersmen" / "story"
     with resources.as_file(source) as source_path:
         shutil.copytree(source_path, root / "story")
     (root / ".gitignore").write_text(".wedl/\n", encoding="utf-8")

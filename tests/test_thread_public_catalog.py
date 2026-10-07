@@ -29,7 +29,7 @@ def _append_frontmatter(path: Path, value: str) -> None:
 
 def _worktree_repository(tmp_path: Path) -> Repository:
     root = tmp_path / "worktree"
-    source = resources.files("wedl.data.ash_archive").joinpath("story")
+    source = Path(__file__).resolve().parent / "fixtures" / "legacy_worlds" / "ash_archive" / "story"
     with resources.as_file(source) as source_path:
         shutil.copytree(source_path, root / "story")
     return Repository(root)

@@ -66,11 +66,11 @@ Do not use a canonical title as a substitute for a character's learned label. A 
 Create a fresh named world with an explicit example when desired:
 
 ```sh
-wedl init NAME --example ash-archive-v07
-wedl init NAME --example frontiersmen-v07
+wedl init NAME --example ash-archive
+wedl init NAME --example frontiersmen
 ```
 
-The v0.7 packages preserve their authored stories and add no canonical generational fact records. Author the desired records explicitly after inspecting the world. Legacy migration defaults do not opt into typed knowledge. An empty initialization uses v0.3, so choose the appropriate existing migration procedure before authoring v0.7 records.
+The -v07 names select the same examples; the default is Ash Archive. The v0.7 packages preserve their authored stories and add no canonical generational fact records. Author the desired records explicitly after inspecting the world. Legacy migration defaults do not opt into typed knowledge. An empty initialization uses v0.3, so choose the appropriate existing migration procedure before authoring v0.7 records.
 
 ## Durable contracts
 

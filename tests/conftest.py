@@ -178,7 +178,7 @@ def git(root: Path, *args: str, check: bool = True) -> subprocess.CompletedProce
 def ash_repo(tmp_path: Path) -> Repository:
     root = tmp_path / "ash"
     root.mkdir()
-    source = resources.files("wedl.data.ash_archive").joinpath("story")
+    source = Path(__file__).resolve().parent / "fixtures" / "legacy_worlds" / "ash_archive" / "story"
     with resources.as_file(source) as source_path:
         shutil.copytree(source_path, root / "story")
     (root / ".gitignore").write_text(".wedl/\n")
@@ -228,7 +228,7 @@ def _assert_task91_copy_is_independent(seed: Path, copy: Path) -> None:
 def _task91_seed(tmp_path_factory: pytest.TempPathFactory) -> Path:
     root = tmp_path_factory.mktemp("task91-seed") / "repository"
     root.mkdir()
-    world = resources.files("wedl.data.ash_archive").joinpath("story", "world.md")
+    world = Path(__file__).resolve().parent / "fixtures" / "legacy_worlds" / "ash_archive" / "story" / "world.md"
     (root / "story").mkdir()
     with resources.as_file(world) as world_path:
         shutil.copyfile(world_path, root / "story" / "world.md")
@@ -265,7 +265,7 @@ def task91_repo(tmp_path: Path, _task91_seed: Path) -> Repository:
 def frontiersmen_repo(tmp_path: Path) -> Repository:
     root = tmp_path / "frontiersmen"
     root.mkdir()
-    source = resources.files("wedl.data.frontiersmen").joinpath("story")
+    source = Path(__file__).resolve().parent / "fixtures" / "legacy_worlds" / "frontiersmen" / "story"
     with resources.as_file(source) as source_path:
         shutil.copytree(source_path, root / "story")
     (root / ".gitignore").write_text(".wedl/\n", encoding="utf-8")

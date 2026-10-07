@@ -15,7 +15,7 @@ from wedl.validation import validate_world
 
 
 def _world():
-    return Repository(Path("src/wedl/data/ash_archive")).load_world("WORKTREE", cache_write=False)
+    return Repository(Path("tests/fixtures/legacy_worlds/ash_archive")).load_world("WORKTREE", cache_write=False)
 
 
 def _time(tick=300):

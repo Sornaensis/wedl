@@ -13,7 +13,7 @@ from wedl.server import create_app
 
 @pytest.fixture()
 def chronology_ui_repository(tmp_path: Path) -> Repository:
-    source = resources.files("wedl.data.ash_archive").joinpath("story")
+    source = Path(__file__).resolve().parent / "fixtures" / "legacy_worlds" / "ash_archive" / "story"
     with resources.as_file(source) as source_path:
         shutil.copytree(source_path, tmp_path / "world" / "story")
     return Repository(tmp_path / "world")

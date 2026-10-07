@@ -199,7 +199,7 @@ def validate_affordance(value, context, outcomes):
     for package in packages:
         require(len(package["sourceFiles"]) == package["recordCount"]
                 and source_files_digest(package["sourceFiles"]) == package["sourceSha256"], "package source digest")
-        prefix = "src/wedl/data/" + ("ash_archive" if package["name"] == "ash" else "frontiersmen") + "/"
+        prefix = "tests/fixtures/legacy_worlds/" + ("ash_archive" if package["name"] == "ash" else "frontiersmen") + "/"
         require(package["sourceFiles"] == {p.removeprefix(prefix): h for p, h in context["inputHashes"].items()
                                           if p.startswith(prefix)}, "affordance package input mismatch")
         require(set(package["lifecycle"]) == {"candidate", "preview", "apply", "replay", "sourceReload",
@@ -248,7 +248,8 @@ def validate_package(value, context):
             and len(value["tokens"]) == len(set(value["tokens"])) == 19, "package affordances")
     for package in packages:
         for field, name in (("legacyFiles", package["name"].removesuffix("_v07")), ("convertedFiles", package["name"])):
-            prefix = "src/wedl/data/" + name + "/"
+            source_root = "tests/fixtures/legacy_worlds/" if field == "legacyFiles" else "src/wedl/data/"
+            prefix = source_root + name + "/"
             require(package[field] == {p.removeprefix(prefix): h for p, h in context["inputHashes"].items()
                                         if p.startswith(prefix)}, "package input mismatch")
         require(package["legacySha256"] == source_files_digest(package["legacyFiles"])

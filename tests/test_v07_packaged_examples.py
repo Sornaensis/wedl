@@ -41,17 +41,18 @@ def test_full_three_package_conversion_rebuild_reproducibility(tmp_path: Path) -
         assert item["legacy_sha256"] != item["v07_sha256"]
         assert len(item["legacy_sha256"]) == len(item["v07_sha256"]) == 64
     data_root = ROOT / "src" / "wedl" / "data"
+    legacy_root = builder.LEGACY_ROOT
     generated = tmp_path / "generated"
     for package in builder.PACKAGES:
-        shutil.copytree(data_root / package, generated / package)
-    assert builder.run(write=True, data_root=generated) == reports
-    assert builder.run(write=False, data_root=generated) == reports
+        shutil.copytree(legacy_root / package, generated / package)
+    assert builder.run(write=True, data_root=generated, legacy_root=generated) == reports
+    assert builder.run(write=False, data_root=generated, legacy_root=generated) == reports
 
     counts = {"fields": 0, "empty": 0, "nonempty": 0}
     tokens: set[str] = set()
     cache_states: dict[str, str] = {}
     for package, report in zip(builder.PACKAGES, reports, strict=True):
-        original = builder._story_files(data_root / package)
+        original = builder._story_files(legacy_root / package)
         converted = builder._story_files(data_root / f"{package}_v07")
         regenerated = builder._story_files(generated / f"{package}_v07")
         assert original.keys() == converted.keys() == regenerated.keys()
@@ -148,41 +149,41 @@ def test_semantic_projection_preserves_absent_empty_order_and_duplicates() -> No
 
 def test_check_reports_drift_without_modifying_packages(tmp_path: Path) -> None:
     data = tmp_path / "data"
-    source = ROOT / "src" / "wedl" / "data" / "chronology_conformance"
+    source = builder.LEGACY_ROOT / "chronology_conformance"
     shutil.copytree(source, data / source.name)
-    assert builder.run(write=True, names=(source.name,), data_root=data)[0]["records"] == 7
+    assert builder.run(write=True, names=(source.name,), data_root=data, legacy_root=data)[0]["records"] == 7
     world = data / "chronology_conformance_v07" / "story" / "world.md"
     world.write_bytes(world.read_bytes().replace(b"spatial-core-v1", b"route-v1"))
     damaged = world.read_bytes()
     with pytest.raises(ValueError, match="differ from conversion"):
-        builder.run(write=False, names=(source.name,), data_root=data)
+        builder.run(write=False, names=(source.name,), data_root=data, legacy_root=data)
     assert world.read_bytes() == damaged
 
 
 def test_mixed_schema_fails_before_publication(tmp_path: Path) -> None:
     data = tmp_path / "data"
-    source = ROOT / "src" / "wedl" / "data" / "chronology_conformance"
+    source = builder.LEGACY_ROOT / "chronology_conformance"
     shutil.copytree(source, data / source.name)
     record = next((data / source.name / "story").rglob("*.md"))
     record.write_bytes(record.read_bytes().replace(b"wedl/v0.6", b"wedl/v0.3"))
     with pytest.raises(ValueError, match="conversion refused"):
-        builder.run(write=True, names=(source.name,), data_root=data)
+        builder.run(write=True, names=(source.name,), data_root=data, legacy_root=data)
     assert not (data / "chronology_conformance_v07").exists()
 
 
 def test_missing_legacy_record_fails_before_publication(tmp_path: Path) -> None:
     data = tmp_path / "data"
-    source = ROOT / "src" / "wedl" / "data" / "ash_archive"
+    source = builder.LEGACY_ROOT / "ash_archive"
     shutil.copytree(source, data / source.name)
     (data / source.name / "story" / "objects" / "red-notebook.md").unlink()
     with pytest.raises(ValueError, match="source differs from pinned legacy package"):
-        builder.run(write=True, names=(source.name,), data_root=data)
+        builder.run(write=True, names=(source.name,), data_root=data, legacy_root=data)
     assert not (data / "ash_archive_v07").exists()
 
 
 def test_symlinked_destination_cannot_overwrite_pinned_source(tmp_path: Path) -> None:
     data = tmp_path / "data"
-    source = ROOT / "src" / "wedl" / "data" / "chronology_conformance"
+    source = builder.LEGACY_ROOT / "chronology_conformance"
     shutil.copytree(source, data / source.name)
     legacy_world = data / source.name / "story" / "world.md"
     original = legacy_world.read_bytes()
@@ -196,13 +197,13 @@ def test_symlinked_destination_cannot_overwrite_pinned_source(tmp_path: Path) ->
     else:
         link.symlink_to(legacy_world.parent, target_is_directory=True)
     with pytest.raises(ValueError, match="symlinked destination"):
-        builder.run(write=True, names=(source.name,), data_root=data)
+        builder.run(write=True, names=(source.name,), data_root=data, legacy_root=data)
     assert legacy_world.read_bytes() == original
 
 
 def test_hardlinked_destination_cannot_overwrite_pinned_source(tmp_path: Path) -> None:
     data = tmp_path / "data"
-    source = ROOT / "src" / "wedl" / "data" / "chronology_conformance"
+    source = builder.LEGACY_ROOT / "chronology_conformance"
     shutil.copytree(source, data / source.name)
     legacy_world = data / source.name / "story" / "world.md"
     original = legacy_world.read_bytes()
@@ -210,7 +211,7 @@ def test_hardlinked_destination_cannot_overwrite_pinned_source(tmp_path: Path) -
     destination.mkdir(parents=True)
     os.link(legacy_world, destination / "world.md")
     with pytest.raises(ValueError, match="hard-linked destination"):
-        builder.run(write=True, names=(source.name,), data_root=data)
+        builder.run(write=True, names=(source.name,), data_root=data, legacy_root=data)
     assert legacy_world.read_bytes() == original
 
 
@@ -218,7 +219,7 @@ def test_small_packaged_upgrade_stale_head_and_forward_rollback(tmp_path: Path) 
     root = tmp_path / "chronology"
     root.mkdir()
     data = ROOT / "src" / "wedl" / "data"
-    shutil.copytree(data / "chronology_conformance" / "story", root / "story")
+    shutil.copytree(builder.LEGACY_ROOT / "chronology_conformance" / "story", root / "story")
     (root / ".gitignore").write_text(".wedl/\n", encoding="utf-8")
     git(root, "init", "-q")
     git(root, "config", "user.name", "wedl test")
@@ -254,11 +255,12 @@ def test_small_packaged_upgrade_stale_head_and_forward_rollback(tmp_path: Path) 
 
 
 def test_explicit_bootstrap_choices_keep_legacy_default() -> None:
+    """Keep the registered node while checking the current modern default and aliases."""
     assert CLI_EXAMPLES == PARSER_EXAMPLES
     assert PARSER_EXAMPLES == {
-        "ash-archive": "ash_archive",
+        "ash-archive": "ash_archive_v07",
         "ash-archive-v07": "ash_archive_v07",
-        "frontiersmen": "frontiersmen",
+        "frontiersmen": "frontiersmen_v07",
         "frontiersmen-v07": "frontiersmen_v07",
     }
     assert parser().parse_args(["init", "sample"]).example == "ash-archive"
@@ -266,9 +268,9 @@ def test_explicit_bootstrap_choices_keep_legacy_default() -> None:
 
 
 def _converted_chronology(data: Path) -> Path:
-    source = ROOT / "src" / "wedl" / "data" / "chronology_conformance"
+    source = builder.LEGACY_ROOT / "chronology_conformance"
     shutil.copytree(source, data / source.name)
-    builder.run(write=True, names=(source.name,), data_root=data)
+    builder.run(write=True, names=(source.name,), data_root=data, legacy_root=data)
     return data / "chronology_conformance_v07"
 
 
@@ -299,12 +301,12 @@ def test_imported_bytecode_coexists_across_versions_without_rewriting(tmp_path: 
             if not path.exists():
                 path.write_bytes(b"retained cache for " + path.name.encode())
     before = _package_bytes(destination)
-    builder.run(write=False, names=("chronology_conformance",), data_root=data)
-    builder.run(write=True, names=("chronology_conformance",), data_root=data)
+    builder.run(write=False, names=("chronology_conformance",), data_root=data, legacy_root=data)
+    builder.run(write=True, names=("chronology_conformance",), data_root=data, legacy_root=data)
     assert _package_bytes(destination) == before
     world = destination / "story" / "world.md"
     world.write_bytes(before["story/world.md"].replace(b"spatial-core-v1", b"route-v1"))
-    builder.run(write=True, names=("chronology_conformance",), data_root=data)
+    builder.run(write=True, names=("chronology_conformance",), data_root=data, legacy_root=data)
     assert _package_bytes(destination) == before
 
 
@@ -337,7 +339,7 @@ def test_unexpected_bytecode_entries_refused_without_publication(tmp_path: Path)
         before = _package_bytes(destination)
         for write in (False, True):
             with pytest.raises(ValueError, match="unexpected files"):
-                builder.run(write=write, names=("chronology_conformance",), data_root=data)
+                builder.run(write=write, names=("chronology_conformance",), data_root=data, legacy_root=data)
             assert _package_bytes(destination) == before
         path.unlink()
         if path.parent.name == "nested" or path.parent == destination / "story" / "__pycache__":
@@ -345,18 +347,18 @@ def test_unexpected_bytecode_entries_refused_without_publication(tmp_path: Path)
     nested = destination / "__pycache__" / "empty-nested"
     nested.mkdir()
     with pytest.raises(ValueError, match="unexpected files"):
-        builder.run(write=True, names=("chronology_conformance",), data_root=data)
+        builder.run(write=True, names=("chronology_conformance",), data_root=data, legacy_root=data)
     assert b"route-v1" in world.read_bytes()
     # A later package's invalid cache must prevent earlier prepared repairs too.
-    source = ROOT / "src" / "wedl" / "data" / "ash_archive"
+    source = builder.LEGACY_ROOT / "ash_archive"
     shutil.copytree(source, data / source.name)
-    builder.run(write=True, names=(source.name,), data_root=data)
+    builder.run(write=True, names=(source.name,), data_root=data, legacy_root=data)
     earlier = data / "ash_archive_v07"
     earlier_world = earlier / "story" / "world.md"
     earlier_world.write_bytes(earlier_world.read_bytes().replace(b"spatial-core-v1", b"route-v1"))
     before = _package_bytes(earlier)
     with pytest.raises(ValueError, match="unexpected files"):
-        builder.run(write=True, names=(source.name, "chronology_conformance"), data_root=data)
+        builder.run(write=True, names=(source.name, "chronology_conformance"), data_root=data, legacy_root=data)
     assert _package_bytes(earlier) == before
 
 
@@ -378,7 +380,7 @@ def test_linked_bytecode_cache_refused_before_publication(tmp_path: Path) -> Non
     before = _package_bytes(destination)
     for write in (False, True):
         with pytest.raises(ValueError, match="symlinked destination"):
-            builder.run(write=write, names=("chronology_conformance",), data_root=data)
+            builder.run(write=write, names=("chronology_conformance",), data_root=data, legacy_root=data)
         assert _package_bytes(destination) == before
     assert (target / "__init__.cpython-313.pyc").read_bytes() == b"protected cache"
 
@@ -396,6 +398,6 @@ def test_hardlinked_bytecode_refused_before_publication(tmp_path: Path) -> None:
     before = _package_bytes(destination)
     for write in (False, True):
         with pytest.raises(ValueError, match="hard-linked destination"):
-            builder.run(write=write, names=("chronology_conformance",), data_root=data)
+            builder.run(write=write, names=("chronology_conformance",), data_root=data, legacy_root=data)
         assert _package_bytes(destination) == before
     assert protected.read_bytes() == b"protected cache"

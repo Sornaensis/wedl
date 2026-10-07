@@ -19,10 +19,12 @@ def preflight(context):
     require(Path(sys.executable).resolve() == Path(context["python"]["path"]).resolve()
             and file_hash(sys.executable) == context["python"]["sha256"], "package Python runtime changed")
     data = ROOT / "src/wedl/data"
+    legacy = ROOT / "tests/fixtures/legacy_worlds"
     required = set()
     for name in PACKAGE_COUNTS:
         for package in (name, name.removesuffix("_v07")):
-            story = contained(data / package / "story", ROOT)
+            source_root = data if package.endswith("_v07") else legacy
+            story = contained(source_root / package / "story", ROOT)
             for path in story.rglob("*.md"):
                 path = contained(path, ROOT)
                 required.add(path.relative_to(ROOT).as_posix())
@@ -49,18 +51,19 @@ def run(context):
     require(not stage.exists(), "package scratch already exists")
     stage.mkdir()
     data = ROOT / "src/wedl/data"
+    legacy_root = builder.LEGACY_ROOT
     reports = builder.run(write=False)
     require({r["package"]: r["records"] for r in reports} == PACKAGE_COUNTS, "conversion counts")
     generated = stage / "generated"
     for package in builder.PACKAGES:
-        shutil.copytree(data / package / "story", generated / package / "story")
-    require(builder.run(write=True, data_root=generated) == reports
-            and builder.run(write=False, data_root=generated) == reports, "independent conversion drift")
+        shutil.copytree(legacy_root / package / "story", generated / package / "story")
+    require(builder.run(write=True, data_root=generated, legacy_root=generated) == reports
+            and builder.run(write=False, data_root=generated, legacy_root=generated) == reports, "independent conversion drift")
     counts = {"fields": 0, "empty": 0, "nonempty": 0}
     tokens = set()
     packages = []
     for package, report in zip(builder.PACKAGES, reports, strict=True):
-        legacy = builder._story_files(data / package)
+        legacy = builder._story_files(legacy_root / package)
         converted = builder._story_files(data / (package + "_v07"))
         regenerated = builder._story_files(generated / (package + "_v07"))
         require(legacy.keys() == converted.keys() == regenerated.keys() and converted == regenerated,

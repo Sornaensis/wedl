@@ -1,6 +1,6 @@
 """Build a compact, reproducible chronology conformance report.
 
-The packaged source is the release fixture.  This tool deliberately reports
+The retained v0.6 source is the release fixture.  This tool deliberately reports
 calendar coverage and compiler evidence separately from StoryTime: the latter
 orders scenes, it is never elapsed calendar time.
 """
@@ -22,7 +22,7 @@ from wedl.validation import validate_world
 def run() -> dict[str, object]:
     with TemporaryDirectory(prefix="wedl-chronology-conformance-") as temporary:
         root = Path(temporary)
-        source = resources.files("wedl.data.chronology_conformance").joinpath("story")
+        source = Path(__file__).resolve().parents[1] / "tests" / "fixtures" / "legacy_worlds" / "chronology_conformance" / "story"
         with resources.as_file(source) as packaged:
             shutil.copytree(packaged, root / "story")
         repository = Repository(root)

@@ -27,6 +27,7 @@ from wedl.validation import validate_world  # noqa: E402
 
 
 PACKAGES = ("ash_archive", "frontiersmen", "chronology_conformance")
+LEGACY_ROOT = ROOT / "tests" / "fixtures" / "legacy_worlds"
 CAPABILITIES = ["generational-core-v1", "spatial-core-v1"]
 PINNED_LEGACY = {
     "ash_archive": (262, "e627856da258becf7ce6c32f24fbcee74d0ed24b08b4f9aca1cce87e55f7cdf0"),
@@ -166,12 +167,17 @@ def _expected_bytecode(relative: Path, files: dict[str, bytes]) -> bool:
     return source in files and Path(source).suffix == ".py"
 
 
-def run(*, write: bool, names: tuple[str, ...] = PACKAGES, data_root: Path = ROOT / "src" / "wedl" / "data") -> list[dict[str, str | int]]:
+def run(
+    *, write: bool, names: tuple[str, ...] = PACKAGES,
+    data_root: Path = ROOT / "src" / "wedl" / "data",
+    legacy_root: Path = LEGACY_ROOT,
+) -> list[dict[str, str | int]]:
+    """Read pinned compatibility inputs and check or publish a separate output tree."""
     prepared = []
     for name in names:
         if name not in PACKAGES:
             raise ValueError(f"unknown package: {name}")
-        files, report = package_files(data_root / name)
+        files, report = package_files(legacy_root / name)
         destination = data_root / f"{name}_v07"
         _assert_safe_target(data_root, destination)
         existing = {}

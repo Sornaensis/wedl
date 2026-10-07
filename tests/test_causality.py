@@ -25,7 +25,7 @@ def _with_records(world, *records):
 
 
 def _ash_repository() -> Repository:
-    return Repository(Path("src/wedl/data/ash_archive"))
+    return Repository(Path("tests/fixtures/legacy_worlds/ash_archive"))
 
 
 def test_event_cause_rules_retain_direct_edges_and_reject_invalid_graphs() -> None:
@@ -126,7 +126,7 @@ def test_causal_cli_and_api_contract_expose_the_same_read_surface(capsys) -> Non
     assert causal_response["properties"]["edges"]["items"] == SCHEMAS["CausalityEdge"]
     assert causal_response["properties"]["continuityAdvisories"]["items"] == SCHEMAS["ContinuityAdvisory"]
 
-    code = main(["--compact", "causal", "Ilyra Explains the Descendant Ledger", "--repo", "src/wedl/data/ash_archive", "--direction", "upstream", "--tick", "171"])
+    code = main(["--compact", "causal", "Ilyra Explains the Descendant Ledger", "--repo", "tests/fixtures/legacy_worlds/ash_archive", "--direction", "upstream", "--tick", "171"])
     payload = json.loads(capsys.readouterr().out)
     assert code == 0
     assert payload["protocol"] == "wedl-causality/v1"

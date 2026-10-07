@@ -30,7 +30,7 @@ def test_release_docs_share_the_local_v06_capability_boundary() -> None:
 
 
 def test_packaged_conformance_fixture_is_valid_and_declares_release_coverage(tmp_path: Path) -> None:
-    source = resources.files("wedl.data.chronology_conformance").joinpath("story")
+    source = Path(__file__).resolve().parent / "fixtures" / "legacy_worlds" / "chronology_conformance" / "story"
     with resources.as_file(source) as packaged:
         shutil.copytree(packaged, tmp_path / "story")
     world = Repository(tmp_path).load_world()
@@ -50,7 +50,7 @@ def test_packaged_conformance_fixture_is_valid_and_declares_release_coverage(tmp
 
 
 def test_fixture_public_reads_have_source_and_strict_compiled_parity(tmp_path: Path) -> None:
-    source = resources.files("wedl.data.chronology_conformance").joinpath("story")
+    source = Path(__file__).resolve().parent / "fixtures" / "legacy_worlds" / "chronology_conformance" / "story"
     with resources.as_file(source) as packaged:
         shutil.copytree(packaged, tmp_path / "story")
     repository = Repository(tmp_path)
@@ -66,7 +66,7 @@ def test_fixture_public_reads_have_source_and_strict_compiled_parity(tmp_path: P
 
 
 def test_fixture_mapping_ambiguity_and_query_advisory_are_explicit_source_and_strict(tmp_path: Path) -> None:
-    source = resources.files("wedl.data.chronology_conformance").joinpath("story")
+    source = Path(__file__).resolve().parent / "fixtures" / "legacy_worlds" / "chronology_conformance" / "story"
     with resources.as_file(source) as packaged:
         shutil.copytree(packaged, tmp_path / "story")
     repository = Repository(tmp_path)
@@ -84,7 +84,7 @@ def test_fixture_mapping_ambiguity_and_query_advisory_are_explicit_source_and_st
 
 
 def test_fixture_public_outcome_and_advisory_matrix_is_exact_source_and_strict(tmp_path: Path) -> None:
-    source = resources.files("wedl.data.chronology_conformance").joinpath("story")
+    source = Path(__file__).resolve().parent / "fixtures" / "legacy_worlds" / "chronology_conformance" / "story"
     with resources.as_file(source) as packaged:
         shutil.copytree(packaged, tmp_path / "story")
     repository = Repository(tmp_path)
@@ -107,7 +107,7 @@ def test_fixture_public_outcome_and_advisory_matrix_is_exact_source_and_strict(t
 
 
 def test_fixture_validation_mutations_and_cli_http_strict_read_parity(tmp_path: Path, capsys) -> None:
-    source = resources.files("wedl.data.chronology_conformance").joinpath("story")
+    source = Path(__file__).resolve().parent / "fixtures" / "legacy_worlds" / "chronology_conformance" / "story"
     with resources.as_file(source) as packaged:
         shutil.copytree(packaged, tmp_path / "story")
     repository = Repository(tmp_path)

@@ -15,7 +15,7 @@ The world was not written as one static YAML generation. It was authored in seve
 
 The boundary-tightening follow-up ended the Hunt and Running intervals at `main 195:99`, before the Drowned Waymark at `main 196:0`, and removed the Hunt's stale `active` tag. Historical software design rationale is preserved in ADRAI A01M498R304BB0EEZ27RKTSN6QW. Read it with `adrai --repo WEDL_SOURCE_CHECKOUT show A01M498R304BB0EEZ27RKTSN6QW --json` in the WEDL development/source checkout.
 
-The earlier authoring notes reported a clean seven-act rebuild of 307 non-world canonical Markdown records byte-for-byte, with `story/world.md` dependent on the initialization world ID. That is preserved historical rebuild provenance, not a rebuild performed here. Maintained legacy/v0.7 packages currently contain 309 records each. The normalization rationale is in ADRAI A01M498R304BB0EEZ27RKTSN6QW.
+The earlier authoring notes reported a clean seven-act rebuild of 307 non-world canonical Markdown records byte-for-byte, with `story/world.md` dependent on the initialization world ID. That is preserved historical rebuild provenance, not a rebuild performed here. The maintained v0.7 package and retained legacy fixture contain 309 records each. The normalization rationale is in ADRAI A01M498R304BB0EEZ27RKTSN6QW.
 
 After each act I ran:
 

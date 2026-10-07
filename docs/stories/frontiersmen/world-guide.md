@@ -169,4 +169,4 @@ wedl search "memory of wounded animals taking shape" --mode vector
 wedl search "guild concealed amber manifestations" --mode hybrid
 ```
 
-Maintained legacy/v0.7 packages contain 309 records, 19 conversations and 248 turns, with Southward Cut active at main210:0. The [campaign chronicle](chronicle-through-pursuit.md) is an earlier manuscript ending at pursuit; it is preserved unchanged and does not cover Act VI. The [walkthrough](walkthrough.md) covers the maintained source through Drowned Waymark.
+The maintained v0.7 package and retained legacy fixture contain 309 records, 19 conversations and 248 turns, with Southward Cut active at main210:0. The [campaign chronicle](chronicle-through-pursuit.md) is an earlier manuscript ending at pursuit; it is preserved unchanged and does not cover Act VI. The [walkthrough](walkthrough.md) covers the maintained source through Drowned Waymark.

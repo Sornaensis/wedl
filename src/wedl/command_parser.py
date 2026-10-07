@@ -14,9 +14,9 @@ from .ids import KIND_PREFIX
 from .profiles import PROFILE_NAMES, VECTOR_PROVIDERS
 
 EXAMPLE_PACKAGES = {
-    "ash-archive": "ash_archive",
+    "ash-archive": "ash_archive_v07",
     "ash-archive-v07": "ash_archive_v07",
-    "frontiersmen": "frontiersmen",
+    "frontiersmen": "frontiersmen_v07",
     "frontiersmen-v07": "frontiersmen_v07",
 }
 
@@ -236,7 +236,7 @@ inclusive, and ticks do not convert to elapsed duration.""",
     init.add_argument("path", metavar="PATH", help="new, empty repository directory")
     init_group = init.add_mutually_exclusive_group()
     init_group.add_argument("--empty", action="store_true", help="create an empty world instead of copying an example")
-    init_group.add_argument("--example", choices=sorted(EXAMPLE_PACKAGES), default="ash-archive", help="example world to copy (default: ash-archive; explicit -v07 choices available)")
+    init_group.add_argument("--example", choices=sorted(EXAMPLE_PACKAGES), default="ash-archive", help="example world to copy (default: ash-archive; -v07 aliases select the same worlds)")
     init.add_argument("--no-git", action="store_true", help="do not initialize and commit a Git repository")
     init.add_argument("--profile", choices=PROFILE_NAMES, help="initial retrieval compilation profile")
     init.add_argument("--vector-provider", choices=VECTOR_PROVIDERS, help="initial vector provider for compilation")

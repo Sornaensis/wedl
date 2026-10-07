@@ -1,1 +1,0 @@
-"""Bundled Frontiersmen example world."""

@@ -31,7 +31,7 @@ def _metadata(path):
 def _chronology_repository(tmp_path: Path) -> Repository:
     root = tmp_path / "chronology"
     root.mkdir()
-    source = resources.files("wedl.data.chronology_conformance").joinpath("story")
+    source = Path(__file__).resolve().parent / "fixtures" / "legacy_worlds" / "chronology_conformance" / "story"
     with resources.as_file(source) as source_path:
         shutil.copytree(source_path, root / "story")
     (root / ".gitignore").write_text(".wedl/\n", encoding="utf-8")

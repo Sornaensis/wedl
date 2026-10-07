@@ -1,7 +1,7 @@
 # Expanded Example World — The Ash Archive
 
 > Historical tick121 seed material. Maintained packaged Ash is completed at tick208; this page preserves the earlier narrative/IDs, not a current active-world inventory.
-This guide documents the historical tick-121 Ash Archive seed. The directory contains documentation, not a story source tree. Maintained completed source is in [ash_archive/story](../../../src/wedl/data/ash_archive/story) and [ash_archive_v07/story](../../../src/wedl/data/ash_archive_v07/story). Initialize those packages with `wedl init ash --example ash-archive` or `wedl init ash-v07 --example ash-archive-v07`.
+This guide documents the historical tick-121 Ash Archive seed. The directory contains documentation, not a story source tree. Maintained completed source is in [ash_archive_v07/story](../../../src/wedl/data/ash_archive_v07/story). Initialize it with `wedl init ash --example ash-archive`; `ash-archive-v07` selects the same story. The [legacy compatibility input](../../../tests/fixtures/legacy_worlds/ash_archive/story) preserves the earlier source schema.
 
 Historical software design rationale is preserved in ADRAI A01M498R304BB0EEZ27RKTSN6QW. Read it with `adrai --repo WEDL_SOURCE_CHECKOUT show A01M498R304BB0EEZ27RKTSN6QW --json` in the WEDL development/source checkout.
 

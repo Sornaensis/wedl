@@ -276,7 +276,8 @@ try {
     }
     $inputHashes = [ordered]@{}
     foreach ($package in @("ash_archive", "frontiersmen", "chronology_conformance", "ash_archive_v07", "frontiersmen_v07", "chronology_conformance_v07")) {
-        foreach ($file in Get-ChildItem -LiteralPath (Join-Path $root "src/wedl/data/$package/story") -Filter "*.md" -File -Recurse) {
+        $packageRoot = if ($package.EndsWith("_v07")) { "src/wedl/data" } else { "tests/fixtures/legacy_worlds" }
+        foreach ($file in Get-ChildItem -LiteralPath (Join-Path $root "$packageRoot/$package/story") -Filter "*.md" -File -Recurse) {
             $relative = $file.FullName.Substring($root.Length + 1).Replace('\', '/')
             $inputHashes[$relative] = (Get-FileHash -LiteralPath $file.FullName -Algorithm SHA256).Hash.ToLowerInvariant()
         }

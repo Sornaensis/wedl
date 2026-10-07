@@ -31,7 +31,7 @@ wedl migrate preview --repo PATH --mode upgrade-v06 --expected-head HEAD --idemp
 wedl migrate apply --repo PATH --mode upgrade-v06 --expected-head HEAD --idempotency-key KEY --source-snapshot-hash HASH --confirm TOKEN
 ```
 
-Inspect the complete preview diff and diagnostics. Use its exact `sourceSnapshotHash` and `confirmationToken` in apply. Keep the same HEAD and key. Migration is local; HTTP and browser clients do not perform it. v0.4 needs its separate recovery route first; v0.7 is outside `upgrade-v06`, even though the current generic loader and compiler support it. Empty initialization creates v0.3; explicit packaged examples retain their own schema.
+Inspect the complete preview diff and diagnostics. Use its exact `sourceSnapshotHash` and `confirmationToken` in apply. Keep the same HEAD and key. Migration is local; HTTP and browser clients do not perform it. v0.4 needs its separate recovery route first; v0.7 is outside `upgrade-v06`, even though the current generic loader and compiler support it. Empty initialization creates v0.3; public packaged examples use v0.7. The source checkout retains the v0.6 chronology conformance input in `tests/fixtures/legacy_worlds/chronology_conformance/story` for catalogue and replacement coverage.
 
 For a v0.6 world, preview a complete catalogue and/or complete annotation-array replacement with:
 

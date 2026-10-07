@@ -10,6 +10,20 @@ wedl generational parents --help
 wedl migrate preview --help
 ```
 
+## Starting a world
+
+`wedl init my-world` starts the completed Ash Archive in v0.7. Choose
+Frontiersmen for an open campaign:
+
+```text
+wedl init my-world --example frontiersmen
+```
+
+The `ash-archive-v07` and `frontiersmen-v07` names remain aliases for the
+same examples. Use `wedl init my-world --empty` for a blank v0.3 world.
+Initialization requires an empty destination; it does not upgrade an
+existing world.
+
 ## Running from a source checkout
 
 The [installation instructions](../../README.md#install) provide the `wedl`

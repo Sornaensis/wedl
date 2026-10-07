@@ -30,13 +30,14 @@ generational knowledge. A mixed-version input must be resolved before applying.
 ## Start from a packaged example
 
 ```text
-wedl init ash-world --example ash-archive-v07
-wedl init frontier-world --example frontiersmen-v07
+wedl init ash-world --example ash-archive
+wedl init frontier-world --example frontiersmen
 ```
 
-The original ash-archive/frontiersmen choices remain v0.3; choose the -v07
-variant explicitly. Init does not upgrade an existing repository. From the
-WEDL source checkout, check packaged copies with:
+Both examples use v0.7. The -v07 names select the same stories, and the
+default is ash-archive. `--empty` still creates v0.3. Init does not upgrade
+an existing repository. From the WEDL source checkout, check the packaged
+copies against the retained compatibility fixtures with:
 
 ```text
 python tools/build_v07_packaged_examples.py --check
