@@ -1,0 +1,12 @@
++++
+schema = "adrai/connection/v1"
+connection = "C01M4B3123G3EG69ZHPHCCD6NRX"
+relation = "amends"
+from_record = "R01M4B3123GF90QTBVDBWZ6BCZS"
+subject_adr = "A01M48S0B8N1M7HRABA7YSM5ZR7"
+to_records = ["R01M494QS71EGRN6ZN2SXCY7Z30"]
++++
+
+Retarget the maintained Ash Archive source link to the modern packaged tree; preserve all source semantics and historical provenance.
+
+<!-- @adrai:eyJhIjp7ImkiOiJ3ZWRsLWV4YW1wbGUtY29uc29saWRhdGlvbi1kZXZlbG9wZXIiLCJrIjoibGxtIiwibSI6ImdwdC02LjEtc29sIn0sImIiOiJjZTBkZmQ5ZWRjOGE4NmVhY2I3MTQ4ZTdmY2M0YzM3NjJkZDJlOGM0IiwiaSI6InNoYTI1NjptUU05TXZKSS1rZV83eS1SQm5oeURZdnlLNjZEY1c0a0lUckFLdjJUclE0IiwiayI6ImNvbm5lY3Rpb24uYW1lbmRzIiwibyI6IkMwMU00QjMxMjNHM0VHNjlaSFBIQ0NENk5SWCIsIm9wIjoiTzAxTTRCMzEyM0dGOTBRVEJWREJXWjZCQ1pTIiwicCI6WyJSMDFNNDk0UVM3MUVHUk42Wk4yU1hDWTdaMzAiXSwiciI6Im1hc3RlciIsInMiOiJzaGEyNTY6aU40TzI5dWhrMzA4MWxyajZ0cUhWSUgwMGhtQTNQZ216cnFEcnNzYngxWSIsInQiOjE3OTEzNzM2NDE4NDAsInYiOjEsIngiOiJhZHJhaS8xLjAuMCJ9 -->
