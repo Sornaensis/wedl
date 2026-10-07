@@ -1,0 +1,12 @@
++++
+schema = "adrai/connection/v1"
+connection = "C01M4B0ZVGCNVZH7W2AQN8FNZRN"
+relation = "amends"
+from_record = "R01M4B0ZVGC2V2R7B4V2SMWWJYK"
+subject_adr = "A01M494PM59C6BG1W7K1CXXYR0H"
+to_records = ["R01M494PMBQ6P0JTY2CJ4N4KJ45"]
++++
+
+Reconcile public example aliases and default with the approved consolidation policy; preserve other command admission and temporal contracts.
+
+<!-- @adrai:eyJhIjp7ImkiOiJ3ZWRsLWV4YW1wbGUtY29uc29saWRhdGlvbi1kZXZlbG9wZXIiLCJrIjoibGxtIiwibSI6ImdwdC02LjEtc29sIn0sImIiOiI3OWIzOTJjNjVlYWI0MzJkMjY0MjcwOGE5MjQyYWI2YWQ5ZTFlZGVjIiwiaSI6InNoYTI1Njp5S3prRjFrZ2JvYjc2S3pCdm9reW1zc1NJUktlbV84V010ZklCdEJBU0NBIiwiayI6ImNvbm5lY3Rpb24uYW1lbmRzIiwibyI6IkMwMU00QjBaVkdDTlZaSDdXMkFRTjhGTlpSTiIsIm9wIjoiTzAxTTRCMFpWR0MyVjJSN0I0VjJTTVdXSllLIiwicCI6WyJSMDFNNDk0UE1CUTZQMEpUWTJDSjRONEtKNDUiXSwiciI6Im1hc3RlciIsInMiOiJzaGEyNTY6czFmWFctbUU5MHUyd3c1eEZ1R0N6b184Q3dSY0JPUEJrampvN2pJcTJDMCIsInQiOjE3OTEzNzE1MDUxNjQsInYiOjEsIngiOiJhZHJhaS8xLjAuMCJ9 -->
