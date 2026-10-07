@@ -955,6 +955,20 @@ function New-ShardSelections([string[]]$nodes) {
         'tests/test_spatial_authoring.py::test_spatial_preview_is_read_only_for_source_cache_receipt_and_head',
         'tests/test_spatial_authoring.py::test_spatial_source_and_receipt_roll_back_on_journal_publication_failure'
     )) { $null = $spatialAuthoringConsumers.Add($consumer) }
+    # Share this module fixture while retaining both intentional cache repairs.
+    $generationalConsumers = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
+    foreach ($consumer in @(
+        'tests/test_generational_api.py::test_discovery_bootstrap_horizon_labels_and_cursor',
+        'tests/test_generational_api.py::test_discovery_request_bounds_match_openapi',
+        'tests/test_generational_api.py::test_discovery_uses_compiled_rows_and_rebuilds_malformed_cache',
+        'tests/test_generational_api.py::test_name_first_parents_horizons_and_character_controls',
+        'tests/test_generational_api.py::test_read_operations_and_scope_bound_cursor',
+        'tests/test_generational_api.py::test_reverse_legacy_index_rebuilds_from_unchanged_source',
+        'tests/test_generational_api.py::test_reverse_read_horizons_stale_revision_and_closed_modes',
+        'tests/test_generational_api.py::test_reverse_union_nested_limit_direct_cli_http_schema_parity'
+    )) { $null = $generationalConsumers.Add($consumer) }
+    $generationalGroupKey = 'tests/test_generational_api.py::generational_repo-consumers'
+    $generationalSeen = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
     $groups = [System.Collections.Generic.Dictionary[string,object]]::new([System.StringComparer]::Ordinal)
     foreach ($node in $nodes) {
         $key = $node
@@ -967,12 +981,26 @@ function New-ShardSelections([string[]]$nodes) {
         if ($spatialAuthoringConsumers.Contains($node)) {
             $key = 'tests/test_spatial_authoring.py::ash_repo-consumers'
         }
+        if ($generationalConsumers.Contains($node)) {
+            if (-not $generationalSeen.Add($node)) {
+                throw "Duplicate generational fixture consumer: $node"
+            }
+            $key = $generationalGroupKey
+        }
         if (-not $groups.ContainsKey($key)) {
             $groups.Add($key, [pscustomobject]@{
                 Name = $key; Nodes = [System.Collections.Generic.List[string]]::new(); Weight = 0.0
             })
         }
         $groups[$key].Nodes.Add($node)
+    }
+    if ($generationalSeen.Count -ne $generationalConsumers.Count) {
+        throw "The normal suite is missing a generational fixture consumer."
+    }
+    if (-not $groups.ContainsKey($generationalGroupKey) -or
+        $groups[$generationalGroupKey].Nodes.Count -ne 8 -or
+        -not $generationalConsumers.SetEquals($groups[$generationalGroupKey].Nodes)) {
+        throw "The generational fixture group does not match its exact eight consumers."
     }
     if ($groups.Count -lt 5) { throw "The normal suite cannot form five nonempty fixture groups." }
     foreach ($group in $groups.Values) {
