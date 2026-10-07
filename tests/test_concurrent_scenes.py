@@ -1,7 +1,6 @@
 from __future__ import annotations
 
 from copy import deepcopy
-from pathlib import Path
 
 import pytest
 
@@ -14,9 +13,8 @@ from wedl.repository import Repository
 from wedl.validation import validate_world
 
 
-def _split_frontiersmen_world() -> World:
-    """Build a valid two-front variant without changing the checked-in story."""
-    source = Repository(Path("frontiersmen"))
+def _split_frontiersmen_world(source: Repository) -> World:
+    """Build a valid two-front variant from the isolated fixture."""
     original = source.load_world("HEAD")
     records = dict(original.records)
     world_record = deepcopy(original.world_record)
@@ -104,8 +102,8 @@ def _event_at(
     return event
 
 
-def test_multiple_active_scenes_require_and_accept_a_shared_cursor() -> None:
-    world = _split_frontiersmen_world()
+def test_multiple_active_scenes_require_and_accept_a_shared_cursor(frontiersmen_repo: Repository) -> None:
+    world = _split_frontiersmen_world(frontiersmen_repo)
     assert world.active_scene() is None
     assert [scene.title for scene in world.active_scenes()] == ["Concurrent second front", "Southward Cut"]
     errors = [item for item in validate_world(world) if item["severity"] == "error"]
@@ -113,8 +111,8 @@ def test_multiple_active_scenes_require_and_accept_a_shared_cursor() -> None:
     assert not [item for item in errors if item["code"] == "WDL-SCENE-001"]
 
 
-def test_every_active_scene_cursor_must_exactly_match_the_world_cursor() -> None:
-    world = _split_frontiersmen_world()
+def test_every_active_scene_cursor_must_exactly_match_the_world_cursor(frontiersmen_repo: Repository) -> None:
+    world = _split_frontiersmen_world(frontiersmen_repo)
     second = world.find("Concurrent second front", "scene")
     second.frontmatter["time"]["current"] = {"timeline": "main", "tick": 210, "order": 1}
 
@@ -122,8 +120,8 @@ def test_every_active_scene_cursor_must_exactly_match_the_world_cursor() -> None
     assert any(item["code"] == "WDL-CURSOR-005" and item["entityId"] == second.id for item in diagnostics)
 
 
-def test_explicit_singleton_world_cursor_must_match_its_active_scene() -> None:
-    source = Repository(Path("frontiersmen"))
+def test_explicit_singleton_world_cursor_must_match_its_active_scene(frontiersmen_repo: Repository) -> None:
+    source = frontiersmen_repo
     original = source.load_world("HEAD")
     records = dict(original.records)
     world_record = deepcopy(original.world_record)
@@ -136,8 +134,8 @@ def test_explicit_singleton_world_cursor_must_match_its_active_scene() -> None:
     assert any(item["code"] == "WDL-CURSOR-005" and item["entityId"] == active.id for item in diagnostics)
 
 
-def test_implicit_scene_is_ambiguous_generically_but_resolves_for_a_character() -> None:
-    world = _split_frontiersmen_world()
+def test_implicit_scene_is_ambiguous_generically_but_resolves_for_a_character(frontiersmen_repo: Repository) -> None:
+    world = _split_frontiersmen_world(frontiersmen_repo)
     character = world.find("Rhea", "character")
     with pytest.raises(UsageError, match="multiple active scenes"):
         _implicit_active_scene(world)
@@ -145,8 +143,8 @@ def test_implicit_scene_is_ambiguous_generically_but_resolves_for_a_character() 
     assert context_implicit_scene(world, character.id).title == "Southward Cut"
 
 
-def test_concurrent_scenes_reject_overlapping_present_casts() -> None:
-    world = _split_frontiersmen_world()
+def test_concurrent_scenes_reject_overlapping_present_casts(frontiersmen_repo: Repository) -> None:
+    world = _split_frontiersmen_world(frontiersmen_repo)
     second = world.find("Concurrent second front", "scene")
     first = world.find("Southward Cut", "scene")
     second.frontmatter["participants"] = [deepcopy(first.frontmatter["participants"][0])]
@@ -154,8 +152,8 @@ def test_concurrent_scenes_reject_overlapping_present_casts() -> None:
     assert any(item["code"] == "WDL-SCENE-001" for item in diagnostics)
 
 
-def test_same_story_time_state_writes_are_a_validation_conflict() -> None:
-    source = Repository(Path("frontiersmen"))
+def test_same_story_time_state_writes_are_a_validation_conflict(frontiersmen_repo: Repository) -> None:
+    source = frontiersmen_repo
     original = source.load_world("HEAD")
     records = dict(original.records)
     event = next(record for record in original.by_kind("event") if record.status == "canonical" and any(isinstance(effect, dict) and effect.get("target") for effect in record.frontmatter.get("effects") or []))
@@ -172,8 +170,8 @@ def test_same_story_time_state_writes_are_a_validation_conflict() -> None:
     assert any(item["code"] == "WDL-STATE-020" for item in diagnostics)
 
 
-def test_historical_split_and_reunion_with_independent_characters_is_valid() -> None:
-    source = Repository(Path("frontiersmen"))
+def test_historical_split_and_reunion_with_independent_characters_is_valid(frontiersmen_repo: Repository) -> None:
+    source = frontiersmen_repo
     original = source.load_world("HEAD")
     rhea = original.find("Rhea", "character")
     pip = original.find("Pip", "character")
@@ -195,8 +193,8 @@ def test_historical_split_and_reunion_with_independent_characters_is_valid() -> 
     assert not [item for item in owned if item["code"] in {"WDL-SCENE-025", "WDL-SCENE-026"}]
 
 
-def test_historical_double_booking_names_the_character_and_scenes() -> None:
-    source = Repository(Path("frontiersmen"))
+def test_historical_double_booking_names_the_character_and_scenes(frontiersmen_repo: Repository) -> None:
+    source = frontiersmen_repo
     original = source.load_world("HEAD")
     rhea = original.find("Rhea", "character")
     first_location, second_location = original.by_kind("location")[:2]
@@ -216,8 +214,8 @@ def test_historical_double_booking_names_the_character_and_scenes() -> None:
     assert any(item["code"] == "WDL-SCENE-026" and item["entityId"] == second.id for item in diagnostics)
 
 
-def test_same_coordinate_two_place_presence_is_invalid_but_next_order_handoff_is_valid() -> None:
-    source = Repository(Path("frontiersmen"))
+def test_same_coordinate_two_place_presence_is_invalid_but_next_order_handoff_is_valid(frontiersmen_repo: Repository) -> None:
+    source = frontiersmen_repo
     original = source.load_world("HEAD")
     rhea = original.find("Rhea", "character")
     first_location, second_location = original.by_kind("location")[:2]
@@ -246,8 +244,8 @@ def test_same_coordinate_two_place_presence_is_invalid_but_next_order_handoff_is
     ]
 
 
-def test_location_parents_and_routes_are_kind_safe_and_directional() -> None:
-    source = Repository(Path("frontiersmen"))
+def test_location_parents_and_routes_are_kind_safe_and_directional(frontiersmen_repo: Repository) -> None:
+    source = frontiersmen_repo
     world = source.load_world("HEAD")
     location, destination = world.by_kind("location")[:2]
     character = world.find("Rhea", "character")
@@ -264,8 +262,8 @@ def test_location_parents_and_routes_are_kind_safe_and_directional() -> None:
     assert {"WDL-LOC-002", "WDL-LOC-005", "WDL-LOC-006", "WDL-LOC-007", "WDL-LOC-008"} <= codes
 
 
-def test_malformed_location_parent_is_diagnostic_not_a_cycle_checker_crash() -> None:
-    source = Repository(Path("frontiersmen"))
+def test_malformed_location_parent_is_diagnostic_not_a_cycle_checker_crash(frontiersmen_repo: Repository) -> None:
+    source = frontiersmen_repo
     world = source.load_world("HEAD")
     location = world.by_kind("location")[0]
     location.frontmatter["parent"] = {"location": location.id}
@@ -273,8 +271,8 @@ def test_malformed_location_parent_is_diagnostic_not_a_cycle_checker_crash() -> 
     assert any(item["code"] == "WDL-LOC-001" and item["entityId"] == location.id for item in diagnostics)
 
 
-def test_location_link_mapping_requires_exactly_one_valid_target_alias() -> None:
-    source = Repository(Path("frontiersmen"))
+def test_location_link_mapping_requires_exactly_one_valid_target_alias(frontiersmen_repo: Repository) -> None:
+    source = frontiersmen_repo
     world = source.load_world("HEAD")
     location, destination = world.by_kind("location")[:2]
     location.frontmatter["links"] = [
@@ -298,8 +296,8 @@ def test_location_link_mapping_requires_exactly_one_valid_target_alias() -> None
     ]
 
 
-def test_same_coordinate_event_participation_requires_one_place() -> None:
-    source = Repository(Path("frontiersmen"))
+def test_same_coordinate_event_participation_requires_one_place(frontiersmen_repo: Repository) -> None:
+    source = frontiersmen_repo
     original = source.load_world("HEAD")
     rhea = original.find("Rhea", "character")
     first_location, second_location = original.by_kind("location")[:2]
