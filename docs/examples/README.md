@@ -2,7 +2,7 @@
 
 [Chronology requests](chronology-api-v1.yaml) show formatting, conversion,
 annotation search and story-time lookup. Each named mapping is a complete
-request: copy that mapping into a JSON request file and replace the calendar ID
+request: write the chosen mapping as JSON in a request file and replace the calendar ID
 with one from your world's catalogue. Read the [chronology guide](../guides/chronology.md)
 for commands and the meaning of the results.
 
