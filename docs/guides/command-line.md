@@ -19,6 +19,13 @@ Frontiersmen for an open campaign:
 wedl init my-world --example frontiersmen
 ```
 
+For a compact repair story with explicit spatial and family facts, choose
+[Tideglass](../stories/tideglass/walkthrough.md):
+
+```text
+wedl init tideglass-demo --example tideglass --profile fts
+```
+
 The `ash-archive-v07` and `frontiersmen-v07` names remain aliases for the
 same examples. Use `wedl init my-world --empty` for a blank v0.3 world.
 Initialization requires an empty destination; it does not upgrade an

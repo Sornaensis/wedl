@@ -21,6 +21,11 @@ architecture through ADRAI against the WEDL development/source checkout.
 
 ## Packaged stories
 
+Tideglass is a compact 64-record native v0.7 repair story with authored spatial
+and generational facts. Start with its [world guide](stories/tideglass/world-guide.md),
+[walkthrough](stories/tideglass/walkthrough.md) and
+[query recipes](stories/tideglass/queries.md).
+
 The maintained Ash Archive is a completed 262-record story ending at tick 208.
 Its [walkthrough](stories/ash-archive/walkthrough.md) and
 [novella](stories/ash-archive/novella.md) accompany

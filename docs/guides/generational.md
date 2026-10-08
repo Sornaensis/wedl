@@ -70,7 +70,7 @@ wedl init NAME --example ash-archive
 wedl init NAME --example frontiersmen
 ```
 
-The -v07 names select the same examples; the default is Ash Archive. The v0.7 packages preserve their authored stories and add no canonical generational fact records. Author the desired records explicitly after inspecting the world. Legacy migration defaults do not opt into typed knowledge. An empty initialization uses v0.3, so choose the appropriate existing migration procedure before authoring v0.7 records.
+The -v07 names select the same Ash Archive and Frontiersmen examples; the default is Ash Archive. Those two v0.7 packages preserve their authored stories and add no canonical generational fact records. [Tideglass](../stories/tideglass/queries.md) (`--example tideglass`) includes explicit parentage, a union, organization affiliations, a keeper tenure and disputed claim, and known vital history. Its recipes use the world's complete capability declaration and explicit horizons. Author additional records explicitly after inspecting your world. Legacy migration defaults do not opt into typed knowledge. An empty initialization uses v0.3, so choose the appropriate existing migration procedure before authoring v0.7 records.
 
 ## Durable contracts
 
