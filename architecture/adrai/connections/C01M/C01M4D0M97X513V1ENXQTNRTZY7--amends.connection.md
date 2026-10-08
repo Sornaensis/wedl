@@ -1,0 +1,12 @@
++++
+schema = "adrai/connection/v1"
+connection = "C01M4D0M97X513V1ENXQTNRTZY7"
+relation = "amends"
+from_record = "R01M4D0M97XYPRZZ1J7HEW3W0PX"
+subject_adr = "A01M494PM59C6BG1W7K1CXXYR0H"
+to_records = ["R01M4B0ZVGC2V2R7B4V2SMWWJYK"]
++++
+
+Expose additive native Tideglass initialization while preserving existing defaults, aliases, empty schema and pinned conversion boundaries.
+
+<!-- @adrai:eyJhIjp7ImkiOiJjYWxpYnJhdGlvbl9kZXZlbG9wZXIiLCJrIjoibGxtIiwibSI6ImdwdC02LjEtc29sIn0sImIiOiJhM2QzM2ZlMjY2MDY4ZGJmYjlhODNiOWE4N2E2OTBjNWFiNTE4MDA3IiwiaSI6InNoYTI1NjpIUTJMbWp1dVdXUVRMWFg4Q3RSQjEycW83T3UwSk9TaDh6S09iU1NFUFNjIiwiayI6ImNvbm5lY3Rpb24uYW1lbmRzIiwibyI6IkMwMU00RDBNOTdYNTEzVjFFTlhRVE5SVFpZNyIsIm9wIjoiTzAxTTREME05N1hZUFJaWjFKN0hFVzNXMFBYIiwicCI6WyJSMDFNNEIwWlZHQzJWMlI3QjRWMlNNV1dKWUsiXSwiciI6Im1hc3RlciIsInMiOiJzaGEyNTY6N3VlVDFiV1htZmNDazltaE5sQzItampwbG1pRUlJclNhSjB5U3VHRTVEWSIsInQiOjE3OTE0MzgyMzQ4NzcsInYiOjEsIngiOiJhZHJhaS8xLjAuMCJ9 -->
