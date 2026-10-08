@@ -1,0 +1,12 @@
++++
+schema = "adrai/connection/v1"
+connection = "C01M4CZ53D2X78M25RS1698F25X"
+relation = "amends"
+from_record = "R01M4CZ53D2Q0RVCSRXZPZNG634"
+subject_adr = "A01M4CXZHJF4ATRPVTRE4R9DHAN"
+to_records = ["R01M4CXZHQY0FTM6444X00QHX75"]
++++
+
+Correct ten generational roster paths to the existing typed-ID filename rule; preserve all identities and semantics.
+
+<!-- @adrai:eyJhIjp7ImkiOiJjYWxpYnJhdGlvbl9kZXZlbG9wZXIiLCJrIjoibGxtIiwibSI6ImdwdC02LjEtc29sIn0sImIiOiI1ODdiOTViNGMwM2M3NDJjODIzMzRjYWZlY2JhN2FkY2QwOGQyNmE2IiwiaSI6InNoYTI1NjpxOUZoY1VQeXpwQWh6S3V3TGFXOV96bGV5VHlEcDhLaFFLWFB2OEYxaVNzIiwiayI6ImNvbm5lY3Rpb24uYW1lbmRzIiwibyI6IkMwMU00Q1o1M0QyWDc4TTI1UlMxNjk4RjI1WCIsIm9wIjoiTzAxTTRDWjUzRDJRMFJWQ1NSWFpQWk5HNjM0IiwicCI6WyJSMDFNNENYWkhRWTBGVE02NDQ0WDAwUUhYNzUiXSwiciI6Im1hc3RlciIsInMiOiJzaGEyNTY6UzVtSUJRZTdtekhVX2tZdnlENDltd0RXeDFoaUdfclg1Rkp0V3RtTUN3NCIsInQiOjE3OTE0MzY2ODg4MDIsInYiOjEsIngiOiJhZHJhaS8xLjAuMCJ9 -->
