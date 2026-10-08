@@ -40,4 +40,5 @@ wedl = [
   "data/ash_archive_v07/story/**/*.md",
   "data/chronology_conformance_v07/story/**/*.md",
   "data/frontiersmen_v07/story/**/*.md",
+  "data/tideglass_v07/story/**/*.md",
 ]

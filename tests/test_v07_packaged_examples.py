@@ -262,9 +262,11 @@ def test_explicit_bootstrap_choices_keep_legacy_default() -> None:
         "ash-archive-v07": "ash_archive_v07",
         "frontiersmen": "frontiersmen_v07",
         "frontiersmen-v07": "frontiersmen_v07",
+        "tideglass": "tideglass_v07",
     }
     assert parser().parse_args(["init", "sample"]).example == "ash-archive"
     assert parser().parse_args(["init", "sample", "--example", "frontiersmen-v07"]).example == "frontiersmen-v07"
+    assert parser().parse_args(["init", "sample", "--example", "tideglass"]).example == "tideglass"
 
 
 def _converted_chronology(data: Path) -> Path:

@@ -69,6 +69,7 @@ EXAMPLE_PACKAGES = {
     "ash-archive-v07": "ash_archive_v07",
     "frontiersmen": "frontiersmen_v07",
     "frontiersmen-v07": "frontiersmen_v07",
+    "tideglass": "tideglass_v07",
 }
 
 
