@@ -45,14 +45,16 @@ same story. A character's view includes what they could know at the chosen
 moment. Conversations preserve the words spoken, while recollections record
 how each character remembers them. Those memories can disagree.
 
-To try it, create a copy of the Frontiersmen story, look up Rhea at tick 210,
+To try it, create a copy of Tideglass, look up Mina Vale at tick 20,
 then open the story in your browser:
 
 ```bash
-wedl init my-world --example frontiersmen-v07
-wedl state Rhea --repo my-world --tick 210
+wedl init my-world --example tideglass --profile fts
+wedl state 'Mina Vale' --repo my-world --tick 20
 wedl serve --repo my-world --open
 ```
 
 The [manual](docs/README.md) covers creating a world, using the packaged stories,
 reading and editing records, search and the browser interface.
+The [Tideglass walkthrough](docs/stories/tideglass/walkthrough.md) follows the
+demo's characters and events step by step.
