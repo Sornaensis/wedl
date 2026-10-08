@@ -40,7 +40,7 @@ def _chronology_repository(tmp_path: Path) -> Repository:
     return Repository(root)
 
 
-def test_in_memory_authoring_cache_matches_direct_compiler_projection(tmp_path) -> None:
+def test_in_memory_authoring_cache_matches_direct_compiler_projection(tmp_path, monkeypatch) -> None:
     repository = _chronology_repository(tmp_path)
     revision = repository.head()
     memory = compile_world_bytes(repository, revision)
@@ -72,6 +72,112 @@ def test_in_memory_authoring_cache_matches_direct_compiler_projection(tmp_path) 
     assert same_revision_memory.status == "compiled"
     assert same_revision_memory.report["buildMode"] == same_revision_direct["buildMode"] == "fast-forward-rebuild"
     assert same_revision_memory.report["changedPaths"] == same_revision_direct["changedPaths"] == []
+
+    import pytest
+    from wedl.errors import RepositoryError
+
+    def world_contents(world):
+        return (world.revision, world.tree_oid, world.root, world.source_root,
+                world.is_worktree, world.diagnostics,
+                [(key, record.frontmatter, record.body, record.raw_bytes,
+                  record.blob_oid, record.source_path, record.revision)
+                 for key, record in world.records.items()])
+
+    tree = repository.tree_oid(revision)
+    repository._git(["tag", "-a", "pinned-load-tag", "-m", "annotated fixture tag", revision])
+    tag = repository.resolve("pinned-load-tag")
+    assert repository._git(["cat-file", "-t", tag]).stdout.strip() == b"tag"
+    source_cache = repository.root / ".wedl" / "source-cache.sqlite"
+    cache_before = source_cache.read_bytes() if source_cache.exists() else None
+    uncached_reader = Repository(repository.root)
+    uncached_reader.load_world(revision, cache_write=False)
+    assert (source_cache.read_bytes() if source_cache.exists() else None) == cache_before
+    assert uncached_reader._world_cache == {}
+    repository.load_world("HEAD")  # Populate the original parsed-source cache path.
+    for target, original_path in ((revision, "HEAD"), (tree, f"{tree}^{{tree}}"),
+                                  (tag, "pinned-load-tag")):
+        baseline = Repository(repository.root)
+        expected = baseline.load_world(original_path, cache_write=False)
+        assert expected.records
+        reader = Repository(repository.root)
+        calls = []
+        original_git = reader._git
+
+        def observed_git(args, **kwargs):
+            calls.append(list(args))
+            return original_git(args, **kwargs)
+
+        monkeypatch.setattr(reader, "_git", observed_git)
+        cache_before = source_cache.read_bytes()
+        actual = reader.load_world(target, cache_write=False)
+        assert world_contents(actual) == world_contents(expected)
+        assert source_cache.read_bytes() == cache_before and reader._world_cache == {}
+        assert calls[0] == ["rev-parse", target, f"{target}^{{tree}}"]
+        assert sum(args[0] == "rev-parse" for args in calls) == 1
+        # Compare parsed-source cache behavior, then revalidate even a warm hit.
+        calls.clear()
+        warm = reader.load_world(target)
+        baseline.load_world(original_path)
+        assert world_contents(warm) == world_contents(expected)
+        assert reader.last_load_stats == baseline.last_load_stats
+        calls.clear()
+        assert reader.load_world(target, cache_write=False) is warm
+        assert calls == [["rev-parse", target, f"{target}^{{tree}}"]]
+        assert reader.last_load_stats == {"mode": "memory-cache", "records": len(warm.records),
+                                          "parsed": 0, "cacheHits": len(warm.records), "blobReads": 0}
+
+    # Real Git failures retain their precedence before source/cache admission.
+    blob = next(iter(expected.records.values())).blob_oid
+    assert blob is not None
+    for invalid in ("0" * 40, blob):
+        with pytest.raises(RepositoryError) as original_failure:
+            resolved = repository.resolve(invalid)
+            repository.tree_oid(resolved)
+        with monkeypatch.context() as isolated:
+            isolated.setattr(repository, "_tree_entries", lambda *_: pytest.fail("failed target reached source"))
+            isolated.setattr(repository, "_source_cache", lambda: pytest.fail("failed target reached cache"))
+            with pytest.raises(RepositoryError) as paired_failure:
+                repository.load_world(invalid)
+        assert str(paired_failure.value) == str(original_failure.value)
+
+    # Every noncanonical/type-mismatched path keeps the original resolution.
+    for target in (None, "HEAD", "pinned-load-tag", revision[:12], revision.upper(), "WORKTREE", 17, []):
+        try:
+            resolved = repository.resolve(target)
+            original_tree = repository.tree_oid(resolved)
+        except (RepositoryError, TypeError) as error:
+            with pytest.raises(type(error)) as actual_failure:
+                repository.load_world(target, cache_write=False)
+            assert str(actual_failure.value) == str(error)
+        else:
+            with monkeypatch.context() as isolated:
+                isolated.setattr(repository, "_resolve_pinned_target", lambda *_: pytest.fail("fallback used paired lookup"))
+                world = repository.load_world(target, cache_write=False)
+            assert (world.revision, world.tree_oid) == (resolved, original_tree)
+
+    # A standalone source root nested inside Git must remain a WORKTREE world.
+    independent = repository.root / "independent"
+    shutil.copytree(repository.root / "story", independent / "story")
+    bare = Repository(independent)
+    assert bare.root == independent and not bare.is_git
+    plain = bare.load_world("WORKTREE", cache_write=False)
+    assert world_contents(bare.load_world(revision, cache_write=False)) == world_contents(plain)
+    assert not (independent / ".wedl").exists()
+
+    # Mutable HEAD and explicit WORKTREE reads still observe the next edit.
+    old = repository.load_world("HEAD", cache_write=False)
+    record = next(iter(old.records.values()))
+    changed = repository.root / record.source_path
+    changed.write_bytes(record.raw_bytes + b"\nPinned lookup freshness fixture.\n")
+    pending = repository.load_world("WORKTREE", cache_write=False)
+    assert pending.is_worktree and pending.records[record.id].raw_bytes != record.raw_bytes
+    assert repository.load_world("HEAD", cache_write=False).records[record.id].raw_bytes == record.raw_bytes
+    repository._git(["add", "--", record.source_path])
+    repository._git(["commit", "-qm", "fresh HEAD fixture"])
+    fresh = repository.load_world("HEAD", cache_write=False)
+    assert fresh.revision != old.revision and fresh.tree_oid != old.tree_oid
+    assert fresh.records[record.id].raw_bytes == changed.read_bytes()
+    assert repository.load_world(revision, cache_write=False).records[record.id].raw_bytes == record.raw_bytes
 
 
 def test_unknown_authoring_capacity_defers_before_world_load(tmp_path, monkeypatch) -> None:

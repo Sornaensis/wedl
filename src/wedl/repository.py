@@ -457,8 +457,11 @@ class Repository:
     def load_world(self, revision: str | None = "HEAD", *, cache_write: bool = True) -> World:
         """Load a revision, optionally without creating or updating source cache files."""
 
-        resolved = self.resolve(revision)
-        tree_oid = self.tree_oid(resolved)
+        if isinstance(revision, str) and re.fullmatch(r"[0-9a-f]{40}", revision) and self.is_git:
+            resolved, tree_oid = self._resolve_pinned_target(revision)
+        else:
+            resolved = self.resolve(revision)
+            tree_oid = self.tree_oid(resolved)
         memory_key = (resolved, tree_oid)
         if resolved != "WORKTREE" and memory_key in self._world_cache:
             world = self._world_cache[memory_key]

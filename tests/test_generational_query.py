@@ -1163,6 +1163,15 @@ def test_pinned_git_entry_pairs_lookup_and_checks_integrity_each_read(tmp_path, 
                                   f"{scope.revision}^{{tree}}"]]
     assert checked == [database] * 8
     assert database.read_bytes() == before
+    # Source reads use the same validated pair, including tree objects, without
+    # writing a source cache into this real, read-only checkout.
+    for target in (scope.revision, tree):
+        calls.clear()
+        source_world = repository.load_world(target, cache_write=False)
+        assert (source_world.revision, source_world.tree_oid) == (target, tree)
+        assert source_world.root == repository.root
+        assert calls[0] == ["rev-parse", target, f"{target}^{{tree}}"]
+        assert sum(args[0] == "rev-parse" for args in calls) == 1
     # A tree object was historically accepted: do not narrow to ^{commit}.
     assert repository._resolve_pinned_target(tree) == (tree, tree)
     with closing(sqlite3.connect(database)) as connection:
@@ -1188,6 +1197,8 @@ def test_pinned_git_entry_closes_failed_and_malformed_target_replies(tmp_path, m
 
     monkeypatch.setattr(compiler, "_cache_readiness_for_resolved_revision", forbidden)
     monkeypatch.setattr(compiler, "compile_world", forbidden)
+    monkeypatch.setattr(repository, "_tree_entries", forbidden)
+    monkeypatch.setattr(repository, "_source_cache", forbidden)
     replies = [(1, f"{scope.revision}\n{tree}\n".encode()), (0, b""),
                (0, f"{scope.revision}\n".encode()),
                (0, f"{scope.revision}\n{tree}\n{tree}\n".encode()),
@@ -1205,6 +1216,13 @@ def test_pinned_git_entry_closes_failed_and_malformed_target_replies(tmp_path, m
         monkeypatch.setattr(repository, "_git", reply)
         assert query_generational(repository, scope, request) == {"state": "unavailable"}
         assert len(calls) == 1 and database.read_bytes() == before
+        calls.clear()
+        # Paired ASCII/two-line validation is deliberately stricter than the
+        # historical independent decode/strip calls; no old error text promised.
+        with pytest.raises(RepositoryError):
+            repository.load_world(scope.revision)
+        assert calls == [["rev-parse", scope.revision, f"{scope.revision}^{{tree}}"]]
+        assert database.read_bytes() == before
 
     for error in (RepositoryError("Git failed"), OSError("Git missing")):
         def failed(*args, **kwargs):
@@ -1212,6 +1230,9 @@ def test_pinned_git_entry_closes_failed_and_malformed_target_replies(tmp_path, m
 
         monkeypatch.setattr(repository, "_git", failed)
         assert query_generational(repository, scope, request) == {"state": "unavailable"}
+        with pytest.raises(type(error)) as failure:
+            repository.load_world(scope.revision)
+        assert failure.value is error
     monkeypatch.setattr(repository, "_git", original_git)
     assert database.read_bytes() == before
 
