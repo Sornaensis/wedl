@@ -22,7 +22,7 @@ from wedl.validation import validate_world
 
 ROOT = Path(__file__).resolve().parents[1]
 DOC = current_decision("A01M48XY4R2CJ698Z2VQM9SG4ZZ")
-VECTOR = ROOT / "architecture/adrai/examples/chronology-migration-v06.yaml"
+VECTOR = ROOT / "tests/fixtures/architecture/chronology-migration-v06.yaml"
 THREAD_CONTRACT = current_decision("A01M48RX5WAQT5ECH66KTCFVC0T")
 MIGRATION_RECOVERY = ROOT / "docs/guides/migration-and-recovery.md"
 EMPTY_CHRONOLOGY = {"calendars": [], "eras": [], "anchors": []}

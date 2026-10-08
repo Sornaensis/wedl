@@ -24,7 +24,7 @@ def _record(value: dict, name: str) -> Record:
 
 
 def _candidate() -> list[Record]:
-    fixture = yaml.safe_load((ROOT / "architecture/adrai/examples/spatial-source-component-v07.yaml").read_text())
+    fixture = yaml.safe_load((ROOT / "tests/fixtures/architecture/spatial-source-component-v07.yaml").read_text())
     values = [fixture["world"], fixture["map"], *fixture["locations"], fixture["route"], fixture["overlay"]]
     return [_record(value, str(index)) for index, value in enumerate(values)]
 

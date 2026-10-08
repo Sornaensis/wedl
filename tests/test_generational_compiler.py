@@ -24,7 +24,7 @@ from wedl.search import build_documents
 from wedl.source import KIND_DIR
 
 
-VECTOR = Path(__file__).resolve().parents[1] / "architecture/adrai/examples/generational-schema-v07.yaml"
+VECTOR = Path(__file__).resolve().parents[1] / "tests/fixtures/architecture/generational-schema-v07.yaml"
 
 
 def _world() -> tuple[World, dict[str, str]]:

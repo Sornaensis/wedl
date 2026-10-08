@@ -1,8 +1,11 @@
 """Public chronology-v1 codec boundary tests."""
+from pathlib import Path
+
 import pytest
+import yaml
 
 from wedl.chronology import CivilDate, CivilRange
-from wedl.chronology_api import PROTOCOL, convert_date, decode_date_value, encode_date_value, format_date
+from wedl.chronology_api import PROTOCOL, convert_date, decode_date_value, encode_date_value, format_date, search_annotations
 from wedl.errors import UsageError
 
 
@@ -32,6 +35,21 @@ def test_open_ranges_and_bounded_conflicts_are_closed_public_shapes():
     assert len(conflict.claims) == 2
     with pytest.raises(UsageError):
         decode_date_value({"kind": "range", "calendarId": CALENDAR, "lower": None, "upper": None, "extra": True})
+
+    vectors = yaml.safe_load((Path(__file__).parents[1] / "tests/fixtures/architecture/chronology-api-v1.yaml").read_text(encoding="utf-8"))["negative"]
+    date_cases = {"numericCoordinate", "positiveOverflow", "negativeOverflow", "dayWithoutMonth", "extraDateField"}
+    target_cases = {"malformedTarget", "ambiguousTarget"}
+    search_cases = {"betweenWithoutUpper", "upperOutsideBetween"}
+    assert set(vectors) == date_cases | target_cases | search_cases
+    for name in sorted(date_cases):
+        with pytest.raises(UsageError):
+            decode_date_value(vectors[name])
+    for name in sorted(target_cases):
+        with pytest.raises(UsageError):
+            convert_date(None, {"protocol": PROTOCOL, "value": {"kind": "civil", "calendarId": CALENDAR, "year": "0"}, "target": vectors[name]})
+    for name in sorted(search_cases):
+        with pytest.raises(UsageError):
+            search_annotations(None, {"protocol": PROTOCOL, **vectors[name]})
 
 
 @pytest.mark.parametrize("target", [{"calendarId": ""}, {"calendarId": " \t"}, {"calendarId": 1}, {"eraId": None}, {"calendarId": CALENDAR, "eraId": "era"}])

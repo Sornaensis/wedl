@@ -8,8 +8,8 @@ import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
 CONTRACT = current_decision("A01M48RX5WAQT5ECH66KTCFVC0T")
-VECTORS = ROOT / "architecture/adrai/examples/shared-world-thread-schema-v05.yaml"
-MANIFEST = ROOT / "architecture/adrai/examples/wedl-v04-coordination-manifest.yaml"
+VECTORS = ROOT / "tests/fixtures/architecture/shared-world-thread-schema-v05.yaml"
+MANIFEST = ROOT / "tests/fixtures/architecture/wedl-v04-coordination-manifest.yaml"
 
 
 THREAD_ID = re.compile(r"^thread_[0-9A-HJKMNP-TV-Z]{26}$")

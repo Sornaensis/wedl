@@ -66,8 +66,8 @@ accounts for all 69 original documentation paths.
 
 Replace WEDL_SOURCE_CHECKOUT with the exact development repository root.
 Use that checkout even when a WEDL command is inspecting a separate world
-repository. Architecture decisions are CLI-managed under architecture/adrai;
-executable contract vectors are under architecture/adrai/examples.
+repository. Architecture decisions are CLI-managed under architecture/adrai.
+Small practical snippets are in [examples](examples/README.md).
 
 Discover repository-wide and path-specific decisions, then read the returned
 stable ADR IDs and their history:

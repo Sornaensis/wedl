@@ -7,7 +7,7 @@ import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
 ADR = current_decision("A01M48NJH26YJTG9XWA0SKCPR2Z")
-VECTORS = ROOT / "architecture/adrai/examples/multi-strand-continuity-vectors.yaml"
+VECTORS = ROOT / "tests/fixtures/architecture/multi-strand-continuity-vectors.yaml"
 
 
 def test_multi_strand_adr_is_historical_and_explicitly_superseded() -> None:

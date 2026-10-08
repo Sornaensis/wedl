@@ -14,8 +14,8 @@ Owner: repository maintainers. Retained guides and story material remain
 maintained documentation; manuscripts, dated reports, raw measurements and
 architectural history remain durable provenance until a separately authorized
 replacement or retirement preserves unique content and custody obligations.
-Vectors remain executable contract evidence outside docs. This reconciliation
-records the completed migration and grants no future deletion authority.
+At this migration, vectors were moved outside docs. The mapping below records
+those historical destinations. This reconciliation grants no future deletion authority.
 The [fourteen-report retention ledger](retention-and-dispositions.md) preserves
 the detailed report fingerprints, owner, retention and inherited custody limits.
 

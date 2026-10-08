@@ -7,7 +7,7 @@ import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
 CONTRACT = current_decision("A01M48NJH26YJTG9XWA0SKCPR2Z")
-VECTORS = ROOT / "architecture/adrai/examples/multi-strand-schema-contract-v04.yaml"
+VECTORS = ROOT / "tests/fixtures/architecture/multi-strand-schema-contract-v04.yaml"
 
 
 def test_withdrawn_continuity_schema_material_is_nonnormative_only() -> None:

@@ -47,7 +47,7 @@ Read the architectural contracts with the ADRAI CLI in the WEDL development/sour
 adrai --repo WEDL_SOURCE_CHECKOUT search --mode fts "Chronology" --json
 ```
 
-The current schema, validation, migration, index, API, and rollout decisions are A01M48XWQD0809VQ3RD9NBYPSKB, A01M48XXBREJY497SNXZVCW85EC, A01M48XY4R2CJ698Z2VQM9SG4ZZ, A01M48XYVYK43DWXQTC541WSFZK, A01M48XZJ6V1X1QSM4QEZJZS81M, and A01M48Y06MMHSR2E0A4R094QQ15. Show a returned stable ID with `adrai --repo WEDL_SOURCE_CHECKOUT show ADR_ID --json`. The unchanged executable vectors are in [architecture/adrai/examples](../../architecture/adrai/examples/).
+The current schema, validation, migration, index, API, and rollout decisions are A01M48XWQD0809VQ3RD9NBYPSKB, A01M48XXBREJY497SNXZVCW85EC, A01M48XY4R2CJ698Z2VQM9SG4ZZ, A01M48XYVYK43DWXQTC541WSFZK, A01M48XZJ6V1X1QSM4QEZJZS81M, and A01M48Y06MMHSR2E0A4R094QQ15. Show a returned stable ID with `adrai --repo WEDL_SOURCE_CHECKOUT show ADR_ID --json`. The [small request examples](../examples/chronology-api-v1.yaml) provide complete positive requests to adapt to your world.
 
 For local reproduction in the development/source checkout:
 

@@ -151,6 +151,6 @@ This is the historical seed manifest: 119 listed stable IDs and claim-key mappin
 - `sable/sable-letter-origin-unknown` — `know_0YFNJ8MNKP9SSBJQ7ZR6ADAKVM` — `letter.author.unknown-to-sable`
 - `sable/sable-map-lost` — `know_0TZR50W0EWF9RG5ACQSQP406P6` — `map.held-by-rusk`
 
-## Separate conformance asset
+## Spatial examples
 
-The [spatial conformance asset](../../../architecture/adrai/examples/spatial-source-component-v07.yaml) is retained separately under ADRAI. Its historical stage explanation is preserved in ADRAI A01M498R304BB0EEZ27RKTSN6QW.
+The [Tideglass query recipes](../tideglass/queries.md) demonstrate authored maps, routes and overlays in a runnable world.

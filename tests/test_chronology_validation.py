@@ -155,7 +155,7 @@ def _apply_schema_mutation(document, mutation):
 
 def test_production_registry_markdown_and_schema_vector_are_bidirectionally_exact():
     root = Path(__file__).parents[1]
-    example = yaml.safe_load((root / "architecture/adrai/examples/chronology-validation-v06.yaml").read_text())
+    example = yaml.safe_load((root / "tests/fixtures/architecture/chronology-validation-v06.yaml").read_text())
     catalog_rows = _catalog_from_markdown(current_decision("A01M48XXBREJY497SNXZVCW85EC").read_text())
     vector_rows = [tuple(item) for item in example["diagnostics"]]
     # Check raw published rows before set conversion, so a duplicate cannot be
@@ -176,8 +176,8 @@ def test_production_registry_markdown_and_schema_vector_are_bidirectionally_exac
 
 def test_every_schema_negative_document_runs_through_the_source_boundary():
     root = Path(__file__).parents[1]
-    schema = yaml.safe_load((root / "architecture/adrai/examples/chronology-schema-v06.yaml").read_text())
-    validation = yaml.safe_load((root / "architecture/adrai/examples/chronology-validation-v06.yaml").read_text())
+    schema = yaml.safe_load((root / "tests/fixtures/architecture/chronology-schema-v06.yaml").read_text())
+    validation = yaml.safe_load((root / "tests/fixtures/architecture/chronology-validation-v06.yaml").read_text())
     observed = set()
     expected_fields = ("code", "severity", "message", "entityId", "path", "field")
     expectations = validation["negative_diagnostic_expectations"]
@@ -198,7 +198,7 @@ def test_every_schema_negative_document_runs_through_the_source_boundary():
 
 def test_complete_schema_positive_corpus_is_clean_through_the_boundary():
     root = Path(__file__).parents[1]
-    schema = yaml.safe_load((root / "architecture/adrai/examples/chronology-schema-v06.yaml").read_text())
+    schema = yaml.safe_load((root / "tests/fixtures/architecture/chronology-schema-v06.yaml").read_text())
     assert validate_v06_candidate(_schema_world(schema)) == []
     for key in ("positive_document_mutations", "positive_annotation_order_mutations"):
         for mutation in schema[key]:
@@ -564,7 +564,7 @@ def test_endpoint_normalization_replays_axis_offset_at_authored_precision_before
 
 
 def test_published_endpoint_precedence_and_checked_arithmetic_examples_are_exact():
-    example = yaml.safe_load((Path(__file__).parents[1] / "architecture/adrai/examples/chronology-validation-v06.yaml").read_text())
+    example = yaml.safe_load((Path(__file__).parents[1] / "tests/fixtures/architecture/chronology-validation-v06.yaml").read_text())
     assert example["endpoint_precedence_examples"] == {
         "range_invalid_lower_month_reversed": ["WDL-DATE-003", "error", "civil date is semantically invalid", "chronology[0].value.range.lower.month"],
         "approximation_invalid_lower_month_reversed": ["WDL-DATE-003", "error", "civil date is semantically invalid", "chronology[0].value.approx.bounds.lower.month"],

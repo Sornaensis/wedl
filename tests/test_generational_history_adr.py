@@ -12,9 +12,9 @@ import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
 ADR = current_decision("A01M48NQZ50KH9V094Q5A3138R0")
-SCHEMA = ROOT / "architecture/adrai/examples/generational-schema-v07.yaml"
-QUERIES = ROOT / "architecture/adrai/examples/generational-query-v1.yaml"
-MIGRATION = ROOT / "architecture/adrai/examples/generational-migration-v07.yaml"
+SCHEMA = ROOT / "tests/fixtures/architecture/generational-schema-v07.yaml"
+QUERIES = ROOT / "tests/fixtures/architecture/generational-query-v1.yaml"
+MIGRATION = ROOT / "tests/fixtures/architecture/generational-migration-v07.yaml"
 
 
 def _yaml(path: Path) -> dict:

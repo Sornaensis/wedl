@@ -16,7 +16,7 @@ import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
 ADR = current_decision("A01M48NNH43QCFRPC68NQQTFT63")
-VECTORS = ROOT / "architecture/adrai/examples/calendar-chronology-semantics-v1.yaml"
+VECTORS = ROOT / "tests/fixtures/architecture/calendar-chronology-semantics-v1.yaml"
 
 
 def _vector() -> dict:

@@ -23,8 +23,8 @@ def test_explorer_adjunct_decision_records_bounded_selected_lens() -> None:
     assert "reverse-edge index" in text
     assert "before counting or paging" in text
     assert "not a trusted character identity" in text or "does not confer trusted character identity" in text
-SCHEMA = ROOT / "architecture/adrai/examples/spatial-schema-v07.yaml"
-QUERIES = ROOT / "architecture/adrai/examples/spatial-query-v1.yaml"
+SCHEMA = ROOT / "tests/fixtures/architecture/spatial-schema-v07.yaml"
+QUERIES = ROOT / "tests/fixtures/architecture/spatial-query-v1.yaml"
 
 
 def _yaml(path: Path) -> dict:

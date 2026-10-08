@@ -37,8 +37,8 @@ Mara may know that Oren deliberately gave her the letter, that Caldrin requested
 
 See [seed story guide](seed-story-guide.md), [seed changeset](seed-changeset.md), and [seed manifest](seed-manifest.md). The separate [Frontiersmen queries](../frontiersmen/queries.md) use another world.
 
-## Separate conformance asset
+## Spatial examples
 
-The [spatial conformance asset](../../../architecture/adrai/examples/spatial-source-component-v07.yaml) lives outside the story guide directory. Read current spatial architecture through ADRAI A01M48ZRCS8CP9EC5H5YH2MRVQ4.
+The [Tideglass query recipes](../tideglass/queries.md) demonstrate authored maps, routes and overlays in a runnable world.
 
 The seed lists 119 non-world IDs, plus its world record (120 total). The maintained completed package contains 262 records, 16 conversations, 138 turns and 58 recollections, with a closed epilogue at tick208 and no active scene. See the [completed walkthrough](walkthrough.md); the [238-record unresolved walkthrough](historical-unresolved-walkthrough.md) preserves the intermediate tick178 snapshot.

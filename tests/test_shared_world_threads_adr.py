@@ -7,8 +7,8 @@ import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
 ADR = current_decision("A01M48NHJ5Z6AX617K56WRVFYWT")
-VECTORS = ROOT / "architecture/adrai/examples/shared-world-thread-vectors.yaml"
-MANIFEST = ROOT / "architecture/adrai/examples/wedl-v04-coordination-manifest.yaml"
+VECTORS = ROOT / "tests/fixtures/architecture/shared-world-thread-vectors.yaml"
+MANIFEST = ROOT / "tests/fixtures/architecture/wedl-v04-coordination-manifest.yaml"
 
 
 def test_shared_world_thread_adr_governs_one_global_world_without_schema_invention() -> None:

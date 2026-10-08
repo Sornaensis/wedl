@@ -13,7 +13,7 @@ import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
 DOC = current_decision("A01M48XWQD0809VQ3RD9NBYPSKB")
-VECTOR = ROOT / "architecture/adrai/examples/chronology-schema-v06.yaml"
+VECTOR = ROOT / "tests/fixtures/architecture/chronology-schema-v06.yaml"
 LEGACY_CROCKFORD = r"[0-9abcdefghjkmnpqrstvwxyz]{26}"
 UPPER_CROCKFORD = r"[0-9ABCDEFGHJKMNPQRSTVWXYZ]{26}"
 I64 = (-(2**63), 2**63 - 1)

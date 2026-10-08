@@ -1,0 +1,16 @@
+# Each named mapping is one request. Use a calendar ID from your world's catalogue.
+format:
+  protocol: wedl-chronology/v1
+  value: {kind: civil, calendarId: calendar_0123456789ABCDEFGHJKMNPQRS, year: '0', month: '1', day: '1'}
+convert:
+  protocol: wedl-chronology/v1
+  value: {kind: civil, calendarId: calendar_0123456789ABCDEFGHJKMNPQRS, year: '0', month: '1', day: '1'}
+  target: {calendarId: calendar_0123456789ABCDEFGHJKMNPQRS}
+search:
+  protocol: wedl-chronology/v1
+  predicate: overlaps
+  value: {kind: civil, calendarId: calendar_0123456789ABCDEFGHJKMNPQRS, year: '0'}
+  limit: 10
+storyTimes:
+  protocol: wedl-chronology/v1
+  value: {kind: civil, calendarId: calendar_0123456789ABCDEFGHJKMNPQRS, year: '0'}
