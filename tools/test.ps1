@@ -943,6 +943,15 @@ function New-ShardSelections([string[]]$nodes) {
     $observedSeconds.Add('tests/test_v07_packaged_examples.py::test_small_packaged_upgrade_stale_head_and_forward_rollback', 86.91626489977352)
     $observedSeconds.Add('tests/test_v07_packaged_examples.py::test_symlinked_destination_cannot_overwrite_pinned_source', 0.7539037999231368)
     $observedSeconds.Add('tests/test_v07_packaged_examples.py::test_unexpected_bytecode_entries_refused_without_publication', 2.9678158997558057)
+    # Eight Tideglass setup + call + teardown totals from the passing cold focused-5 run.
+    $observedSeconds.Add('tests/test_tideglass_example.py::test_tideglass_01_manifest_validation_and_cold_rebuild', 3.6339269999880344)
+    $observedSeconds.Add('tests/test_tideglass_example.py::test_tideglass_02_causes_and_state_cli_http', 6.500103499973193)
+    $observedSeconds.Add('tests/test_tideglass_example.py::test_tideglass_03_same_tick_private_knowledge', 1.7219835999421775)
+    $observedSeconds.Add('tests/test_tideglass_example.py::test_tideglass_04_concurrent_scene_contexts', 0.1652134999167174)
+    $observedSeconds.Add('tests/test_tideglass_example.py::test_tideglass_05_conversations_and_recollections', 3.9006975998636335)
+    $observedSeconds.Add('tests/test_tideglass_example.py::test_tideglass_06_authored_spatial_reads_cli_http', 3.0247353999875486)
+    $observedSeconds.Add('tests/test_tideglass_example.py::test_tideglass_07_explicit_family_and_keeper_history', 10.3314106001053)
+    $observedSeconds.Add('tests/test_tideglass_example.py::test_tideglass_08_confirmed_disposable_edit', 13.108577399980277)
     # The six nodes without measured or historical estimates retain this nominal fallback.
     $unknownSeconds = 0.5
     # Only these independent-copy consumers share the module authoring seed.
@@ -969,6 +978,20 @@ function New-ShardSelections([string[]]$nodes) {
     )) { $null = $generationalConsumers.Add($consumer) }
     $generationalGroupKey = 'tests/test_generational_api.py::generational_repo-consumers'
     $generationalSeen = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
+    # Keep the exact Tideglass example checks with their shared cold fixture.
+    $tideglassConsumers = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
+    foreach ($consumer in @(
+        'tests/test_tideglass_example.py::test_tideglass_01_manifest_validation_and_cold_rebuild',
+        'tests/test_tideglass_example.py::test_tideglass_02_causes_and_state_cli_http',
+        'tests/test_tideglass_example.py::test_tideglass_03_same_tick_private_knowledge',
+        'tests/test_tideglass_example.py::test_tideglass_04_concurrent_scene_contexts',
+        'tests/test_tideglass_example.py::test_tideglass_05_conversations_and_recollections',
+        'tests/test_tideglass_example.py::test_tideglass_06_authored_spatial_reads_cli_http',
+        'tests/test_tideglass_example.py::test_tideglass_07_explicit_family_and_keeper_history',
+        'tests/test_tideglass_example.py::test_tideglass_08_confirmed_disposable_edit'
+    )) { $null = $tideglassConsumers.Add($consumer) }
+    $tideglassGroupKey = 'tests/test_tideglass_example.py::tideglass_repo-consumers'
+    $tideglassSeen = [System.Collections.Generic.HashSet[string]]::new([System.StringComparer]::Ordinal)
     $groups = [System.Collections.Generic.Dictionary[string,object]]::new([System.StringComparer]::Ordinal)
     foreach ($node in $nodes) {
         $key = $node
@@ -987,6 +1010,12 @@ function New-ShardSelections([string[]]$nodes) {
             }
             $key = $generationalGroupKey
         }
+        if ($tideglassConsumers.Contains($node)) {
+            if (-not $tideglassSeen.Add($node)) {
+                throw "Duplicate Tideglass fixture consumer: $node"
+            }
+            $key = $tideglassGroupKey
+        }
         if (-not $groups.ContainsKey($key)) {
             $groups.Add($key, [pscustomobject]@{
                 Name = $key; Nodes = [System.Collections.Generic.List[string]]::new(); Weight = 0.0
@@ -1001,6 +1030,14 @@ function New-ShardSelections([string[]]$nodes) {
         $groups[$generationalGroupKey].Nodes.Count -ne 8 -or
         -not $generationalConsumers.SetEquals($groups[$generationalGroupKey].Nodes)) {
         throw "The generational fixture group does not match its exact eight consumers."
+    }
+    if ($tideglassSeen.Count -ne $tideglassConsumers.Count) {
+        throw "The normal suite is missing a Tideglass fixture consumer."
+    }
+    if (-not $groups.ContainsKey($tideglassGroupKey) -or
+        $groups[$tideglassGroupKey].Nodes.Count -ne 8 -or
+        -not $tideglassConsumers.SetEquals($groups[$tideglassGroupKey].Nodes)) {
+        throw "The Tideglass fixture group does not match its exact eight consumers."
     }
     if ($groups.Count -lt 5) { throw "The normal suite cannot form five nonempty fixture groups." }
     foreach ($group in $groups.Values) {
