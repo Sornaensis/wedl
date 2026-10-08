@@ -1,0 +1,12 @@
++++
+schema = "adrai/connection/v1"
+connection = "C01M4DNZM2Z81Q0VPC82F06END9"
+relation = "amends"
+from_record = "R01M4DNZM2ZX5209FTD1C3FXNPK"
+subject_adr = "A01M48ZT8WHG5XAVFBVXSZDGGMK"
+to_records = ["R01M48ZT9SHSHGBC6GFTXFVBQPH"]
++++
+
+Relocate examples to practical documentation or internal conformance fixtures without changing architectural semantics.
+
+<!-- @adrai:eyJhIjp7ImkiOiJhcmNoaXZlLWV4YW1wbGVzLWNsZWFudXAtZGV2ZWxvcGVyIiwiayI6ImxsbSIsIm0iOiJncHQtNi4xLXNvbCJ9LCJiIjoiOTM4Yzg3NDk1ODYzOWZkMDBjZWNkMTI2ZWFmMTU4NzY2MjAyNTA4OSIsImkiOiJzaGEyNTY6RmE3WmtvMHZQQzRUYnM0bW9HWnB1VUdieTFkQlIwWmpWZkJ4STRvMW5fZyIsImsiOiJjb25uZWN0aW9uLmFtZW5kcyIsIm8iOiJDMDFNNEROWk0yWjgxUTBWUEM4MkYwNkVORDkiLCJvcCI6Ik8wMU00RE5aTTJaWDUyMDlGVEQxQzNGWE5QSyIsInAiOlsiUjAxTTQ4WlQ5U0hTSEdCQzZHRlRYRlZCUVBIIl0sInIiOiJtYXN0ZXIiLCJzIjoic2hhMjU2OmVqQXhSdmNRdlFQdXpvaTM3dS1wZkRJMGlWWUhCU21tVjZRZ3Q2QXJhdkUiLCJ0IjoxNzkxNDYwNjI2NTI3LCJ2IjoxLCJ4IjoiYWRyYWkvMS4wLjAifQ -->
