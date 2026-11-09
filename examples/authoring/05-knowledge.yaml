@@ -1,0 +1,19 @@
+kind: knowledge
+id: know_00000000000000000000000001
+title: The Bell Has Rung
+knower: char_00000000000000000000000001
+claim:
+  key: harbor.bell-rung
+  statement: The harbor bell has rung.
+  truth: 'true'
+transitions:
+  - id: first-observation
+    time: {timeline: main, tick: 1, order: 0}
+    state: accepted
+    acquisition: observed
+    confidence: 1.0
+    causing_event: event_00000000000000000000000001
+body: |
+  # The Bell Has Rung
+
+  Ana heard the bell while ringing it.

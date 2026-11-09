@@ -1,0 +1,15 @@
+[
+  {
+    "type": "record.create",
+    "draft": "kind: knowledge\nid: know_00000000000000000000000050\ntitle: Rowan's proposed reply\nknower: char_00000000000000000000000001\nclaim:\n  key: harbor.vow.reply\n  statement: Rowan says he witnessed the vow.\n  truth: unknown\ntransitions:\n  - id: heard-reply\n    time: {timeline: main, tick: 12, order: 1}\n    state: accepted\n    acquisition: observed\n    confidence: 0.8\n    causing_event: event_00000000000000000000000050\nbody: |\n  Ana hears this explicitly authored reply. Its truth remains unknown.\n"
+  },
+  {
+    "type": "record.create",
+    "draft": "kind: event\nid: event_00000000000000000000000050\ntitle: A proposed reply about the vow\ntime: {timeline: main, tick: 12, order: 1}\nlocation: loc_00000000000000000000000001\nparticipants:\n  - character: char_00000000000000000000000001\n    role: listener\n  - character: char_00000000000000000000000002\n    role: speaker\ncauses: []\neffects: []\nbody: |\n  Rowan says he witnessed the vow. The source does not infer whether he is right.\n"
+  },
+  {
+    "type": "record.update",
+    "entityId": "obj_00000000000000000000000001",
+    "patch": "kind: object\nbody: \"# Harbor Bell\\r\\n\\r\\nA brass bell beside the landing. The proposed conversation takes place nearby.\\r\\n\"\n"
+  }
+]

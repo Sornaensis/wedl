@@ -1,0 +1,14 @@
+kind: event
+id: event_00000000000000000000000001
+title: Bell Rung
+time: {timeline: main, tick: 1, order: 0}
+location: loc_00000000000000000000000001
+participants:
+  - character: char_00000000000000000000000001
+    role: bell ringer
+causes: []
+effects: []
+body: |
+  # Bell Rung
+
+  Ana rings the harbor bell.

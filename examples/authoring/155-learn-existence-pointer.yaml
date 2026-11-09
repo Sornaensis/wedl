@@ -1,0 +1,29 @@
+kind: knowledge
+id: know_00000000000000000000000016
+title: I have heard words about an existence account.
+knower: char_00000000000000000000000001
+claim:
+  key: explicit-record-16
+  statement: I have heard words about an existence account.
+  object:
+    entity: existence_00000000000000000000000001
+transitions:
+- id: explicit-acquisition
+  time:
+    timeline: main
+    tick: 10
+    order: 0
+  state: accepted
+  confidence: 1.0
+  acquisition: told
+  note: AUTHOR_ACQUISITION_NOTE remains outside the linked character result.
+audience:
+- public
+perspectives:
+- ordinary
+body: '# Author learning source
+
+
+  UNREAD_KNOWLEDGE_BODY remains separate from the learned statement.
+
+  '

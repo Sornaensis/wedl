@@ -1,0 +1,7 @@
+kind: lore-concept
+audience:
+- author
+- public
+perspectives:
+- author
+- ordinary

@@ -1,0 +1,37 @@
+kind: lore-concept
+descriptions:
+- id: description_00000000000000000000000001
+  heading: Middle calling account
+  markdown: The practice account describes a vow before departure.
+  valid:
+    kind: interval
+    timeline: main
+    start:
+      timeline: main
+      tick: 10
+      order: 0
+    end:
+      timeline: main
+      tick: 19
+      order: 0
+  audience: &id001
+  - author
+  perspectives: &id002
+  - author
+- id: description_00000000000000000000000002
+  heading: Corrected middle calling account
+  markdown: The corrected practice account describes a witnessed vow at the harbor.
+  valid:
+    kind: interval
+    timeline: main
+    start:
+      timeline: main
+      tick: 10
+      order: 0
+    end:
+      timeline: main
+      tick: 19
+      order: 0
+  audience: *id001
+  perspectives: *id002
+  replaces: description_00000000000000000000000001

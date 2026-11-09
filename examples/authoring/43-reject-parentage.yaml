@@ -1,0 +1,18 @@
+kind: knowledge
+transitions:
+- id: learned-parentage
+  time:
+    timeline: main
+    tick: 4
+    order: 0
+  state: suspected
+  acquisition: told
+  confidence: 0.6
+- id: reject-parentage
+  time:
+    timeline: main
+    tick: 9
+    order: 0
+  state: rejected
+  acquisition: told
+  confidence: 0

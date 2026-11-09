@@ -1,0 +1,45 @@
+kind: scene
+id: scene_00000000000000000000000002
+title: Ferry notice discussion
+status: closed
+location: loc_00000000000000000000000001
+time:
+  start:
+    timeline: main
+    tick: 10
+    order: 0
+  current:
+    timeline: main
+    tick: 19
+    order: 0
+  end:
+    timeline: main
+    tick: 19
+    order: 0
+participants:
+- character: char_00000000000000000000000001
+  role: harbor keeper
+  point_of_view: true
+- character: char_00000000000000000000000002
+  role: visitor
+  from:
+    timeline: main
+    tick: 13
+    order: 0
+objects:
+- obj_00000000000000000000000001
+observations:
+- id: notice-in-view
+  at:
+    timeline: main
+    tick: 12
+    order: 1
+  text: The corrected notice is pinned beside the bell.
+  audience:
+  - participants
+body: '# Ferry notice discussion
+
+
+  UNTIMED_SCENE_PROSE is an author note, not a learned observation.
+
+  '

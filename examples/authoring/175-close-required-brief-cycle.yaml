@@ -1,0 +1,12 @@
+kind: context-brief
+required_refs:
+- kind: record
+  id: brief_00000000000000000000000001
+- kind: section
+  owner_id: char_00000000000000000000000001
+  id: description_00000000000000000000000010
+- kind: section
+  owner_id: concept_00000000000000000000000037
+  id: description_00000000000000000000000002
+- kind: record
+  id: brief_00000000000000000000000006

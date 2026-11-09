@@ -1,0 +1,22 @@
+kind: lore-concept
+id: concept_00000000000000000000000017
+title: Hill bank sense
+domain: social.language
+profile: social-sense
+values:
+  language:
+    kind: record
+    id: concept_00000000000000000000000014
+  gloss: A place to keep credit
+valid:
+  kind: timeless
+audience:
+- author
+perspectives:
+- author
+body: '# Hill bank sense
+
+
+  This authored record has its own identity and remains independent of character knowledge.
+
+  '

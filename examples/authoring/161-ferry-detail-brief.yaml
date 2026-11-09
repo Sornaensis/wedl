@@ -1,0 +1,38 @@
+kind: context-brief
+id: brief_00000000000000000000000001
+title: Ferry details
+domain: harbor.writing
+scope: world
+valid:
+  kind: interval
+  timeline: main
+  start:
+    timeline: main
+    tick: 10
+    order: 0
+  end:
+    timeline: main
+    tick: 19
+    order: 0
+required_refs:
+- kind: section
+  owner_id: concept_00000000000000000000000037
+  id: description_00000000000000000000000002
+- kind: transition
+  owner_id: know_00000000000000000000000001
+  id: first-observation
+- kind: section
+  owner_id: obj_00000000000000000000000001
+  id: description_00000000000000000000000001
+audience:
+- author
+- public
+perspectives:
+- author
+- ordinary
+body: '# Ferry details
+
+
+  This is explicitly authored setting prose with its own validity and scope.
+
+  '

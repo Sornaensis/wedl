@@ -1,0 +1,37 @@
+kind: assertion
+id: assertion_00000000000000000000000013
+title: The guild endorsement
+domain: governance.account
+subject:
+  kind: record
+  id: organization_00000000000000000000000001
+predicate: endorses-policy
+value:
+  kind: record
+  id: concept_00000000000000000000000033
+classification: attributed-claim
+valid:
+  kind: interval
+  timeline: main
+  start:
+    timeline: main
+    tick: 0
+    order: 0
+  end:
+    timeline: main
+    tick: 29
+    order: 0
+evidence: []
+audience:
+- author
+perspectives:
+- author
+body: '# The guild endorsement
+
+
+  The account is classified authored source, separate from character beliefs.
+
+  '
+attributed_to:
+  kind: record
+  id: organization_00000000000000000000000001

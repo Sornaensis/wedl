@@ -1,0 +1,38 @@
+kind: knowledge
+id: know_00000000000000000000000015
+title: I recognize the harbor map.
+knower: char_00000000000000000000000001
+claim:
+  key: explicit-record-15
+  statement: I recognize the harbor map.
+  object:
+    entity: map:harbor
+transitions:
+- id: explicit-acquisition
+  time:
+    timeline: main
+    tick: 15
+    order: 0
+  state: accepted
+  confidence: 1.0
+  acquisition: told
+  note: AUTHOR_ACQUISITION_NOTE remains outside the linked character result.
+- id: forgot-map
+  time:
+    timeline: main
+    tick: 18
+    order: 0
+  state: forgotten
+  confidence: 0.0
+  acquisition: told
+  note: AUTHOR_ACQUISITION_NOTE remains outside the linked character result.
+audience:
+- public
+perspectives:
+- ordinary
+body: '# Author learning source
+
+
+  UNREAD_KNOWLEDGE_BODY remains separate from the learned statement.
+
+  '

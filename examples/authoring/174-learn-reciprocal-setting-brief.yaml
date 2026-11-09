@@ -1,0 +1,29 @@
+kind: knowledge
+id: know_00000000000000000000000023
+title: Ana has read brief 6
+knower: char_00000000000000000000000001
+claim:
+  key: brief.read.6
+  statement: I have read the setting notes numbered 6.
+  object:
+    entity: brief_00000000000000000000000006
+  truth: 'true'
+transitions:
+- id: read-notes
+  time:
+    timeline: main
+    tick: 11
+    order: 0
+  state: accepted
+  acquisition: read
+  confidence: 1.0
+  note: AUTHOR_BRIEF_ACQUISITION remains source-only.
+audience:
+- author
+- public
+perspectives:
+- author
+- ordinary
+body: 'UNREAD_BRIEF_KNOWLEDGE_BODY
+
+  '

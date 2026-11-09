@@ -1,0 +1,33 @@
+kind: assertion
+id: assertion_00000000000000000000000015
+title: A corrected policy account
+domain: governance.account
+subject:
+  kind: record
+  id: concept_00000000000000000000000033
+predicate: policy-text
+value: The guild records this contribution as conditional.
+classification: author-fact
+valid:
+  kind: interval
+  timeline: main
+  start:
+    timeline: main
+    tick: 0
+    order: 0
+  end:
+    timeline: main
+    tick: 29
+    order: 0
+evidence: []
+audience:
+- author
+perspectives:
+- author
+body: '# A corrected policy account
+
+
+  The account is classified authored source, separate from character beliefs.
+
+  '
+replaces: assertion_00000000000000000000000012

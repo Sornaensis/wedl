@@ -1,0 +1,21 @@
+kind: existence-episode
+id: existence_00000000000000000000000005
+title: An explicitly unknown account
+domain: character.existence
+character_id: char_00000000000000000000000001
+episode_kind: unknown
+valid:
+  kind: interval
+  timeline: main
+start_evidence: []
+audience:
+- author
+perspectives:
+- author
+body: '# An explicitly unknown account
+
+
+  This is an independent authored account. It does not calculate age or change vital history.
+
+  '
+provenance: The illustrative historical pointers are syntax only and remain unverified.

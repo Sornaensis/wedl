@@ -1,0 +1,227 @@
+kind: world
+profiles:
+- id: harbor-symbol
+  label: Harbor symbol
+  fields:
+    type: object
+    required:
+      description:
+        type: string
+      colors:
+        type: array
+        items:
+          type: string
+        max_items: 4
+    optional:
+      emblem_cost:
+        type: number
+- id: harbor-tradition
+  label: Harbor tradition details
+  fields:
+    type: object
+    required:
+      customary:
+        type: boolean
+      description:
+        type: string
+      gathering_place:
+        type: entity
+        kinds:
+        - location
+      offering:
+        type: object
+        required:
+          amount:
+            type: number
+          unit:
+            type: enum
+            values:
+            - coin
+            - token
+        optional:
+          sponsor:
+            type: entity
+            kinds:
+            - character
+      origin_story:
+        type: 'null'
+      symbols:
+        type: array
+        items:
+          type: entity
+          kinds:
+          - lore-concept
+        max_items: 8
+    optional:
+      chronology:
+        type: string
+      notes:
+        type: string
+      season_label:
+        type: string
+- id: species-common
+  label: Common species description
+  fields:
+    type: object
+    required:
+      parents:
+        type: array
+        items:
+          type: entity
+          kinds:
+          - lore-concept
+        max_items: 8
+      traits:
+        type: string
+      habitats:
+        type: array
+        items:
+          type: string
+        max_items: 8
+    optional:
+      taxonomy:
+        type: string
+      life_stage:
+        type: 'null'
+      culture:
+        type: string
+      language:
+        type: string
+      religion:
+        type: 'null'
+- id: species-individual
+  label: Individual variation description
+  fields:
+    type: object
+    required:
+      common:
+        type: entity
+        kinds:
+        - lore-concept
+      individual:
+        type: entity
+        kinds:
+        - character
+      traits:
+        type: string
+    optional:
+      language:
+        type: 'null'
+      culture:
+        type: string
+- id: character-description-state
+  label: Recorded species notes
+  fields:
+    type: object
+    required:
+      variation:
+        type: entity
+        kinds:
+        - lore-concept
+      notes:
+        type: string
+      markers:
+        type: array
+        items:
+          type: string
+        max_items: 8
+      measure:
+        type: number
+      absence:
+        type: 'null'
+    optional:
+      chronology:
+        type: string
+- id: magic-tradition
+  label: Magic tradition
+  fields:
+    type: object
+    required:
+      links:
+        type: array
+        items:
+          type: entity
+          kinds:
+          - lore-concept
+        max_items: 8
+      restrictions:
+        type: string
+      exceptions:
+        type: array
+        items:
+          type: string
+        max_items: 8
+    optional: {}
+- id: magic-practice
+  label: Magic practice
+  fields:
+    type: object
+    required:
+      links:
+        type: array
+        items:
+          type: entity
+          kinds:
+          - lore-concept
+        max_items: 8
+      restrictions:
+        type: object
+        required:
+          wording:
+            type: string
+          count:
+            type: number
+          ratio:
+            type: number
+          literal:
+            type: object
+            required:
+              kind:
+                type: string
+              id:
+                type: string
+            optional: {}
+        optional: {}
+      exceptions:
+        type: array
+        items:
+          type: string
+        max_items: 8
+    optional: {}
+- id: magic-realm
+  label: Magic realm
+  fields:
+    type: object
+    required:
+      links:
+        type: array
+        items:
+          type: entity
+          kinds:
+          - lore-concept
+        max_items: 8
+      exceptions:
+        type: 'null'
+    optional:
+      restrictions:
+        type: string
+- id: magic-artifact
+  label: Magic artifact
+  fields:
+    type: object
+    required:
+      links:
+        type: array
+        items:
+          type: entity
+          kinds:
+          - lore-concept
+        max_items: 8
+      restrictions:
+        type: string
+      exceptions:
+        type: array
+        items:
+          type: string
+        max_items: 8
+    optional: {}

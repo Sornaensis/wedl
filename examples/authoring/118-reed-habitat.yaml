@@ -1,0 +1,52 @@
+kind: lore-concept
+id: concept_00000000000000000000000028
+title: Reed habitat
+domain: environment.harbor
+profile: context-habitat
+values:
+  places:
+  - kind: record
+    id: loc_00000000000000000000000001
+  eras:
+  - kind: record
+    id: concept_00000000000000000000000026
+  resources:
+  - kind: record
+    id: concept_00000000000000000000000027
+  conditions: Brackish marsh beside the harbor.
+valid:
+  kind: timeless
+audience:
+- author
+perspectives:
+- author
+body: '# Reed habitat
+
+
+  This authored record has its own identity and remains independent of character knowledge.
+
+  '
+descriptions:
+- id: description_00000000000000000000000001
+  heading: Wetland account
+  markdown: 'Reeds are recorded beside the eastern quay.
+
+
+    The description states no production rate.
+
+    '
+  valid:
+    kind: interval
+    timeline: main
+    start:
+      timeline: main
+      tick: 0
+      order: 0
+    end:
+      timeline: main
+      tick: 9
+      order: 0
+  audience:
+  - author
+  perspectives:
+  - author

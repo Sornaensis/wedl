@@ -1,0 +1,29 @@
+kind: assertion
+domain: magic.practice
+subject:
+  kind: record
+  id: concept_00000000000000000000000010
+predicate: practice-account
+classification: author-fact
+valid:
+  kind: interval
+  timeline: main
+  start:
+    timeline: main
+    tick: 10
+    order: 0
+  end:
+    timeline: main
+    tick: 19
+    order: 0
+evidence: []
+audience:
+- author
+perspectives:
+- author
+id: assertion_00000000000000000000000019
+title: Middle calling rule
+value: Middle calling requires a witnessed vow.
+body: 'AUTHOR_MAGIC_RULE_BODY
+
+  '

@@ -1,0 +1,43 @@
+kind: route
+spatial_history:
+  - id: spatialhistory_00000000000000000000000004
+    aspect: route-metric
+    valid:
+      kind: interval
+      timeline: main
+      start: {timeline: main, tick: 20, order: 0}
+      end: {timeline: main, tick: 29, order: 0}
+    value: {route_distance: {value: 25, unit: m}}
+  - id: spatialhistory_00000000000000000000000005
+    aspect: route-metric
+    valid:
+      kind: interval
+      timeline: main
+      start: {timeline: main, tick: 20, order: 0}
+      end: {timeline: main, tick: 29, order: 0}
+    value: {duration: {value: 60, unit: seconds}}
+  - id: spatialhistory_00000000000000000000000006
+    aspect: route-metric
+    valid:
+      kind: interval
+      timeline: main
+      start: {timeline: main, tick: 20, order: 0}
+      end: {timeline: main, tick: 29, order: 0}
+    value: {travel_cost: {value: 10, unit: coin}}
+  - id: spatialhistory_00000000000000000000000007
+    aspect: route-availability
+    valid:
+      kind: interval
+      timeline: main
+      start: {timeline: main, tick: 24, order: 0}
+      end: {timeline: main, tick: 26, order: 0}
+    value: {availability: closed}
+  - id: spatialhistory_00000000000000000000000008
+    aspect: route-metric
+    valid:
+      kind: interval
+      timeline: main
+      start: {timeline: main, tick: 20, order: 0}
+      end: {timeline: main, tick: 29, order: 0}
+    value: {travel_cost: {value: 7, unit: coin}}
+    replaces: spatialhistory_00000000000000000000000006

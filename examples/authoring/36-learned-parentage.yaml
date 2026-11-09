@@ -1,0 +1,38 @@
+kind: knowledge
+id: know_00000000000000000000000002
+title: Ana suspects Jules is a parent
+knower: char_00000000000000000000000001
+claim:
+  key: genealogy.parentage
+  statement: Ana suspects Jules is a parent.
+  genealogy:
+    kind: parentage
+    payload:
+      child_id: char_00000000000000000000000001
+      parent_id: char_00000000000000000000000003
+      basis: biological
+    valid:
+      from:
+        timeline: main
+        tick: -40
+        order: 0
+      until:
+        timeline: main
+        tick: 8
+        order: 0
+    labels:
+      char_00000000000000000000000001: Annie
+      char_00000000000000000000000003: Jules the Elder
+transitions:
+- id: learned-parentage
+  time:
+    timeline: main
+    tick: 4
+    order: 0
+  state: suspected
+  acquisition: told
+  confidence: 0.6
+body: |
+  # Ana suspects Jules is a parent
+
+  An explicitly authored belief, independent of canonical history.

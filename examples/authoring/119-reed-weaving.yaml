@@ -1,0 +1,26 @@
+kind: lore-concept
+id: concept_00000000000000000000000029
+title: Reed weaving
+domain: environment.harbor
+profile: context-technology
+values:
+  resources:
+  - kind: record
+    id: concept_00000000000000000000000027
+  eras:
+  - kind: record
+    id: concept_00000000000000000000000026
+  dependencies: []
+  method_text: Bend and bind the dried reeds; this wording is not an executable recipe.
+valid:
+  kind: timeless
+audience:
+- author
+perspectives:
+- author
+body: '# Reed weaving
+
+
+  This authored record has its own identity and remains independent of character knowledge.
+
+  '

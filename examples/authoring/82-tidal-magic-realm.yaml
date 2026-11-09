@@ -1,0 +1,18 @@
+kind: lore-concept
+id: concept_00000000000000000000000007
+title: Tidal Echo Realm
+profile: magic-realm
+domain: magic.realm
+values:
+  links: []
+  exceptions: null
+valid:
+  kind: timeless
+audience:
+- author
+perspectives:
+- author
+body: |
+  # Tidal Echo Realm
+
+  No restriction is authored here. The explicit null exception is a known value, distinct from an absent field.

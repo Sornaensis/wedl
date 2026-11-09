@@ -1,0 +1,14 @@
+kind: location
+id: location:harbor/survey
+title: Harbor Survey Mark
+spatial:
+  map_id: map:harbor/coast
+  geometry:
+    kind: point
+    coordinates:
+    - 12.5
+    - 55.7
+body: |
+  # Harbor Survey Mark
+
+  An explicit authored spatial declaration.

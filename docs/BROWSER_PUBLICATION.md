@@ -1,0 +1,103 @@
+# Reviewed browser publication
+
+The local author browser can save private actions, retained edits, manuscripts
+and retcon reviews, and apply explicitly approved saved action/edit candidates.
+It uses the existing native request formats, review admission and writer. All
+source, API and private-document labels remain v1.
+
+## Author workflow
+
+Start `wedl-rs --repo WORLD serve` and open the printed loopback URL. The header
+reports whether publication is available. A server opened with `--revision`
+remains an immutable read-only snapshot; downloads are still available.
+
+1. In **Actions**, create or import a draft and choose **Save private draft**.
+   List and load the saved draft before continuing. Resolution-needed saves and
+   appended proposals still require a fresh complete context review and explicit
+   sufficiency assessment. This assessment does not approve publication.
+2. Build or import the explicit Plan, append its proposal, review the completed
+   private draft and save it. List and load that exact saved proposed action.
+3. Choose **Review saved outcome** and inspect the complete candidate, source
+   changes, validation and any semantic expectations. Check the separate approval
+   box, then choose **Apply approved outcome**.
+4. The source refreshes after success. List and load the terminal action to
+   inspect and verify its receipt. The complete write response also stays in the
+   header's last-submitted-write panel.
+
+**Edits** follows the shorter save → load → review → explicit approval → apply
+path for one retained patch/body. Unfinished patches may be saved privately;
+only a valid exact reviewed candidate can be applied. **Manuscripts** and
+**Retcons** offer private saves with their existing source/private-file pins.
+Reveal-plan source uses the same manuscript save route.
+
+Saves never silently replace a tab's buffer or change its original pins. This
+also holds when the author types or changes tabs while a write is pending. Load
+the saved document explicitly to continue from its new hash. **Refresh source**
+invalidates cached results and approvals while retaining local inputs, selected
+story coordinates and original pins. Capturing new pins is a separate action.
+
+## HTTP contract
+
+`http::router(Service)` retains its immutable GET-only contract.
+`http::live_router(Service)` is used for current-worktree `serve`; historical
+input falls back to the immutable router. `GET /api/session` on the live router
+returns `result: {mode: "live-author", writesEnabled: true}` in the ordinary
+`wedl-rust/v1` envelope.
+
+| Exact POST route | Existing native request | Maximum body bytes |
+| --- | --- | ---: |
+| `/api/action-drafts/save` | Action private save | 524,288 |
+| `/api/action-drafts/apply-outcome` | Approved saved outcome | 16,384 |
+| `/api/edit-drafts/save` | Retained edit private save | 524,288 |
+| `/api/edit-drafts/apply` | Approved saved edit | 16,384 |
+| `/api/manuscripts/save` | Exact manuscript source save | 8,388,608 |
+| `/api/retcon-reviews/save` | Private review save | 4,194,304 |
+
+Bodies are the unchanged closed native JSON requests, decoded as strict UTF-8.
+Duplicate/unknown fields and native structural limits remain enforced. Write
+URLs accept no query, including an empty query suffix. There is no raw Plan
+application route or HTTP source/body patch bypass.
+
+Each POST requires one canonical loopback `Host`, one exact matching
+`Origin: http://HOST`, one JSON `Content-Type` and `X-WEDL-Write: 1`. Missing,
+duplicate, null or foreign origins and malformed authorities are refused.
+No CORS permission is granted. These guards protect the local browser boundary;
+the header is not an approval token. Publication approval remains the native
+exact review digest and explicit `approved: true`.
+
+One live execution gate serializes source capture and operation dispatch.
+Canonical operations capture a fresh immutable source using the existing bounded
+current loader: at most 4,096 records, 8 MiB per file and 32 MiB total, plus
+existing YAML bounds and before/after file-image and publication fences. Capture
+failure never substitutes an old canonical snapshot. Native writers retain their
+own cross-process locks, repeated pins and recoverable publication rules.
+
+Independent manuscript/reveal, revision and retcon reads retain their original
+root/source selectors and remain available independently of malformed live canon
+when their own contracts allow it. Their live responses use `protocol` and
+`result`, without misleading outer canonical fingerprint/revision fields; their
+result-level source pins retain their existing meaning. Reader preview retains
+the same installed presentation service and its emission-time policy fence.
+
+Write responses retain the native Service envelope. Its outer fingerprint is
+the snapshot **before dispatch**, not a claim about the post-write source. The
+browser fetches fresh status separately. Private saves may leave the canonical
+fingerprint unchanged; a canonical no-op application can still create a terminal
+private receipt. Exact approved application retries are decided by the existing
+receipt verifier, without a generic pre-dispatch fingerprint rejection.
+
+## Failure and exactness
+
+The browser permits one submitted write at a time. A write acknowledgement is
+retained across tab changes. If the write succeeds but refresh fails, the UI
+reports success and the separate refresh failure. If the response is lost or
+cannot be decoded, it reports an unconfirmed outcome and makes no automatic
+retry. Refresh source and inspect the saved document/receipt before resubmitting;
+the exact last submitted request remains downloadable in the tab.
+
+Source refresh clears approvals and disables further writes until it succeeds.
+Imported exact prose and line endings remain unchanged until explicitly edited.
+The existing 16 KiB browser URL bound still applies to GET review/preview input;
+larger complete requests can be downloaded for their native CLI operation.
+See [ACTIONS.md](ACTIONS.md), [OUTCOMES.md](OUTCOMES.md), [EDITS.md](EDITS.md),
+[MANUSCRIPT.md](MANUSCRIPT.md) and [RETCON_REVIEWS.md](RETCON_REVIEWS.md).

@@ -1,0 +1,20 @@
+kind: knowledge
+transitions:
+- id: explicit-acquisition
+  time:
+    timeline: main
+    tick: 10
+    order: 0
+  state: accepted
+  confidence: 1.0
+  acquisition: told
+  note: AUTHOR_ACQUISITION_NOTE remains outside the linked character result.
+- id: forgot-reading
+  time:
+    timeline: main
+    tick: 22
+    order: 0
+  state: forgotten
+  confidence: 0.0
+  acquisition: told
+  note: AUTHOR_ACQUISITION_NOTE remains outside the linked character result.

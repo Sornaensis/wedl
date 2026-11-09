@@ -1,0 +1,34 @@
+kind: context-brief
+id: brief_00000000000000000000000003
+title: Notes with a withheld source
+domain: harbor.writing
+scope: world
+valid:
+  kind: interval
+  timeline: main
+  start:
+    timeline: main
+    tick: 10
+    order: 0
+  end:
+    timeline: main
+    tick: 19
+    order: 0
+required_refs:
+- kind: section
+  owner_id: concept_00000000000000000000000037
+  id: description_00000000000000000000000002
+- kind: record
+  id: concept_00000000000000000000000023
+audience:
+- author
+- public
+perspectives:
+- author
+- ordinary
+body: '# Notes with a withheld source
+
+
+  This is explicitly authored setting prose with its own validity and scope.
+
+  '

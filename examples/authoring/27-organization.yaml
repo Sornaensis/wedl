@@ -1,0 +1,17 @@
+kind: organization
+id: organization_00000000000000000000000001
+title: Harbor Guild
+organization_kind: institution
+location_id: loc_00000000000000000000000001
+initialization:
+  transition_id: transition_00000000000000000000000021
+  transition_kind: organization-initialize
+  applicability:
+    applicability_kind: instant
+    point: {timeline: main, tick: -50, order: 0}
+  payload: {title: Harbor Guild, aliases: []}
+transitions: []
+body: |
+  # Harbor Guild
+
+  Membership and offices are authored separately from this institution.

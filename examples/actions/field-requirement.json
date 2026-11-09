@@ -1,0 +1,5 @@
+{
+  "targetId": "concept_00000000000000000000000010",
+  "selector": {"field": "restrictions"},
+  "expectedValueRaw": "{\"wording\":\"The middle practice account requires a witnessed vow.\",\"count\":9007199254740993,\"ratio\":1e0,\"literal\":{\"kind\":\"record\",\"id\":\"concept_00000000000000000000000099\"}}"
+}

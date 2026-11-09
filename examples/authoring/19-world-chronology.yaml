@@ -1,0 +1,37 @@
+kind: world
+chronology:
+  calendars:
+    - id: calendar_00000000000000000000000001
+      label: Harbor calendar
+      months:
+        - {number: 1, days: 30, label: First}
+        - {number: 2, days: 30, label: Second}
+      rule:
+        kind: cycle
+        period: 4
+        overrides:
+          - {residue: 0, target_month: 2, delta_days: 1}
+      epoch: {civil: {year: 0, month: 1, day: 1}, axis_day: 0}
+    - id: calendar_00000000000000000000000002
+      label: Tide calendar
+      months:
+        - {number: 1, days: 10, label: Tide}
+      rule: {kind: cycle, period: 1, overrides: []}
+      epoch: {civil: {year: 0, month: 1, day: 1}, axis_day: 0}
+  eras:
+    - id: era_00000000000000000000000001
+      calendar_id: calendar_00000000000000000000000001
+      label: Harbor Era
+      aliases: [HE]
+      display_epoch: {display_year: 1, machine_year: 0}
+      display_year_zero: false
+      provenance: [harbor-ledger]
+  anchors:
+    - id: chronology_00000000000000000000000001
+      axis_day: 0
+      story_time: {timeline: main, tick: 0, order: 0}
+      provenance: [harbor-ledger]
+    - id: chronology_00000000000000000000000002
+      axis_day: 30
+      story_time: {timeline: main, tick: 1, order: 1}
+      provenance: [harbor-ledger]

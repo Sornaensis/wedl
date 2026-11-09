@@ -1,0 +1,21 @@
+kind: lore-concept
+id: concept_00000000000000000000000014
+title: Hill language
+domain: social.language
+profile: social-language
+values:
+  scripts:
+  - kind: record
+    id: concept_00000000000000000000000012
+valid:
+  kind: timeless
+audience:
+- author
+perspectives:
+- author
+body: '# Hill language
+
+
+  This authored record has its own identity and remains independent of character knowledge.
+
+  '

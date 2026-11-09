@@ -1,0 +1,32 @@
+kind: knowledge
+id: know_00000000000000000000000008
+title: Ana mistakenly believes Rowan is dead
+knower: char_00000000000000000000000001
+claim:
+  key: genealogy.vital
+  statement: Ana mistakenly believes Rowan is dead.
+  genealogy:
+    kind: vital
+    payload:
+      character_id: char_00000000000000000000000002
+      state: dead
+    valid:
+      from:
+        timeline: main
+        tick: -40
+        order: 0
+    labels:
+      char_00000000000000000000000002: Rowan
+transitions:
+- id: learned-vital
+  time:
+    timeline: main
+    tick: 4
+    order: 0
+  state: suspected
+  acquisition: told
+  confidence: 0.6
+body: |
+  # Ana mistakenly believes Rowan is dead
+
+  An explicitly authored belief, independent of canonical history.

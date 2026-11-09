@@ -1,0 +1,40 @@
+kind: conversation
+id: conv_00000000000000000000000001
+title: The Landing Is Clear
+scene: scene_00000000000000000000000001
+location: loc_00000000000000000000000001
+time:
+  start: {timeline: main, tick: 1, order: 0}
+  end: {timeline: main, tick: 2, order: 0}
+participants:
+  - character: char_00000000000000000000000001
+    role: speaker
+turns:
+  - id: landing-report
+    at: {timeline: main, tick: 1, order: 2}
+    speaker: char_00000000000000000000000001
+    text: The landing is clear.
+    audience: [participants]
+  - id: lower-lantern
+    kind: action
+    at: {timeline: main, tick: 2, order: 0}
+    actors: [char_00000000000000000000000001]
+    text: Ana lowers the lantern.
+    audience: [participants]
+recollections:
+  - id: landing-memory
+    character: char_00000000000000000000000001
+    at: {timeline: main, tick: 3, order: 0}
+    state: remembered
+    confidence: 0.8
+    summary: I remember reporting that the landing was clear.
+    exact_turns: [landing-report]
+    remembered_quotes:
+      - source_turn: landing-report
+        speaker: char_00000000000000000000000001
+        text: The landing is clear.
+        fidelity: exact
+body: |
+  # The Landing Is Clear
+
+  A brief report at the landing.

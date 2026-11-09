@@ -1,0 +1,21 @@
+kind: lore-concept
+id: concept_00000000000000000000000008
+title: Calling Lantern
+profile: magic-artifact
+domain: magic.artifact
+values:
+  links:
+  - kind: record
+    id: concept_00000000000000000000000007
+  restrictions: The artifact account describes a caller holding the lantern handle.
+  exceptions: []
+valid:
+  kind: timeless
+audience:
+- author
+perspectives:
+- author
+body: |
+  # Calling Lantern
+
+  The realm link is explicit. An empty exceptions array is retained as authored data.

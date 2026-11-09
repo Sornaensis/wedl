@@ -1,0 +1,19 @@
+kind: lore-concept
+values:
+  customary: true
+  description: An authored harbor gathering with lanterns.
+  gathering_place:
+    kind: record
+    id: location:harbor/landing
+  offering:
+    amount: 5
+    unit: coin
+    sponsor:
+      kind: record
+      id: char_00000000000000000000000001
+  origin_story: null
+  symbols:
+  - kind: record
+    id: concept_00000000000000000000000001
+  chronology: The phrase before moonrise is descriptive prose.
+  notes: The amount is an authored description, not a generated state effect.

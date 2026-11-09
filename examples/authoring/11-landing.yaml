@@ -1,0 +1,8 @@
+kind: location
+id: location:harbor/landing
+title: Lower Landing
+parent_id: loc_00000000000000000000000001
+body: |
+  # Lower Landing
+
+  Steps descend from the harbor to the landing.

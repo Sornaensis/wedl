@@ -1,0 +1,22 @@
+kind: character
+descriptions:
+- id: description_00000000000000000000000010
+  heading: My dated recollection
+  markdown: I remember a public ferry notice, not its private drafts.
+  valid:
+    kind: interval
+    timeline: main
+    start:
+      timeline: main
+      tick: 10
+      order: 0
+    end:
+      timeline: main
+      tick: 19
+      order: 0
+  audience:
+  - author
+  - public
+  perspectives:
+  - author
+  - ordinary

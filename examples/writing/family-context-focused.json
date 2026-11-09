@@ -1,0 +1,58 @@
+{
+  "species": {
+    "individualId": "concept_00000000000000000000000005",
+    "selection": {
+      "common_profile": "species-common",
+      "individual_profile": "species-individual",
+      "individual_link": "common",
+      "common_link": null,
+      "common_fields": {
+        "traits": "traits",
+        "language": "language",
+        "habitat": "habitats"
+      },
+      "individual_fields": {
+        "traits": "traits",
+        "language": "language"
+      }
+    },
+    "beliefTargets": []
+  },
+  "magic": {
+    "author": {
+      "rootId": "concept_00000000000000000000000010",
+      "selection": {
+        "profiles": {
+          "practice": "magic-practice"
+        },
+        "links": {},
+        "restrictions": {
+          "practice": "restrictions"
+        },
+        "exceptions": {
+          "practice": "exceptions"
+        }
+      }
+    },
+    "beliefTargets": [
+      "assertion_00000000000000000000000019"
+    ]
+  },
+  "social": {
+    "language": "concept_00000000000000000000000013",
+    "sense": "concept_00000000000000000000000016",
+    "form": "banka",
+    "contexts": [],
+    "beliefTargets": [
+      "assertion_00000000000000000000000008"
+    ]
+  },
+  "environment": {
+    "contexts": [
+      "concept_00000000000000000000000027"
+    ],
+    "beliefTargets": [
+      "assertion_00000000000000000000000009"
+    ]
+  }
+}

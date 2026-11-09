@@ -1,0 +1,61 @@
+kind: world
+profiles:
+- id: harbor-symbol
+  label: Harbor symbol
+  fields:
+    type: object
+    required:
+      description:
+        type: string
+      colors:
+        type: array
+        items:
+          type: string
+        max_items: 4
+    optional:
+      emblem_cost:
+        type: number
+- id: harbor-tradition
+  label: Harbor tradition details
+  fields:
+    type: object
+    required:
+      customary:
+        type: boolean
+      description:
+        type: string
+      gathering_place:
+        type: entity
+        kinds:
+        - location
+      offering:
+        type: object
+        required:
+          amount:
+            type: number
+          unit:
+            type: enum
+            values:
+            - coin
+            - token
+        optional:
+          sponsor:
+            type: entity
+            kinds:
+            - character
+      origin_story:
+        type: 'null'
+      symbols:
+        type: array
+        items:
+          type: entity
+          kinds:
+          - lore-concept
+        max_items: 8
+    optional:
+      chronology:
+        type: string
+      notes:
+        type: string
+      season_label:
+        type: string

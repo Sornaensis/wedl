@@ -1,0 +1,42 @@
+kind: assertion
+id: assertion_00000000000000000000000004
+title: Corrected early calling rule
+domain: magic.practice
+subject:
+  kind: record
+  id: concept_00000000000000000000000009
+predicate: practice-rule
+value:
+  wording: The caller speaks an invitation and names the intended listener.
+  count: 9007199254740995
+  absence: null
+  links:
+  - kind: record
+    id: concept_00000000000000000000000008
+  - kind: record
+    id: concept_00000000000000000000000007
+  literal:
+    kind: record
+    id: concept_00000000000000000000000099
+classification: author-fact
+valid:
+  kind: interval
+  timeline: main
+  start:
+    timeline: main
+    tick: 0
+    order: 0
+  end:
+    timeline: main
+    tick: 9
+    order: 0
+evidence: []
+audience:
+- author
+perspectives:
+- author
+body: |
+  # Corrected early calling rule
+
+  The classification and value are explicit authored source, independent of what any character has learned.
+replaces: assertion_00000000000000000000000001

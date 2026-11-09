@@ -1,0 +1,773 @@
+kind: world
+profiles:
+- id: harbor-symbol
+  label: Harbor symbol
+  fields:
+    type: object
+    required:
+      description:
+        type: string
+      colors:
+        type: array
+        items:
+          type: string
+        max_items: 4
+    optional:
+      emblem_cost:
+        type: number
+- id: harbor-tradition
+  label: Harbor tradition details
+  fields:
+    type: object
+    required:
+      customary:
+        type: boolean
+      description:
+        type: string
+      gathering_place:
+        type: entity
+        kinds:
+        - location
+      offering:
+        type: object
+        required:
+          amount:
+            type: number
+          unit:
+            type: enum
+            values:
+            - coin
+            - token
+        optional:
+          sponsor:
+            type: entity
+            kinds:
+            - character
+      origin_story:
+        type: 'null'
+      symbols:
+        type: array
+        items:
+          type: entity
+          kinds:
+          - lore-concept
+        max_items: 8
+    optional:
+      chronology:
+        type: string
+      notes:
+        type: string
+      season_label:
+        type: string
+- id: species-common
+  label: Common species description
+  fields:
+    type: object
+    required:
+      parents:
+        type: array
+        items:
+          type: entity
+          kinds:
+          - lore-concept
+        max_items: 8
+      traits:
+        type: string
+      habitats:
+        type: array
+        items:
+          type: string
+        max_items: 8
+    optional:
+      taxonomy:
+        type: string
+      life_stage:
+        type: 'null'
+      culture:
+        type: string
+      language:
+        type: string
+      religion:
+        type: 'null'
+- id: species-individual
+  label: Individual variation description
+  fields:
+    type: object
+    required:
+      common:
+        type: entity
+        kinds:
+        - lore-concept
+      individual:
+        type: entity
+        kinds:
+        - character
+      traits:
+        type: string
+    optional:
+      language:
+        type: 'null'
+      culture:
+        type: string
+- id: character-description-state
+  label: Recorded species notes
+  fields:
+    type: object
+    required:
+      variation:
+        type: entity
+        kinds:
+        - lore-concept
+      notes:
+        type: string
+      markers:
+        type: array
+        items:
+          type: string
+        max_items: 8
+      measure:
+        type: number
+      absence:
+        type: 'null'
+    optional:
+      chronology:
+        type: string
+- id: magic-tradition
+  label: Magic tradition
+  fields:
+    type: object
+    required:
+      links:
+        type: array
+        items:
+          type: entity
+          kinds:
+          - lore-concept
+        max_items: 8
+      restrictions:
+        type: string
+      exceptions:
+        type: array
+        items:
+          type: string
+        max_items: 8
+    optional: {}
+- id: magic-practice
+  label: Magic practice
+  fields:
+    type: object
+    required:
+      links:
+        type: array
+        items:
+          type: entity
+          kinds:
+          - lore-concept
+        max_items: 8
+      restrictions:
+        type: object
+        required:
+          wording:
+            type: string
+          count:
+            type: number
+          ratio:
+            type: number
+          literal:
+            type: object
+            required:
+              kind:
+                type: string
+              id:
+                type: string
+            optional: {}
+        optional: {}
+      exceptions:
+        type: array
+        items:
+          type: string
+        max_items: 8
+    optional: {}
+- id: magic-realm
+  label: Magic realm
+  fields:
+    type: object
+    required:
+      links:
+        type: array
+        items:
+          type: entity
+          kinds:
+          - lore-concept
+        max_items: 8
+      exceptions:
+        type: 'null'
+    optional:
+      restrictions:
+        type: string
+- id: magic-artifact
+  label: Magic artifact
+  fields:
+    type: object
+    required:
+      links:
+        type: array
+        items:
+          type: entity
+          kinds:
+          - lore-concept
+        max_items: 8
+      restrictions:
+        type: string
+      exceptions:
+        type: array
+        items:
+          type: string
+        max_items: 8
+    optional: {}
+- id: social-culture
+  label: Culture
+  fields:
+    type: object
+    required: {}
+    optional:
+      languages:
+        type: array
+        items:
+          type: entity
+          kinds:
+          - lore-concept
+        max_items: 64
+      religions:
+        type: array
+        items:
+          type: entity
+          kinds:
+          - lore-concept
+        max_items: 64
+      note:
+        type: string
+- id: social-religion
+  label: Religion
+  fields:
+    type: object
+    required: {}
+    optional:
+      cultures:
+        type: array
+        items:
+          type: entity
+          kinds:
+          - lore-concept
+        max_items: 64
+      languages:
+        type: array
+        items:
+          type: entity
+          kinds:
+          - lore-concept
+        max_items: 64
+      note:
+        type: string
+- id: social-language
+  label: Language
+  fields:
+    type: object
+    required: {}
+    optional:
+      scripts:
+        type: array
+        items:
+          type: entity
+          kinds:
+          - lore-concept
+        max_items: 64
+      note:
+        type: string
+- id: social-script
+  label: Script
+  fields:
+    type: object
+    required: {}
+    optional:
+      note:
+        type: string
+- id: social-sense
+  label: Lexical sense
+  fields:
+    type: object
+    required:
+      language:
+        type: entity
+        kinds:
+        - lore-concept
+      gloss:
+        type: string
+    optional:
+      note:
+        type: string
+- id: social-register
+  label: Register
+  fields:
+    type: object
+    required:
+      language:
+        type: entity
+        kinds:
+        - lore-concept
+      label:
+        type: string
+    optional:
+      note:
+        type: string
+- id: social-era-spelling
+  label: Era spelling
+  fields:
+    type: object
+    required:
+      sense:
+        type: entity
+        kinds:
+        - lore-concept
+      language:
+        type: entity
+        kinds:
+        - lore-concept
+      form:
+        type: string
+    optional:
+      scripts:
+        type: array
+        items:
+          type: entity
+          kinds:
+          - lore-concept
+        max_items: 64
+      register:
+        type: entity
+        kinds:
+        - lore-concept
+      unresolved:
+        type: 'null'
+      note:
+        type: string
+- id: social-membership
+  label: Explicit membership
+  fields:
+    type: object
+    required:
+      member:
+        type: entity
+        kinds:
+        - character
+        - organization
+        - lore-concept
+      group:
+        type: entity
+        kinds:
+        - lore-concept
+      relation:
+        type: enum
+        values:
+        - cultural-membership
+        - religious-membership
+        - language-use
+    optional:
+      note:
+        type: string
+- id: context-habitat
+  label: Habitat
+  fields:
+    type: object
+    required: {}
+    optional:
+      places:
+        type: array
+        items:
+          type: entity
+          kinds:
+          - location
+        max_items: 64
+      eras:
+        type: array
+        items:
+          type: entity
+          kinds:
+          - lore-concept
+        max_items: 64
+      dependencies:
+        type: array
+        items:
+          type: entity
+          kinds:
+          - lore-concept
+        max_items: 64
+      quantity:
+        type: object
+        required:
+          amount_text:
+            type: string
+        optional:
+          unit_text:
+            type: string
+          qualification:
+            type: string
+      note:
+        type: string
+      resources:
+        type: array
+        items:
+          type: entity
+          kinds:
+          - lore-concept
+        max_items: 64
+      conditions:
+        type: string
+- id: context-resource
+  label: Resource
+  fields:
+    type: object
+    required: {}
+    optional:
+      places:
+        type: array
+        items:
+          type: entity
+          kinds:
+          - location
+        max_items: 64
+      eras:
+        type: array
+        items:
+          type: entity
+          kinds:
+          - lore-concept
+        max_items: 64
+      dependencies:
+        type: array
+        items:
+          type: entity
+          kinds:
+          - lore-concept
+        max_items: 64
+      quantity:
+        type: object
+        required:
+          amount_text:
+            type: string
+        optional:
+          unit_text:
+            type: string
+          qualification:
+            type: string
+      note:
+        type: string
+      habitats:
+        type: array
+        items:
+          type: entity
+          kinds:
+          - lore-concept
+        max_items: 64
+      availability_text:
+        type: string
+- id: context-livelihood
+  label: Livelihood
+  fields:
+    type: object
+    required: {}
+    optional:
+      places:
+        type: array
+        items:
+          type: entity
+          kinds:
+          - location
+        max_items: 64
+      eras:
+        type: array
+        items:
+          type: entity
+          kinds:
+          - lore-concept
+        max_items: 64
+      dependencies:
+        type: array
+        items:
+          type: entity
+          kinds:
+          - lore-concept
+        max_items: 64
+      quantity:
+        type: object
+        required:
+          amount_text:
+            type: string
+        optional:
+          unit_text:
+            type: string
+          qualification:
+            type: string
+      note:
+        type: string
+      resources:
+        type: array
+        items:
+          type: entity
+          kinds:
+          - lore-concept
+        max_items: 64
+      technologies:
+        type: array
+        items:
+          type: entity
+          kinds:
+          - lore-concept
+        max_items: 64
+      practice_text:
+        type: string
+- id: context-trade-practice
+  label: Trade practice
+  fields:
+    type: object
+    required: {}
+    optional:
+      places:
+        type: array
+        items:
+          type: entity
+          kinds:
+          - location
+        max_items: 64
+      eras:
+        type: array
+        items:
+          type: entity
+          kinds:
+          - lore-concept
+        max_items: 64
+      dependencies:
+        type: array
+        items:
+          type: entity
+          kinds:
+          - lore-concept
+        max_items: 64
+      quantity:
+        type: object
+        required:
+          amount_text:
+            type: string
+        optional:
+          unit_text:
+            type: string
+          qualification:
+            type: string
+      note:
+        type: string
+      resources:
+        type: array
+        items:
+          type: entity
+          kinds:
+          - lore-concept
+        max_items: 64
+      infrastructures:
+        type: array
+        items:
+          type: entity
+          kinds:
+          - lore-concept
+        max_items: 64
+      terms_text:
+        type: string
+- id: context-infrastructure
+  label: Infrastructure
+  fields:
+    type: object
+    required: {}
+    optional:
+      places:
+        type: array
+        items:
+          type: entity
+          kinds:
+          - location
+        max_items: 64
+      eras:
+        type: array
+        items:
+          type: entity
+          kinds:
+          - lore-concept
+        max_items: 64
+      dependencies:
+        type: array
+        items:
+          type: entity
+          kinds:
+          - lore-concept
+        max_items: 64
+      quantity:
+        type: object
+        required:
+          amount_text:
+            type: string
+        optional:
+          unit_text:
+            type: string
+          qualification:
+            type: string
+      note:
+        type: string
+      resources:
+        type: array
+        items:
+          type: entity
+          kinds:
+          - lore-concept
+        max_items: 64
+      technologies:
+        type: array
+        items:
+          type: entity
+          kinds:
+          - lore-concept
+        max_items: 64
+      service_text:
+        type: string
+- id: context-technology
+  label: Technology
+  fields:
+    type: object
+    required: {}
+    optional:
+      places:
+        type: array
+        items:
+          type: entity
+          kinds:
+          - location
+        max_items: 64
+      eras:
+        type: array
+        items:
+          type: entity
+          kinds:
+          - lore-concept
+        max_items: 64
+      dependencies:
+        type: array
+        items:
+          type: entity
+          kinds:
+          - lore-concept
+        max_items: 64
+      quantity:
+        type: object
+        required:
+          amount_text:
+            type: string
+        optional:
+          unit_text:
+            type: string
+          qualification:
+            type: string
+      note:
+        type: string
+      resources:
+        type: array
+        items:
+          type: entity
+          kinds:
+          - lore-concept
+        max_items: 64
+      infrastructures:
+        type: array
+        items:
+          type: entity
+          kinds:
+          - lore-concept
+        max_items: 64
+      method_text:
+        type: string
+- id: context-era
+  label: Authored era
+  fields:
+    type: object
+    required: {}
+    optional:
+      places:
+        type: array
+        items:
+          type: entity
+          kinds:
+          - location
+        max_items: 64
+      dependencies:
+        type: array
+        items:
+          type: entity
+          kinds:
+          - lore-concept
+        max_items: 64
+      date_text:
+        type: string
+      note:
+        type: string
+predicates:
+- id: practice-rule
+  subject_kinds:
+  - lore-concept
+  value_type:
+    type: object
+    required:
+      wording:
+        type: string
+      count:
+        type: number
+      absence:
+        type: 'null'
+      links:
+        type: array
+        items:
+          type: entity
+          kinds:
+          - lore-concept
+        max_items: 8
+      literal:
+        type: object
+        required:
+          kind:
+            type: string
+          id:
+            type: string
+        optional: {}
+    optional:
+      qualification:
+        type: string
+- id: practice-account
+  subject_kinds:
+  - lore-concept
+  value_type:
+    type: string
+- id: practice-origin
+  subject_kinds:
+  - lore-concept
+  value_type:
+    type: 'null'
+- id: social-doctrine
+  subject_kinds:
+  - lore-concept
+  value_type:
+    type: string
+- id: context-availability
+  subject_kinds:
+  - lore-concept
+  value_type:
+    type: string
+- id: context-dependency-evidence
+  subject_kinds:
+  - lore-concept
+  value_type:
+    type: string

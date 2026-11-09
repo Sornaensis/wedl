@@ -1,0 +1,19 @@
+kind: location
+spatial_history:
+  - id: spatialhistory_00000000000000000000000001
+    aspect: placement
+    valid:
+      kind: interval
+      timeline: main
+      start: {timeline: main, tick: 20, order: 0}
+      end: {timeline: main, tick: 29, order: 0}
+    value: {map_id: map:harbor, geometry: {kind: point, coordinates: [8, 9]}}
+  - id: spatialhistory_00000000000000000000000002
+    aspect: placement
+    valid:
+      kind: interval
+      timeline: main
+      start: {timeline: main, tick: 20, order: 0}
+      end: {timeline: main, tick: 29, order: 0}
+    value: {map_id: map:harbor, geometry: {kind: point, coordinates: [9, 10]}}
+    replaces: spatialhistory_00000000000000000000000001

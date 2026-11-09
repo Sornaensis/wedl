@@ -1,0 +1,43 @@
+kind: knowledge
+id: know_00000000000000000000000037
+title: Ana has heard magic.middle.report
+knower: char_00000000000000000000000001
+claim:
+  key: magic.middle.report
+  statement: I learned that middle calling needs no witness.
+  assertion_id: assertion_00000000000000000000000019
+transitions:
+- id: heard-family-report
+  time:
+    timeline: main
+    tick: 11
+    order: 0
+  state: suspected
+  acquisition: heard
+  confidence: 0.5
+  note: AUTHOR_FAMILY_REPORT_NOTE must stay out of character context.
+- id: rejected-family-report
+  time:
+    timeline: main
+    tick: 12
+    order: 0
+  state: rejected
+  acquisition: inferred
+  confidence: 0.0
+- id: forgot-family-report
+  time:
+    timeline: main
+    tick: 16
+    order: 0
+  state: forgotten
+  acquisition: inferred
+  confidence: 0.0
+audience:
+- author
+- public
+perspectives:
+- author
+- ordinary
+body: 'UNREAD_FAMILY_REPORT_BODY
+
+  '

@@ -1,0 +1,13 @@
+kind: route
+id: route:harbor/steps
+title: Harbor Steps
+from_location_id: loc_00000000000000000000000001
+to_location_id: location:harbor/landing
+direction: two-way
+modes: [foot]
+route_distance: {value: 30, unit: m}
+duration: {value: 45, unit: seconds}
+body: |
+  # Harbor Steps
+
+  An authored walking connection between the harbor and landing.

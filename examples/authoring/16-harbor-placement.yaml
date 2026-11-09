@@ -1,0 +1,4 @@
+kind: location
+spatial:
+  map_id: map:harbor
+  geometry: {kind: point, coordinates: [0, 0]}

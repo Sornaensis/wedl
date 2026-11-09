@@ -1,0 +1,18 @@
+kind: event
+id: event_00000000000000000000000003
+title: Species Notes Cleared
+time:
+  timeline: main
+  tick: 18
+  order: 0
+causes:
+- event_00000000000000000000000002
+effects:
+- id: effect_00000000000000000000000002
+  target: char_00000000000000000000000001
+  key: species_notes
+  operation: clear
+body: |
+  # Species Notes Cleared
+
+  The state key becomes absent. Concepts and earlier events remain authored source.

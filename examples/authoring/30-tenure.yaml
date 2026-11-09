@@ -1,0 +1,22 @@
+kind: tenure
+id: tenure_00000000000000000000000001
+title: Ana's keeper tenure
+legacy_id: legacy_00000000000000000000000001
+initialization:
+  transition_id: transition_00000000000000000000000025
+  transition_kind: tenure-initialize
+  applicability:
+    applicability_kind: instant
+    point: {timeline: main, tick: -40, order: 0}
+  payload: {holder_id: null, basis: legal}
+transitions:
+  - transition_id: transition_00000000000000000000000026
+    transition_kind: tenure-hold
+    applicability:
+      applicability_kind: instant
+      point: {timeline: main, tick: 0, order: 0}
+    payload: {holder_id: char_00000000000000000000000001, basis: legal}
+body: |
+  # Ana's keeper tenure
+
+  Ana holds the office from the explicit holding transition at tick 0.

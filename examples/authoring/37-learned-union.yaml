@@ -1,0 +1,35 @@
+kind: knowledge
+id: know_00000000000000000000000003
+title: Ana recalls a union
+knower: char_00000000000000000000000001
+claim:
+  key: genealogy.union
+  statement: Ana recalls a union.
+  genealogy:
+    kind: union
+    payload:
+      participant_ids:
+      - char_00000000000000000000000002
+      - char_00000000000000000000000003
+      state: formed
+    valid:
+      from:
+        timeline: main
+        tick: -40
+        order: 0
+    labels:
+      char_00000000000000000000000002: Rowan
+      char_00000000000000000000000003: Jules
+transitions:
+- id: learned-union
+  time:
+    timeline: main
+    tick: 4
+    order: 0
+  state: suspected
+  acquisition: told
+  confidence: 0.6
+body: |
+  # Ana recalls a union
+
+  An explicitly authored belief, independent of canonical history.

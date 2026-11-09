@@ -1,0 +1,25 @@
+kind: lore-concept
+id: concept_00000000000000000000000031
+title: Reed livelihood
+domain: environment.harbor
+profile: context-livelihood
+values:
+  resources:
+  - kind: record
+    id: concept_00000000000000000000000027
+  technologies:
+  - kind: record
+    id: concept_00000000000000000000000029
+  practice_text: Some households explicitly record reed work.
+valid:
+  kind: timeless
+audience:
+- author
+perspectives:
+- author
+body: '# Reed livelihood
+
+
+  This authored record has its own identity and remains independent of character knowledge.
+
+  '

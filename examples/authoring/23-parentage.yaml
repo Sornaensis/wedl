@@ -1,0 +1,25 @@
+kind: parentage
+id: kinship_00000000000000000000000001
+title: Rowan is Ana's parent
+child_id: char_00000000000000000000000001
+parent_id: char_00000000000000000000000002
+initialization:
+  transition_id: transition_00000000000000000000000001
+  transition_kind: parentage-initialize
+  applicability:
+    applicability_kind: instant
+    point: {timeline: main, tick: -40, order: 0}
+  payload: {basis: biological}
+transitions:
+  - transition_id: transition_00000000000000000000000002
+    transition_kind: parentage-confirm
+    applicability:
+      applicability_kind: instant
+      point: {timeline: main, tick: 2, order: 0}
+    payload: {basis: biological}
+    cause_event_id: event_00000000000000000000000001
+body: |
+  # Rowan is Ana's parent
+
+  The authored relationship is asserted at tick -40 and confirmed at tick 2.
+  This record supplies no other parent or learned belief.

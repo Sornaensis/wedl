@@ -1,0 +1,119 @@
+{
+  "profiles": [
+    {
+      "id": "harbor-policy",
+      "label": "Authored harbor policy",
+      "fields": {
+        "type": "object",
+        "required": {
+          "issuer": {
+            "type": "entity",
+            "kinds": [
+              "character",
+              "organization",
+              "lore-concept"
+            ]
+          },
+          "basis": {
+            "type": "enum",
+            "values": [
+              "legal",
+              "de-facto",
+              "claimed",
+              "contested"
+            ]
+          }
+        },
+        "optional": {
+          "jurisdiction": {
+            "type": "entity",
+            "kinds": [
+              "location",
+              "overlay"
+            ]
+          },
+          "subjects": {
+            "type": "array",
+            "items": {
+              "type": "entity",
+              "kinds": [
+                "character",
+                "organization",
+                "lore-concept"
+              ]
+            },
+            "max_items": 8
+          },
+          "duties": {
+            "type": "object",
+            "required": {
+              "wording": {
+                "type": "string"
+              },
+              "amount": {
+                "type": "number"
+              },
+              "exception": {
+                "type": "null"
+              }
+            },
+            "optional": {}
+          },
+          "unresolved": {
+            "type": "null"
+          },
+          "supersedes": {
+            "type": "entity",
+            "kinds": [
+              "lore-concept"
+            ]
+          },
+          "note": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  ],
+  "predicates": [
+    {
+      "id": "policy-text",
+      "subject_kinds": [
+        "lore-concept"
+      ],
+      "value_type": {
+        "type": "string"
+      }
+    },
+    {
+      "id": "endorses-policy",
+      "subject_kinds": [
+        "organization"
+      ],
+      "value_type": {
+        "type": "entity",
+        "kinds": [
+          "lore-concept"
+        ]
+      }
+    },
+    {
+      "id": "policy-literal-note",
+      "subject_kinds": [
+        "organization"
+      ],
+      "value_type": {
+        "type": "object",
+        "required": {
+          "kind": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          }
+        },
+        "optional": {}
+      }
+    }
+  ]
+}

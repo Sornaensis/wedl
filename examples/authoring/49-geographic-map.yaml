@@ -1,0 +1,19 @@
+kind: map
+id: map:harbor/coast
+title: Harbor Coast Survey
+crs: EPSG:4326
+axis_order:
+- longitude
+- latitude
+unit: degree
+bounds:
+  min:
+  - 12
+  - 55
+  max:
+  - 13
+  - 56
+body: |
+  # Harbor Coast Survey
+
+  An explicit authored spatial declaration.

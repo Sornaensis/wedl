@@ -1,0 +1,18 @@
+kind: location
+id: location:harbor/boardwalk
+title: Harbor Boardwalk
+spatial:
+  map_id: map:harbor
+  geometry:
+    kind: line
+    coordinates:
+    - - 0
+      - 0
+    - - 10
+      - 0
+    - - 10
+      - 10
+body: |
+  # Harbor Boardwalk
+
+  An explicit authored spatial declaration.

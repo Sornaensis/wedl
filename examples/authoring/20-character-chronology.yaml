@@ -1,0 +1,55 @@
+kind: character
+chronology:
+  - id: chronology_00000000000000000000000001
+    role: arrival
+    value:
+      civil: {calendar_id: calendar_00000000000000000000000001, year: 0, month: 2, day: 1}
+    provenance: [harbor-ledger]
+  - id: chronology_00000000000000000000000002
+    role: arrival-era-label
+    value:
+      era: {era_id: era_00000000000000000000000001, year: 1, month: 2, day: 1}
+    provenance: [harbor-ledger]
+  - id: chronology_00000000000000000000000003
+    role: watch-period
+    value:
+      range:
+        calendar_id: calendar_00000000000000000000000001
+        lower: {calendar_id: calendar_00000000000000000000000001, year: 0, month: 2, day: 1}
+        upper: {calendar_id: calendar_00000000000000000000000001, year: 1, month: 1, day: 1}
+    provenance: [harbor-ledger]
+  - id: chronology_00000000000000000000000004
+    role: approximate-account
+    value:
+      approx:
+        display_value: Around the change of year
+        bounds:
+          lower: {calendar_id: calendar_00000000000000000000000001, year: 0, month: 2}
+          upper: {calendar_id: calendar_00000000000000000000000001, year: 1, month: 1}
+    provenance: [witness-account]
+  - id: chronology_00000000000000000000000005
+    role: disputed-date
+    value:
+      conflict:
+        claims:
+          - civil: {calendar_id: calendar_00000000000000000000000001, year: 0, month: 1, day: 1}
+          - civil: {calendar_id: calendar_00000000000000000000000001, year: 1, month: 1, day: 1}
+    provenance: [first-account, second-account]
+  - id: chronology_00000000000000000000000006
+    role: relative-account
+    value:
+      relative: {relation: before, before_id: event_00000000000000000000000001}
+    provenance: [witness-account]
+  - id: chronology_00000000000000000000000007
+    role: stated-duration
+    value:
+      duration: {value: 2, unit: month}
+    provenance: [witness-account]
+  - id: chronology_00000000000000000000000008
+    role: open-ended-account
+    value:
+      range:
+        calendar_id: calendar_00000000000000000000000001
+        lower: null
+        upper: {calendar_id: calendar_00000000000000000000000001, year: 0, month: 1}
+    provenance: [harbor-ledger]

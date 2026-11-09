@@ -1,0 +1,46 @@
+kind: lore-concept
+id: concept_00000000000000000000000033
+title: Legal harbor policy
+domain: governance.harbor
+profile: harbor-policy
+values:
+  issuer:
+    kind: record
+    id: organization_00000000000000000000000001
+  basis: legal
+  jurisdiction:
+    kind: record
+    id: loc_00000000000000000000000001
+  subjects:
+  - kind: record
+    id: char_00000000000000000000000001
+  - kind: record
+    id: organization_00000000000000000000000001
+  - kind: record
+    id: concept_00000000000000000000000023
+  duties:
+    wording: An explicitly recorded contribution.
+    amount: 9007199254740993
+    exception: null
+  note: literal @not-a-reference missing_record
+valid:
+  kind: interval
+  timeline: main
+  start:
+    timeline: main
+    tick: 0
+    order: 0
+  end:
+    timeline: main
+    tick: 29
+    order: 0
+audience:
+- author
+perspectives:
+- author
+body: '# Legal harbor policy
+
+
+  This policy is authored source. Its name supplies no authority, succession or winning rule.
+
+  '

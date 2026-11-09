@@ -1,0 +1,37 @@
+kind: knowledge
+id: know_00000000000000000000000038
+title: Ana has heard a ferry account
+knower: char_00000000000000000000000001
+claim:
+  key: ferry.captain.report
+  statement: Residents told me the ferry needs no captain.
+  assertion_id: assertion_00000000000000000000000018
+transitions:
+- id: heard-ferry-account
+  time:
+    timeline: main
+    tick: 20
+    order: 0
+  state: suspected
+  acquisition: heard
+  confidence: 0.5
+  note: AUTHOR_RETRIEVAL_ACQUISITION is not searchable character evidence.
+- id: rejected-ferry-account
+  time:
+    timeline: main
+    tick: 22
+    order: 0
+  state: rejected
+  acquisition: inferred
+  confidence: 0.0
+- id: forgot-ferry-account
+  time:
+    timeline: main
+    tick: 26
+    order: 0
+  state: forgotten
+  acquisition: inferred
+  confidence: 0.0
+body: 'UNTIMED_RETRIEVAL_KNOWLEDGE_BODY is not the learned statement.
+
+  '

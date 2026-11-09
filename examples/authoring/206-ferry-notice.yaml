@@ -1,0 +1,46 @@
+kind: object
+id: obj_00000000000000000000000002
+title: Ferry notice
+descriptions:
+- id: description_00000000000000000000000001
+  heading: Crossing notice
+  markdown: The ferry carries passengers across the river.
+  valid:
+    kind: interval
+    timeline: main
+    start:
+      timeline: main
+      tick: 20
+      order: 0
+    end:
+      timeline: main
+      tick: 29
+      order: 0
+  audience:
+  - author
+  - public
+  perspectives:
+  - author
+  - ordinary
+- id: description_00000000000000000000000002
+  heading: Private notice
+  markdown: PRIVATE_RETRIEVAL_NOTICE is not visible at the dock.
+  valid:
+    kind: interval
+    timeline: main
+    start:
+      timeline: main
+      tick: 20
+      order: 0
+    end:
+      timeline: main
+      tick: 29
+      order: 0
+  audience:
+  - author
+  perspectives:
+  - author
+body: 'The ferry carries passengers across the river. Its crossing starts at the dock.
+  UNTIMED_RETRIEVAL_OBJECT_BODY remains author source.
+
+  '

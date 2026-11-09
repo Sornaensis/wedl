@@ -1,0 +1,33 @@
+kind: assertion
+id: assertion_00000000000000000000000008
+title: Corrected communal doctrine
+domain: social.doctrine
+subject:
+  kind: record
+  id: concept_00000000000000000000000024
+predicate: social-doctrine
+value: Offer the rite to every visitor without requiring participation.
+classification: author-fact
+valid:
+  kind: interval
+  timeline: main
+  start:
+    timeline: main
+    tick: 0
+    order: 0
+  end:
+    timeline: main
+    tick: 9
+    order: 0
+evidence: []
+audience:
+- author
+perspectives:
+- author
+body: '# Corrected communal doctrine
+
+
+  This account is authored source, not a computed conclusion.
+
+  '
+replaces: assertion_00000000000000000000000006

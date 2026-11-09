@@ -1,0 +1,532 @@
+{
+  "profiles": [
+    {
+      "id": "context-habitat",
+      "label": "Habitat",
+      "fields": {
+        "type": "object",
+        "required": {},
+        "optional": {
+          "places": {
+            "type": "array",
+            "items": {
+              "type": "entity",
+              "kinds": [
+                "location"
+              ]
+            },
+            "max_items": 64
+          },
+          "eras": {
+            "type": "array",
+            "items": {
+              "type": "entity",
+              "kinds": [
+                "lore-concept"
+              ]
+            },
+            "max_items": 64
+          },
+          "dependencies": {
+            "type": "array",
+            "items": {
+              "type": "entity",
+              "kinds": [
+                "lore-concept"
+              ]
+            },
+            "max_items": 64
+          },
+          "quantity": {
+            "type": "object",
+            "required": {
+              "amount_text": {
+                "type": "string"
+              }
+            },
+            "optional": {
+              "unit_text": {
+                "type": "string"
+              },
+              "qualification": {
+                "type": "string"
+              }
+            }
+          },
+          "note": {
+            "type": "string"
+          },
+          "resources": {
+            "type": "array",
+            "items": {
+              "type": "entity",
+              "kinds": [
+                "lore-concept"
+              ]
+            },
+            "max_items": 64
+          },
+          "conditions": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "id": "context-resource",
+      "label": "Resource",
+      "fields": {
+        "type": "object",
+        "required": {},
+        "optional": {
+          "places": {
+            "type": "array",
+            "items": {
+              "type": "entity",
+              "kinds": [
+                "location"
+              ]
+            },
+            "max_items": 64
+          },
+          "eras": {
+            "type": "array",
+            "items": {
+              "type": "entity",
+              "kinds": [
+                "lore-concept"
+              ]
+            },
+            "max_items": 64
+          },
+          "dependencies": {
+            "type": "array",
+            "items": {
+              "type": "entity",
+              "kinds": [
+                "lore-concept"
+              ]
+            },
+            "max_items": 64
+          },
+          "quantity": {
+            "type": "object",
+            "required": {
+              "amount_text": {
+                "type": "string"
+              }
+            },
+            "optional": {
+              "unit_text": {
+                "type": "string"
+              },
+              "qualification": {
+                "type": "string"
+              }
+            }
+          },
+          "note": {
+            "type": "string"
+          },
+          "habitats": {
+            "type": "array",
+            "items": {
+              "type": "entity",
+              "kinds": [
+                "lore-concept"
+              ]
+            },
+            "max_items": 64
+          },
+          "availability_text": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "id": "context-livelihood",
+      "label": "Livelihood",
+      "fields": {
+        "type": "object",
+        "required": {},
+        "optional": {
+          "places": {
+            "type": "array",
+            "items": {
+              "type": "entity",
+              "kinds": [
+                "location"
+              ]
+            },
+            "max_items": 64
+          },
+          "eras": {
+            "type": "array",
+            "items": {
+              "type": "entity",
+              "kinds": [
+                "lore-concept"
+              ]
+            },
+            "max_items": 64
+          },
+          "dependencies": {
+            "type": "array",
+            "items": {
+              "type": "entity",
+              "kinds": [
+                "lore-concept"
+              ]
+            },
+            "max_items": 64
+          },
+          "quantity": {
+            "type": "object",
+            "required": {
+              "amount_text": {
+                "type": "string"
+              }
+            },
+            "optional": {
+              "unit_text": {
+                "type": "string"
+              },
+              "qualification": {
+                "type": "string"
+              }
+            }
+          },
+          "note": {
+            "type": "string"
+          },
+          "resources": {
+            "type": "array",
+            "items": {
+              "type": "entity",
+              "kinds": [
+                "lore-concept"
+              ]
+            },
+            "max_items": 64
+          },
+          "technologies": {
+            "type": "array",
+            "items": {
+              "type": "entity",
+              "kinds": [
+                "lore-concept"
+              ]
+            },
+            "max_items": 64
+          },
+          "practice_text": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "id": "context-trade-practice",
+      "label": "Trade practice",
+      "fields": {
+        "type": "object",
+        "required": {},
+        "optional": {
+          "places": {
+            "type": "array",
+            "items": {
+              "type": "entity",
+              "kinds": [
+                "location"
+              ]
+            },
+            "max_items": 64
+          },
+          "eras": {
+            "type": "array",
+            "items": {
+              "type": "entity",
+              "kinds": [
+                "lore-concept"
+              ]
+            },
+            "max_items": 64
+          },
+          "dependencies": {
+            "type": "array",
+            "items": {
+              "type": "entity",
+              "kinds": [
+                "lore-concept"
+              ]
+            },
+            "max_items": 64
+          },
+          "quantity": {
+            "type": "object",
+            "required": {
+              "amount_text": {
+                "type": "string"
+              }
+            },
+            "optional": {
+              "unit_text": {
+                "type": "string"
+              },
+              "qualification": {
+                "type": "string"
+              }
+            }
+          },
+          "note": {
+            "type": "string"
+          },
+          "resources": {
+            "type": "array",
+            "items": {
+              "type": "entity",
+              "kinds": [
+                "lore-concept"
+              ]
+            },
+            "max_items": 64
+          },
+          "infrastructures": {
+            "type": "array",
+            "items": {
+              "type": "entity",
+              "kinds": [
+                "lore-concept"
+              ]
+            },
+            "max_items": 64
+          },
+          "terms_text": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "id": "context-infrastructure",
+      "label": "Infrastructure",
+      "fields": {
+        "type": "object",
+        "required": {},
+        "optional": {
+          "places": {
+            "type": "array",
+            "items": {
+              "type": "entity",
+              "kinds": [
+                "location"
+              ]
+            },
+            "max_items": 64
+          },
+          "eras": {
+            "type": "array",
+            "items": {
+              "type": "entity",
+              "kinds": [
+                "lore-concept"
+              ]
+            },
+            "max_items": 64
+          },
+          "dependencies": {
+            "type": "array",
+            "items": {
+              "type": "entity",
+              "kinds": [
+                "lore-concept"
+              ]
+            },
+            "max_items": 64
+          },
+          "quantity": {
+            "type": "object",
+            "required": {
+              "amount_text": {
+                "type": "string"
+              }
+            },
+            "optional": {
+              "unit_text": {
+                "type": "string"
+              },
+              "qualification": {
+                "type": "string"
+              }
+            }
+          },
+          "note": {
+            "type": "string"
+          },
+          "resources": {
+            "type": "array",
+            "items": {
+              "type": "entity",
+              "kinds": [
+                "lore-concept"
+              ]
+            },
+            "max_items": 64
+          },
+          "technologies": {
+            "type": "array",
+            "items": {
+              "type": "entity",
+              "kinds": [
+                "lore-concept"
+              ]
+            },
+            "max_items": 64
+          },
+          "service_text": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "id": "context-technology",
+      "label": "Technology",
+      "fields": {
+        "type": "object",
+        "required": {},
+        "optional": {
+          "places": {
+            "type": "array",
+            "items": {
+              "type": "entity",
+              "kinds": [
+                "location"
+              ]
+            },
+            "max_items": 64
+          },
+          "eras": {
+            "type": "array",
+            "items": {
+              "type": "entity",
+              "kinds": [
+                "lore-concept"
+              ]
+            },
+            "max_items": 64
+          },
+          "dependencies": {
+            "type": "array",
+            "items": {
+              "type": "entity",
+              "kinds": [
+                "lore-concept"
+              ]
+            },
+            "max_items": 64
+          },
+          "quantity": {
+            "type": "object",
+            "required": {
+              "amount_text": {
+                "type": "string"
+              }
+            },
+            "optional": {
+              "unit_text": {
+                "type": "string"
+              },
+              "qualification": {
+                "type": "string"
+              }
+            }
+          },
+          "note": {
+            "type": "string"
+          },
+          "resources": {
+            "type": "array",
+            "items": {
+              "type": "entity",
+              "kinds": [
+                "lore-concept"
+              ]
+            },
+            "max_items": 64
+          },
+          "infrastructures": {
+            "type": "array",
+            "items": {
+              "type": "entity",
+              "kinds": [
+                "lore-concept"
+              ]
+            },
+            "max_items": 64
+          },
+          "method_text": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "id": "context-era",
+      "label": "Authored era",
+      "fields": {
+        "type": "object",
+        "required": {},
+        "optional": {
+          "places": {
+            "type": "array",
+            "items": {
+              "type": "entity",
+              "kinds": [
+                "location"
+              ]
+            },
+            "max_items": 64
+          },
+          "dependencies": {
+            "type": "array",
+            "items": {
+              "type": "entity",
+              "kinds": [
+                "lore-concept"
+              ]
+            },
+            "max_items": 64
+          },
+          "date_text": {
+            "type": "string"
+          },
+          "note": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  ],
+  "predicates": [
+    {
+      "id": "context-availability",
+      "subject_kinds": [
+        "lore-concept"
+      ],
+      "value_type": {
+        "type": "string"
+      }
+    },
+    {
+      "id": "context-dependency-evidence",
+      "subject_kinds": [
+        "lore-concept"
+      ],
+      "value_type": {
+        "type": "string"
+      }
+    }
+  ]
+}

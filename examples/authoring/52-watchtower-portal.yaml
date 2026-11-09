@@ -1,0 +1,11 @@
+kind: portal
+id: portal:harbor/watchtower
+title: Watchtower Entrance
+from_location_id: loc_00000000000000000000000001
+to: location:harbor/watchtower
+modes:
+- foot
+body: |
+  # Watchtower Entrance
+
+  An explicit authored spatial declaration.

@@ -1,0 +1,12 @@
+kind: character
+initial_state:
+  mood: observant
+  species_notes:
+    variation:
+      kind: record
+      id: concept_00000000000000000000000005
+    notes: The ledger records an individual description, not inferred traits.
+    markers: []
+    measure: 9007199254740993
+    absence: null
+    chronology: Before moonrise is ordinary descriptive text.

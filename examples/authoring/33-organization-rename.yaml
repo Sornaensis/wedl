@@ -1,0 +1,9 @@
+kind: organization
+transitions:
+  - transition_id: transition_00000000000000000000000031
+    transition_kind: organization-rename
+    applicability:
+      applicability_kind: instant
+      point: {timeline: main, tick: 3, order: 0}
+    payload: {title: Harbor Watch, aliases: [Guild]}
+    cause_event_id: event_00000000000000000000000001

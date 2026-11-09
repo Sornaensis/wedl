@@ -1,0 +1,10 @@
+kind: overlay
+valid:
+  start:
+    timeline: main
+    tick: 10
+    order: 0
+  end:
+    timeline: main
+    tick: 14
+    order: 0

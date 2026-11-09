@@ -1,0 +1,30 @@
+kind: lore-concept
+domain: narrative.reading
+valid:
+  kind: interval
+  timeline: main
+  start:
+    timeline: main
+    tick: 10
+    order: 0
+  end:
+    timeline: main
+    tick: 29
+    order: 0
+audience:
+- author
+- public
+perspectives:
+- author
+- ordinary
+id: concept_00000000000000000000000038
+title: Ferry mechanism
+profile: context-technology
+values:
+  method_text: An explicitly described ferry mechanism.
+body: '# Unread mechanism body
+
+
+  UNTIMED_MECHANISM_BODY is not character evidence.
+
+  '

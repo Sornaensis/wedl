@@ -1,0 +1,19 @@
+kind: lore-concept
+id: concept_00000000000000000000000012
+title: Harbor script
+domain: social.language
+profile: social-script
+values:
+  note: A separately authored script.
+valid:
+  kind: timeless
+audience:
+- author
+perspectives:
+- author
+body: '# Harbor script
+
+
+  This authored record has its own identity and remains independent of character knowledge.
+
+  '

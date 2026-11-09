@@ -1,0 +1,35 @@
+kind: assertion
+id: assertion_00000000000000000000000014
+title: A contrary policy account
+domain: governance.account
+subject:
+  kind: record
+  id: concept_00000000000000000000000036
+predicate: policy-text
+value: The speaker contests the required contribution.
+classification: attributed-claim
+valid:
+  kind: interval
+  timeline: main
+  start:
+    timeline: main
+    tick: 0
+    order: 0
+  end:
+    timeline: main
+    tick: 29
+    order: 0
+evidence: []
+audience:
+- author
+perspectives:
+- author
+body: '# A contrary policy account
+
+
+  The account is classified authored source, separate from character beliefs.
+
+  '
+attributed_to:
+  kind: record
+  id: char_00000000000000000000000001

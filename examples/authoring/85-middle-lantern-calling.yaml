@@ -1,0 +1,41 @@
+kind: lore-concept
+id: concept_00000000000000000000000010
+title: Middle Lantern Calling
+profile: magic-practice
+domain: magic.practice
+values:
+  links:
+  - kind: record
+    id: concept_00000000000000000000000006
+  - kind: record
+    id: concept_00000000000000000000000007
+  - kind: record
+    id: concept_00000000000000000000000008
+  restrictions:
+    wording: The middle practice account requires a witnessed vow.
+    count: 9007199254740993
+    ratio: 1.0
+    literal:
+      kind: record
+      id: concept_00000000000000000000000099
+  exceptions:
+  - A storm departure is described as a separate exception account.
+valid:
+  kind: interval
+  timeline: main
+  start:
+    timeline: main
+    tick: 10
+    order: 0
+  end:
+    timeline: main
+    tick: 19
+    order: 0
+audience:
+- author
+perspectives:
+- author
+body: |
+  # Middle Lantern Calling
+
+  The count, ratio and Ref-shaped literal remain exact authored values. They do not calculate a cost, success condition or effect.

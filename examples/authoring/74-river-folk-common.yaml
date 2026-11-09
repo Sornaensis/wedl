@@ -1,0 +1,25 @@
+kind: lore-concept
+id: concept_00000000000000000000000004
+title: River Folk Common Description
+profile: species-common
+domain: species.common
+values:
+  parents:
+  - kind: record
+    id: concept_00000000000000000000000003
+  traits: River folk are described with a narrow ridge along each forearm.
+  habitats:
+  - river mouth
+  - harbor
+  taxonomy: River folk
+  language: Harbor cant
+valid:
+  kind: timeless
+audience:
+- author
+perspectives:
+- author
+body: |
+  # River Folk Common Description
+
+  This account explicitly links the Tide Folk description. Both statements remain separate.

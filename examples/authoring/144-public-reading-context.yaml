@@ -1,0 +1,147 @@
+kind: lore-concept
+domain: narrative.reading
+valid:
+  kind: interval
+  timeline: main
+  start:
+    timeline: main
+    tick: 10
+    order: 0
+  end:
+    timeline: main
+    tick: 29
+    order: 0
+audience:
+- author
+- public
+perspectives:
+- author
+- ordinary
+id: concept_00000000000000000000000037
+title: Ferry reading notice
+profile: context-resource
+values:
+  dependencies:
+  - kind: record
+    id: concept_00000000000000000000000023
+  - kind: record
+    id: concept_00000000000000000000000038
+  places:
+  - kind: record
+    id: loc_00000000000000000000000001
+  quantity:
+    amount_text: '9007199254740993'
+    unit_text: reported journeys
+  availability_text: Availability is authored wording, not a route state.
+descriptions:
+- id: description_00000000000000000000000001
+  heading: First notice
+  markdown: The ferry opens at sunrise.
+  valid:
+    kind: interval
+    timeline: main
+    start:
+      timeline: main
+      tick: 10
+      order: 0
+    end:
+      timeline: main
+      tick: 19
+      order: 0
+  audience:
+  - author
+  - public
+  perspectives:
+  - author
+  - ordinary
+- id: description_00000000000000000000000003
+  heading: Private drafting note
+  markdown: PRIVATE_NARRATIVE_SECTION
+  valid:
+    kind: interval
+    timeline: main
+    start:
+      timeline: main
+      tick: 10
+      order: 0
+    end:
+      timeline: main
+      tick: 19
+      order: 0
+  audience:
+  - author
+  perspectives:
+  - author
+- id: description_00000000000000000000000004
+  heading: Later service
+  markdown: The ferry uses its winter schedule.
+  valid:
+    kind: interval
+    timeline: main
+    start:
+      timeline: main
+      tick: 20
+      order: 0
+    end:
+      timeline: main
+      tick: 29
+      order: 0
+  audience:
+  - author
+  - public
+  perspectives:
+  - author
+  - ordinary
+- id: description_00000000000000000000000005
+  heading: An independent account
+  markdown: Some residents report a later ferry.
+  valid:
+    kind: interval
+    timeline: main
+    start:
+      timeline: main
+      tick: 10
+      order: 0
+    end:
+      timeline: main
+      tick: 19
+      order: 0
+  audience:
+  - author
+  - public
+  perspectives:
+  - author
+  - ordinary
+concept_links:
+- relation: related-reading
+  concept_id: concept_00000000000000000000000023
+  valid:
+    kind: interval
+    timeline: main
+    start:
+      timeline: main
+      tick: 10
+      order: 0
+    end:
+      timeline: main
+      tick: 19
+      order: 0
+- relation: related-reading
+  concept_id: concept_00000000000000000000000038
+  valid:
+    kind: interval
+    timeline: main
+    start:
+      timeline: main
+      tick: 10
+      order: 0
+    end:
+      timeline: main
+      tick: 19
+      order: 0
+body: '# Unread notice body
+
+
+  UNTIMED_NOTICE_BODY must stay outside character context and search.
+
+  '

@@ -1,0 +1,247 @@
+{
+  "profiles": [
+    {
+      "id": "social-culture",
+      "label": "Culture",
+      "fields": {
+        "type": "object",
+        "required": {},
+        "optional": {
+          "languages": {
+            "type": "array",
+            "items": {
+              "type": "entity",
+              "kinds": [
+                "lore-concept"
+              ]
+            },
+            "max_items": 64
+          },
+          "religions": {
+            "type": "array",
+            "items": {
+              "type": "entity",
+              "kinds": [
+                "lore-concept"
+              ]
+            },
+            "max_items": 64
+          },
+          "note": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "id": "social-religion",
+      "label": "Religion",
+      "fields": {
+        "type": "object",
+        "required": {},
+        "optional": {
+          "cultures": {
+            "type": "array",
+            "items": {
+              "type": "entity",
+              "kinds": [
+                "lore-concept"
+              ]
+            },
+            "max_items": 64
+          },
+          "languages": {
+            "type": "array",
+            "items": {
+              "type": "entity",
+              "kinds": [
+                "lore-concept"
+              ]
+            },
+            "max_items": 64
+          },
+          "note": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "id": "social-language",
+      "label": "Language",
+      "fields": {
+        "type": "object",
+        "required": {},
+        "optional": {
+          "scripts": {
+            "type": "array",
+            "items": {
+              "type": "entity",
+              "kinds": [
+                "lore-concept"
+              ]
+            },
+            "max_items": 64
+          },
+          "note": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "id": "social-script",
+      "label": "Script",
+      "fields": {
+        "type": "object",
+        "required": {},
+        "optional": {
+          "note": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "id": "social-sense",
+      "label": "Lexical sense",
+      "fields": {
+        "type": "object",
+        "required": {
+          "language": {
+            "type": "entity",
+            "kinds": [
+              "lore-concept"
+            ]
+          },
+          "gloss": {
+            "type": "string"
+          }
+        },
+        "optional": {
+          "note": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "id": "social-register",
+      "label": "Register",
+      "fields": {
+        "type": "object",
+        "required": {
+          "language": {
+            "type": "entity",
+            "kinds": [
+              "lore-concept"
+            ]
+          },
+          "label": {
+            "type": "string"
+          }
+        },
+        "optional": {
+          "note": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "id": "social-era-spelling",
+      "label": "Era spelling",
+      "fields": {
+        "type": "object",
+        "required": {
+          "sense": {
+            "type": "entity",
+            "kinds": [
+              "lore-concept"
+            ]
+          },
+          "language": {
+            "type": "entity",
+            "kinds": [
+              "lore-concept"
+            ]
+          },
+          "form": {
+            "type": "string"
+          }
+        },
+        "optional": {
+          "scripts": {
+            "type": "array",
+            "items": {
+              "type": "entity",
+              "kinds": [
+                "lore-concept"
+              ]
+            },
+            "max_items": 64
+          },
+          "register": {
+            "type": "entity",
+            "kinds": [
+              "lore-concept"
+            ]
+          },
+          "unresolved": {
+            "type": "null"
+          },
+          "note": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    {
+      "id": "social-membership",
+      "label": "Explicit membership",
+      "fields": {
+        "type": "object",
+        "required": {
+          "member": {
+            "type": "entity",
+            "kinds": [
+              "character",
+              "organization",
+              "lore-concept"
+            ]
+          },
+          "group": {
+            "type": "entity",
+            "kinds": [
+              "lore-concept"
+            ]
+          },
+          "relation": {
+            "type": "enum",
+            "values": [
+              "cultural-membership",
+              "religious-membership",
+              "language-use"
+            ]
+          }
+        },
+        "optional": {
+          "note": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  ],
+  "predicates": [
+    {
+      "id": "social-doctrine",
+      "subject_kinds": [
+        "lore-concept"
+      ],
+      "value_type": {
+        "type": "string"
+      }
+    }
+  ]
+}

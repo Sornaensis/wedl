@@ -1,0 +1,42 @@
+kind: lore-concept
+id: concept_00000000000000000000000023
+title: Harbor culture
+domain: social.language
+profile: social-culture
+values:
+  languages:
+  - kind: record
+    id: concept_00000000000000000000000013
+valid:
+  kind: timeless
+audience:
+- author
+perspectives:
+- author
+body: '# Harbor culture
+
+
+  This authored record has its own identity and remains independent of character knowledge.
+
+  '
+descriptions:
+- id: description_00000000000000000000000001
+  heading: Harbor diaspora
+  markdown: 'The harbor families formed an explicitly documented diaspora.
+
+    '
+  valid:
+    kind: interval
+    timeline: main
+    start:
+      timeline: main
+      tick: 0
+      order: 0
+    end:
+      timeline: main
+      tick: 9
+      order: 0
+  audience:
+  - author
+  perspectives:
+  - author

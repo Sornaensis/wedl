@@ -1,0 +1,17 @@
+kind: union
+transitions:
+  - transition_id: transition_00000000000000000000000012
+    transition_kind: union-form
+    applicability:
+      applicability_kind: instant
+      point: {timeline: main, tick: 0, order: 0}
+    payload:
+      participant_ids:
+        - char_00000000000000000000000002
+        - char_00000000000000000000000003
+  - transition_id: transition_00000000000000000000000013
+    transition_kind: union-end
+    applicability:
+      applicability_kind: instant
+      point: {timeline: main, tick: 11, order: 0}
+    payload: {}

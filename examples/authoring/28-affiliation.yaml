@@ -1,0 +1,24 @@
+kind: affiliation
+id: affiliation_00000000000000000000000001
+title: Ana's Harbor Guild membership
+character_id: char_00000000000000000000000001
+organization_id: organization_00000000000000000000000001
+initialization:
+  transition_id: transition_00000000000000000000000022
+  transition_kind: affiliation-initialize
+  applicability:
+    applicability_kind: instant
+    point: {timeline: main, tick: -40, order: 0}
+  payload: {role: null}
+transitions:
+  - transition_id: transition_00000000000000000000000023
+    transition_kind: affiliation-role
+    applicability:
+      applicability_kind: instant
+      point: {timeline: main, tick: 2, order: 0}
+    payload: {role: watch keeper}
+    cause_event_id: event_00000000000000000000000001
+body: |
+  # Ana's Harbor Guild membership
+
+  Ana belongs before a role is specified. The role changes at tick 2.

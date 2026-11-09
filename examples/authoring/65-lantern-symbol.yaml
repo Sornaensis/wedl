@@ -1,0 +1,22 @@
+kind: lore-concept
+id: concept_00000000000000000000000001
+title: Lantern Mark
+domain: harbor.symbol
+profile: harbor-symbol
+values:
+  description: A lantern emblem used in harbor accounts.
+  colors:
+  - amber
+  - blue
+valid:
+  kind: timeless
+audience:
+- author
+perspectives:
+- author
+body: '# Lantern Mark
+
+
+  An explicitly authored symbol; it grants no knowledge or traits.
+
+  '

@@ -1,0 +1,44 @@
+kind: existence-episode
+id: existence_00000000000000000000000002
+title: An overlapping disembodied account
+domain: character.existence
+character_id: char_00000000000000000000000001
+episode_kind: disembodied
+valid:
+  kind: interval
+  timeline: main
+  start:
+    timeline: main
+    tick: 5
+    order: 0
+  end:
+    timeline: main
+    tick: 14
+    order: 0
+start_evidence:
+- revision: '0000000000000000000000000000000000000002'
+  path: former-records/account-2.md
+  blob_oid: 000000000000000000000000000000000000000c
+  target:
+    kind: section
+    owner_id: former-character
+    id: former-section
+audience:
+- author
+perspectives:
+- author
+body: '# An overlapping disembodied account
+
+
+  This is an independent authored account. It does not calculate age or change vital history.
+
+  '
+provenance: The illustrative historical pointers are syntax only and remain unverified.
+end_evidence:
+- revision: '0000000000000000000000000000000000000016'
+  path: former-records/account-22.md
+  blob_oid: '0000000000000000000000000000000000000020'
+  target:
+    kind: section
+    owner_id: former-character
+    id: former-section

@@ -1,0 +1,32 @@
+kind: knowledge
+id: know_00000000000000000000000004
+title: Ana learns a guild name
+knower: char_00000000000000000000000001
+claim:
+  key: genealogy.organization
+  statement: Ana learns a guild name.
+  genealogy:
+    kind: organization
+    payload:
+      organization_id: organization_00000000000000000000000001
+      parent_id: null
+    valid:
+      from:
+        timeline: main
+        tick: -40
+        order: 0
+    labels:
+      organization_00000000000000000000000001: The Lantern Guild
+transitions:
+- id: learned-organization
+  time:
+    timeline: main
+    tick: 4
+    order: 0
+  state: suspected
+  acquisition: told
+  confidence: 0.6
+body: |
+  # Ana learns a guild name
+
+  An explicitly authored belief, independent of canonical history.

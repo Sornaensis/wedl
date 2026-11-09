@@ -1,0 +1,38 @@
+kind: lore-concept
+id: concept_00000000000000000000000024
+title: River religion
+domain: social.language
+profile: social-religion
+values:
+  cultures:
+  - kind: record
+    id: concept_00000000000000000000000023
+  languages:
+  - kind: record
+    id: concept_00000000000000000000000013
+valid:
+  kind: timeless
+audience:
+- author
+perspectives:
+- author
+body: '# River religion
+
+
+  This authored record has its own identity and remains independent of character knowledge.
+
+  '
+concept_links:
+- relation: associated-culture
+  concept_id: concept_00000000000000000000000023
+  valid:
+    kind: interval
+    timeline: main
+    start:
+      timeline: main
+      tick: 0
+      order: 0
+    end:
+      timeline: main
+      tick: 9
+      order: 0

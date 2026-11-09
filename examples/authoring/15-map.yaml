@@ -1,0 +1,11 @@
+kind: map
+id: map:harbor
+title: Harbor Map
+crs: local-planar:harbor
+axis_order: [east, north]
+unit: m
+bounds: {min: [-10, -10], max: [10, 10]}
+body: |
+  # Harbor Map
+
+  Authored point coordinates for the harbor and landing.

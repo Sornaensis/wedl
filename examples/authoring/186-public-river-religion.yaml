@@ -1,0 +1,24 @@
+kind: lore-concept
+audience: &id001
+- author
+- public
+perspectives: &id002
+- author
+- ordinary
+descriptions:
+- id: description_00000000000000000000000001
+  heading: Separately authored observance
+  markdown: The observance note describes lanterns beside the quay.
+  valid:
+    kind: interval
+    timeline: main
+    start:
+      timeline: main
+      tick: 10
+      order: 0
+    end:
+      timeline: main
+      tick: 19
+      order: 0
+  audience: *id001
+  perspectives: *id002

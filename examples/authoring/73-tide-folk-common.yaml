@@ -1,0 +1,23 @@
+kind: lore-concept
+id: concept_00000000000000000000000003
+title: Tide Folk Common Description
+profile: species-common
+domain: species.common
+values:
+  parents: []
+  traits: Broad palms are described in the coastal bestiary.
+  habitats: []
+  taxonomy: Tide folk
+  life_stage: null
+  culture: Seasonal net-mending gatherings.
+  religion: null
+valid:
+  kind: timeless
+audience:
+- author
+perspectives:
+- author
+body: |
+  # Tide Folk Common Description
+
+  A common authored statement from a fictional bestiary.

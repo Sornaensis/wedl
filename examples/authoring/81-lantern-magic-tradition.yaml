@@ -1,0 +1,20 @@
+kind: lore-concept
+id: concept_00000000000000000000000006
+title: Lantern Calling Tradition
+profile: magic-tradition
+domain: magic.tradition
+values:
+  links: []
+  restrictions: The traditional account asks the caller to speak an explicit invitation.
+  exceptions:
+  - A returning keeper may use the shorter invitation.
+valid:
+  kind: timeless
+audience:
+- author
+perspectives:
+- author
+body: |
+  # Lantern Calling Tradition
+
+  This is an authored tradition account; it establishes no precedence over a practice, realm or artifact.

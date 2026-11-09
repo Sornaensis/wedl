@@ -1,0 +1,25 @@
+kind: lore-concept
+id: concept_00000000000000000000000030
+title: Harbor workshop
+domain: environment.harbor
+profile: context-infrastructure
+values:
+  places:
+  - kind: record
+    id: loc_00000000000000000000000001
+  technologies:
+  - kind: record
+    id: concept_00000000000000000000000029
+  service_text: An authored workshop description, with no inferred capacity.
+valid:
+  kind: timeless
+audience:
+- author
+perspectives:
+- author
+body: '# Harbor workshop
+
+
+  This authored record has its own identity and remains independent of character knowledge.
+
+  '

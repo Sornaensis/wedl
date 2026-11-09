@@ -1,0 +1,15 @@
+kind: affiliation
+transitions:
+  - transition_id: transition_00000000000000000000000023
+    transition_kind: affiliation-role
+    applicability:
+      applicability_kind: instant
+      point: {timeline: main, tick: 2, order: 0}
+    payload: {role: watch keeper}
+    cause_event_id: event_00000000000000000000000001
+  - transition_id: transition_00000000000000000000000033
+    transition_kind: affiliation-end
+    applicability:
+      applicability_kind: instant
+      point: {timeline: main, tick: 15, order: 0}
+    payload: {}

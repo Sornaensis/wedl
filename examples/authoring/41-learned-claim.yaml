@@ -1,0 +1,34 @@
+kind: knowledge
+id: know_00000000000000000000000007
+title: Ana hears of a keeper claim
+knower: char_00000000000000000000000001
+claim:
+  key: genealogy.claim
+  statement: Ana hears of a keeper claim.
+  genealogy:
+    kind: claim
+    payload:
+      legacy_id: legacy_00000000000000000000000001
+      claimant_id: char_00000000000000000000000003
+      state: proposed
+    valid:
+      from:
+        timeline: main
+        tick: -40
+        order: 0
+    labels:
+      legacy_00000000000000000000000001: Keeper of the Light
+      char_00000000000000000000000003: Jules
+transitions:
+- id: learned-claim
+  time:
+    timeline: main
+    tick: 4
+    order: 0
+  state: suspected
+  acquisition: told
+  confidence: 0.6
+body: |
+  # Ana hears of a keeper claim
+
+  An explicitly authored belief, independent of canonical history.

@@ -1,0 +1,30 @@
+kind: union
+id: union_00000000000000000000000001
+title: Rowan and Jules's union
+participant_ids:
+  - char_00000000000000000000000002
+  - char_00000000000000000000000003
+initialization:
+  transition_id: transition_00000000000000000000000011
+  transition_kind: union-initialize
+  applicability:
+    applicability_kind: instant
+    point: {timeline: main, tick: -40, order: 0}
+  payload:
+    participant_ids:
+      - char_00000000000000000000000002
+      - char_00000000000000000000000003
+transitions:
+  - transition_id: transition_00000000000000000000000012
+    transition_kind: union-form
+    applicability:
+      applicability_kind: instant
+      point: {timeline: main, tick: 0, order: 0}
+    payload:
+      participant_ids:
+        - char_00000000000000000000000002
+        - char_00000000000000000000000003
+body: |
+  # Rowan and Jules's union
+
+  The partnership is formed at tick 0. It does not make Jules Ana's parent.

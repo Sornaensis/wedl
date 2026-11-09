@@ -1,0 +1,28 @@
+kind: event
+id: event_00000000000000000000000002
+title: Species Notes Amended
+time:
+  timeline: main
+  tick: 12
+  order: 0
+causes:
+- event_00000000000000000000000001
+effects:
+- id: effect_00000000000000000000000001
+  target: char_00000000000000000000000001
+  key: species_notes
+  operation: set
+  value:
+    variation:
+      kind: record
+      id: concept_00000000000000000000000005
+    notes: Ana adds a separate observation to the ledger.
+    markers:
+    - scar
+    measure: 9007199254740995
+    absence: null
+    chronology: Before moonrise is ordinary descriptive text.
+body: |
+  # Species Notes Amended
+
+  An explicit event replaces the whole recorded note value.

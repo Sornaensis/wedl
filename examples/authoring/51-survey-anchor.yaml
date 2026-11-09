@@ -1,0 +1,18 @@
+kind: anchor
+id: anchor:harbor/survey
+title: Harbor Survey Correspondence
+from:
+  map_id: map:harbor
+  coordinates:
+  - 0
+  - 0
+to:
+  map_id: map:harbor/coast
+  coordinates:
+  - 12.5
+  - 55.7
+conversion: These two authored survey positions identify the harbor.
+body: |
+  # Harbor Survey Correspondence
+
+  An explicit authored spatial declaration.

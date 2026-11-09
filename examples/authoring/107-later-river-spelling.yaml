@@ -1,0 +1,40 @@
+kind: lore-concept
+id: concept_00000000000000000000000020
+title: Later River spelling
+domain: social.language
+profile: social-era-spelling
+values:
+  language:
+    kind: record
+    id: concept_00000000000000000000000013
+  sense:
+    kind: record
+    id: concept_00000000000000000000000016
+  form: banka
+  scripts:
+  - kind: record
+    id: concept_00000000000000000000000012
+  register:
+    kind: record
+    id: concept_00000000000000000000000015
+valid:
+  kind: interval
+  timeline: main
+  start:
+    timeline: main
+    tick: 10
+    order: 0
+  end:
+    timeline: main
+    tick: 20
+    order: 0
+audience:
+- author
+perspectives:
+- author
+body: '# Later River spelling
+
+
+  This authored record has its own identity and remains independent of character knowledge.
+
+  '

@@ -1,0 +1,29 @@
+kind: knowledge
+id: know_00000000000000000000000012
+title: I have read the ferry notice.
+knower: char_00000000000000000000000001
+claim:
+  key: explicit-record-12
+  statement: I have read the ferry notice.
+  object:
+    entity: concept_00000000000000000000000037
+transitions:
+- id: explicit-acquisition
+  time:
+    timeline: main
+    tick: 10
+    order: 0
+  state: accepted
+  confidence: 1.0
+  acquisition: told
+  note: AUTHOR_ACQUISITION_NOTE remains outside the linked character result.
+audience:
+- public
+perspectives:
+- ordinary
+body: '# Author learning source
+
+
+  UNREAD_KNOWLEDGE_BODY remains separate from the learned statement.
+
+  '

@@ -1,0 +1,44 @@
+kind: lore-concept
+id: concept_00000000000000000000000002
+title: Lantern Launch
+domain: harbor.custom
+profile: harbor-tradition
+values:
+  customary: true
+  description: An authored harbor gathering with lanterns.
+  gathering_place:
+    kind: record
+    id: location:harbor/landing
+  offering:
+    amount: 3
+    unit: coin
+    sponsor:
+      kind: record
+      id: char_00000000000000000000000001
+  origin_story: null
+  symbols:
+  - kind: record
+    id: concept_00000000000000000000000001
+  chronology: The phrase before moonrise is descriptive prose.
+valid:
+  kind: interval
+  timeline: main
+  start:
+    timeline: main
+    tick: 10
+    order: 0
+  end:
+    timeline: main
+    tick: 20
+    order: 0
+audience:
+- author
+perspectives:
+- author
+provenance: Harbor customs ledger
+body: '# Lantern Launch
+
+
+  This concept describes a custom independently of events and character beliefs.
+
+  '

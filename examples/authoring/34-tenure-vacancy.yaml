@@ -1,0 +1,16 @@
+kind: tenure
+transitions:
+  - transition_id: transition_00000000000000000000000026
+    transition_kind: tenure-hold
+    applicability:
+      applicability_kind: instant
+      point: {timeline: main, tick: 0, order: 0}
+    payload: {holder_id: char_00000000000000000000000001, basis: legal}
+  - transition_id: transition_00000000000000000000000032
+    transition_kind: tenure-vacate
+    applicability:
+      applicability_kind: inclusive-interval
+      first: {timeline: main, tick: 10, order: 0}
+      last: {timeline: main, tick: 12, order: 0}
+    payload: {holder_id: null}
+    cause_event_id: event_00000000000000000000000001

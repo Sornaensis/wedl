@@ -1,0 +1,23 @@
+kind: claim
+id: claim_00000000000000000000000001
+title: Jules's keeper claim
+legacy_id: legacy_00000000000000000000000001
+claimant_id: char_00000000000000000000000003
+initialization:
+  transition_id: transition_00000000000000000000000027
+  transition_kind: claim-initialize
+  applicability:
+    applicability_kind: instant
+    point: {timeline: main, tick: -40, order: 0}
+  payload: {competes_with: []}
+transitions:
+  - transition_id: transition_00000000000000000000000028
+    transition_kind: claim-dispute
+    applicability:
+      applicability_kind: instant
+      point: {timeline: main, tick: 20, order: 0}
+    payload: {competes_with: []}
+body: |
+  # Jules's keeper claim
+
+  A claim does not appoint Jules or remove Ana's authored tenure.

@@ -1,0 +1,17 @@
+kind: legacy
+id: legacy_00000000000000000000000001
+title: Harbor Keeper
+legacy_kind: office
+organization_id: organization_00000000000000000000000001
+initialization:
+  transition_id: transition_00000000000000000000000024
+  transition_kind: legacy-initialize
+  applicability:
+    applicability_kind: instant
+    point: {timeline: main, tick: -40, order: 0}
+  payload: {title: Harbor Keeper, aliases: []}
+transitions: []
+body: |
+  # Harbor Keeper
+
+  The office exists independently of its holders and claimants.

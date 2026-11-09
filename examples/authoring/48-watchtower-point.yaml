@@ -1,0 +1,15 @@
+kind: location
+id: location:harbor/watchtower
+title: Harbor Watchtower
+spatial:
+  map_id: map:harbor/levels
+  geometry:
+    kind: point
+    coordinates:
+    - 3
+    - 4
+    - 2
+body: |
+  # Harbor Watchtower
+
+  An explicit authored spatial declaration.

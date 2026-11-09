@@ -1,0 +1,23 @@
+kind: scene
+id: scene_00000000000000000000000001
+title: Harbor Watch
+location: loc_00000000000000000000000001
+time:
+  start: {timeline: main, tick: 1, order: 0}
+  current: {timeline: main, tick: 2, order: 0}
+  end: {timeline: main, tick: 2, order: 0}
+participants:
+  - character: char_00000000000000000000000001
+    role: harbor keeper
+    point_of_view: true
+objects: [obj_00000000000000000000000001]
+outcome_events: [event_00000000000000000000000001]
+observations:
+  - id: harbor-lamp
+    at: {timeline: main, tick: 1, order: 1}
+    text: A lamp glows above the landing.
+    audience: [participants]
+body: |
+  # Harbor Watch
+
+  Ana checks the landing after ringing the bell.

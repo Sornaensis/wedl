@@ -1,0 +1,37 @@
+kind: knowledge
+id: know_00000000000000000000000030
+title: Ana has read family source 12
+knower: char_00000000000000000000000001
+claim:
+  key: family.read.12
+  statement: I have read the family account numbered 12.
+  object:
+    entity: concept_00000000000000000000000012
+  truth: 'true'
+transitions:
+- id: learned-family-record
+  time:
+    timeline: main
+    tick: 13
+    order: 0
+  state: accepted
+  acquisition: read
+  confidence: 1.0
+  note: AUTHOR_FAMILY_ACQUISITION is not character evidence.
+- id: forgot-family-record
+  time:
+    timeline: main
+    tick: 17
+    order: 0
+  state: forgotten
+  acquisition: read
+  confidence: 0.0
+audience:
+- author
+- public
+perspectives:
+- author
+- ordinary
+body: 'UNREAD_FAMILY_KNOWLEDGE_BODY
+
+  '

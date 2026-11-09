@@ -1,0 +1,6403 @@
+{
+  "provenance": {
+    "repository": "https://github.com/Sornaensis/wedl",
+    "commit": "f0e885ccebc279eff65a5db2984d01ebc6647b2b",
+    "corpus": "src/wedl/data/tideglass",
+    "oracle": "wedl.semantics (unmodified Python source)",
+    "comparison": "Retained semantic regression values originally captured from Python; current Rust v1 fixture hashes below, not a Python compatibility guarantee.",
+    "sourceFilesSha256": {
+      "story/affiliations/affiliation_3163J7T1VFYEY88H175PSMKJR5.md": "55a036e93d8225579f10d05ba2bc833c209bd4e24b1a6778a4df203dd7345423",
+      "story/affiliations/affiliation_6X7F5RXMG784DJX9VCVJR72HZD.md": "504f58c098cf3891488d2e3e2974f3dd94421f221192d482805ba7a3a2220de7",
+      "story/characters/cora-finch.md": "3acc03f52c50f2f9b4d0f4a386fafdc4e9a8673a2057fbfa317948aaac5ba861",
+      "story/characters/jessa-quill.md": "d51193859a2e7751d793cca11f631e5c36dfa5c6167e790edd095f88d7066dc0",
+      "story/characters/mina-vale.md": "0b2ff972d67484bc772fbfe46217cb26e203e7bae9a0fbbe3f379d21a0f03cd2",
+      "story/characters/orin-reed.md": "e6b9079d39ad3aa8c037cf9571ad25e4252e6eb83b5d6fae95b938850d73d225",
+      "story/characters/sela-vale.md": "077854b5cb1f1d69e63d55780b6e1a6a0f48bcec6097d5cd5c144690b6823a24",
+      "story/characters/tavi-moss.md": "d01fd1e92da59e7b67271422b457e6f373f98b502b0d76d97bf47570df09bce5",
+      "story/claims/claim_289DFQ0S7Z2YDEFBJXY2H5YPXH.md": "94003b0da857dae7cbf0f46d8e56eab2d6750776d56c3bd88f9dadfa85db20ca",
+      "story/conversations/quay-log-review.md": "156469ae761ef4eada96e245f7af227057149f91a57936bca7ff823a1b633df8",
+      "story/conversations/workshop-repair-decision.md": "8cdeaf4f87a069394f19f8e8ad68f08b4f781e381dcaa54be657f43fa14e4033",
+      "story/environments/quay-flood.md": "1f57046c0fe9ef38d4d9ac9def78362c20f7061d955cf89ce585912dd48d7276",
+      "story/environments/storm-weather.md": "eb9f8177143f303557e743a73a0c3c16b58ff138c50111b0c15eef3374e4c24d",
+      "story/events/main/beacon-lit.md": "fe069b4e59a507fb1a1488ad481d3d39ca472c281323f018072b2a5a390c80b1",
+      "story/events/main/ferry-resumed.md": "23a707006eaa8811d4d899aad6837bc47580951cdcda5b614ab468fb65165f7b",
+      "story/events/main/lens-repaired.md": "9dd6f4ab06643b08ef673243e4c60cf7e5663b4a160ef0bd8c9e41e59e7da786",
+      "story/events/main/log-discovery.md": "0117851755229d45bbb198d5d2ece2d7adcad47bb81bd6964f28179614e96e01",
+      "story/events/main/missing-log.md": "fa1ff32cfa2d053b722930a4f083878f5136fa1db3f544b95a93c9a72557f91b",
+      "story/events/main/route-inspected.md": "8c3c7461fcee53c5b69647c36a61836a362f5258a314203bf8ae027705243b81",
+      "story/events/main/storm-damage.md": "436bf07e7a0f6d692c00cde908bbf1059b2c038974c43b2777cbcccfb735d392",
+      "story/events/main/workshop-arrival.md": "1b693f212802d3b02c5cbc3112204be70ace78b550a9101146fadf3c63089c09",
+      "story/hypotheses/log-transcription-error.md": "5bb141db3ede722bfa91442027cd6d0c4a3c2161862d13dde4ecd47d717ab3ce",
+      "story/kinships/kinship_6FMPV333HWER1D3NXKSSNP6AZ9.md": "31785dad2c344d0a17ecd96498911f124d6f47766ac8f220024c8a10add76b85",
+      "story/knowledge/ferry-suspension.md": "a84ca1bd7013d2d8171b66b51ca97735bc2e6373a36c1117501072400ea4a457",
+      "story/knowledge/log-absence.md": "58056be3c3bd52d8e8c82d07676e9fac2954276150713519ff3235e477790f27",
+      "story/knowledge/log-discrepancy.md": "a3c44ec8161e76a76e2f4acf325c25781601ef57c4dfd30fc9d4859011096c4d",
+      "story/knowledge/repair-plan.md": "6d5437840db394af0996e7eed2a11019a7b99a1f7859c043185c610ec90920ef",
+      "story/knowledge/return-authorized.md": "b299df02dbeb19900b36d6324b921537a3e71798c320e731a1ee5f692b0b413a",
+      "story/knowledge/storm-report.md": "1702d1086bb7a9154937704ee4b9c2afecb6d227cc6ef8cb3a54784c5d82bc5a",
+      "story/legacies/legacy_4N3B8XV3V1QN8E13H8V5CHWDPQ.md": "50e17e4a1f138355e13c11733d7cc4b9df39d95df6c025fd12f5464b27d72c3a",
+      "story/locations/archive.md": "8d65fcaa3b359866fd8ee3e2165c0fca3f009db960e87ed0d816cf892585cd11",
+      "story/locations/beacon.md": "76bcd8da353654b7bb3e896cb843533529a990b275f909d529898033c3d446e7",
+      "story/locations/ferry-house.md": "9ecad8e37d706560e825b2b39d17d593963ff25418f18a9767aa60941a7e0152",
+      "story/locations/marsh-road.md": "15679037f04d59fe2a06c840fbc9fc3e4e88c30fecc3a63459c020971fff01a2",
+      "story/locations/quay.md": "01856b8f27b7f6855337c4941f42d523ec95ec1661f401d8d90106a918d6a7bc",
+      "story/locations/tideglass-town.md": "9fcef6001769f8394d9dbccd5167a41b80c60ed0bc30c2426115b34fde3b1781",
+      "story/locations/workshop.md": "ea3e0c51a7f8a25b40f398feec025f731f8fb2982d414c2ef4e30fae249b81c2",
+      "story/maps/tideglass-town.md": "a522bbffeda01085e817c03b455122b1a02f57381910d00779a259520661fbb6",
+      "story/objects/ferry-key.md": "dc611a3966bd599572a96297290f19285418bc3a891eb722236170e684432599",
+      "story/objects/maintenance-logbook.md": "776366780885ec437a9acefb034d2add2eb615e4c2d87687af89c8dfc731fd39",
+      "story/objects/signal-lens.md": "a620fc8db7138ca1066d57c76600f05a157c2db96eb08a588a22a2c3eea7a97c",
+      "story/objects/survey-staff.md": "eea88f2602de95e71f6b3fb3837931a4260ed12fb35da410948b30a39569914d",
+      "story/organizations/organization_4YNRVZSRYTGBB27YKD7NW1T7CZ.md": "95b779b7f16eef2d64aae95a95bf6ab380305915c81506b07216ed2d667c1b78",
+      "story/organizations/organization_5JNW6KPDP187ZKYZ2JRE9TP1ZG.md": "a60d1823a0ca974dbec734d8278b7c2ff6290025ba3f1a1dd4a3577a98d8d7a9",
+      "story/overlays/flood-warning.md": "7b9e6c9359933d680f00d8cab4009e17f71c71857eb20be2412aa645108b04e4",
+      "story/relationships/cora-mina-obligation.md": "b9057453c16e63f1232fda8c1e8255b4a8f13b2cbb64983b73c02e6d768b6f8d",
+      "story/relationships/jessa-sela-trust.md": "098eff9dc38fe0d2110a6b77c67d1c380fca6c65d7d973be0c058f7967a4c24b",
+      "story/relationships/mina-tavi-trust.md": "ded36df83c23e2e87192235d847d2c7a0e6b6eef3ddda8605da3d46a5c6e969b",
+      "story/relationships/orin-jessa-trust.md": "f08c60acbe6d58ae1cbac39a6e6cbcf3df9a13b4c9b17ac3773bd92bc04699c8",
+      "story/relationships/tavi-orin-obligation.md": "081a600298e8ba5b8a81cd073fc6aa990aa593573eea20ea14bde0c2d48d3202",
+      "story/routes/beacon-quay.md": "da85058ff174533b2536634576a402aba131619aa3f48fadfa1d816c33867bc9",
+      "story/routes/quay-beacon.md": "864d15374cb702a7497a8514ccb7213c019c275e3f09f5be84682144644c2d4d",
+      "story/scenes/archive-consultation.md": "a04ab5a0da17aa17bc777f020dae7362e0f2e757ecb77650146e23a4e48ebd4d",
+      "story/scenes/beacon-relight.md": "fea2d4b927f88e78a1926faf8a8634189b82d92f0ad052d347dfe341b4e54799",
+      "story/scenes/ferry-return.md": "789b52d246aa312c8a9309967d9fc9cb6000ab107d06f4188f721d2822e77202",
+      "story/scenes/quay-assessment.md": "aa4f39507ce41c6c336194615bb82c6f51e0ccca7c200b98abfb825ea37f9d9c",
+      "story/scenes/workshop-assessment.md": "cc40c980628281b6dab83c31a60190299473eade855a305f87c382528fa7ad6d",
+      "story/story-points/account-for-log.md": "abb325b3ac79c7c41252947a41af92463b81636eaf1fcaa07ee3ec18032e4874",
+      "story/story-points/repair-beacon.md": "35ccc8c65e343551c9a86eab5c18b4fd23e1575934eb0cbd47aea39fc0ca93a2",
+      "story/story-points/restore-ferry.md": "29c93de33190929e5b8dc7d4c7756b181f72e5358d0347aaee86ea3704d90ee7",
+      "story/tenures/tenure_7XHCEMFF7JDR55YP3NCW76C2F0.md": "e49dcd6a1cb61b7bcb5cfc0965e52112455c430481892465295d238a04969452",
+      "story/unions/union_04W52R482EPFAG76MX1Y0DK2M1.md": "cb5e9bbc3a7b1f00b5686df35af4edd097340cb23990a55e6db1a7c2162b2360",
+      "story/vitals/vital_7YPSPVFBM15VGK0NS739PNBQ18.md": "8e22f010adc175bd262ecfe4a572a35313e118761085b9f229faff5c82c5d1ba",
+      "story/world.md": "6ace6c3b212313adddf41629858f583f50386b0bd8e4f75a376e26f3c090e86d"
+    },
+    "fixtureSchema": "wedl/v1",
+    "fixtureEdits": "Fixtures are maintained directly against the in-progress wedl/v1 schema; story points use requires/when and knowledge uses claim.truth. Original state/knowledge/relationship expected values retained.",
+    "fixturePath": "examples/tideglass"
+  },
+  "cases": [
+    {
+      "operation": "state",
+      "target": "char_0PYVCG3ETXZ640BWJ5JMT6XXFZ",
+      "time": {
+        "timeline": "main",
+        "tick": "0",
+        "order": "0"
+      },
+      "expected": {
+        "condition": "well",
+        "location": {
+          "entity": "loc_117ZGNWJM0Y3N7CWER2H3XK722"
+        }
+      }
+    },
+    {
+      "operation": "knowledge",
+      "target": "char_0PYVCG3ETXZ640BWJ5JMT6XXFZ",
+      "time": {
+        "timeline": "main",
+        "tick": "0",
+        "order": "0"
+      },
+      "expected": []
+    },
+    {
+      "operation": "relationships",
+      "target": "char_0PYVCG3ETXZ640BWJ5JMT6XXFZ",
+      "time": {
+        "timeline": "main",
+        "tick": "0",
+        "order": "0"
+      },
+      "expected": [
+        {
+          "relationshipId": "rel_4QMDM336YCMY6TT554VXDFQHPE",
+          "from": "char_0PYVCG3ETXZ640BWJ5JMT6XXFZ",
+          "to": "char_62PCSFAX4YQE48JK476XKGG6B8",
+          "relationshipKind": "obligation",
+          "status": "active",
+          "metrics": {
+            "obligation": 0.5
+          },
+          "facets": [
+            "practical cooperation"
+          ],
+          "note": "An explicitly authored directed relationship.",
+          "time": {
+            "timeline": "main",
+            "tick": "0",
+            "order": "0"
+          },
+          "transitionId": "rt_57YJEGEJFRNXN0AEHNV8N7G2F2"
+        }
+      ]
+    },
+    {
+      "operation": "state",
+      "target": "char_39E9EWWC017E40519033S4RW4X",
+      "time": {
+        "timeline": "main",
+        "tick": "0",
+        "order": "0"
+      },
+      "expected": {
+        "condition": "well",
+        "location": {
+          "entity": "loc_2SYYRXM9AHJGKYKGG200TZV82Y"
+        }
+      }
+    },
+    {
+      "operation": "knowledge",
+      "target": "char_39E9EWWC017E40519033S4RW4X",
+      "time": {
+        "timeline": "main",
+        "tick": "0",
+        "order": "0"
+      },
+      "expected": []
+    },
+    {
+      "operation": "relationships",
+      "target": "char_39E9EWWC017E40519033S4RW4X",
+      "time": {
+        "timeline": "main",
+        "tick": "0",
+        "order": "0"
+      },
+      "expected": []
+    },
+    {
+      "operation": "state",
+      "target": "char_46VTBJZ9TNMTF7G14N5GKYQ9C1",
+      "time": {
+        "timeline": "main",
+        "tick": "0",
+        "order": "0"
+      },
+      "expected": {
+        "condition": "well",
+        "location": {
+          "entity": "loc_6ZT4TZRBGZTHMYVRDXV3HFTTPQ"
+        }
+      }
+    },
+    {
+      "operation": "knowledge",
+      "target": "char_46VTBJZ9TNMTF7G14N5GKYQ9C1",
+      "time": {
+        "timeline": "main",
+        "tick": "0",
+        "order": "0"
+      },
+      "expected": []
+    },
+    {
+      "operation": "relationships",
+      "target": "char_46VTBJZ9TNMTF7G14N5GKYQ9C1",
+      "time": {
+        "timeline": "main",
+        "tick": "0",
+        "order": "0"
+      },
+      "expected": [
+        {
+          "relationshipId": "rel_600QPBZBZVZJ96C0YX59790KNM",
+          "from": "char_46VTBJZ9TNMTF7G14N5GKYQ9C1",
+          "to": "char_4JVNDN6QW0BAFFV379AJJSMEPZ",
+          "relationshipKind": "obligation",
+          "status": "active",
+          "metrics": {
+            "obligation": 0.4
+          },
+          "facets": [
+            "practical cooperation"
+          ],
+          "note": "An explicitly authored directed relationship.",
+          "time": {
+            "timeline": "main",
+            "tick": "0",
+            "order": "0"
+          },
+          "transitionId": "rt_58NT6688CRCAG8TJW8WHY85YMG"
+        }
+      ]
+    },
+    {
+      "operation": "state",
+      "target": "char_4JVNDN6QW0BAFFV379AJJSMEPZ",
+      "time": {
+        "timeline": "main",
+        "tick": "0",
+        "order": "0"
+      },
+      "expected": {
+        "condition": "well",
+        "location": {
+          "entity": "loc_6ZT4TZRBGZTHMYVRDXV3HFTTPQ"
+        }
+      }
+    },
+    {
+      "operation": "knowledge",
+      "target": "char_4JVNDN6QW0BAFFV379AJJSMEPZ",
+      "time": {
+        "timeline": "main",
+        "tick": "0",
+        "order": "0"
+      },
+      "expected": []
+    },
+    {
+      "operation": "relationships",
+      "target": "char_4JVNDN6QW0BAFFV379AJJSMEPZ",
+      "time": {
+        "timeline": "main",
+        "tick": "0",
+        "order": "0"
+      },
+      "expected": [
+        {
+          "relationshipId": "rel_7Y1Y0Z51JTGRZ02BTV2K31ERNA",
+          "from": "char_4JVNDN6QW0BAFFV379AJJSMEPZ",
+          "to": "char_0PYVCG3ETXZ640BWJ5JMT6XXFZ",
+          "relationshipKind": "trust",
+          "status": "active",
+          "metrics": {
+            "trust": 0.25
+          },
+          "facets": [
+            "practical cooperation"
+          ],
+          "note": "An explicitly authored directed relationship.",
+          "time": {
+            "timeline": "main",
+            "tick": "0",
+            "order": "0"
+          },
+          "transitionId": "rt_5056RDC89GY3XZVQNGR110NMDB"
+        }
+      ]
+    },
+    {
+      "operation": "state",
+      "target": "char_62PCSFAX4YQE48JK476XKGG6B8",
+      "time": {
+        "timeline": "main",
+        "tick": "0",
+        "order": "0"
+      },
+      "expected": {
+        "condition": "well",
+        "location": {
+          "entity": "loc_0708459BXR2PVVHA4VASXHB69C"
+        }
+      }
+    },
+    {
+      "operation": "knowledge",
+      "target": "char_62PCSFAX4YQE48JK476XKGG6B8",
+      "time": {
+        "timeline": "main",
+        "tick": "0",
+        "order": "0"
+      },
+      "expected": []
+    },
+    {
+      "operation": "relationships",
+      "target": "char_62PCSFAX4YQE48JK476XKGG6B8",
+      "time": {
+        "timeline": "main",
+        "tick": "0",
+        "order": "0"
+      },
+      "expected": [
+        {
+          "relationshipId": "rel_4WEP0KV5C79HNMY7J2QTN67BY1",
+          "from": "char_62PCSFAX4YQE48JK476XKGG6B8",
+          "to": "char_6D246WN3J75HBRJJXGQ5H6QAD4",
+          "relationshipKind": "trust",
+          "status": "active",
+          "metrics": {
+            "trust": 0.5
+          },
+          "facets": [
+            "practical cooperation"
+          ],
+          "note": "An explicitly authored directed relationship.",
+          "time": {
+            "timeline": "main",
+            "tick": "0",
+            "order": "0"
+          },
+          "transitionId": "rt_35F8S0MR3A747JFRQ5XRMM3D9N"
+        }
+      ]
+    },
+    {
+      "operation": "state",
+      "target": "char_6D246WN3J75HBRJJXGQ5H6QAD4",
+      "time": {
+        "timeline": "main",
+        "tick": "0",
+        "order": "0"
+      },
+      "expected": {
+        "condition": "well",
+        "location": {
+          "entity": "loc_0708459BXR2PVVHA4VASXHB69C"
+        }
+      }
+    },
+    {
+      "operation": "knowledge",
+      "target": "char_6D246WN3J75HBRJJXGQ5H6QAD4",
+      "time": {
+        "timeline": "main",
+        "tick": "0",
+        "order": "0"
+      },
+      "expected": []
+    },
+    {
+      "operation": "relationships",
+      "target": "char_6D246WN3J75HBRJJXGQ5H6QAD4",
+      "time": {
+        "timeline": "main",
+        "tick": "0",
+        "order": "0"
+      },
+      "expected": [
+        {
+          "relationshipId": "rel_0Y5PE3MEG7ZK91Z24B1F6G1T31",
+          "from": "char_6D246WN3J75HBRJJXGQ5H6QAD4",
+          "to": "char_39E9EWWC017E40519033S4RW4X",
+          "relationshipKind": "trust",
+          "status": "active",
+          "metrics": {
+            "trust": 0.6
+          },
+          "facets": [
+            "practical cooperation"
+          ],
+          "note": "An explicitly authored directed relationship.",
+          "time": {
+            "timeline": "main",
+            "tick": "0",
+            "order": "0"
+          },
+          "transitionId": "rt_0T3YA92QQV3R10S7373QG3BBPJ"
+        }
+      ]
+    },
+    {
+      "operation": "state",
+      "target": "loc_0708459BXR2PVVHA4VASXHB69C",
+      "time": {
+        "timeline": "main",
+        "tick": "0",
+        "order": "0"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "loc_117ZGNWJM0Y3N7CWER2H3XK722",
+      "time": {
+        "timeline": "main",
+        "tick": "0",
+        "order": "0"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "loc_2DW2BZ5PN3XBMD2FWQA4Q61V1E",
+      "time": {
+        "timeline": "main",
+        "tick": "0",
+        "order": "0"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "loc_2SYYRXM9AHJGKYKGG200TZV82Y",
+      "time": {
+        "timeline": "main",
+        "tick": "0",
+        "order": "0"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "loc_3VDY39471DED5V26TEVYXMRQK3",
+      "time": {
+        "timeline": "main",
+        "tick": "0",
+        "order": "0"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "loc_6ZT4TZRBGZTHMYVRDXV3HFTTPQ",
+      "time": {
+        "timeline": "main",
+        "tick": "0",
+        "order": "0"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "loc_7F7G4Y2CZAD32HYW0B28N61Q72",
+      "time": {
+        "timeline": "main",
+        "tick": "0",
+        "order": "0"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "obj_0NQWK9WPK4PSR5722YH0RJ89CH",
+      "time": {
+        "timeline": "main",
+        "tick": "0",
+        "order": "0"
+      },
+      "expected": {
+        "condition": "legible",
+        "location": {
+          "entity": "loc_2SYYRXM9AHJGKYKGG200TZV82Y"
+        }
+      }
+    },
+    {
+      "operation": "state",
+      "target": "obj_13BZCJF8R08S5RSH4VRJXMA0YK",
+      "time": {
+        "timeline": "main",
+        "tick": "0",
+        "order": "0"
+      },
+      "expected": {
+        "condition": "usable",
+        "holder": {
+          "entity": "char_62PCSFAX4YQE48JK476XKGG6B8"
+        }
+      }
+    },
+    {
+      "operation": "state",
+      "target": "obj_4C9HNZYKJG5QQ6DWTWDJ4NWJ8D",
+      "time": {
+        "timeline": "main",
+        "tick": "0",
+        "order": "0"
+      },
+      "expected": {
+        "condition": "intact",
+        "location": {
+          "entity": "loc_6ZT4TZRBGZTHMYVRDXV3HFTTPQ"
+        }
+      }
+    },
+    {
+      "operation": "state",
+      "target": "obj_76VC9SVNSR7ASZK025X7PTRBJH",
+      "time": {
+        "timeline": "main",
+        "tick": "0",
+        "order": "0"
+      },
+      "expected": {
+        "condition": "usable",
+        "holder": {
+          "entity": "char_0PYVCG3ETXZ640BWJ5JMT6XXFZ"
+        }
+      }
+    },
+    {
+      "operation": "state",
+      "target": "char_0PYVCG3ETXZ640BWJ5JMT6XXFZ",
+      "time": {
+        "timeline": "main",
+        "tick": "9",
+        "order": "2147483647"
+      },
+      "expected": {
+        "condition": "well",
+        "location": {
+          "entity": "loc_117ZGNWJM0Y3N7CWER2H3XK722"
+        }
+      }
+    },
+    {
+      "operation": "knowledge",
+      "target": "char_0PYVCG3ETXZ640BWJ5JMT6XXFZ",
+      "time": {
+        "timeline": "main",
+        "tick": "9",
+        "order": "2147483647"
+      },
+      "expected": []
+    },
+    {
+      "operation": "relationships",
+      "target": "char_0PYVCG3ETXZ640BWJ5JMT6XXFZ",
+      "time": {
+        "timeline": "main",
+        "tick": "9",
+        "order": "2147483647"
+      },
+      "expected": [
+        {
+          "relationshipId": "rel_4QMDM336YCMY6TT554VXDFQHPE",
+          "from": "char_0PYVCG3ETXZ640BWJ5JMT6XXFZ",
+          "to": "char_62PCSFAX4YQE48JK476XKGG6B8",
+          "relationshipKind": "obligation",
+          "status": "active",
+          "metrics": {
+            "obligation": 0.5
+          },
+          "facets": [
+            "practical cooperation"
+          ],
+          "note": "An explicitly authored directed relationship.",
+          "time": {
+            "timeline": "main",
+            "tick": "0",
+            "order": "0"
+          },
+          "transitionId": "rt_57YJEGEJFRNXN0AEHNV8N7G2F2"
+        }
+      ]
+    },
+    {
+      "operation": "state",
+      "target": "char_39E9EWWC017E40519033S4RW4X",
+      "time": {
+        "timeline": "main",
+        "tick": "9",
+        "order": "2147483647"
+      },
+      "expected": {
+        "condition": "well",
+        "location": {
+          "entity": "loc_2SYYRXM9AHJGKYKGG200TZV82Y"
+        }
+      }
+    },
+    {
+      "operation": "knowledge",
+      "target": "char_39E9EWWC017E40519033S4RW4X",
+      "time": {
+        "timeline": "main",
+        "tick": "9",
+        "order": "2147483647"
+      },
+      "expected": []
+    },
+    {
+      "operation": "relationships",
+      "target": "char_39E9EWWC017E40519033S4RW4X",
+      "time": {
+        "timeline": "main",
+        "tick": "9",
+        "order": "2147483647"
+      },
+      "expected": []
+    },
+    {
+      "operation": "state",
+      "target": "char_46VTBJZ9TNMTF7G14N5GKYQ9C1",
+      "time": {
+        "timeline": "main",
+        "tick": "9",
+        "order": "2147483647"
+      },
+      "expected": {
+        "condition": "well",
+        "location": {
+          "entity": "loc_6ZT4TZRBGZTHMYVRDXV3HFTTPQ"
+        }
+      }
+    },
+    {
+      "operation": "knowledge",
+      "target": "char_46VTBJZ9TNMTF7G14N5GKYQ9C1",
+      "time": {
+        "timeline": "main",
+        "tick": "9",
+        "order": "2147483647"
+      },
+      "expected": []
+    },
+    {
+      "operation": "relationships",
+      "target": "char_46VTBJZ9TNMTF7G14N5GKYQ9C1",
+      "time": {
+        "timeline": "main",
+        "tick": "9",
+        "order": "2147483647"
+      },
+      "expected": [
+        {
+          "relationshipId": "rel_600QPBZBZVZJ96C0YX59790KNM",
+          "from": "char_46VTBJZ9TNMTF7G14N5GKYQ9C1",
+          "to": "char_4JVNDN6QW0BAFFV379AJJSMEPZ",
+          "relationshipKind": "obligation",
+          "status": "active",
+          "metrics": {
+            "obligation": 0.4
+          },
+          "facets": [
+            "practical cooperation"
+          ],
+          "note": "An explicitly authored directed relationship.",
+          "time": {
+            "timeline": "main",
+            "tick": "0",
+            "order": "0"
+          },
+          "transitionId": "rt_58NT6688CRCAG8TJW8WHY85YMG"
+        }
+      ]
+    },
+    {
+      "operation": "state",
+      "target": "char_4JVNDN6QW0BAFFV379AJJSMEPZ",
+      "time": {
+        "timeline": "main",
+        "tick": "9",
+        "order": "2147483647"
+      },
+      "expected": {
+        "condition": "well",
+        "location": {
+          "entity": "loc_6ZT4TZRBGZTHMYVRDXV3HFTTPQ"
+        }
+      }
+    },
+    {
+      "operation": "knowledge",
+      "target": "char_4JVNDN6QW0BAFFV379AJJSMEPZ",
+      "time": {
+        "timeline": "main",
+        "tick": "9",
+        "order": "2147483647"
+      },
+      "expected": []
+    },
+    {
+      "operation": "relationships",
+      "target": "char_4JVNDN6QW0BAFFV379AJJSMEPZ",
+      "time": {
+        "timeline": "main",
+        "tick": "9",
+        "order": "2147483647"
+      },
+      "expected": [
+        {
+          "relationshipId": "rel_7Y1Y0Z51JTGRZ02BTV2K31ERNA",
+          "from": "char_4JVNDN6QW0BAFFV379AJJSMEPZ",
+          "to": "char_0PYVCG3ETXZ640BWJ5JMT6XXFZ",
+          "relationshipKind": "trust",
+          "status": "active",
+          "metrics": {
+            "trust": 0.25
+          },
+          "facets": [
+            "practical cooperation"
+          ],
+          "note": "An explicitly authored directed relationship.",
+          "time": {
+            "timeline": "main",
+            "tick": "0",
+            "order": "0"
+          },
+          "transitionId": "rt_5056RDC89GY3XZVQNGR110NMDB"
+        }
+      ]
+    },
+    {
+      "operation": "state",
+      "target": "char_62PCSFAX4YQE48JK476XKGG6B8",
+      "time": {
+        "timeline": "main",
+        "tick": "9",
+        "order": "2147483647"
+      },
+      "expected": {
+        "condition": "well",
+        "location": {
+          "entity": "loc_0708459BXR2PVVHA4VASXHB69C"
+        }
+      }
+    },
+    {
+      "operation": "knowledge",
+      "target": "char_62PCSFAX4YQE48JK476XKGG6B8",
+      "time": {
+        "timeline": "main",
+        "tick": "9",
+        "order": "2147483647"
+      },
+      "expected": []
+    },
+    {
+      "operation": "relationships",
+      "target": "char_62PCSFAX4YQE48JK476XKGG6B8",
+      "time": {
+        "timeline": "main",
+        "tick": "9",
+        "order": "2147483647"
+      },
+      "expected": [
+        {
+          "relationshipId": "rel_4WEP0KV5C79HNMY7J2QTN67BY1",
+          "from": "char_62PCSFAX4YQE48JK476XKGG6B8",
+          "to": "char_6D246WN3J75HBRJJXGQ5H6QAD4",
+          "relationshipKind": "trust",
+          "status": "active",
+          "metrics": {
+            "trust": 0.5
+          },
+          "facets": [
+            "practical cooperation"
+          ],
+          "note": "An explicitly authored directed relationship.",
+          "time": {
+            "timeline": "main",
+            "tick": "0",
+            "order": "0"
+          },
+          "transitionId": "rt_35F8S0MR3A747JFRQ5XRMM3D9N"
+        }
+      ]
+    },
+    {
+      "operation": "state",
+      "target": "char_6D246WN3J75HBRJJXGQ5H6QAD4",
+      "time": {
+        "timeline": "main",
+        "tick": "9",
+        "order": "2147483647"
+      },
+      "expected": {
+        "condition": "well",
+        "location": {
+          "entity": "loc_0708459BXR2PVVHA4VASXHB69C"
+        }
+      }
+    },
+    {
+      "operation": "knowledge",
+      "target": "char_6D246WN3J75HBRJJXGQ5H6QAD4",
+      "time": {
+        "timeline": "main",
+        "tick": "9",
+        "order": "2147483647"
+      },
+      "expected": []
+    },
+    {
+      "operation": "relationships",
+      "target": "char_6D246WN3J75HBRJJXGQ5H6QAD4",
+      "time": {
+        "timeline": "main",
+        "tick": "9",
+        "order": "2147483647"
+      },
+      "expected": [
+        {
+          "relationshipId": "rel_0Y5PE3MEG7ZK91Z24B1F6G1T31",
+          "from": "char_6D246WN3J75HBRJJXGQ5H6QAD4",
+          "to": "char_39E9EWWC017E40519033S4RW4X",
+          "relationshipKind": "trust",
+          "status": "active",
+          "metrics": {
+            "trust": 0.6
+          },
+          "facets": [
+            "practical cooperation"
+          ],
+          "note": "An explicitly authored directed relationship.",
+          "time": {
+            "timeline": "main",
+            "tick": "0",
+            "order": "0"
+          },
+          "transitionId": "rt_0T3YA92QQV3R10S7373QG3BBPJ"
+        }
+      ]
+    },
+    {
+      "operation": "state",
+      "target": "loc_0708459BXR2PVVHA4VASXHB69C",
+      "time": {
+        "timeline": "main",
+        "tick": "9",
+        "order": "2147483647"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "loc_117ZGNWJM0Y3N7CWER2H3XK722",
+      "time": {
+        "timeline": "main",
+        "tick": "9",
+        "order": "2147483647"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "loc_2DW2BZ5PN3XBMD2FWQA4Q61V1E",
+      "time": {
+        "timeline": "main",
+        "tick": "9",
+        "order": "2147483647"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "loc_2SYYRXM9AHJGKYKGG200TZV82Y",
+      "time": {
+        "timeline": "main",
+        "tick": "9",
+        "order": "2147483647"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "loc_3VDY39471DED5V26TEVYXMRQK3",
+      "time": {
+        "timeline": "main",
+        "tick": "9",
+        "order": "2147483647"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "loc_6ZT4TZRBGZTHMYVRDXV3HFTTPQ",
+      "time": {
+        "timeline": "main",
+        "tick": "9",
+        "order": "2147483647"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "loc_7F7G4Y2CZAD32HYW0B28N61Q72",
+      "time": {
+        "timeline": "main",
+        "tick": "9",
+        "order": "2147483647"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "obj_0NQWK9WPK4PSR5722YH0RJ89CH",
+      "time": {
+        "timeline": "main",
+        "tick": "9",
+        "order": "2147483647"
+      },
+      "expected": {
+        "condition": "legible",
+        "location": {
+          "entity": "loc_2SYYRXM9AHJGKYKGG200TZV82Y"
+        }
+      }
+    },
+    {
+      "operation": "state",
+      "target": "obj_13BZCJF8R08S5RSH4VRJXMA0YK",
+      "time": {
+        "timeline": "main",
+        "tick": "9",
+        "order": "2147483647"
+      },
+      "expected": {
+        "condition": "usable",
+        "holder": {
+          "entity": "char_62PCSFAX4YQE48JK476XKGG6B8"
+        }
+      }
+    },
+    {
+      "operation": "state",
+      "target": "obj_4C9HNZYKJG5QQ6DWTWDJ4NWJ8D",
+      "time": {
+        "timeline": "main",
+        "tick": "9",
+        "order": "2147483647"
+      },
+      "expected": {
+        "condition": "intact",
+        "location": {
+          "entity": "loc_6ZT4TZRBGZTHMYVRDXV3HFTTPQ"
+        }
+      }
+    },
+    {
+      "operation": "state",
+      "target": "obj_76VC9SVNSR7ASZK025X7PTRBJH",
+      "time": {
+        "timeline": "main",
+        "tick": "9",
+        "order": "2147483647"
+      },
+      "expected": {
+        "condition": "usable",
+        "holder": {
+          "entity": "char_0PYVCG3ETXZ640BWJ5JMT6XXFZ"
+        }
+      }
+    },
+    {
+      "operation": "state",
+      "target": "char_0PYVCG3ETXZ640BWJ5JMT6XXFZ",
+      "time": {
+        "timeline": "main",
+        "tick": "10",
+        "order": "0"
+      },
+      "expected": {
+        "condition": "well",
+        "location": {
+          "entity": "loc_117ZGNWJM0Y3N7CWER2H3XK722"
+        }
+      }
+    },
+    {
+      "operation": "knowledge",
+      "target": "char_0PYVCG3ETXZ640BWJ5JMT6XXFZ",
+      "time": {
+        "timeline": "main",
+        "tick": "10",
+        "order": "0"
+      },
+      "expected": []
+    },
+    {
+      "operation": "relationships",
+      "target": "char_0PYVCG3ETXZ640BWJ5JMT6XXFZ",
+      "time": {
+        "timeline": "main",
+        "tick": "10",
+        "order": "0"
+      },
+      "expected": [
+        {
+          "relationshipId": "rel_4QMDM336YCMY6TT554VXDFQHPE",
+          "from": "char_0PYVCG3ETXZ640BWJ5JMT6XXFZ",
+          "to": "char_62PCSFAX4YQE48JK476XKGG6B8",
+          "relationshipKind": "obligation",
+          "status": "active",
+          "metrics": {
+            "obligation": 0.5
+          },
+          "facets": [
+            "practical cooperation"
+          ],
+          "note": "An explicitly authored directed relationship.",
+          "time": {
+            "timeline": "main",
+            "tick": "0",
+            "order": "0"
+          },
+          "transitionId": "rt_57YJEGEJFRNXN0AEHNV8N7G2F2"
+        }
+      ]
+    },
+    {
+      "operation": "state",
+      "target": "char_39E9EWWC017E40519033S4RW4X",
+      "time": {
+        "timeline": "main",
+        "tick": "10",
+        "order": "0"
+      },
+      "expected": {
+        "condition": "well",
+        "location": {
+          "entity": "loc_2SYYRXM9AHJGKYKGG200TZV82Y"
+        }
+      }
+    },
+    {
+      "operation": "knowledge",
+      "target": "char_39E9EWWC017E40519033S4RW4X",
+      "time": {
+        "timeline": "main",
+        "tick": "10",
+        "order": "0"
+      },
+      "expected": []
+    },
+    {
+      "operation": "relationships",
+      "target": "char_39E9EWWC017E40519033S4RW4X",
+      "time": {
+        "timeline": "main",
+        "tick": "10",
+        "order": "0"
+      },
+      "expected": []
+    },
+    {
+      "operation": "state",
+      "target": "char_46VTBJZ9TNMTF7G14N5GKYQ9C1",
+      "time": {
+        "timeline": "main",
+        "tick": "10",
+        "order": "0"
+      },
+      "expected": {
+        "condition": "well",
+        "location": {
+          "entity": "loc_6ZT4TZRBGZTHMYVRDXV3HFTTPQ"
+        }
+      }
+    },
+    {
+      "operation": "knowledge",
+      "target": "char_46VTBJZ9TNMTF7G14N5GKYQ9C1",
+      "time": {
+        "timeline": "main",
+        "tick": "10",
+        "order": "0"
+      },
+      "expected": []
+    },
+    {
+      "operation": "relationships",
+      "target": "char_46VTBJZ9TNMTF7G14N5GKYQ9C1",
+      "time": {
+        "timeline": "main",
+        "tick": "10",
+        "order": "0"
+      },
+      "expected": [
+        {
+          "relationshipId": "rel_600QPBZBZVZJ96C0YX59790KNM",
+          "from": "char_46VTBJZ9TNMTF7G14N5GKYQ9C1",
+          "to": "char_4JVNDN6QW0BAFFV379AJJSMEPZ",
+          "relationshipKind": "obligation",
+          "status": "active",
+          "metrics": {
+            "obligation": 0.4
+          },
+          "facets": [
+            "practical cooperation"
+          ],
+          "note": "An explicitly authored directed relationship.",
+          "time": {
+            "timeline": "main",
+            "tick": "0",
+            "order": "0"
+          },
+          "transitionId": "rt_58NT6688CRCAG8TJW8WHY85YMG"
+        }
+      ]
+    },
+    {
+      "operation": "state",
+      "target": "char_4JVNDN6QW0BAFFV379AJJSMEPZ",
+      "time": {
+        "timeline": "main",
+        "tick": "10",
+        "order": "0"
+      },
+      "expected": {
+        "condition": "well",
+        "location": {
+          "entity": "loc_6ZT4TZRBGZTHMYVRDXV3HFTTPQ"
+        }
+      }
+    },
+    {
+      "operation": "knowledge",
+      "target": "char_4JVNDN6QW0BAFFV379AJJSMEPZ",
+      "time": {
+        "timeline": "main",
+        "tick": "10",
+        "order": "0"
+      },
+      "expected": [
+        {
+          "knowledgeId": "know_33RB1GJYPCGCPDA9KYT8GN4PN9",
+          "claimKey": "tideglass.storm-report",
+          "statement": "The storm cracked the signal lens.",
+          "claim": {
+            "key": "tideglass.storm-report",
+            "statement": "The storm cracked the signal lens.",
+            "truth": "true"
+          },
+          "state": "accepted",
+          "confidence": 0.95,
+          "acquisition": "observed",
+          "sourceEntityId": null,
+          "causingEventId": "event_63W6ZYRM67EZ5VAB3PR5R19TFC",
+          "note": null,
+          "time": {
+            "timeline": "main",
+            "tick": "10",
+            "order": "0"
+          },
+          "transitionId": "kt_7FHKDS8T8YSF0FBJQ7RS4PM7MY"
+        }
+      ]
+    },
+    {
+      "operation": "relationships",
+      "target": "char_4JVNDN6QW0BAFFV379AJJSMEPZ",
+      "time": {
+        "timeline": "main",
+        "tick": "10",
+        "order": "0"
+      },
+      "expected": [
+        {
+          "relationshipId": "rel_7Y1Y0Z51JTGRZ02BTV2K31ERNA",
+          "from": "char_4JVNDN6QW0BAFFV379AJJSMEPZ",
+          "to": "char_0PYVCG3ETXZ640BWJ5JMT6XXFZ",
+          "relationshipKind": "trust",
+          "status": "active",
+          "metrics": {
+            "trust": 0.25
+          },
+          "facets": [
+            "practical cooperation"
+          ],
+          "note": "An explicitly authored directed relationship.",
+          "time": {
+            "timeline": "main",
+            "tick": "0",
+            "order": "0"
+          },
+          "transitionId": "rt_5056RDC89GY3XZVQNGR110NMDB"
+        }
+      ]
+    },
+    {
+      "operation": "state",
+      "target": "char_62PCSFAX4YQE48JK476XKGG6B8",
+      "time": {
+        "timeline": "main",
+        "tick": "10",
+        "order": "0"
+      },
+      "expected": {
+        "condition": "well",
+        "location": {
+          "entity": "loc_0708459BXR2PVVHA4VASXHB69C"
+        }
+      }
+    },
+    {
+      "operation": "knowledge",
+      "target": "char_62PCSFAX4YQE48JK476XKGG6B8",
+      "time": {
+        "timeline": "main",
+        "tick": "10",
+        "order": "0"
+      },
+      "expected": [
+        {
+          "knowledgeId": "know_5WR6NRNE78SCKKZ0FPAEYR61T5",
+          "claimKey": "tideglass.ferry-suspension",
+          "statement": "The ferry remains suspended while repair and inspection are pending.",
+          "claim": {
+            "key": "tideglass.ferry-suspension",
+            "statement": "The ferry remains suspended while repair and inspection are pending.",
+            "truth": "true"
+          },
+          "state": "accepted",
+          "confidence": 0.95,
+          "acquisition": "observed",
+          "sourceEntityId": null,
+          "causingEventId": "event_63W6ZYRM67EZ5VAB3PR5R19TFC",
+          "note": null,
+          "time": {
+            "timeline": "main",
+            "tick": "10",
+            "order": "0"
+          },
+          "transitionId": "kt_4FHJGMDHETJQW76C7CDGD9ZGQ0"
+        }
+      ]
+    },
+    {
+      "operation": "relationships",
+      "target": "char_62PCSFAX4YQE48JK476XKGG6B8",
+      "time": {
+        "timeline": "main",
+        "tick": "10",
+        "order": "0"
+      },
+      "expected": [
+        {
+          "relationshipId": "rel_4WEP0KV5C79HNMY7J2QTN67BY1",
+          "from": "char_62PCSFAX4YQE48JK476XKGG6B8",
+          "to": "char_6D246WN3J75HBRJJXGQ5H6QAD4",
+          "relationshipKind": "trust",
+          "status": "active",
+          "metrics": {
+            "trust": 0.5
+          },
+          "facets": [
+            "practical cooperation"
+          ],
+          "note": "An explicitly authored directed relationship.",
+          "time": {
+            "timeline": "main",
+            "tick": "0",
+            "order": "0"
+          },
+          "transitionId": "rt_35F8S0MR3A747JFRQ5XRMM3D9N"
+        }
+      ]
+    },
+    {
+      "operation": "state",
+      "target": "char_6D246WN3J75HBRJJXGQ5H6QAD4",
+      "time": {
+        "timeline": "main",
+        "tick": "10",
+        "order": "0"
+      },
+      "expected": {
+        "condition": "well",
+        "location": {
+          "entity": "loc_0708459BXR2PVVHA4VASXHB69C"
+        }
+      }
+    },
+    {
+      "operation": "knowledge",
+      "target": "char_6D246WN3J75HBRJJXGQ5H6QAD4",
+      "time": {
+        "timeline": "main",
+        "tick": "10",
+        "order": "0"
+      },
+      "expected": []
+    },
+    {
+      "operation": "relationships",
+      "target": "char_6D246WN3J75HBRJJXGQ5H6QAD4",
+      "time": {
+        "timeline": "main",
+        "tick": "10",
+        "order": "0"
+      },
+      "expected": [
+        {
+          "relationshipId": "rel_0Y5PE3MEG7ZK91Z24B1F6G1T31",
+          "from": "char_6D246WN3J75HBRJJXGQ5H6QAD4",
+          "to": "char_39E9EWWC017E40519033S4RW4X",
+          "relationshipKind": "trust",
+          "status": "active",
+          "metrics": {
+            "trust": 0.6
+          },
+          "facets": [
+            "practical cooperation"
+          ],
+          "note": "An explicitly authored directed relationship.",
+          "time": {
+            "timeline": "main",
+            "tick": "0",
+            "order": "0"
+          },
+          "transitionId": "rt_0T3YA92QQV3R10S7373QG3BBPJ"
+        }
+      ]
+    },
+    {
+      "operation": "state",
+      "target": "loc_0708459BXR2PVVHA4VASXHB69C",
+      "time": {
+        "timeline": "main",
+        "tick": "10",
+        "order": "0"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "loc_117ZGNWJM0Y3N7CWER2H3XK722",
+      "time": {
+        "timeline": "main",
+        "tick": "10",
+        "order": "0"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "loc_2DW2BZ5PN3XBMD2FWQA4Q61V1E",
+      "time": {
+        "timeline": "main",
+        "tick": "10",
+        "order": "0"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "loc_2SYYRXM9AHJGKYKGG200TZV82Y",
+      "time": {
+        "timeline": "main",
+        "tick": "10",
+        "order": "0"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "loc_3VDY39471DED5V26TEVYXMRQK3",
+      "time": {
+        "timeline": "main",
+        "tick": "10",
+        "order": "0"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "loc_6ZT4TZRBGZTHMYVRDXV3HFTTPQ",
+      "time": {
+        "timeline": "main",
+        "tick": "10",
+        "order": "0"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "loc_7F7G4Y2CZAD32HYW0B28N61Q72",
+      "time": {
+        "timeline": "main",
+        "tick": "10",
+        "order": "0"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "obj_0NQWK9WPK4PSR5722YH0RJ89CH",
+      "time": {
+        "timeline": "main",
+        "tick": "10",
+        "order": "0"
+      },
+      "expected": {
+        "condition": "legible",
+        "location": {
+          "entity": "loc_2SYYRXM9AHJGKYKGG200TZV82Y"
+        }
+      }
+    },
+    {
+      "operation": "state",
+      "target": "obj_13BZCJF8R08S5RSH4VRJXMA0YK",
+      "time": {
+        "timeline": "main",
+        "tick": "10",
+        "order": "0"
+      },
+      "expected": {
+        "condition": "usable",
+        "holder": {
+          "entity": "char_62PCSFAX4YQE48JK476XKGG6B8"
+        }
+      }
+    },
+    {
+      "operation": "state",
+      "target": "obj_4C9HNZYKJG5QQ6DWTWDJ4NWJ8D",
+      "time": {
+        "timeline": "main",
+        "tick": "10",
+        "order": "0"
+      },
+      "expected": {
+        "condition": "cracked",
+        "location": {
+          "entity": "loc_6ZT4TZRBGZTHMYVRDXV3HFTTPQ"
+        }
+      }
+    },
+    {
+      "operation": "state",
+      "target": "obj_76VC9SVNSR7ASZK025X7PTRBJH",
+      "time": {
+        "timeline": "main",
+        "tick": "10",
+        "order": "0"
+      },
+      "expected": {
+        "condition": "usable",
+        "holder": {
+          "entity": "char_0PYVCG3ETXZ640BWJ5JMT6XXFZ"
+        }
+      }
+    },
+    {
+      "operation": "state",
+      "target": "char_0PYVCG3ETXZ640BWJ5JMT6XXFZ",
+      "time": {
+        "timeline": "main",
+        "tick": "19",
+        "order": "2147483647"
+      },
+      "expected": {
+        "condition": "well",
+        "location": {
+          "entity": "loc_117ZGNWJM0Y3N7CWER2H3XK722"
+        }
+      }
+    },
+    {
+      "operation": "knowledge",
+      "target": "char_0PYVCG3ETXZ640BWJ5JMT6XXFZ",
+      "time": {
+        "timeline": "main",
+        "tick": "19",
+        "order": "2147483647"
+      },
+      "expected": []
+    },
+    {
+      "operation": "relationships",
+      "target": "char_0PYVCG3ETXZ640BWJ5JMT6XXFZ",
+      "time": {
+        "timeline": "main",
+        "tick": "19",
+        "order": "2147483647"
+      },
+      "expected": [
+        {
+          "relationshipId": "rel_4QMDM336YCMY6TT554VXDFQHPE",
+          "from": "char_0PYVCG3ETXZ640BWJ5JMT6XXFZ",
+          "to": "char_62PCSFAX4YQE48JK476XKGG6B8",
+          "relationshipKind": "obligation",
+          "status": "active",
+          "metrics": {
+            "obligation": 0.5
+          },
+          "facets": [
+            "practical cooperation"
+          ],
+          "note": "An explicitly authored directed relationship.",
+          "time": {
+            "timeline": "main",
+            "tick": "0",
+            "order": "0"
+          },
+          "transitionId": "rt_57YJEGEJFRNXN0AEHNV8N7G2F2"
+        }
+      ]
+    },
+    {
+      "operation": "state",
+      "target": "char_39E9EWWC017E40519033S4RW4X",
+      "time": {
+        "timeline": "main",
+        "tick": "19",
+        "order": "2147483647"
+      },
+      "expected": {
+        "condition": "well",
+        "location": {
+          "entity": "loc_2SYYRXM9AHJGKYKGG200TZV82Y"
+        }
+      }
+    },
+    {
+      "operation": "knowledge",
+      "target": "char_39E9EWWC017E40519033S4RW4X",
+      "time": {
+        "timeline": "main",
+        "tick": "19",
+        "order": "2147483647"
+      },
+      "expected": []
+    },
+    {
+      "operation": "relationships",
+      "target": "char_39E9EWWC017E40519033S4RW4X",
+      "time": {
+        "timeline": "main",
+        "tick": "19",
+        "order": "2147483647"
+      },
+      "expected": []
+    },
+    {
+      "operation": "state",
+      "target": "char_46VTBJZ9TNMTF7G14N5GKYQ9C1",
+      "time": {
+        "timeline": "main",
+        "tick": "19",
+        "order": "2147483647"
+      },
+      "expected": {
+        "condition": "well",
+        "location": {
+          "entity": "loc_6ZT4TZRBGZTHMYVRDXV3HFTTPQ"
+        }
+      }
+    },
+    {
+      "operation": "knowledge",
+      "target": "char_46VTBJZ9TNMTF7G14N5GKYQ9C1",
+      "time": {
+        "timeline": "main",
+        "tick": "19",
+        "order": "2147483647"
+      },
+      "expected": []
+    },
+    {
+      "operation": "relationships",
+      "target": "char_46VTBJZ9TNMTF7G14N5GKYQ9C1",
+      "time": {
+        "timeline": "main",
+        "tick": "19",
+        "order": "2147483647"
+      },
+      "expected": [
+        {
+          "relationshipId": "rel_600QPBZBZVZJ96C0YX59790KNM",
+          "from": "char_46VTBJZ9TNMTF7G14N5GKYQ9C1",
+          "to": "char_4JVNDN6QW0BAFFV379AJJSMEPZ",
+          "relationshipKind": "obligation",
+          "status": "active",
+          "metrics": {
+            "obligation": 0.4
+          },
+          "facets": [
+            "practical cooperation"
+          ],
+          "note": "An explicitly authored directed relationship.",
+          "time": {
+            "timeline": "main",
+            "tick": "0",
+            "order": "0"
+          },
+          "transitionId": "rt_58NT6688CRCAG8TJW8WHY85YMG"
+        }
+      ]
+    },
+    {
+      "operation": "state",
+      "target": "char_4JVNDN6QW0BAFFV379AJJSMEPZ",
+      "time": {
+        "timeline": "main",
+        "tick": "19",
+        "order": "2147483647"
+      },
+      "expected": {
+        "condition": "well",
+        "location": {
+          "entity": "loc_6ZT4TZRBGZTHMYVRDXV3HFTTPQ"
+        }
+      }
+    },
+    {
+      "operation": "knowledge",
+      "target": "char_4JVNDN6QW0BAFFV379AJJSMEPZ",
+      "time": {
+        "timeline": "main",
+        "tick": "19",
+        "order": "2147483647"
+      },
+      "expected": [
+        {
+          "knowledgeId": "know_33RB1GJYPCGCPDA9KYT8GN4PN9",
+          "claimKey": "tideglass.storm-report",
+          "statement": "The storm cracked the signal lens.",
+          "claim": {
+            "key": "tideglass.storm-report",
+            "statement": "The storm cracked the signal lens.",
+            "truth": "true"
+          },
+          "state": "accepted",
+          "confidence": 0.95,
+          "acquisition": "observed",
+          "sourceEntityId": null,
+          "causingEventId": "event_63W6ZYRM67EZ5VAB3PR5R19TFC",
+          "note": null,
+          "time": {
+            "timeline": "main",
+            "tick": "10",
+            "order": "0"
+          },
+          "transitionId": "kt_7FHKDS8T8YSF0FBJQ7RS4PM7MY"
+        }
+      ]
+    },
+    {
+      "operation": "relationships",
+      "target": "char_4JVNDN6QW0BAFFV379AJJSMEPZ",
+      "time": {
+        "timeline": "main",
+        "tick": "19",
+        "order": "2147483647"
+      },
+      "expected": [
+        {
+          "relationshipId": "rel_7Y1Y0Z51JTGRZ02BTV2K31ERNA",
+          "from": "char_4JVNDN6QW0BAFFV379AJJSMEPZ",
+          "to": "char_0PYVCG3ETXZ640BWJ5JMT6XXFZ",
+          "relationshipKind": "trust",
+          "status": "active",
+          "metrics": {
+            "trust": 0.25
+          },
+          "facets": [
+            "practical cooperation"
+          ],
+          "note": "An explicitly authored directed relationship.",
+          "time": {
+            "timeline": "main",
+            "tick": "0",
+            "order": "0"
+          },
+          "transitionId": "rt_5056RDC89GY3XZVQNGR110NMDB"
+        }
+      ]
+    },
+    {
+      "operation": "state",
+      "target": "char_62PCSFAX4YQE48JK476XKGG6B8",
+      "time": {
+        "timeline": "main",
+        "tick": "19",
+        "order": "2147483647"
+      },
+      "expected": {
+        "condition": "well",
+        "location": {
+          "entity": "loc_0708459BXR2PVVHA4VASXHB69C"
+        }
+      }
+    },
+    {
+      "operation": "knowledge",
+      "target": "char_62PCSFAX4YQE48JK476XKGG6B8",
+      "time": {
+        "timeline": "main",
+        "tick": "19",
+        "order": "2147483647"
+      },
+      "expected": [
+        {
+          "knowledgeId": "know_5WR6NRNE78SCKKZ0FPAEYR61T5",
+          "claimKey": "tideglass.ferry-suspension",
+          "statement": "The ferry remains suspended while repair and inspection are pending.",
+          "claim": {
+            "key": "tideglass.ferry-suspension",
+            "statement": "The ferry remains suspended while repair and inspection are pending.",
+            "truth": "true"
+          },
+          "state": "accepted",
+          "confidence": 0.95,
+          "acquisition": "observed",
+          "sourceEntityId": null,
+          "causingEventId": "event_63W6ZYRM67EZ5VAB3PR5R19TFC",
+          "note": null,
+          "time": {
+            "timeline": "main",
+            "tick": "10",
+            "order": "0"
+          },
+          "transitionId": "kt_4FHJGMDHETJQW76C7CDGD9ZGQ0"
+        }
+      ]
+    },
+    {
+      "operation": "relationships",
+      "target": "char_62PCSFAX4YQE48JK476XKGG6B8",
+      "time": {
+        "timeline": "main",
+        "tick": "19",
+        "order": "2147483647"
+      },
+      "expected": [
+        {
+          "relationshipId": "rel_4WEP0KV5C79HNMY7J2QTN67BY1",
+          "from": "char_62PCSFAX4YQE48JK476XKGG6B8",
+          "to": "char_6D246WN3J75HBRJJXGQ5H6QAD4",
+          "relationshipKind": "trust",
+          "status": "active",
+          "metrics": {
+            "trust": 0.5
+          },
+          "facets": [
+            "practical cooperation"
+          ],
+          "note": "An explicitly authored directed relationship.",
+          "time": {
+            "timeline": "main",
+            "tick": "0",
+            "order": "0"
+          },
+          "transitionId": "rt_35F8S0MR3A747JFRQ5XRMM3D9N"
+        }
+      ]
+    },
+    {
+      "operation": "state",
+      "target": "char_6D246WN3J75HBRJJXGQ5H6QAD4",
+      "time": {
+        "timeline": "main",
+        "tick": "19",
+        "order": "2147483647"
+      },
+      "expected": {
+        "condition": "well",
+        "location": {
+          "entity": "loc_0708459BXR2PVVHA4VASXHB69C"
+        }
+      }
+    },
+    {
+      "operation": "knowledge",
+      "target": "char_6D246WN3J75HBRJJXGQ5H6QAD4",
+      "time": {
+        "timeline": "main",
+        "tick": "19",
+        "order": "2147483647"
+      },
+      "expected": []
+    },
+    {
+      "operation": "relationships",
+      "target": "char_6D246WN3J75HBRJJXGQ5H6QAD4",
+      "time": {
+        "timeline": "main",
+        "tick": "19",
+        "order": "2147483647"
+      },
+      "expected": [
+        {
+          "relationshipId": "rel_0Y5PE3MEG7ZK91Z24B1F6G1T31",
+          "from": "char_6D246WN3J75HBRJJXGQ5H6QAD4",
+          "to": "char_39E9EWWC017E40519033S4RW4X",
+          "relationshipKind": "trust",
+          "status": "active",
+          "metrics": {
+            "trust": 0.6
+          },
+          "facets": [
+            "practical cooperation"
+          ],
+          "note": "An explicitly authored directed relationship.",
+          "time": {
+            "timeline": "main",
+            "tick": "0",
+            "order": "0"
+          },
+          "transitionId": "rt_0T3YA92QQV3R10S7373QG3BBPJ"
+        }
+      ]
+    },
+    {
+      "operation": "state",
+      "target": "loc_0708459BXR2PVVHA4VASXHB69C",
+      "time": {
+        "timeline": "main",
+        "tick": "19",
+        "order": "2147483647"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "loc_117ZGNWJM0Y3N7CWER2H3XK722",
+      "time": {
+        "timeline": "main",
+        "tick": "19",
+        "order": "2147483647"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "loc_2DW2BZ5PN3XBMD2FWQA4Q61V1E",
+      "time": {
+        "timeline": "main",
+        "tick": "19",
+        "order": "2147483647"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "loc_2SYYRXM9AHJGKYKGG200TZV82Y",
+      "time": {
+        "timeline": "main",
+        "tick": "19",
+        "order": "2147483647"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "loc_3VDY39471DED5V26TEVYXMRQK3",
+      "time": {
+        "timeline": "main",
+        "tick": "19",
+        "order": "2147483647"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "loc_6ZT4TZRBGZTHMYVRDXV3HFTTPQ",
+      "time": {
+        "timeline": "main",
+        "tick": "19",
+        "order": "2147483647"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "loc_7F7G4Y2CZAD32HYW0B28N61Q72",
+      "time": {
+        "timeline": "main",
+        "tick": "19",
+        "order": "2147483647"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "obj_0NQWK9WPK4PSR5722YH0RJ89CH",
+      "time": {
+        "timeline": "main",
+        "tick": "19",
+        "order": "2147483647"
+      },
+      "expected": {
+        "condition": "legible",
+        "location": {
+          "entity": "loc_2SYYRXM9AHJGKYKGG200TZV82Y"
+        }
+      }
+    },
+    {
+      "operation": "state",
+      "target": "obj_13BZCJF8R08S5RSH4VRJXMA0YK",
+      "time": {
+        "timeline": "main",
+        "tick": "19",
+        "order": "2147483647"
+      },
+      "expected": {
+        "condition": "usable",
+        "holder": {
+          "entity": "char_62PCSFAX4YQE48JK476XKGG6B8"
+        }
+      }
+    },
+    {
+      "operation": "state",
+      "target": "obj_4C9HNZYKJG5QQ6DWTWDJ4NWJ8D",
+      "time": {
+        "timeline": "main",
+        "tick": "19",
+        "order": "2147483647"
+      },
+      "expected": {
+        "condition": "cracked",
+        "location": {
+          "entity": "loc_6ZT4TZRBGZTHMYVRDXV3HFTTPQ"
+        }
+      }
+    },
+    {
+      "operation": "state",
+      "target": "obj_76VC9SVNSR7ASZK025X7PTRBJH",
+      "time": {
+        "timeline": "main",
+        "tick": "19",
+        "order": "2147483647"
+      },
+      "expected": {
+        "condition": "usable",
+        "holder": {
+          "entity": "char_0PYVCG3ETXZ640BWJ5JMT6XXFZ"
+        }
+      }
+    },
+    {
+      "operation": "state",
+      "target": "char_0PYVCG3ETXZ640BWJ5JMT6XXFZ",
+      "time": {
+        "timeline": "main",
+        "tick": "20",
+        "order": "0"
+      },
+      "expected": {
+        "condition": "well",
+        "location": {
+          "entity": "loc_117ZGNWJM0Y3N7CWER2H3XK722"
+        }
+      }
+    },
+    {
+      "operation": "knowledge",
+      "target": "char_0PYVCG3ETXZ640BWJ5JMT6XXFZ",
+      "time": {
+        "timeline": "main",
+        "tick": "20",
+        "order": "0"
+      },
+      "expected": [
+        {
+          "knowledgeId": "know_7EJZ8JXCFWVX6DEX37AY8N62KY",
+          "claimKey": "tideglass.repair-plan",
+          "statement": "The lens can be repaired at the workshop bench.",
+          "claim": {
+            "key": "tideglass.repair-plan",
+            "statement": "The lens can be repaired at the workshop bench.",
+            "truth": "true"
+          },
+          "state": "accepted",
+          "confidence": 0.95,
+          "acquisition": "observed",
+          "sourceEntityId": null,
+          "causingEventId": "event_7J9JDA9939Y1NJ08HZWE7RRCQE",
+          "note": null,
+          "time": {
+            "timeline": "main",
+            "tick": "20",
+            "order": "0"
+          },
+          "transitionId": "kt_6792BKRRHP3MS3FTKT03WTWJ8N"
+        }
+      ]
+    },
+    {
+      "operation": "relationships",
+      "target": "char_0PYVCG3ETXZ640BWJ5JMT6XXFZ",
+      "time": {
+        "timeline": "main",
+        "tick": "20",
+        "order": "0"
+      },
+      "expected": [
+        {
+          "relationshipId": "rel_4QMDM336YCMY6TT554VXDFQHPE",
+          "from": "char_0PYVCG3ETXZ640BWJ5JMT6XXFZ",
+          "to": "char_62PCSFAX4YQE48JK476XKGG6B8",
+          "relationshipKind": "obligation",
+          "status": "active",
+          "metrics": {
+            "obligation": 0.5
+          },
+          "facets": [
+            "practical cooperation"
+          ],
+          "note": "An explicitly authored directed relationship.",
+          "time": {
+            "timeline": "main",
+            "tick": "0",
+            "order": "0"
+          },
+          "transitionId": "rt_57YJEGEJFRNXN0AEHNV8N7G2F2"
+        }
+      ]
+    },
+    {
+      "operation": "state",
+      "target": "char_39E9EWWC017E40519033S4RW4X",
+      "time": {
+        "timeline": "main",
+        "tick": "20",
+        "order": "0"
+      },
+      "expected": {
+        "condition": "well",
+        "location": {
+          "entity": "loc_2SYYRXM9AHJGKYKGG200TZV82Y"
+        }
+      }
+    },
+    {
+      "operation": "knowledge",
+      "target": "char_39E9EWWC017E40519033S4RW4X",
+      "time": {
+        "timeline": "main",
+        "tick": "20",
+        "order": "0"
+      },
+      "expected": []
+    },
+    {
+      "operation": "relationships",
+      "target": "char_39E9EWWC017E40519033S4RW4X",
+      "time": {
+        "timeline": "main",
+        "tick": "20",
+        "order": "0"
+      },
+      "expected": []
+    },
+    {
+      "operation": "state",
+      "target": "char_46VTBJZ9TNMTF7G14N5GKYQ9C1",
+      "time": {
+        "timeline": "main",
+        "tick": "20",
+        "order": "0"
+      },
+      "expected": {
+        "condition": "well",
+        "location": {
+          "entity": "loc_6ZT4TZRBGZTHMYVRDXV3HFTTPQ"
+        }
+      }
+    },
+    {
+      "operation": "knowledge",
+      "target": "char_46VTBJZ9TNMTF7G14N5GKYQ9C1",
+      "time": {
+        "timeline": "main",
+        "tick": "20",
+        "order": "0"
+      },
+      "expected": []
+    },
+    {
+      "operation": "relationships",
+      "target": "char_46VTBJZ9TNMTF7G14N5GKYQ9C1",
+      "time": {
+        "timeline": "main",
+        "tick": "20",
+        "order": "0"
+      },
+      "expected": [
+        {
+          "relationshipId": "rel_600QPBZBZVZJ96C0YX59790KNM",
+          "from": "char_46VTBJZ9TNMTF7G14N5GKYQ9C1",
+          "to": "char_4JVNDN6QW0BAFFV379AJJSMEPZ",
+          "relationshipKind": "obligation",
+          "status": "active",
+          "metrics": {
+            "obligation": 0.4
+          },
+          "facets": [
+            "practical cooperation"
+          ],
+          "note": "An explicitly authored directed relationship.",
+          "time": {
+            "timeline": "main",
+            "tick": "0",
+            "order": "0"
+          },
+          "transitionId": "rt_58NT6688CRCAG8TJW8WHY85YMG"
+        }
+      ]
+    },
+    {
+      "operation": "state",
+      "target": "char_4JVNDN6QW0BAFFV379AJJSMEPZ",
+      "time": {
+        "timeline": "main",
+        "tick": "20",
+        "order": "0"
+      },
+      "expected": {
+        "condition": "well",
+        "location": {
+          "entity": "loc_117ZGNWJM0Y3N7CWER2H3XK722"
+        }
+      }
+    },
+    {
+      "operation": "knowledge",
+      "target": "char_4JVNDN6QW0BAFFV379AJJSMEPZ",
+      "time": {
+        "timeline": "main",
+        "tick": "20",
+        "order": "0"
+      },
+      "expected": [
+        {
+          "knowledgeId": "know_33RB1GJYPCGCPDA9KYT8GN4PN9",
+          "claimKey": "tideglass.storm-report",
+          "statement": "The storm cracked the signal lens.",
+          "claim": {
+            "key": "tideglass.storm-report",
+            "statement": "The storm cracked the signal lens.",
+            "truth": "true"
+          },
+          "state": "accepted",
+          "confidence": 0.95,
+          "acquisition": "observed",
+          "sourceEntityId": null,
+          "causingEventId": "event_63W6ZYRM67EZ5VAB3PR5R19TFC",
+          "note": null,
+          "time": {
+            "timeline": "main",
+            "tick": "10",
+            "order": "0"
+          },
+          "transitionId": "kt_7FHKDS8T8YSF0FBJQ7RS4PM7MY"
+        }
+      ]
+    },
+    {
+      "operation": "relationships",
+      "target": "char_4JVNDN6QW0BAFFV379AJJSMEPZ",
+      "time": {
+        "timeline": "main",
+        "tick": "20",
+        "order": "0"
+      },
+      "expected": [
+        {
+          "relationshipId": "rel_7Y1Y0Z51JTGRZ02BTV2K31ERNA",
+          "from": "char_4JVNDN6QW0BAFFV379AJJSMEPZ",
+          "to": "char_0PYVCG3ETXZ640BWJ5JMT6XXFZ",
+          "relationshipKind": "trust",
+          "status": "active",
+          "metrics": {
+            "trust": 0.25
+          },
+          "facets": [
+            "practical cooperation"
+          ],
+          "note": "An explicitly authored directed relationship.",
+          "time": {
+            "timeline": "main",
+            "tick": "0",
+            "order": "0"
+          },
+          "transitionId": "rt_5056RDC89GY3XZVQNGR110NMDB"
+        }
+      ]
+    },
+    {
+      "operation": "state",
+      "target": "char_62PCSFAX4YQE48JK476XKGG6B8",
+      "time": {
+        "timeline": "main",
+        "tick": "20",
+        "order": "0"
+      },
+      "expected": {
+        "condition": "well",
+        "location": {
+          "entity": "loc_0708459BXR2PVVHA4VASXHB69C"
+        }
+      }
+    },
+    {
+      "operation": "knowledge",
+      "target": "char_62PCSFAX4YQE48JK476XKGG6B8",
+      "time": {
+        "timeline": "main",
+        "tick": "20",
+        "order": "0"
+      },
+      "expected": [
+        {
+          "knowledgeId": "know_5WR6NRNE78SCKKZ0FPAEYR61T5",
+          "claimKey": "tideglass.ferry-suspension",
+          "statement": "The ferry remains suspended while repair and inspection are pending.",
+          "claim": {
+            "key": "tideglass.ferry-suspension",
+            "statement": "The ferry remains suspended while repair and inspection are pending.",
+            "truth": "true"
+          },
+          "state": "accepted",
+          "confidence": 0.95,
+          "acquisition": "observed",
+          "sourceEntityId": null,
+          "causingEventId": "event_63W6ZYRM67EZ5VAB3PR5R19TFC",
+          "note": null,
+          "time": {
+            "timeline": "main",
+            "tick": "10",
+            "order": "0"
+          },
+          "transitionId": "kt_4FHJGMDHETJQW76C7CDGD9ZGQ0"
+        }
+      ]
+    },
+    {
+      "operation": "relationships",
+      "target": "char_62PCSFAX4YQE48JK476XKGG6B8",
+      "time": {
+        "timeline": "main",
+        "tick": "20",
+        "order": "0"
+      },
+      "expected": [
+        {
+          "relationshipId": "rel_4WEP0KV5C79HNMY7J2QTN67BY1",
+          "from": "char_62PCSFAX4YQE48JK476XKGG6B8",
+          "to": "char_6D246WN3J75HBRJJXGQ5H6QAD4",
+          "relationshipKind": "trust",
+          "status": "active",
+          "metrics": {
+            "trust": 0.5
+          },
+          "facets": [
+            "practical cooperation"
+          ],
+          "note": "An explicitly authored directed relationship.",
+          "time": {
+            "timeline": "main",
+            "tick": "0",
+            "order": "0"
+          },
+          "transitionId": "rt_35F8S0MR3A747JFRQ5XRMM3D9N"
+        }
+      ]
+    },
+    {
+      "operation": "state",
+      "target": "char_6D246WN3J75HBRJJXGQ5H6QAD4",
+      "time": {
+        "timeline": "main",
+        "tick": "20",
+        "order": "0"
+      },
+      "expected": {
+        "condition": "well",
+        "location": {
+          "entity": "loc_0708459BXR2PVVHA4VASXHB69C"
+        }
+      }
+    },
+    {
+      "operation": "knowledge",
+      "target": "char_6D246WN3J75HBRJJXGQ5H6QAD4",
+      "time": {
+        "timeline": "main",
+        "tick": "20",
+        "order": "0"
+      },
+      "expected": []
+    },
+    {
+      "operation": "relationships",
+      "target": "char_6D246WN3J75HBRJJXGQ5H6QAD4",
+      "time": {
+        "timeline": "main",
+        "tick": "20",
+        "order": "0"
+      },
+      "expected": [
+        {
+          "relationshipId": "rel_0Y5PE3MEG7ZK91Z24B1F6G1T31",
+          "from": "char_6D246WN3J75HBRJJXGQ5H6QAD4",
+          "to": "char_39E9EWWC017E40519033S4RW4X",
+          "relationshipKind": "trust",
+          "status": "active",
+          "metrics": {
+            "trust": 0.6
+          },
+          "facets": [
+            "practical cooperation"
+          ],
+          "note": "An explicitly authored directed relationship.",
+          "time": {
+            "timeline": "main",
+            "tick": "0",
+            "order": "0"
+          },
+          "transitionId": "rt_0T3YA92QQV3R10S7373QG3BBPJ"
+        }
+      ]
+    },
+    {
+      "operation": "state",
+      "target": "loc_0708459BXR2PVVHA4VASXHB69C",
+      "time": {
+        "timeline": "main",
+        "tick": "20",
+        "order": "0"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "loc_117ZGNWJM0Y3N7CWER2H3XK722",
+      "time": {
+        "timeline": "main",
+        "tick": "20",
+        "order": "0"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "loc_2DW2BZ5PN3XBMD2FWQA4Q61V1E",
+      "time": {
+        "timeline": "main",
+        "tick": "20",
+        "order": "0"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "loc_2SYYRXM9AHJGKYKGG200TZV82Y",
+      "time": {
+        "timeline": "main",
+        "tick": "20",
+        "order": "0"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "loc_3VDY39471DED5V26TEVYXMRQK3",
+      "time": {
+        "timeline": "main",
+        "tick": "20",
+        "order": "0"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "loc_6ZT4TZRBGZTHMYVRDXV3HFTTPQ",
+      "time": {
+        "timeline": "main",
+        "tick": "20",
+        "order": "0"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "loc_7F7G4Y2CZAD32HYW0B28N61Q72",
+      "time": {
+        "timeline": "main",
+        "tick": "20",
+        "order": "0"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "obj_0NQWK9WPK4PSR5722YH0RJ89CH",
+      "time": {
+        "timeline": "main",
+        "tick": "20",
+        "order": "0"
+      },
+      "expected": {
+        "condition": "legible",
+        "location": {
+          "entity": "loc_2SYYRXM9AHJGKYKGG200TZV82Y"
+        }
+      }
+    },
+    {
+      "operation": "state",
+      "target": "obj_13BZCJF8R08S5RSH4VRJXMA0YK",
+      "time": {
+        "timeline": "main",
+        "tick": "20",
+        "order": "0"
+      },
+      "expected": {
+        "condition": "usable",
+        "holder": {
+          "entity": "char_62PCSFAX4YQE48JK476XKGG6B8"
+        }
+      }
+    },
+    {
+      "operation": "state",
+      "target": "obj_4C9HNZYKJG5QQ6DWTWDJ4NWJ8D",
+      "time": {
+        "timeline": "main",
+        "tick": "20",
+        "order": "0"
+      },
+      "expected": {
+        "condition": "cracked",
+        "location": {
+          "entity": "loc_117ZGNWJM0Y3N7CWER2H3XK722"
+        }
+      }
+    },
+    {
+      "operation": "state",
+      "target": "obj_76VC9SVNSR7ASZK025X7PTRBJH",
+      "time": {
+        "timeline": "main",
+        "tick": "20",
+        "order": "0"
+      },
+      "expected": {
+        "condition": "usable",
+        "holder": {
+          "entity": "char_0PYVCG3ETXZ640BWJ5JMT6XXFZ"
+        }
+      }
+    },
+    {
+      "operation": "state",
+      "target": "char_0PYVCG3ETXZ640BWJ5JMT6XXFZ",
+      "time": {
+        "timeline": "main",
+        "tick": "20",
+        "order": "1"
+      },
+      "expected": {
+        "condition": "well",
+        "location": {
+          "entity": "loc_117ZGNWJM0Y3N7CWER2H3XK722"
+        }
+      }
+    },
+    {
+      "operation": "knowledge",
+      "target": "char_0PYVCG3ETXZ640BWJ5JMT6XXFZ",
+      "time": {
+        "timeline": "main",
+        "tick": "20",
+        "order": "1"
+      },
+      "expected": [
+        {
+          "knowledgeId": "know_7EJZ8JXCFWVX6DEX37AY8N62KY",
+          "claimKey": "tideglass.repair-plan",
+          "statement": "The lens can be repaired at the workshop bench.",
+          "claim": {
+            "key": "tideglass.repair-plan",
+            "statement": "The lens can be repaired at the workshop bench.",
+            "truth": "true"
+          },
+          "state": "accepted",
+          "confidence": 0.95,
+          "acquisition": "observed",
+          "sourceEntityId": null,
+          "causingEventId": "event_7J9JDA9939Y1NJ08HZWE7RRCQE",
+          "note": null,
+          "time": {
+            "timeline": "main",
+            "tick": "20",
+            "order": "0"
+          },
+          "transitionId": "kt_6792BKRRHP3MS3FTKT03WTWJ8N"
+        }
+      ]
+    },
+    {
+      "operation": "relationships",
+      "target": "char_0PYVCG3ETXZ640BWJ5JMT6XXFZ",
+      "time": {
+        "timeline": "main",
+        "tick": "20",
+        "order": "1"
+      },
+      "expected": [
+        {
+          "relationshipId": "rel_4QMDM336YCMY6TT554VXDFQHPE",
+          "from": "char_0PYVCG3ETXZ640BWJ5JMT6XXFZ",
+          "to": "char_62PCSFAX4YQE48JK476XKGG6B8",
+          "relationshipKind": "obligation",
+          "status": "active",
+          "metrics": {
+            "obligation": 0.5
+          },
+          "facets": [
+            "practical cooperation"
+          ],
+          "note": "An explicitly authored directed relationship.",
+          "time": {
+            "timeline": "main",
+            "tick": "0",
+            "order": "0"
+          },
+          "transitionId": "rt_57YJEGEJFRNXN0AEHNV8N7G2F2"
+        }
+      ]
+    },
+    {
+      "operation": "state",
+      "target": "char_39E9EWWC017E40519033S4RW4X",
+      "time": {
+        "timeline": "main",
+        "tick": "20",
+        "order": "1"
+      },
+      "expected": {
+        "condition": "well",
+        "location": {
+          "entity": "loc_2SYYRXM9AHJGKYKGG200TZV82Y"
+        }
+      }
+    },
+    {
+      "operation": "knowledge",
+      "target": "char_39E9EWWC017E40519033S4RW4X",
+      "time": {
+        "timeline": "main",
+        "tick": "20",
+        "order": "1"
+      },
+      "expected": []
+    },
+    {
+      "operation": "relationships",
+      "target": "char_39E9EWWC017E40519033S4RW4X",
+      "time": {
+        "timeline": "main",
+        "tick": "20",
+        "order": "1"
+      },
+      "expected": []
+    },
+    {
+      "operation": "state",
+      "target": "char_46VTBJZ9TNMTF7G14N5GKYQ9C1",
+      "time": {
+        "timeline": "main",
+        "tick": "20",
+        "order": "1"
+      },
+      "expected": {
+        "condition": "well",
+        "location": {
+          "entity": "loc_6ZT4TZRBGZTHMYVRDXV3HFTTPQ"
+        }
+      }
+    },
+    {
+      "operation": "knowledge",
+      "target": "char_46VTBJZ9TNMTF7G14N5GKYQ9C1",
+      "time": {
+        "timeline": "main",
+        "tick": "20",
+        "order": "1"
+      },
+      "expected": []
+    },
+    {
+      "operation": "relationships",
+      "target": "char_46VTBJZ9TNMTF7G14N5GKYQ9C1",
+      "time": {
+        "timeline": "main",
+        "tick": "20",
+        "order": "1"
+      },
+      "expected": [
+        {
+          "relationshipId": "rel_600QPBZBZVZJ96C0YX59790KNM",
+          "from": "char_46VTBJZ9TNMTF7G14N5GKYQ9C1",
+          "to": "char_4JVNDN6QW0BAFFV379AJJSMEPZ",
+          "relationshipKind": "obligation",
+          "status": "active",
+          "metrics": {
+            "obligation": 0.4
+          },
+          "facets": [
+            "practical cooperation"
+          ],
+          "note": "An explicitly authored directed relationship.",
+          "time": {
+            "timeline": "main",
+            "tick": "0",
+            "order": "0"
+          },
+          "transitionId": "rt_58NT6688CRCAG8TJW8WHY85YMG"
+        }
+      ]
+    },
+    {
+      "operation": "state",
+      "target": "char_4JVNDN6QW0BAFFV379AJJSMEPZ",
+      "time": {
+        "timeline": "main",
+        "tick": "20",
+        "order": "1"
+      },
+      "expected": {
+        "condition": "well",
+        "location": {
+          "entity": "loc_117ZGNWJM0Y3N7CWER2H3XK722"
+        }
+      }
+    },
+    {
+      "operation": "knowledge",
+      "target": "char_4JVNDN6QW0BAFFV379AJJSMEPZ",
+      "time": {
+        "timeline": "main",
+        "tick": "20",
+        "order": "1"
+      },
+      "expected": [
+        {
+          "knowledgeId": "know_33RB1GJYPCGCPDA9KYT8GN4PN9",
+          "claimKey": "tideglass.storm-report",
+          "statement": "The storm cracked the signal lens.",
+          "claim": {
+            "key": "tideglass.storm-report",
+            "statement": "The storm cracked the signal lens.",
+            "truth": "true"
+          },
+          "state": "accepted",
+          "confidence": 0.95,
+          "acquisition": "observed",
+          "sourceEntityId": null,
+          "causingEventId": "event_63W6ZYRM67EZ5VAB3PR5R19TFC",
+          "note": null,
+          "time": {
+            "timeline": "main",
+            "tick": "10",
+            "order": "0"
+          },
+          "transitionId": "kt_7FHKDS8T8YSF0FBJQ7RS4PM7MY"
+        }
+      ]
+    },
+    {
+      "operation": "relationships",
+      "target": "char_4JVNDN6QW0BAFFV379AJJSMEPZ",
+      "time": {
+        "timeline": "main",
+        "tick": "20",
+        "order": "1"
+      },
+      "expected": [
+        {
+          "relationshipId": "rel_7Y1Y0Z51JTGRZ02BTV2K31ERNA",
+          "from": "char_4JVNDN6QW0BAFFV379AJJSMEPZ",
+          "to": "char_0PYVCG3ETXZ640BWJ5JMT6XXFZ",
+          "relationshipKind": "trust",
+          "status": "active",
+          "metrics": {
+            "trust": 0.25
+          },
+          "facets": [
+            "practical cooperation"
+          ],
+          "note": "An explicitly authored directed relationship.",
+          "time": {
+            "timeline": "main",
+            "tick": "0",
+            "order": "0"
+          },
+          "transitionId": "rt_5056RDC89GY3XZVQNGR110NMDB"
+        }
+      ]
+    },
+    {
+      "operation": "state",
+      "target": "char_62PCSFAX4YQE48JK476XKGG6B8",
+      "time": {
+        "timeline": "main",
+        "tick": "20",
+        "order": "1"
+      },
+      "expected": {
+        "condition": "well",
+        "location": {
+          "entity": "loc_0708459BXR2PVVHA4VASXHB69C"
+        }
+      }
+    },
+    {
+      "operation": "knowledge",
+      "target": "char_62PCSFAX4YQE48JK476XKGG6B8",
+      "time": {
+        "timeline": "main",
+        "tick": "20",
+        "order": "1"
+      },
+      "expected": [
+        {
+          "knowledgeId": "know_5WR6NRNE78SCKKZ0FPAEYR61T5",
+          "claimKey": "tideglass.ferry-suspension",
+          "statement": "The ferry remains suspended while repair and inspection are pending.",
+          "claim": {
+            "key": "tideglass.ferry-suspension",
+            "statement": "The ferry remains suspended while repair and inspection are pending.",
+            "truth": "true"
+          },
+          "state": "accepted",
+          "confidence": 0.95,
+          "acquisition": "observed",
+          "sourceEntityId": null,
+          "causingEventId": "event_63W6ZYRM67EZ5VAB3PR5R19TFC",
+          "note": null,
+          "time": {
+            "timeline": "main",
+            "tick": "10",
+            "order": "0"
+          },
+          "transitionId": "kt_4FHJGMDHETJQW76C7CDGD9ZGQ0"
+        }
+      ]
+    },
+    {
+      "operation": "relationships",
+      "target": "char_62PCSFAX4YQE48JK476XKGG6B8",
+      "time": {
+        "timeline": "main",
+        "tick": "20",
+        "order": "1"
+      },
+      "expected": [
+        {
+          "relationshipId": "rel_4WEP0KV5C79HNMY7J2QTN67BY1",
+          "from": "char_62PCSFAX4YQE48JK476XKGG6B8",
+          "to": "char_6D246WN3J75HBRJJXGQ5H6QAD4",
+          "relationshipKind": "trust",
+          "status": "active",
+          "metrics": {
+            "trust": 0.5
+          },
+          "facets": [
+            "practical cooperation"
+          ],
+          "note": "An explicitly authored directed relationship.",
+          "time": {
+            "timeline": "main",
+            "tick": "0",
+            "order": "0"
+          },
+          "transitionId": "rt_35F8S0MR3A747JFRQ5XRMM3D9N"
+        }
+      ]
+    },
+    {
+      "operation": "state",
+      "target": "char_6D246WN3J75HBRJJXGQ5H6QAD4",
+      "time": {
+        "timeline": "main",
+        "tick": "20",
+        "order": "1"
+      },
+      "expected": {
+        "condition": "well",
+        "location": {
+          "entity": "loc_0708459BXR2PVVHA4VASXHB69C"
+        }
+      }
+    },
+    {
+      "operation": "knowledge",
+      "target": "char_6D246WN3J75HBRJJXGQ5H6QAD4",
+      "time": {
+        "timeline": "main",
+        "tick": "20",
+        "order": "1"
+      },
+      "expected": [
+        {
+          "knowledgeId": "know_0XNM8BDXPVH3XAEMC1STDN9VMB",
+          "claimKey": "tideglass.log-absence",
+          "statement": "No verified completion entry has been found at the quay.",
+          "claim": {
+            "key": "tideglass.log-absence",
+            "statement": "No verified completion entry has been found at the quay.",
+            "truth": "true"
+          },
+          "state": "accepted",
+          "confidence": 0.95,
+          "acquisition": "observed",
+          "sourceEntityId": null,
+          "causingEventId": "event_3M1TJPZ4845X2J6V5QASPFZK4G",
+          "note": null,
+          "time": {
+            "timeline": "main",
+            "tick": "20",
+            "order": "1"
+          },
+          "transitionId": "kt_1QT4HX8JTF8Y8NADXGBD4RDP45"
+        }
+      ]
+    },
+    {
+      "operation": "relationships",
+      "target": "char_6D246WN3J75HBRJJXGQ5H6QAD4",
+      "time": {
+        "timeline": "main",
+        "tick": "20",
+        "order": "1"
+      },
+      "expected": [
+        {
+          "relationshipId": "rel_0Y5PE3MEG7ZK91Z24B1F6G1T31",
+          "from": "char_6D246WN3J75HBRJJXGQ5H6QAD4",
+          "to": "char_39E9EWWC017E40519033S4RW4X",
+          "relationshipKind": "trust",
+          "status": "active",
+          "metrics": {
+            "trust": 0.6
+          },
+          "facets": [
+            "practical cooperation"
+          ],
+          "note": "An explicitly authored directed relationship.",
+          "time": {
+            "timeline": "main",
+            "tick": "0",
+            "order": "0"
+          },
+          "transitionId": "rt_0T3YA92QQV3R10S7373QG3BBPJ"
+        }
+      ]
+    },
+    {
+      "operation": "state",
+      "target": "loc_0708459BXR2PVVHA4VASXHB69C",
+      "time": {
+        "timeline": "main",
+        "tick": "20",
+        "order": "1"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "loc_117ZGNWJM0Y3N7CWER2H3XK722",
+      "time": {
+        "timeline": "main",
+        "tick": "20",
+        "order": "1"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "loc_2DW2BZ5PN3XBMD2FWQA4Q61V1E",
+      "time": {
+        "timeline": "main",
+        "tick": "20",
+        "order": "1"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "loc_2SYYRXM9AHJGKYKGG200TZV82Y",
+      "time": {
+        "timeline": "main",
+        "tick": "20",
+        "order": "1"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "loc_3VDY39471DED5V26TEVYXMRQK3",
+      "time": {
+        "timeline": "main",
+        "tick": "20",
+        "order": "1"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "loc_6ZT4TZRBGZTHMYVRDXV3HFTTPQ",
+      "time": {
+        "timeline": "main",
+        "tick": "20",
+        "order": "1"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "loc_7F7G4Y2CZAD32HYW0B28N61Q72",
+      "time": {
+        "timeline": "main",
+        "tick": "20",
+        "order": "1"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "obj_0NQWK9WPK4PSR5722YH0RJ89CH",
+      "time": {
+        "timeline": "main",
+        "tick": "20",
+        "order": "1"
+      },
+      "expected": {
+        "condition": "legible",
+        "location": {
+          "entity": "loc_2SYYRXM9AHJGKYKGG200TZV82Y"
+        }
+      }
+    },
+    {
+      "operation": "state",
+      "target": "obj_13BZCJF8R08S5RSH4VRJXMA0YK",
+      "time": {
+        "timeline": "main",
+        "tick": "20",
+        "order": "1"
+      },
+      "expected": {
+        "condition": "usable",
+        "holder": {
+          "entity": "char_62PCSFAX4YQE48JK476XKGG6B8"
+        }
+      }
+    },
+    {
+      "operation": "state",
+      "target": "obj_4C9HNZYKJG5QQ6DWTWDJ4NWJ8D",
+      "time": {
+        "timeline": "main",
+        "tick": "20",
+        "order": "1"
+      },
+      "expected": {
+        "condition": "cracked",
+        "location": {
+          "entity": "loc_117ZGNWJM0Y3N7CWER2H3XK722"
+        }
+      }
+    },
+    {
+      "operation": "state",
+      "target": "obj_76VC9SVNSR7ASZK025X7PTRBJH",
+      "time": {
+        "timeline": "main",
+        "tick": "20",
+        "order": "1"
+      },
+      "expected": {
+        "condition": "usable",
+        "holder": {
+          "entity": "char_0PYVCG3ETXZ640BWJ5JMT6XXFZ"
+        }
+      }
+    },
+    {
+      "operation": "state",
+      "target": "char_0PYVCG3ETXZ640BWJ5JMT6XXFZ",
+      "time": {
+        "timeline": "main",
+        "tick": "29",
+        "order": "2147483647"
+      },
+      "expected": {
+        "condition": "well",
+        "location": {
+          "entity": "loc_117ZGNWJM0Y3N7CWER2H3XK722"
+        }
+      }
+    },
+    {
+      "operation": "knowledge",
+      "target": "char_0PYVCG3ETXZ640BWJ5JMT6XXFZ",
+      "time": {
+        "timeline": "main",
+        "tick": "29",
+        "order": "2147483647"
+      },
+      "expected": [
+        {
+          "knowledgeId": "know_7EJZ8JXCFWVX6DEX37AY8N62KY",
+          "claimKey": "tideglass.repair-plan",
+          "statement": "The lens can be repaired at the workshop bench.",
+          "claim": {
+            "key": "tideglass.repair-plan",
+            "statement": "The lens can be repaired at the workshop bench.",
+            "truth": "true"
+          },
+          "state": "accepted",
+          "confidence": 0.95,
+          "acquisition": "observed",
+          "sourceEntityId": null,
+          "causingEventId": "event_7J9JDA9939Y1NJ08HZWE7RRCQE",
+          "note": null,
+          "time": {
+            "timeline": "main",
+            "tick": "20",
+            "order": "0"
+          },
+          "transitionId": "kt_6792BKRRHP3MS3FTKT03WTWJ8N"
+        }
+      ]
+    },
+    {
+      "operation": "relationships",
+      "target": "char_0PYVCG3ETXZ640BWJ5JMT6XXFZ",
+      "time": {
+        "timeline": "main",
+        "tick": "29",
+        "order": "2147483647"
+      },
+      "expected": [
+        {
+          "relationshipId": "rel_4QMDM336YCMY6TT554VXDFQHPE",
+          "from": "char_0PYVCG3ETXZ640BWJ5JMT6XXFZ",
+          "to": "char_62PCSFAX4YQE48JK476XKGG6B8",
+          "relationshipKind": "obligation",
+          "status": "active",
+          "metrics": {
+            "obligation": 0.5
+          },
+          "facets": [
+            "practical cooperation"
+          ],
+          "note": "An explicitly authored directed relationship.",
+          "time": {
+            "timeline": "main",
+            "tick": "0",
+            "order": "0"
+          },
+          "transitionId": "rt_57YJEGEJFRNXN0AEHNV8N7G2F2"
+        }
+      ]
+    },
+    {
+      "operation": "state",
+      "target": "char_39E9EWWC017E40519033S4RW4X",
+      "time": {
+        "timeline": "main",
+        "tick": "29",
+        "order": "2147483647"
+      },
+      "expected": {
+        "condition": "well",
+        "location": {
+          "entity": "loc_2SYYRXM9AHJGKYKGG200TZV82Y"
+        }
+      }
+    },
+    {
+      "operation": "knowledge",
+      "target": "char_39E9EWWC017E40519033S4RW4X",
+      "time": {
+        "timeline": "main",
+        "tick": "29",
+        "order": "2147483647"
+      },
+      "expected": []
+    },
+    {
+      "operation": "relationships",
+      "target": "char_39E9EWWC017E40519033S4RW4X",
+      "time": {
+        "timeline": "main",
+        "tick": "29",
+        "order": "2147483647"
+      },
+      "expected": []
+    },
+    {
+      "operation": "state",
+      "target": "char_46VTBJZ9TNMTF7G14N5GKYQ9C1",
+      "time": {
+        "timeline": "main",
+        "tick": "29",
+        "order": "2147483647"
+      },
+      "expected": {
+        "condition": "well",
+        "location": {
+          "entity": "loc_6ZT4TZRBGZTHMYVRDXV3HFTTPQ"
+        }
+      }
+    },
+    {
+      "operation": "knowledge",
+      "target": "char_46VTBJZ9TNMTF7G14N5GKYQ9C1",
+      "time": {
+        "timeline": "main",
+        "tick": "29",
+        "order": "2147483647"
+      },
+      "expected": []
+    },
+    {
+      "operation": "relationships",
+      "target": "char_46VTBJZ9TNMTF7G14N5GKYQ9C1",
+      "time": {
+        "timeline": "main",
+        "tick": "29",
+        "order": "2147483647"
+      },
+      "expected": [
+        {
+          "relationshipId": "rel_600QPBZBZVZJ96C0YX59790KNM",
+          "from": "char_46VTBJZ9TNMTF7G14N5GKYQ9C1",
+          "to": "char_4JVNDN6QW0BAFFV379AJJSMEPZ",
+          "relationshipKind": "obligation",
+          "status": "active",
+          "metrics": {
+            "obligation": 0.4
+          },
+          "facets": [
+            "practical cooperation"
+          ],
+          "note": "An explicitly authored directed relationship.",
+          "time": {
+            "timeline": "main",
+            "tick": "0",
+            "order": "0"
+          },
+          "transitionId": "rt_58NT6688CRCAG8TJW8WHY85YMG"
+        }
+      ]
+    },
+    {
+      "operation": "state",
+      "target": "char_4JVNDN6QW0BAFFV379AJJSMEPZ",
+      "time": {
+        "timeline": "main",
+        "tick": "29",
+        "order": "2147483647"
+      },
+      "expected": {
+        "condition": "well",
+        "location": {
+          "entity": "loc_117ZGNWJM0Y3N7CWER2H3XK722"
+        }
+      }
+    },
+    {
+      "operation": "knowledge",
+      "target": "char_4JVNDN6QW0BAFFV379AJJSMEPZ",
+      "time": {
+        "timeline": "main",
+        "tick": "29",
+        "order": "2147483647"
+      },
+      "expected": [
+        {
+          "knowledgeId": "know_33RB1GJYPCGCPDA9KYT8GN4PN9",
+          "claimKey": "tideglass.storm-report",
+          "statement": "The storm cracked the signal lens.",
+          "claim": {
+            "key": "tideglass.storm-report",
+            "statement": "The storm cracked the signal lens.",
+            "truth": "true"
+          },
+          "state": "accepted",
+          "confidence": 0.95,
+          "acquisition": "observed",
+          "sourceEntityId": null,
+          "causingEventId": "event_63W6ZYRM67EZ5VAB3PR5R19TFC",
+          "note": null,
+          "time": {
+            "timeline": "main",
+            "tick": "10",
+            "order": "0"
+          },
+          "transitionId": "kt_7FHKDS8T8YSF0FBJQ7RS4PM7MY"
+        }
+      ]
+    },
+    {
+      "operation": "relationships",
+      "target": "char_4JVNDN6QW0BAFFV379AJJSMEPZ",
+      "time": {
+        "timeline": "main",
+        "tick": "29",
+        "order": "2147483647"
+      },
+      "expected": [
+        {
+          "relationshipId": "rel_7Y1Y0Z51JTGRZ02BTV2K31ERNA",
+          "from": "char_4JVNDN6QW0BAFFV379AJJSMEPZ",
+          "to": "char_0PYVCG3ETXZ640BWJ5JMT6XXFZ",
+          "relationshipKind": "trust",
+          "status": "active",
+          "metrics": {
+            "trust": 0.25
+          },
+          "facets": [
+            "practical cooperation"
+          ],
+          "note": "An explicitly authored directed relationship.",
+          "time": {
+            "timeline": "main",
+            "tick": "0",
+            "order": "0"
+          },
+          "transitionId": "rt_5056RDC89GY3XZVQNGR110NMDB"
+        }
+      ]
+    },
+    {
+      "operation": "state",
+      "target": "char_62PCSFAX4YQE48JK476XKGG6B8",
+      "time": {
+        "timeline": "main",
+        "tick": "29",
+        "order": "2147483647"
+      },
+      "expected": {
+        "condition": "well",
+        "location": {
+          "entity": "loc_0708459BXR2PVVHA4VASXHB69C"
+        }
+      }
+    },
+    {
+      "operation": "knowledge",
+      "target": "char_62PCSFAX4YQE48JK476XKGG6B8",
+      "time": {
+        "timeline": "main",
+        "tick": "29",
+        "order": "2147483647"
+      },
+      "expected": [
+        {
+          "knowledgeId": "know_5WR6NRNE78SCKKZ0FPAEYR61T5",
+          "claimKey": "tideglass.ferry-suspension",
+          "statement": "The ferry remains suspended while repair and inspection are pending.",
+          "claim": {
+            "key": "tideglass.ferry-suspension",
+            "statement": "The ferry remains suspended while repair and inspection are pending.",
+            "truth": "true"
+          },
+          "state": "accepted",
+          "confidence": 0.95,
+          "acquisition": "observed",
+          "sourceEntityId": null,
+          "causingEventId": "event_63W6ZYRM67EZ5VAB3PR5R19TFC",
+          "note": null,
+          "time": {
+            "timeline": "main",
+            "tick": "10",
+            "order": "0"
+          },
+          "transitionId": "kt_4FHJGMDHETJQW76C7CDGD9ZGQ0"
+        }
+      ]
+    },
+    {
+      "operation": "relationships",
+      "target": "char_62PCSFAX4YQE48JK476XKGG6B8",
+      "time": {
+        "timeline": "main",
+        "tick": "29",
+        "order": "2147483647"
+      },
+      "expected": [
+        {
+          "relationshipId": "rel_4WEP0KV5C79HNMY7J2QTN67BY1",
+          "from": "char_62PCSFAX4YQE48JK476XKGG6B8",
+          "to": "char_6D246WN3J75HBRJJXGQ5H6QAD4",
+          "relationshipKind": "trust",
+          "status": "active",
+          "metrics": {
+            "trust": 0.5
+          },
+          "facets": [
+            "practical cooperation"
+          ],
+          "note": "An explicitly authored directed relationship.",
+          "time": {
+            "timeline": "main",
+            "tick": "0",
+            "order": "0"
+          },
+          "transitionId": "rt_35F8S0MR3A747JFRQ5XRMM3D9N"
+        }
+      ]
+    },
+    {
+      "operation": "state",
+      "target": "char_6D246WN3J75HBRJJXGQ5H6QAD4",
+      "time": {
+        "timeline": "main",
+        "tick": "29",
+        "order": "2147483647"
+      },
+      "expected": {
+        "condition": "well",
+        "location": {
+          "entity": "loc_2SYYRXM9AHJGKYKGG200TZV82Y"
+        }
+      }
+    },
+    {
+      "operation": "knowledge",
+      "target": "char_6D246WN3J75HBRJJXGQ5H6QAD4",
+      "time": {
+        "timeline": "main",
+        "tick": "29",
+        "order": "2147483647"
+      },
+      "expected": [
+        {
+          "knowledgeId": "know_0WYS8PMTPS0KNEX3SCQZ30E6JF",
+          "claimKey": "tideglass.log-discrepancy",
+          "statement": "Tideglass log discrepancy: an inspection note was copied into the completion column.",
+          "claim": {
+            "key": "tideglass.log-discrepancy",
+            "statement": "Tideglass log discrepancy: an inspection note was copied into the completion column.",
+            "truth": "true"
+          },
+          "state": "accepted",
+          "confidence": 0.95,
+          "acquisition": "read",
+          "sourceEntityId": null,
+          "causingEventId": "event_22CNFT9Q1FNTR7039D5A324D4X",
+          "note": null,
+          "time": {
+            "timeline": "main",
+            "tick": "20",
+            "order": "2"
+          },
+          "transitionId": "kt_7PS223KX8ND42PG1R2W497DKGS"
+        },
+        {
+          "knowledgeId": "know_0XNM8BDXPVH3XAEMC1STDN9VMB",
+          "claimKey": "tideglass.log-absence",
+          "statement": "No verified completion entry has been found at the quay.",
+          "claim": {
+            "key": "tideglass.log-absence",
+            "statement": "No verified completion entry has been found at the quay.",
+            "truth": "true"
+          },
+          "state": "accepted",
+          "confidence": 0.95,
+          "acquisition": "observed",
+          "sourceEntityId": null,
+          "causingEventId": "event_3M1TJPZ4845X2J6V5QASPFZK4G",
+          "note": null,
+          "time": {
+            "timeline": "main",
+            "tick": "20",
+            "order": "1"
+          },
+          "transitionId": "kt_1QT4HX8JTF8Y8NADXGBD4RDP45"
+        }
+      ]
+    },
+    {
+      "operation": "relationships",
+      "target": "char_6D246WN3J75HBRJJXGQ5H6QAD4",
+      "time": {
+        "timeline": "main",
+        "tick": "29",
+        "order": "2147483647"
+      },
+      "expected": [
+        {
+          "relationshipId": "rel_0Y5PE3MEG7ZK91Z24B1F6G1T31",
+          "from": "char_6D246WN3J75HBRJJXGQ5H6QAD4",
+          "to": "char_39E9EWWC017E40519033S4RW4X",
+          "relationshipKind": "trust",
+          "status": "active",
+          "metrics": {
+            "trust": 0.6
+          },
+          "facets": [
+            "practical cooperation"
+          ],
+          "note": "An explicitly authored directed relationship.",
+          "time": {
+            "timeline": "main",
+            "tick": "0",
+            "order": "0"
+          },
+          "transitionId": "rt_0T3YA92QQV3R10S7373QG3BBPJ"
+        }
+      ]
+    },
+    {
+      "operation": "state",
+      "target": "loc_0708459BXR2PVVHA4VASXHB69C",
+      "time": {
+        "timeline": "main",
+        "tick": "29",
+        "order": "2147483647"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "loc_117ZGNWJM0Y3N7CWER2H3XK722",
+      "time": {
+        "timeline": "main",
+        "tick": "29",
+        "order": "2147483647"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "loc_2DW2BZ5PN3XBMD2FWQA4Q61V1E",
+      "time": {
+        "timeline": "main",
+        "tick": "29",
+        "order": "2147483647"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "loc_2SYYRXM9AHJGKYKGG200TZV82Y",
+      "time": {
+        "timeline": "main",
+        "tick": "29",
+        "order": "2147483647"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "loc_3VDY39471DED5V26TEVYXMRQK3",
+      "time": {
+        "timeline": "main",
+        "tick": "29",
+        "order": "2147483647"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "loc_6ZT4TZRBGZTHMYVRDXV3HFTTPQ",
+      "time": {
+        "timeline": "main",
+        "tick": "29",
+        "order": "2147483647"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "loc_7F7G4Y2CZAD32HYW0B28N61Q72",
+      "time": {
+        "timeline": "main",
+        "tick": "29",
+        "order": "2147483647"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "obj_0NQWK9WPK4PSR5722YH0RJ89CH",
+      "time": {
+        "timeline": "main",
+        "tick": "29",
+        "order": "2147483647"
+      },
+      "expected": {
+        "condition": "legible",
+        "location": {
+          "entity": "loc_2SYYRXM9AHJGKYKGG200TZV82Y"
+        }
+      }
+    },
+    {
+      "operation": "state",
+      "target": "obj_13BZCJF8R08S5RSH4VRJXMA0YK",
+      "time": {
+        "timeline": "main",
+        "tick": "29",
+        "order": "2147483647"
+      },
+      "expected": {
+        "condition": "usable",
+        "holder": {
+          "entity": "char_62PCSFAX4YQE48JK476XKGG6B8"
+        }
+      }
+    },
+    {
+      "operation": "state",
+      "target": "obj_4C9HNZYKJG5QQ6DWTWDJ4NWJ8D",
+      "time": {
+        "timeline": "main",
+        "tick": "29",
+        "order": "2147483647"
+      },
+      "expected": {
+        "condition": "cracked",
+        "location": {
+          "entity": "loc_117ZGNWJM0Y3N7CWER2H3XK722"
+        }
+      }
+    },
+    {
+      "operation": "state",
+      "target": "obj_76VC9SVNSR7ASZK025X7PTRBJH",
+      "time": {
+        "timeline": "main",
+        "tick": "29",
+        "order": "2147483647"
+      },
+      "expected": {
+        "condition": "usable",
+        "holder": {
+          "entity": "char_0PYVCG3ETXZ640BWJ5JMT6XXFZ"
+        }
+      }
+    },
+    {
+      "operation": "state",
+      "target": "char_0PYVCG3ETXZ640BWJ5JMT6XXFZ",
+      "time": {
+        "timeline": "main",
+        "tick": "30",
+        "order": "0"
+      },
+      "expected": {
+        "condition": "well",
+        "location": {
+          "entity": "loc_117ZGNWJM0Y3N7CWER2H3XK722"
+        }
+      }
+    },
+    {
+      "operation": "knowledge",
+      "target": "char_0PYVCG3ETXZ640BWJ5JMT6XXFZ",
+      "time": {
+        "timeline": "main",
+        "tick": "30",
+        "order": "0"
+      },
+      "expected": [
+        {
+          "knowledgeId": "know_7EJZ8JXCFWVX6DEX37AY8N62KY",
+          "claimKey": "tideglass.repair-plan",
+          "statement": "The lens can be repaired at the workshop bench.",
+          "claim": {
+            "key": "tideglass.repair-plan",
+            "statement": "The lens can be repaired at the workshop bench.",
+            "truth": "true"
+          },
+          "state": "accepted",
+          "confidence": 0.95,
+          "acquisition": "observed",
+          "sourceEntityId": null,
+          "causingEventId": "event_7J9JDA9939Y1NJ08HZWE7RRCQE",
+          "note": null,
+          "time": {
+            "timeline": "main",
+            "tick": "20",
+            "order": "0"
+          },
+          "transitionId": "kt_6792BKRRHP3MS3FTKT03WTWJ8N"
+        }
+      ]
+    },
+    {
+      "operation": "relationships",
+      "target": "char_0PYVCG3ETXZ640BWJ5JMT6XXFZ",
+      "time": {
+        "timeline": "main",
+        "tick": "30",
+        "order": "0"
+      },
+      "expected": [
+        {
+          "relationshipId": "rel_4QMDM336YCMY6TT554VXDFQHPE",
+          "from": "char_0PYVCG3ETXZ640BWJ5JMT6XXFZ",
+          "to": "char_62PCSFAX4YQE48JK476XKGG6B8",
+          "relationshipKind": "obligation",
+          "status": "active",
+          "metrics": {
+            "obligation": 0.5
+          },
+          "facets": [
+            "practical cooperation"
+          ],
+          "note": "An explicitly authored directed relationship.",
+          "time": {
+            "timeline": "main",
+            "tick": "0",
+            "order": "0"
+          },
+          "transitionId": "rt_57YJEGEJFRNXN0AEHNV8N7G2F2"
+        }
+      ]
+    },
+    {
+      "operation": "state",
+      "target": "char_39E9EWWC017E40519033S4RW4X",
+      "time": {
+        "timeline": "main",
+        "tick": "30",
+        "order": "0"
+      },
+      "expected": {
+        "condition": "well",
+        "location": {
+          "entity": "loc_2SYYRXM9AHJGKYKGG200TZV82Y"
+        }
+      }
+    },
+    {
+      "operation": "knowledge",
+      "target": "char_39E9EWWC017E40519033S4RW4X",
+      "time": {
+        "timeline": "main",
+        "tick": "30",
+        "order": "0"
+      },
+      "expected": []
+    },
+    {
+      "operation": "relationships",
+      "target": "char_39E9EWWC017E40519033S4RW4X",
+      "time": {
+        "timeline": "main",
+        "tick": "30",
+        "order": "0"
+      },
+      "expected": []
+    },
+    {
+      "operation": "state",
+      "target": "char_46VTBJZ9TNMTF7G14N5GKYQ9C1",
+      "time": {
+        "timeline": "main",
+        "tick": "30",
+        "order": "0"
+      },
+      "expected": {
+        "condition": "well",
+        "location": {
+          "entity": "loc_6ZT4TZRBGZTHMYVRDXV3HFTTPQ"
+        }
+      }
+    },
+    {
+      "operation": "knowledge",
+      "target": "char_46VTBJZ9TNMTF7G14N5GKYQ9C1",
+      "time": {
+        "timeline": "main",
+        "tick": "30",
+        "order": "0"
+      },
+      "expected": []
+    },
+    {
+      "operation": "relationships",
+      "target": "char_46VTBJZ9TNMTF7G14N5GKYQ9C1",
+      "time": {
+        "timeline": "main",
+        "tick": "30",
+        "order": "0"
+      },
+      "expected": [
+        {
+          "relationshipId": "rel_600QPBZBZVZJ96C0YX59790KNM",
+          "from": "char_46VTBJZ9TNMTF7G14N5GKYQ9C1",
+          "to": "char_4JVNDN6QW0BAFFV379AJJSMEPZ",
+          "relationshipKind": "obligation",
+          "status": "active",
+          "metrics": {
+            "obligation": 0.4
+          },
+          "facets": [
+            "practical cooperation"
+          ],
+          "note": "An explicitly authored directed relationship.",
+          "time": {
+            "timeline": "main",
+            "tick": "0",
+            "order": "0"
+          },
+          "transitionId": "rt_58NT6688CRCAG8TJW8WHY85YMG"
+        }
+      ]
+    },
+    {
+      "operation": "state",
+      "target": "char_4JVNDN6QW0BAFFV379AJJSMEPZ",
+      "time": {
+        "timeline": "main",
+        "tick": "30",
+        "order": "0"
+      },
+      "expected": {
+        "condition": "well",
+        "location": {
+          "entity": "loc_117ZGNWJM0Y3N7CWER2H3XK722"
+        }
+      }
+    },
+    {
+      "operation": "knowledge",
+      "target": "char_4JVNDN6QW0BAFFV379AJJSMEPZ",
+      "time": {
+        "timeline": "main",
+        "tick": "30",
+        "order": "0"
+      },
+      "expected": [
+        {
+          "knowledgeId": "know_33RB1GJYPCGCPDA9KYT8GN4PN9",
+          "claimKey": "tideglass.storm-report",
+          "statement": "The storm cracked the signal lens.",
+          "claim": {
+            "key": "tideglass.storm-report",
+            "statement": "The storm cracked the signal lens.",
+            "truth": "true"
+          },
+          "state": "accepted",
+          "confidence": 0.95,
+          "acquisition": "observed",
+          "sourceEntityId": null,
+          "causingEventId": "event_63W6ZYRM67EZ5VAB3PR5R19TFC",
+          "note": null,
+          "time": {
+            "timeline": "main",
+            "tick": "10",
+            "order": "0"
+          },
+          "transitionId": "kt_7FHKDS8T8YSF0FBJQ7RS4PM7MY"
+        }
+      ]
+    },
+    {
+      "operation": "relationships",
+      "target": "char_4JVNDN6QW0BAFFV379AJJSMEPZ",
+      "time": {
+        "timeline": "main",
+        "tick": "30",
+        "order": "0"
+      },
+      "expected": [
+        {
+          "relationshipId": "rel_7Y1Y0Z51JTGRZ02BTV2K31ERNA",
+          "from": "char_4JVNDN6QW0BAFFV379AJJSMEPZ",
+          "to": "char_0PYVCG3ETXZ640BWJ5JMT6XXFZ",
+          "relationshipKind": "trust",
+          "status": "active",
+          "metrics": {
+            "trust": 0.75
+          },
+          "facets": [
+            "verified repair"
+          ],
+          "note": "Mina has verified Tavi's repair.",
+          "time": {
+            "timeline": "main",
+            "tick": "30",
+            "order": "0"
+          },
+          "transitionId": "rt_55469W4Z2JHVVJ4PQ3F9CTM3GR"
+        }
+      ]
+    },
+    {
+      "operation": "state",
+      "target": "char_62PCSFAX4YQE48JK476XKGG6B8",
+      "time": {
+        "timeline": "main",
+        "tick": "30",
+        "order": "0"
+      },
+      "expected": {
+        "condition": "well",
+        "location": {
+          "entity": "loc_0708459BXR2PVVHA4VASXHB69C"
+        }
+      }
+    },
+    {
+      "operation": "knowledge",
+      "target": "char_62PCSFAX4YQE48JK476XKGG6B8",
+      "time": {
+        "timeline": "main",
+        "tick": "30",
+        "order": "0"
+      },
+      "expected": [
+        {
+          "knowledgeId": "know_5WR6NRNE78SCKKZ0FPAEYR61T5",
+          "claimKey": "tideglass.ferry-suspension",
+          "statement": "The ferry remains suspended while repair and inspection are pending.",
+          "claim": {
+            "key": "tideglass.ferry-suspension",
+            "statement": "The ferry remains suspended while repair and inspection are pending.",
+            "truth": "true"
+          },
+          "state": "accepted",
+          "confidence": 0.95,
+          "acquisition": "observed",
+          "sourceEntityId": null,
+          "causingEventId": "event_63W6ZYRM67EZ5VAB3PR5R19TFC",
+          "note": null,
+          "time": {
+            "timeline": "main",
+            "tick": "10",
+            "order": "0"
+          },
+          "transitionId": "kt_4FHJGMDHETJQW76C7CDGD9ZGQ0"
+        }
+      ]
+    },
+    {
+      "operation": "relationships",
+      "target": "char_62PCSFAX4YQE48JK476XKGG6B8",
+      "time": {
+        "timeline": "main",
+        "tick": "30",
+        "order": "0"
+      },
+      "expected": [
+        {
+          "relationshipId": "rel_4WEP0KV5C79HNMY7J2QTN67BY1",
+          "from": "char_62PCSFAX4YQE48JK476XKGG6B8",
+          "to": "char_6D246WN3J75HBRJJXGQ5H6QAD4",
+          "relationshipKind": "trust",
+          "status": "active",
+          "metrics": {
+            "trust": 0.5
+          },
+          "facets": [
+            "practical cooperation"
+          ],
+          "note": "An explicitly authored directed relationship.",
+          "time": {
+            "timeline": "main",
+            "tick": "0",
+            "order": "0"
+          },
+          "transitionId": "rt_35F8S0MR3A747JFRQ5XRMM3D9N"
+        }
+      ]
+    },
+    {
+      "operation": "state",
+      "target": "char_6D246WN3J75HBRJJXGQ5H6QAD4",
+      "time": {
+        "timeline": "main",
+        "tick": "30",
+        "order": "0"
+      },
+      "expected": {
+        "condition": "well",
+        "location": {
+          "entity": "loc_2SYYRXM9AHJGKYKGG200TZV82Y"
+        }
+      }
+    },
+    {
+      "operation": "knowledge",
+      "target": "char_6D246WN3J75HBRJJXGQ5H6QAD4",
+      "time": {
+        "timeline": "main",
+        "tick": "30",
+        "order": "0"
+      },
+      "expected": [
+        {
+          "knowledgeId": "know_0WYS8PMTPS0KNEX3SCQZ30E6JF",
+          "claimKey": "tideglass.log-discrepancy",
+          "statement": "Tideglass log discrepancy: an inspection note was copied into the completion column.",
+          "claim": {
+            "key": "tideglass.log-discrepancy",
+            "statement": "Tideglass log discrepancy: an inspection note was copied into the completion column.",
+            "truth": "true"
+          },
+          "state": "accepted",
+          "confidence": 0.95,
+          "acquisition": "read",
+          "sourceEntityId": null,
+          "causingEventId": "event_22CNFT9Q1FNTR7039D5A324D4X",
+          "note": null,
+          "time": {
+            "timeline": "main",
+            "tick": "20",
+            "order": "2"
+          },
+          "transitionId": "kt_7PS223KX8ND42PG1R2W497DKGS"
+        },
+        {
+          "knowledgeId": "know_0XNM8BDXPVH3XAEMC1STDN9VMB",
+          "claimKey": "tideglass.log-absence",
+          "statement": "No verified completion entry has been found at the quay.",
+          "claim": {
+            "key": "tideglass.log-absence",
+            "statement": "No verified completion entry has been found at the quay.",
+            "truth": "true"
+          },
+          "state": "accepted",
+          "confidence": 0.95,
+          "acquisition": "observed",
+          "sourceEntityId": null,
+          "causingEventId": "event_3M1TJPZ4845X2J6V5QASPFZK4G",
+          "note": null,
+          "time": {
+            "timeline": "main",
+            "tick": "20",
+            "order": "1"
+          },
+          "transitionId": "kt_1QT4HX8JTF8Y8NADXGBD4RDP45"
+        }
+      ]
+    },
+    {
+      "operation": "relationships",
+      "target": "char_6D246WN3J75HBRJJXGQ5H6QAD4",
+      "time": {
+        "timeline": "main",
+        "tick": "30",
+        "order": "0"
+      },
+      "expected": [
+        {
+          "relationshipId": "rel_0Y5PE3MEG7ZK91Z24B1F6G1T31",
+          "from": "char_6D246WN3J75HBRJJXGQ5H6QAD4",
+          "to": "char_39E9EWWC017E40519033S4RW4X",
+          "relationshipKind": "trust",
+          "status": "active",
+          "metrics": {
+            "trust": 0.6
+          },
+          "facets": [
+            "practical cooperation"
+          ],
+          "note": "An explicitly authored directed relationship.",
+          "time": {
+            "timeline": "main",
+            "tick": "0",
+            "order": "0"
+          },
+          "transitionId": "rt_0T3YA92QQV3R10S7373QG3BBPJ"
+        }
+      ]
+    },
+    {
+      "operation": "state",
+      "target": "loc_0708459BXR2PVVHA4VASXHB69C",
+      "time": {
+        "timeline": "main",
+        "tick": "30",
+        "order": "0"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "loc_117ZGNWJM0Y3N7CWER2H3XK722",
+      "time": {
+        "timeline": "main",
+        "tick": "30",
+        "order": "0"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "loc_2DW2BZ5PN3XBMD2FWQA4Q61V1E",
+      "time": {
+        "timeline": "main",
+        "tick": "30",
+        "order": "0"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "loc_2SYYRXM9AHJGKYKGG200TZV82Y",
+      "time": {
+        "timeline": "main",
+        "tick": "30",
+        "order": "0"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "loc_3VDY39471DED5V26TEVYXMRQK3",
+      "time": {
+        "timeline": "main",
+        "tick": "30",
+        "order": "0"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "loc_6ZT4TZRBGZTHMYVRDXV3HFTTPQ",
+      "time": {
+        "timeline": "main",
+        "tick": "30",
+        "order": "0"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "loc_7F7G4Y2CZAD32HYW0B28N61Q72",
+      "time": {
+        "timeline": "main",
+        "tick": "30",
+        "order": "0"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "obj_0NQWK9WPK4PSR5722YH0RJ89CH",
+      "time": {
+        "timeline": "main",
+        "tick": "30",
+        "order": "0"
+      },
+      "expected": {
+        "condition": "legible",
+        "location": {
+          "entity": "loc_2SYYRXM9AHJGKYKGG200TZV82Y"
+        }
+      }
+    },
+    {
+      "operation": "state",
+      "target": "obj_13BZCJF8R08S5RSH4VRJXMA0YK",
+      "time": {
+        "timeline": "main",
+        "tick": "30",
+        "order": "0"
+      },
+      "expected": {
+        "condition": "usable",
+        "holder": {
+          "entity": "char_62PCSFAX4YQE48JK476XKGG6B8"
+        }
+      }
+    },
+    {
+      "operation": "state",
+      "target": "obj_4C9HNZYKJG5QQ6DWTWDJ4NWJ8D",
+      "time": {
+        "timeline": "main",
+        "tick": "30",
+        "order": "0"
+      },
+      "expected": {
+        "condition": "repaired",
+        "location": {
+          "entity": "loc_117ZGNWJM0Y3N7CWER2H3XK722"
+        }
+      }
+    },
+    {
+      "operation": "state",
+      "target": "obj_76VC9SVNSR7ASZK025X7PTRBJH",
+      "time": {
+        "timeline": "main",
+        "tick": "30",
+        "order": "0"
+      },
+      "expected": {
+        "condition": "usable",
+        "holder": {
+          "entity": "char_0PYVCG3ETXZ640BWJ5JMT6XXFZ"
+        }
+      }
+    },
+    {
+      "operation": "state",
+      "target": "char_0PYVCG3ETXZ640BWJ5JMT6XXFZ",
+      "time": {
+        "timeline": "main",
+        "tick": "39",
+        "order": "2147483647"
+      },
+      "expected": {
+        "condition": "well",
+        "location": {
+          "entity": "loc_7F7G4Y2CZAD32HYW0B28N61Q72"
+        }
+      }
+    },
+    {
+      "operation": "knowledge",
+      "target": "char_0PYVCG3ETXZ640BWJ5JMT6XXFZ",
+      "time": {
+        "timeline": "main",
+        "tick": "39",
+        "order": "2147483647"
+      },
+      "expected": [
+        {
+          "knowledgeId": "know_7EJZ8JXCFWVX6DEX37AY8N62KY",
+          "claimKey": "tideglass.repair-plan",
+          "statement": "The lens can be repaired at the workshop bench.",
+          "claim": {
+            "key": "tideglass.repair-plan",
+            "statement": "The lens can be repaired at the workshop bench.",
+            "truth": "true"
+          },
+          "state": "accepted",
+          "confidence": 0.95,
+          "acquisition": "observed",
+          "sourceEntityId": null,
+          "causingEventId": "event_7J9JDA9939Y1NJ08HZWE7RRCQE",
+          "note": null,
+          "time": {
+            "timeline": "main",
+            "tick": "20",
+            "order": "0"
+          },
+          "transitionId": "kt_6792BKRRHP3MS3FTKT03WTWJ8N"
+        }
+      ]
+    },
+    {
+      "operation": "relationships",
+      "target": "char_0PYVCG3ETXZ640BWJ5JMT6XXFZ",
+      "time": {
+        "timeline": "main",
+        "tick": "39",
+        "order": "2147483647"
+      },
+      "expected": [
+        {
+          "relationshipId": "rel_4QMDM336YCMY6TT554VXDFQHPE",
+          "from": "char_0PYVCG3ETXZ640BWJ5JMT6XXFZ",
+          "to": "char_62PCSFAX4YQE48JK476XKGG6B8",
+          "relationshipKind": "obligation",
+          "status": "active",
+          "metrics": {
+            "obligation": 0.5
+          },
+          "facets": [
+            "practical cooperation"
+          ],
+          "note": "An explicitly authored directed relationship.",
+          "time": {
+            "timeline": "main",
+            "tick": "0",
+            "order": "0"
+          },
+          "transitionId": "rt_57YJEGEJFRNXN0AEHNV8N7G2F2"
+        }
+      ]
+    },
+    {
+      "operation": "state",
+      "target": "char_39E9EWWC017E40519033S4RW4X",
+      "time": {
+        "timeline": "main",
+        "tick": "39",
+        "order": "2147483647"
+      },
+      "expected": {
+        "condition": "well",
+        "location": {
+          "entity": "loc_2SYYRXM9AHJGKYKGG200TZV82Y"
+        }
+      }
+    },
+    {
+      "operation": "knowledge",
+      "target": "char_39E9EWWC017E40519033S4RW4X",
+      "time": {
+        "timeline": "main",
+        "tick": "39",
+        "order": "2147483647"
+      },
+      "expected": []
+    },
+    {
+      "operation": "relationships",
+      "target": "char_39E9EWWC017E40519033S4RW4X",
+      "time": {
+        "timeline": "main",
+        "tick": "39",
+        "order": "2147483647"
+      },
+      "expected": []
+    },
+    {
+      "operation": "state",
+      "target": "char_46VTBJZ9TNMTF7G14N5GKYQ9C1",
+      "time": {
+        "timeline": "main",
+        "tick": "39",
+        "order": "2147483647"
+      },
+      "expected": {
+        "condition": "well",
+        "location": {
+          "entity": "loc_6ZT4TZRBGZTHMYVRDXV3HFTTPQ"
+        }
+      }
+    },
+    {
+      "operation": "knowledge",
+      "target": "char_46VTBJZ9TNMTF7G14N5GKYQ9C1",
+      "time": {
+        "timeline": "main",
+        "tick": "39",
+        "order": "2147483647"
+      },
+      "expected": []
+    },
+    {
+      "operation": "relationships",
+      "target": "char_46VTBJZ9TNMTF7G14N5GKYQ9C1",
+      "time": {
+        "timeline": "main",
+        "tick": "39",
+        "order": "2147483647"
+      },
+      "expected": [
+        {
+          "relationshipId": "rel_600QPBZBZVZJ96C0YX59790KNM",
+          "from": "char_46VTBJZ9TNMTF7G14N5GKYQ9C1",
+          "to": "char_4JVNDN6QW0BAFFV379AJJSMEPZ",
+          "relationshipKind": "obligation",
+          "status": "active",
+          "metrics": {
+            "obligation": 0.4
+          },
+          "facets": [
+            "practical cooperation"
+          ],
+          "note": "An explicitly authored directed relationship.",
+          "time": {
+            "timeline": "main",
+            "tick": "0",
+            "order": "0"
+          },
+          "transitionId": "rt_58NT6688CRCAG8TJW8WHY85YMG"
+        }
+      ]
+    },
+    {
+      "operation": "state",
+      "target": "char_4JVNDN6QW0BAFFV379AJJSMEPZ",
+      "time": {
+        "timeline": "main",
+        "tick": "39",
+        "order": "2147483647"
+      },
+      "expected": {
+        "condition": "well",
+        "location": {
+          "entity": "loc_117ZGNWJM0Y3N7CWER2H3XK722"
+        }
+      }
+    },
+    {
+      "operation": "knowledge",
+      "target": "char_4JVNDN6QW0BAFFV379AJJSMEPZ",
+      "time": {
+        "timeline": "main",
+        "tick": "39",
+        "order": "2147483647"
+      },
+      "expected": [
+        {
+          "knowledgeId": "know_33RB1GJYPCGCPDA9KYT8GN4PN9",
+          "claimKey": "tideglass.storm-report",
+          "statement": "The storm cracked the signal lens.",
+          "claim": {
+            "key": "tideglass.storm-report",
+            "statement": "The storm cracked the signal lens.",
+            "truth": "true"
+          },
+          "state": "accepted",
+          "confidence": 0.95,
+          "acquisition": "observed",
+          "sourceEntityId": null,
+          "causingEventId": "event_63W6ZYRM67EZ5VAB3PR5R19TFC",
+          "note": null,
+          "time": {
+            "timeline": "main",
+            "tick": "10",
+            "order": "0"
+          },
+          "transitionId": "kt_7FHKDS8T8YSF0FBJQ7RS4PM7MY"
+        }
+      ]
+    },
+    {
+      "operation": "relationships",
+      "target": "char_4JVNDN6QW0BAFFV379AJJSMEPZ",
+      "time": {
+        "timeline": "main",
+        "tick": "39",
+        "order": "2147483647"
+      },
+      "expected": [
+        {
+          "relationshipId": "rel_7Y1Y0Z51JTGRZ02BTV2K31ERNA",
+          "from": "char_4JVNDN6QW0BAFFV379AJJSMEPZ",
+          "to": "char_0PYVCG3ETXZ640BWJ5JMT6XXFZ",
+          "relationshipKind": "trust",
+          "status": "active",
+          "metrics": {
+            "trust": 0.75
+          },
+          "facets": [
+            "verified repair"
+          ],
+          "note": "Mina has verified Tavi's repair.",
+          "time": {
+            "timeline": "main",
+            "tick": "30",
+            "order": "0"
+          },
+          "transitionId": "rt_55469W4Z2JHVVJ4PQ3F9CTM3GR"
+        }
+      ]
+    },
+    {
+      "operation": "state",
+      "target": "char_62PCSFAX4YQE48JK476XKGG6B8",
+      "time": {
+        "timeline": "main",
+        "tick": "39",
+        "order": "2147483647"
+      },
+      "expected": {
+        "condition": "well",
+        "location": {
+          "entity": "loc_7F7G4Y2CZAD32HYW0B28N61Q72"
+        }
+      }
+    },
+    {
+      "operation": "knowledge",
+      "target": "char_62PCSFAX4YQE48JK476XKGG6B8",
+      "time": {
+        "timeline": "main",
+        "tick": "39",
+        "order": "2147483647"
+      },
+      "expected": [
+        {
+          "knowledgeId": "know_5WR6NRNE78SCKKZ0FPAEYR61T5",
+          "claimKey": "tideglass.ferry-suspension",
+          "statement": "The ferry remains suspended while repair and inspection are pending.",
+          "claim": {
+            "key": "tideglass.ferry-suspension",
+            "statement": "The ferry remains suspended while repair and inspection are pending.",
+            "truth": "true"
+          },
+          "state": "accepted",
+          "confidence": 0.95,
+          "acquisition": "observed",
+          "sourceEntityId": null,
+          "causingEventId": "event_63W6ZYRM67EZ5VAB3PR5R19TFC",
+          "note": null,
+          "time": {
+            "timeline": "main",
+            "tick": "10",
+            "order": "0"
+          },
+          "transitionId": "kt_4FHJGMDHETJQW76C7CDGD9ZGQ0"
+        }
+      ]
+    },
+    {
+      "operation": "relationships",
+      "target": "char_62PCSFAX4YQE48JK476XKGG6B8",
+      "time": {
+        "timeline": "main",
+        "tick": "39",
+        "order": "2147483647"
+      },
+      "expected": [
+        {
+          "relationshipId": "rel_4WEP0KV5C79HNMY7J2QTN67BY1",
+          "from": "char_62PCSFAX4YQE48JK476XKGG6B8",
+          "to": "char_6D246WN3J75HBRJJXGQ5H6QAD4",
+          "relationshipKind": "trust",
+          "status": "active",
+          "metrics": {
+            "trust": 0.5
+          },
+          "facets": [
+            "practical cooperation"
+          ],
+          "note": "An explicitly authored directed relationship.",
+          "time": {
+            "timeline": "main",
+            "tick": "0",
+            "order": "0"
+          },
+          "transitionId": "rt_35F8S0MR3A747JFRQ5XRMM3D9N"
+        }
+      ]
+    },
+    {
+      "operation": "state",
+      "target": "char_6D246WN3J75HBRJJXGQ5H6QAD4",
+      "time": {
+        "timeline": "main",
+        "tick": "39",
+        "order": "2147483647"
+      },
+      "expected": {
+        "condition": "well",
+        "location": {
+          "entity": "loc_2SYYRXM9AHJGKYKGG200TZV82Y"
+        }
+      }
+    },
+    {
+      "operation": "knowledge",
+      "target": "char_6D246WN3J75HBRJJXGQ5H6QAD4",
+      "time": {
+        "timeline": "main",
+        "tick": "39",
+        "order": "2147483647"
+      },
+      "expected": [
+        {
+          "knowledgeId": "know_0WYS8PMTPS0KNEX3SCQZ30E6JF",
+          "claimKey": "tideglass.log-discrepancy",
+          "statement": "Tideglass log discrepancy: an inspection note was copied into the completion column.",
+          "claim": {
+            "key": "tideglass.log-discrepancy",
+            "statement": "Tideglass log discrepancy: an inspection note was copied into the completion column.",
+            "truth": "true"
+          },
+          "state": "accepted",
+          "confidence": 0.95,
+          "acquisition": "read",
+          "sourceEntityId": null,
+          "causingEventId": "event_22CNFT9Q1FNTR7039D5A324D4X",
+          "note": null,
+          "time": {
+            "timeline": "main",
+            "tick": "20",
+            "order": "2"
+          },
+          "transitionId": "kt_7PS223KX8ND42PG1R2W497DKGS"
+        },
+        {
+          "knowledgeId": "know_0XNM8BDXPVH3XAEMC1STDN9VMB",
+          "claimKey": "tideglass.log-absence",
+          "statement": "No verified completion entry has been found at the quay.",
+          "claim": {
+            "key": "tideglass.log-absence",
+            "statement": "No verified completion entry has been found at the quay.",
+            "truth": "true"
+          },
+          "state": "accepted",
+          "confidence": 0.95,
+          "acquisition": "observed",
+          "sourceEntityId": null,
+          "causingEventId": "event_3M1TJPZ4845X2J6V5QASPFZK4G",
+          "note": null,
+          "time": {
+            "timeline": "main",
+            "tick": "20",
+            "order": "1"
+          },
+          "transitionId": "kt_1QT4HX8JTF8Y8NADXGBD4RDP45"
+        }
+      ]
+    },
+    {
+      "operation": "relationships",
+      "target": "char_6D246WN3J75HBRJJXGQ5H6QAD4",
+      "time": {
+        "timeline": "main",
+        "tick": "39",
+        "order": "2147483647"
+      },
+      "expected": [
+        {
+          "relationshipId": "rel_0Y5PE3MEG7ZK91Z24B1F6G1T31",
+          "from": "char_6D246WN3J75HBRJJXGQ5H6QAD4",
+          "to": "char_39E9EWWC017E40519033S4RW4X",
+          "relationshipKind": "trust",
+          "status": "active",
+          "metrics": {
+            "trust": 0.6
+          },
+          "facets": [
+            "practical cooperation"
+          ],
+          "note": "An explicitly authored directed relationship.",
+          "time": {
+            "timeline": "main",
+            "tick": "0",
+            "order": "0"
+          },
+          "transitionId": "rt_0T3YA92QQV3R10S7373QG3BBPJ"
+        }
+      ]
+    },
+    {
+      "operation": "state",
+      "target": "loc_0708459BXR2PVVHA4VASXHB69C",
+      "time": {
+        "timeline": "main",
+        "tick": "39",
+        "order": "2147483647"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "loc_117ZGNWJM0Y3N7CWER2H3XK722",
+      "time": {
+        "timeline": "main",
+        "tick": "39",
+        "order": "2147483647"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "loc_2DW2BZ5PN3XBMD2FWQA4Q61V1E",
+      "time": {
+        "timeline": "main",
+        "tick": "39",
+        "order": "2147483647"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "loc_2SYYRXM9AHJGKYKGG200TZV82Y",
+      "time": {
+        "timeline": "main",
+        "tick": "39",
+        "order": "2147483647"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "loc_3VDY39471DED5V26TEVYXMRQK3",
+      "time": {
+        "timeline": "main",
+        "tick": "39",
+        "order": "2147483647"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "loc_6ZT4TZRBGZTHMYVRDXV3HFTTPQ",
+      "time": {
+        "timeline": "main",
+        "tick": "39",
+        "order": "2147483647"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "loc_7F7G4Y2CZAD32HYW0B28N61Q72",
+      "time": {
+        "timeline": "main",
+        "tick": "39",
+        "order": "2147483647"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "obj_0NQWK9WPK4PSR5722YH0RJ89CH",
+      "time": {
+        "timeline": "main",
+        "tick": "39",
+        "order": "2147483647"
+      },
+      "expected": {
+        "condition": "legible",
+        "location": {
+          "entity": "loc_2SYYRXM9AHJGKYKGG200TZV82Y"
+        }
+      }
+    },
+    {
+      "operation": "state",
+      "target": "obj_13BZCJF8R08S5RSH4VRJXMA0YK",
+      "time": {
+        "timeline": "main",
+        "tick": "39",
+        "order": "2147483647"
+      },
+      "expected": {
+        "condition": "usable",
+        "holder": {
+          "entity": "char_62PCSFAX4YQE48JK476XKGG6B8"
+        }
+      }
+    },
+    {
+      "operation": "state",
+      "target": "obj_4C9HNZYKJG5QQ6DWTWDJ4NWJ8D",
+      "time": {
+        "timeline": "main",
+        "tick": "39",
+        "order": "2147483647"
+      },
+      "expected": {
+        "condition": "repaired",
+        "location": {
+          "entity": "loc_117ZGNWJM0Y3N7CWER2H3XK722"
+        }
+      }
+    },
+    {
+      "operation": "state",
+      "target": "obj_76VC9SVNSR7ASZK025X7PTRBJH",
+      "time": {
+        "timeline": "main",
+        "tick": "39",
+        "order": "2147483647"
+      },
+      "expected": {
+        "condition": "usable",
+        "holder": {
+          "entity": "char_0PYVCG3ETXZ640BWJ5JMT6XXFZ"
+        }
+      }
+    },
+    {
+      "operation": "state",
+      "target": "char_0PYVCG3ETXZ640BWJ5JMT6XXFZ",
+      "time": {
+        "timeline": "main",
+        "tick": "40",
+        "order": "0"
+      },
+      "expected": {
+        "condition": "well",
+        "location": {
+          "entity": "loc_6ZT4TZRBGZTHMYVRDXV3HFTTPQ"
+        }
+      }
+    },
+    {
+      "operation": "knowledge",
+      "target": "char_0PYVCG3ETXZ640BWJ5JMT6XXFZ",
+      "time": {
+        "timeline": "main",
+        "tick": "40",
+        "order": "0"
+      },
+      "expected": [
+        {
+          "knowledgeId": "know_7EJZ8JXCFWVX6DEX37AY8N62KY",
+          "claimKey": "tideglass.repair-plan",
+          "statement": "The lens can be repaired at the workshop bench.",
+          "claim": {
+            "key": "tideglass.repair-plan",
+            "statement": "The lens can be repaired at the workshop bench.",
+            "truth": "true"
+          },
+          "state": "accepted",
+          "confidence": 0.95,
+          "acquisition": "observed",
+          "sourceEntityId": null,
+          "causingEventId": "event_7J9JDA9939Y1NJ08HZWE7RRCQE",
+          "note": null,
+          "time": {
+            "timeline": "main",
+            "tick": "20",
+            "order": "0"
+          },
+          "transitionId": "kt_6792BKRRHP3MS3FTKT03WTWJ8N"
+        }
+      ]
+    },
+    {
+      "operation": "relationships",
+      "target": "char_0PYVCG3ETXZ640BWJ5JMT6XXFZ",
+      "time": {
+        "timeline": "main",
+        "tick": "40",
+        "order": "0"
+      },
+      "expected": [
+        {
+          "relationshipId": "rel_4QMDM336YCMY6TT554VXDFQHPE",
+          "from": "char_0PYVCG3ETXZ640BWJ5JMT6XXFZ",
+          "to": "char_62PCSFAX4YQE48JK476XKGG6B8",
+          "relationshipKind": "obligation",
+          "status": "active",
+          "metrics": {
+            "obligation": 0.5
+          },
+          "facets": [
+            "practical cooperation"
+          ],
+          "note": "An explicitly authored directed relationship.",
+          "time": {
+            "timeline": "main",
+            "tick": "0",
+            "order": "0"
+          },
+          "transitionId": "rt_57YJEGEJFRNXN0AEHNV8N7G2F2"
+        }
+      ]
+    },
+    {
+      "operation": "state",
+      "target": "char_39E9EWWC017E40519033S4RW4X",
+      "time": {
+        "timeline": "main",
+        "tick": "40",
+        "order": "0"
+      },
+      "expected": {
+        "condition": "well",
+        "location": {
+          "entity": "loc_2SYYRXM9AHJGKYKGG200TZV82Y"
+        }
+      }
+    },
+    {
+      "operation": "knowledge",
+      "target": "char_39E9EWWC017E40519033S4RW4X",
+      "time": {
+        "timeline": "main",
+        "tick": "40",
+        "order": "0"
+      },
+      "expected": []
+    },
+    {
+      "operation": "relationships",
+      "target": "char_39E9EWWC017E40519033S4RW4X",
+      "time": {
+        "timeline": "main",
+        "tick": "40",
+        "order": "0"
+      },
+      "expected": []
+    },
+    {
+      "operation": "state",
+      "target": "char_46VTBJZ9TNMTF7G14N5GKYQ9C1",
+      "time": {
+        "timeline": "main",
+        "tick": "40",
+        "order": "0"
+      },
+      "expected": {
+        "condition": "well",
+        "location": {
+          "entity": "loc_6ZT4TZRBGZTHMYVRDXV3HFTTPQ"
+        }
+      }
+    },
+    {
+      "operation": "knowledge",
+      "target": "char_46VTBJZ9TNMTF7G14N5GKYQ9C1",
+      "time": {
+        "timeline": "main",
+        "tick": "40",
+        "order": "0"
+      },
+      "expected": []
+    },
+    {
+      "operation": "relationships",
+      "target": "char_46VTBJZ9TNMTF7G14N5GKYQ9C1",
+      "time": {
+        "timeline": "main",
+        "tick": "40",
+        "order": "0"
+      },
+      "expected": [
+        {
+          "relationshipId": "rel_600QPBZBZVZJ96C0YX59790KNM",
+          "from": "char_46VTBJZ9TNMTF7G14N5GKYQ9C1",
+          "to": "char_4JVNDN6QW0BAFFV379AJJSMEPZ",
+          "relationshipKind": "obligation",
+          "status": "active",
+          "metrics": {
+            "obligation": 0.4
+          },
+          "facets": [
+            "practical cooperation"
+          ],
+          "note": "An explicitly authored directed relationship.",
+          "time": {
+            "timeline": "main",
+            "tick": "0",
+            "order": "0"
+          },
+          "transitionId": "rt_58NT6688CRCAG8TJW8WHY85YMG"
+        }
+      ]
+    },
+    {
+      "operation": "state",
+      "target": "char_4JVNDN6QW0BAFFV379AJJSMEPZ",
+      "time": {
+        "timeline": "main",
+        "tick": "40",
+        "order": "0"
+      },
+      "expected": {
+        "condition": "well",
+        "location": {
+          "entity": "loc_6ZT4TZRBGZTHMYVRDXV3HFTTPQ"
+        }
+      }
+    },
+    {
+      "operation": "knowledge",
+      "target": "char_4JVNDN6QW0BAFFV379AJJSMEPZ",
+      "time": {
+        "timeline": "main",
+        "tick": "40",
+        "order": "0"
+      },
+      "expected": [
+        {
+          "knowledgeId": "know_33RB1GJYPCGCPDA9KYT8GN4PN9",
+          "claimKey": "tideglass.storm-report",
+          "statement": "The storm cracked the signal lens.",
+          "claim": {
+            "key": "tideglass.storm-report",
+            "statement": "The storm cracked the signal lens.",
+            "truth": "true"
+          },
+          "state": "accepted",
+          "confidence": 0.95,
+          "acquisition": "observed",
+          "sourceEntityId": null,
+          "causingEventId": "event_63W6ZYRM67EZ5VAB3PR5R19TFC",
+          "note": null,
+          "time": {
+            "timeline": "main",
+            "tick": "10",
+            "order": "0"
+          },
+          "transitionId": "kt_7FHKDS8T8YSF0FBJQ7RS4PM7MY"
+        }
+      ]
+    },
+    {
+      "operation": "relationships",
+      "target": "char_4JVNDN6QW0BAFFV379AJJSMEPZ",
+      "time": {
+        "timeline": "main",
+        "tick": "40",
+        "order": "0"
+      },
+      "expected": [
+        {
+          "relationshipId": "rel_7Y1Y0Z51JTGRZ02BTV2K31ERNA",
+          "from": "char_4JVNDN6QW0BAFFV379AJJSMEPZ",
+          "to": "char_0PYVCG3ETXZ640BWJ5JMT6XXFZ",
+          "relationshipKind": "trust",
+          "status": "active",
+          "metrics": {
+            "trust": 0.75
+          },
+          "facets": [
+            "verified repair"
+          ],
+          "note": "Mina has verified Tavi's repair.",
+          "time": {
+            "timeline": "main",
+            "tick": "30",
+            "order": "0"
+          },
+          "transitionId": "rt_55469W4Z2JHVVJ4PQ3F9CTM3GR"
+        }
+      ]
+    },
+    {
+      "operation": "state",
+      "target": "char_62PCSFAX4YQE48JK476XKGG6B8",
+      "time": {
+        "timeline": "main",
+        "tick": "40",
+        "order": "0"
+      },
+      "expected": {
+        "condition": "well",
+        "location": {
+          "entity": "loc_7F7G4Y2CZAD32HYW0B28N61Q72"
+        }
+      }
+    },
+    {
+      "operation": "knowledge",
+      "target": "char_62PCSFAX4YQE48JK476XKGG6B8",
+      "time": {
+        "timeline": "main",
+        "tick": "40",
+        "order": "0"
+      },
+      "expected": [
+        {
+          "knowledgeId": "know_5WR6NRNE78SCKKZ0FPAEYR61T5",
+          "claimKey": "tideglass.ferry-suspension",
+          "statement": "The ferry remains suspended while repair and inspection are pending.",
+          "claim": {
+            "key": "tideglass.ferry-suspension",
+            "statement": "The ferry remains suspended while repair and inspection are pending.",
+            "truth": "true"
+          },
+          "state": "accepted",
+          "confidence": 0.95,
+          "acquisition": "observed",
+          "sourceEntityId": null,
+          "causingEventId": "event_63W6ZYRM67EZ5VAB3PR5R19TFC",
+          "note": null,
+          "time": {
+            "timeline": "main",
+            "tick": "10",
+            "order": "0"
+          },
+          "transitionId": "kt_4FHJGMDHETJQW76C7CDGD9ZGQ0"
+        }
+      ]
+    },
+    {
+      "operation": "relationships",
+      "target": "char_62PCSFAX4YQE48JK476XKGG6B8",
+      "time": {
+        "timeline": "main",
+        "tick": "40",
+        "order": "0"
+      },
+      "expected": [
+        {
+          "relationshipId": "rel_4WEP0KV5C79HNMY7J2QTN67BY1",
+          "from": "char_62PCSFAX4YQE48JK476XKGG6B8",
+          "to": "char_6D246WN3J75HBRJJXGQ5H6QAD4",
+          "relationshipKind": "trust",
+          "status": "active",
+          "metrics": {
+            "trust": 0.5
+          },
+          "facets": [
+            "practical cooperation"
+          ],
+          "note": "An explicitly authored directed relationship.",
+          "time": {
+            "timeline": "main",
+            "tick": "0",
+            "order": "0"
+          },
+          "transitionId": "rt_35F8S0MR3A747JFRQ5XRMM3D9N"
+        }
+      ]
+    },
+    {
+      "operation": "state",
+      "target": "char_6D246WN3J75HBRJJXGQ5H6QAD4",
+      "time": {
+        "timeline": "main",
+        "tick": "40",
+        "order": "0"
+      },
+      "expected": {
+        "condition": "well",
+        "location": {
+          "entity": "loc_2SYYRXM9AHJGKYKGG200TZV82Y"
+        }
+      }
+    },
+    {
+      "operation": "knowledge",
+      "target": "char_6D246WN3J75HBRJJXGQ5H6QAD4",
+      "time": {
+        "timeline": "main",
+        "tick": "40",
+        "order": "0"
+      },
+      "expected": [
+        {
+          "knowledgeId": "know_0WYS8PMTPS0KNEX3SCQZ30E6JF",
+          "claimKey": "tideglass.log-discrepancy",
+          "statement": "Tideglass log discrepancy: an inspection note was copied into the completion column.",
+          "claim": {
+            "key": "tideglass.log-discrepancy",
+            "statement": "Tideglass log discrepancy: an inspection note was copied into the completion column.",
+            "truth": "true"
+          },
+          "state": "accepted",
+          "confidence": 0.95,
+          "acquisition": "read",
+          "sourceEntityId": null,
+          "causingEventId": "event_22CNFT9Q1FNTR7039D5A324D4X",
+          "note": null,
+          "time": {
+            "timeline": "main",
+            "tick": "20",
+            "order": "2"
+          },
+          "transitionId": "kt_7PS223KX8ND42PG1R2W497DKGS"
+        },
+        {
+          "knowledgeId": "know_0XNM8BDXPVH3XAEMC1STDN9VMB",
+          "claimKey": "tideglass.log-absence",
+          "statement": "No verified completion entry has been found at the quay.",
+          "claim": {
+            "key": "tideglass.log-absence",
+            "statement": "No verified completion entry has been found at the quay.",
+            "truth": "true"
+          },
+          "state": "accepted",
+          "confidence": 0.95,
+          "acquisition": "observed",
+          "sourceEntityId": null,
+          "causingEventId": "event_3M1TJPZ4845X2J6V5QASPFZK4G",
+          "note": null,
+          "time": {
+            "timeline": "main",
+            "tick": "20",
+            "order": "1"
+          },
+          "transitionId": "kt_1QT4HX8JTF8Y8NADXGBD4RDP45"
+        }
+      ]
+    },
+    {
+      "operation": "relationships",
+      "target": "char_6D246WN3J75HBRJJXGQ5H6QAD4",
+      "time": {
+        "timeline": "main",
+        "tick": "40",
+        "order": "0"
+      },
+      "expected": [
+        {
+          "relationshipId": "rel_0Y5PE3MEG7ZK91Z24B1F6G1T31",
+          "from": "char_6D246WN3J75HBRJJXGQ5H6QAD4",
+          "to": "char_39E9EWWC017E40519033S4RW4X",
+          "relationshipKind": "trust",
+          "status": "active",
+          "metrics": {
+            "trust": 0.6
+          },
+          "facets": [
+            "practical cooperation"
+          ],
+          "note": "An explicitly authored directed relationship.",
+          "time": {
+            "timeline": "main",
+            "tick": "0",
+            "order": "0"
+          },
+          "transitionId": "rt_0T3YA92QQV3R10S7373QG3BBPJ"
+        }
+      ]
+    },
+    {
+      "operation": "state",
+      "target": "loc_0708459BXR2PVVHA4VASXHB69C",
+      "time": {
+        "timeline": "main",
+        "tick": "40",
+        "order": "0"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "loc_117ZGNWJM0Y3N7CWER2H3XK722",
+      "time": {
+        "timeline": "main",
+        "tick": "40",
+        "order": "0"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "loc_2DW2BZ5PN3XBMD2FWQA4Q61V1E",
+      "time": {
+        "timeline": "main",
+        "tick": "40",
+        "order": "0"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "loc_2SYYRXM9AHJGKYKGG200TZV82Y",
+      "time": {
+        "timeline": "main",
+        "tick": "40",
+        "order": "0"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "loc_3VDY39471DED5V26TEVYXMRQK3",
+      "time": {
+        "timeline": "main",
+        "tick": "40",
+        "order": "0"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "loc_6ZT4TZRBGZTHMYVRDXV3HFTTPQ",
+      "time": {
+        "timeline": "main",
+        "tick": "40",
+        "order": "0"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "loc_7F7G4Y2CZAD32HYW0B28N61Q72",
+      "time": {
+        "timeline": "main",
+        "tick": "40",
+        "order": "0"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "obj_0NQWK9WPK4PSR5722YH0RJ89CH",
+      "time": {
+        "timeline": "main",
+        "tick": "40",
+        "order": "0"
+      },
+      "expected": {
+        "condition": "legible",
+        "location": {
+          "entity": "loc_2SYYRXM9AHJGKYKGG200TZV82Y"
+        }
+      }
+    },
+    {
+      "operation": "state",
+      "target": "obj_13BZCJF8R08S5RSH4VRJXMA0YK",
+      "time": {
+        "timeline": "main",
+        "tick": "40",
+        "order": "0"
+      },
+      "expected": {
+        "condition": "usable",
+        "holder": {
+          "entity": "char_62PCSFAX4YQE48JK476XKGG6B8"
+        }
+      }
+    },
+    {
+      "operation": "state",
+      "target": "obj_4C9HNZYKJG5QQ6DWTWDJ4NWJ8D",
+      "time": {
+        "timeline": "main",
+        "tick": "40",
+        "order": "0"
+      },
+      "expected": {
+        "condition": "repaired",
+        "location": {
+          "entity": "loc_6ZT4TZRBGZTHMYVRDXV3HFTTPQ"
+        }
+      }
+    },
+    {
+      "operation": "state",
+      "target": "obj_76VC9SVNSR7ASZK025X7PTRBJH",
+      "time": {
+        "timeline": "main",
+        "tick": "40",
+        "order": "0"
+      },
+      "expected": {
+        "condition": "usable",
+        "holder": {
+          "entity": "char_0PYVCG3ETXZ640BWJ5JMT6XXFZ"
+        }
+      }
+    },
+    {
+      "operation": "state",
+      "target": "char_0PYVCG3ETXZ640BWJ5JMT6XXFZ",
+      "time": {
+        "timeline": "main",
+        "tick": "40",
+        "order": "1"
+      },
+      "expected": {
+        "condition": "well",
+        "location": {
+          "entity": "loc_6ZT4TZRBGZTHMYVRDXV3HFTTPQ"
+        }
+      }
+    },
+    {
+      "operation": "knowledge",
+      "target": "char_0PYVCG3ETXZ640BWJ5JMT6XXFZ",
+      "time": {
+        "timeline": "main",
+        "tick": "40",
+        "order": "1"
+      },
+      "expected": [
+        {
+          "knowledgeId": "know_7EJZ8JXCFWVX6DEX37AY8N62KY",
+          "claimKey": "tideglass.repair-plan",
+          "statement": "The lens can be repaired at the workshop bench.",
+          "claim": {
+            "key": "tideglass.repair-plan",
+            "statement": "The lens can be repaired at the workshop bench.",
+            "truth": "true"
+          },
+          "state": "accepted",
+          "confidence": 0.95,
+          "acquisition": "observed",
+          "sourceEntityId": null,
+          "causingEventId": "event_7J9JDA9939Y1NJ08HZWE7RRCQE",
+          "note": null,
+          "time": {
+            "timeline": "main",
+            "tick": "20",
+            "order": "0"
+          },
+          "transitionId": "kt_6792BKRRHP3MS3FTKT03WTWJ8N"
+        }
+      ]
+    },
+    {
+      "operation": "relationships",
+      "target": "char_0PYVCG3ETXZ640BWJ5JMT6XXFZ",
+      "time": {
+        "timeline": "main",
+        "tick": "40",
+        "order": "1"
+      },
+      "expected": [
+        {
+          "relationshipId": "rel_4QMDM336YCMY6TT554VXDFQHPE",
+          "from": "char_0PYVCG3ETXZ640BWJ5JMT6XXFZ",
+          "to": "char_62PCSFAX4YQE48JK476XKGG6B8",
+          "relationshipKind": "obligation",
+          "status": "active",
+          "metrics": {
+            "obligation": 0.5
+          },
+          "facets": [
+            "practical cooperation"
+          ],
+          "note": "An explicitly authored directed relationship.",
+          "time": {
+            "timeline": "main",
+            "tick": "0",
+            "order": "0"
+          },
+          "transitionId": "rt_57YJEGEJFRNXN0AEHNV8N7G2F2"
+        }
+      ]
+    },
+    {
+      "operation": "state",
+      "target": "char_39E9EWWC017E40519033S4RW4X",
+      "time": {
+        "timeline": "main",
+        "tick": "40",
+        "order": "1"
+      },
+      "expected": {
+        "condition": "well",
+        "location": {
+          "entity": "loc_2SYYRXM9AHJGKYKGG200TZV82Y"
+        }
+      }
+    },
+    {
+      "operation": "knowledge",
+      "target": "char_39E9EWWC017E40519033S4RW4X",
+      "time": {
+        "timeline": "main",
+        "tick": "40",
+        "order": "1"
+      },
+      "expected": []
+    },
+    {
+      "operation": "relationships",
+      "target": "char_39E9EWWC017E40519033S4RW4X",
+      "time": {
+        "timeline": "main",
+        "tick": "40",
+        "order": "1"
+      },
+      "expected": []
+    },
+    {
+      "operation": "state",
+      "target": "char_46VTBJZ9TNMTF7G14N5GKYQ9C1",
+      "time": {
+        "timeline": "main",
+        "tick": "40",
+        "order": "1"
+      },
+      "expected": {
+        "condition": "well",
+        "location": {
+          "entity": "loc_3VDY39471DED5V26TEVYXMRQK3"
+        }
+      }
+    },
+    {
+      "operation": "knowledge",
+      "target": "char_46VTBJZ9TNMTF7G14N5GKYQ9C1",
+      "time": {
+        "timeline": "main",
+        "tick": "40",
+        "order": "1"
+      },
+      "expected": [
+        {
+          "knowledgeId": "know_16HV4MMSQFV7RVFESSE8GQEKJ0",
+          "claimKey": "tideglass.return-authorized",
+          "statement": "Tideglass return authorization: Cora has authorized ferry service after the recorded checks.",
+          "claim": {
+            "key": "tideglass.return-authorized",
+            "statement": "Tideglass return authorization: Cora has authorized ferry service after the recorded checks.",
+            "truth": "true"
+          },
+          "state": "accepted",
+          "confidence": 0.95,
+          "acquisition": "observed",
+          "sourceEntityId": null,
+          "causingEventId": "event_6FTMM1W0HX7G8HNWA313JBD2XE",
+          "note": null,
+          "time": {
+            "timeline": "main",
+            "tick": "40",
+            "order": "1"
+          },
+          "transitionId": "kt_5SXMW9SXK7E163KK98M2N14PQM"
+        }
+      ]
+    },
+    {
+      "operation": "relationships",
+      "target": "char_46VTBJZ9TNMTF7G14N5GKYQ9C1",
+      "time": {
+        "timeline": "main",
+        "tick": "40",
+        "order": "1"
+      },
+      "expected": [
+        {
+          "relationshipId": "rel_600QPBZBZVZJ96C0YX59790KNM",
+          "from": "char_46VTBJZ9TNMTF7G14N5GKYQ9C1",
+          "to": "char_4JVNDN6QW0BAFFV379AJJSMEPZ",
+          "relationshipKind": "obligation",
+          "status": "active",
+          "metrics": {
+            "obligation": 0.4
+          },
+          "facets": [
+            "practical cooperation"
+          ],
+          "note": "An explicitly authored directed relationship.",
+          "time": {
+            "timeline": "main",
+            "tick": "0",
+            "order": "0"
+          },
+          "transitionId": "rt_58NT6688CRCAG8TJW8WHY85YMG"
+        }
+      ]
+    },
+    {
+      "operation": "state",
+      "target": "char_4JVNDN6QW0BAFFV379AJJSMEPZ",
+      "time": {
+        "timeline": "main",
+        "tick": "40",
+        "order": "1"
+      },
+      "expected": {
+        "condition": "well",
+        "location": {
+          "entity": "loc_6ZT4TZRBGZTHMYVRDXV3HFTTPQ"
+        }
+      }
+    },
+    {
+      "operation": "knowledge",
+      "target": "char_4JVNDN6QW0BAFFV379AJJSMEPZ",
+      "time": {
+        "timeline": "main",
+        "tick": "40",
+        "order": "1"
+      },
+      "expected": [
+        {
+          "knowledgeId": "know_33RB1GJYPCGCPDA9KYT8GN4PN9",
+          "claimKey": "tideglass.storm-report",
+          "statement": "The storm cracked the signal lens.",
+          "claim": {
+            "key": "tideglass.storm-report",
+            "statement": "The storm cracked the signal lens.",
+            "truth": "true"
+          },
+          "state": "accepted",
+          "confidence": 0.95,
+          "acquisition": "observed",
+          "sourceEntityId": null,
+          "causingEventId": "event_63W6ZYRM67EZ5VAB3PR5R19TFC",
+          "note": null,
+          "time": {
+            "timeline": "main",
+            "tick": "10",
+            "order": "0"
+          },
+          "transitionId": "kt_7FHKDS8T8YSF0FBJQ7RS4PM7MY"
+        }
+      ]
+    },
+    {
+      "operation": "relationships",
+      "target": "char_4JVNDN6QW0BAFFV379AJJSMEPZ",
+      "time": {
+        "timeline": "main",
+        "tick": "40",
+        "order": "1"
+      },
+      "expected": [
+        {
+          "relationshipId": "rel_7Y1Y0Z51JTGRZ02BTV2K31ERNA",
+          "from": "char_4JVNDN6QW0BAFFV379AJJSMEPZ",
+          "to": "char_0PYVCG3ETXZ640BWJ5JMT6XXFZ",
+          "relationshipKind": "trust",
+          "status": "active",
+          "metrics": {
+            "trust": 0.75
+          },
+          "facets": [
+            "verified repair"
+          ],
+          "note": "Mina has verified Tavi's repair.",
+          "time": {
+            "timeline": "main",
+            "tick": "30",
+            "order": "0"
+          },
+          "transitionId": "rt_55469W4Z2JHVVJ4PQ3F9CTM3GR"
+        }
+      ]
+    },
+    {
+      "operation": "state",
+      "target": "char_62PCSFAX4YQE48JK476XKGG6B8",
+      "time": {
+        "timeline": "main",
+        "tick": "40",
+        "order": "1"
+      },
+      "expected": {
+        "condition": "well",
+        "location": {
+          "entity": "loc_3VDY39471DED5V26TEVYXMRQK3"
+        }
+      }
+    },
+    {
+      "operation": "knowledge",
+      "target": "char_62PCSFAX4YQE48JK476XKGG6B8",
+      "time": {
+        "timeline": "main",
+        "tick": "40",
+        "order": "1"
+      },
+      "expected": [
+        {
+          "knowledgeId": "know_5WR6NRNE78SCKKZ0FPAEYR61T5",
+          "claimKey": "tideglass.ferry-suspension",
+          "statement": "The ferry remains suspended while repair and inspection are pending.",
+          "claim": {
+            "key": "tideglass.ferry-suspension",
+            "statement": "The ferry remains suspended while repair and inspection are pending.",
+            "truth": "true"
+          },
+          "state": "accepted",
+          "confidence": 0.95,
+          "acquisition": "observed",
+          "sourceEntityId": null,
+          "causingEventId": "event_63W6ZYRM67EZ5VAB3PR5R19TFC",
+          "note": null,
+          "time": {
+            "timeline": "main",
+            "tick": "10",
+            "order": "0"
+          },
+          "transitionId": "kt_4FHJGMDHETJQW76C7CDGD9ZGQ0"
+        }
+      ]
+    },
+    {
+      "operation": "relationships",
+      "target": "char_62PCSFAX4YQE48JK476XKGG6B8",
+      "time": {
+        "timeline": "main",
+        "tick": "40",
+        "order": "1"
+      },
+      "expected": [
+        {
+          "relationshipId": "rel_4WEP0KV5C79HNMY7J2QTN67BY1",
+          "from": "char_62PCSFAX4YQE48JK476XKGG6B8",
+          "to": "char_6D246WN3J75HBRJJXGQ5H6QAD4",
+          "relationshipKind": "trust",
+          "status": "active",
+          "metrics": {
+            "trust": 0.5
+          },
+          "facets": [
+            "practical cooperation"
+          ],
+          "note": "An explicitly authored directed relationship.",
+          "time": {
+            "timeline": "main",
+            "tick": "0",
+            "order": "0"
+          },
+          "transitionId": "rt_35F8S0MR3A747JFRQ5XRMM3D9N"
+        }
+      ]
+    },
+    {
+      "operation": "state",
+      "target": "char_6D246WN3J75HBRJJXGQ5H6QAD4",
+      "time": {
+        "timeline": "main",
+        "tick": "40",
+        "order": "1"
+      },
+      "expected": {
+        "condition": "well",
+        "location": {
+          "entity": "loc_3VDY39471DED5V26TEVYXMRQK3"
+        }
+      }
+    },
+    {
+      "operation": "knowledge",
+      "target": "char_6D246WN3J75HBRJJXGQ5H6QAD4",
+      "time": {
+        "timeline": "main",
+        "tick": "40",
+        "order": "1"
+      },
+      "expected": [
+        {
+          "knowledgeId": "know_0WYS8PMTPS0KNEX3SCQZ30E6JF",
+          "claimKey": "tideglass.log-discrepancy",
+          "statement": "Tideglass log discrepancy: an inspection note was copied into the completion column.",
+          "claim": {
+            "key": "tideglass.log-discrepancy",
+            "statement": "Tideglass log discrepancy: an inspection note was copied into the completion column.",
+            "truth": "true"
+          },
+          "state": "accepted",
+          "confidence": 0.95,
+          "acquisition": "read",
+          "sourceEntityId": null,
+          "causingEventId": "event_22CNFT9Q1FNTR7039D5A324D4X",
+          "note": null,
+          "time": {
+            "timeline": "main",
+            "tick": "20",
+            "order": "2"
+          },
+          "transitionId": "kt_7PS223KX8ND42PG1R2W497DKGS"
+        },
+        {
+          "knowledgeId": "know_0XNM8BDXPVH3XAEMC1STDN9VMB",
+          "claimKey": "tideglass.log-absence",
+          "statement": "No verified completion entry has been found at the quay.",
+          "claim": {
+            "key": "tideglass.log-absence",
+            "statement": "No verified completion entry has been found at the quay.",
+            "truth": "true"
+          },
+          "state": "accepted",
+          "confidence": 0.95,
+          "acquisition": "observed",
+          "sourceEntityId": null,
+          "causingEventId": "event_3M1TJPZ4845X2J6V5QASPFZK4G",
+          "note": null,
+          "time": {
+            "timeline": "main",
+            "tick": "20",
+            "order": "1"
+          },
+          "transitionId": "kt_1QT4HX8JTF8Y8NADXGBD4RDP45"
+        }
+      ]
+    },
+    {
+      "operation": "relationships",
+      "target": "char_6D246WN3J75HBRJJXGQ5H6QAD4",
+      "time": {
+        "timeline": "main",
+        "tick": "40",
+        "order": "1"
+      },
+      "expected": [
+        {
+          "relationshipId": "rel_0Y5PE3MEG7ZK91Z24B1F6G1T31",
+          "from": "char_6D246WN3J75HBRJJXGQ5H6QAD4",
+          "to": "char_39E9EWWC017E40519033S4RW4X",
+          "relationshipKind": "trust",
+          "status": "active",
+          "metrics": {
+            "trust": 0.6
+          },
+          "facets": [
+            "practical cooperation"
+          ],
+          "note": "An explicitly authored directed relationship.",
+          "time": {
+            "timeline": "main",
+            "tick": "0",
+            "order": "0"
+          },
+          "transitionId": "rt_0T3YA92QQV3R10S7373QG3BBPJ"
+        }
+      ]
+    },
+    {
+      "operation": "state",
+      "target": "loc_0708459BXR2PVVHA4VASXHB69C",
+      "time": {
+        "timeline": "main",
+        "tick": "40",
+        "order": "1"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "loc_117ZGNWJM0Y3N7CWER2H3XK722",
+      "time": {
+        "timeline": "main",
+        "tick": "40",
+        "order": "1"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "loc_2DW2BZ5PN3XBMD2FWQA4Q61V1E",
+      "time": {
+        "timeline": "main",
+        "tick": "40",
+        "order": "1"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "loc_2SYYRXM9AHJGKYKGG200TZV82Y",
+      "time": {
+        "timeline": "main",
+        "tick": "40",
+        "order": "1"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "loc_3VDY39471DED5V26TEVYXMRQK3",
+      "time": {
+        "timeline": "main",
+        "tick": "40",
+        "order": "1"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "loc_6ZT4TZRBGZTHMYVRDXV3HFTTPQ",
+      "time": {
+        "timeline": "main",
+        "tick": "40",
+        "order": "1"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "loc_7F7G4Y2CZAD32HYW0B28N61Q72",
+      "time": {
+        "timeline": "main",
+        "tick": "40",
+        "order": "1"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "obj_0NQWK9WPK4PSR5722YH0RJ89CH",
+      "time": {
+        "timeline": "main",
+        "tick": "40",
+        "order": "1"
+      },
+      "expected": {
+        "condition": "legible",
+        "location": {
+          "entity": "loc_2SYYRXM9AHJGKYKGG200TZV82Y"
+        }
+      }
+    },
+    {
+      "operation": "state",
+      "target": "obj_13BZCJF8R08S5RSH4VRJXMA0YK",
+      "time": {
+        "timeline": "main",
+        "tick": "40",
+        "order": "1"
+      },
+      "expected": {
+        "condition": "usable",
+        "holder": {
+          "entity": "char_62PCSFAX4YQE48JK476XKGG6B8"
+        }
+      }
+    },
+    {
+      "operation": "state",
+      "target": "obj_4C9HNZYKJG5QQ6DWTWDJ4NWJ8D",
+      "time": {
+        "timeline": "main",
+        "tick": "40",
+        "order": "1"
+      },
+      "expected": {
+        "condition": "repaired",
+        "location": {
+          "entity": "loc_6ZT4TZRBGZTHMYVRDXV3HFTTPQ"
+        }
+      }
+    },
+    {
+      "operation": "state",
+      "target": "obj_76VC9SVNSR7ASZK025X7PTRBJH",
+      "time": {
+        "timeline": "main",
+        "tick": "40",
+        "order": "1"
+      },
+      "expected": {
+        "condition": "usable",
+        "holder": {
+          "entity": "char_0PYVCG3ETXZ640BWJ5JMT6XXFZ"
+        }
+      }
+    },
+    {
+      "operation": "state",
+      "target": "char_0PYVCG3ETXZ640BWJ5JMT6XXFZ",
+      "time": {
+        "timeline": "main",
+        "tick": "50",
+        "order": "2147483647"
+      },
+      "expected": {
+        "condition": "well",
+        "location": {
+          "entity": "loc_6ZT4TZRBGZTHMYVRDXV3HFTTPQ"
+        }
+      }
+    },
+    {
+      "operation": "knowledge",
+      "target": "char_0PYVCG3ETXZ640BWJ5JMT6XXFZ",
+      "time": {
+        "timeline": "main",
+        "tick": "50",
+        "order": "2147483647"
+      },
+      "expected": [
+        {
+          "knowledgeId": "know_7EJZ8JXCFWVX6DEX37AY8N62KY",
+          "claimKey": "tideglass.repair-plan",
+          "statement": "The lens can be repaired at the workshop bench.",
+          "claim": {
+            "key": "tideglass.repair-plan",
+            "statement": "The lens can be repaired at the workshop bench.",
+            "truth": "true"
+          },
+          "state": "accepted",
+          "confidence": 0.95,
+          "acquisition": "observed",
+          "sourceEntityId": null,
+          "causingEventId": "event_7J9JDA9939Y1NJ08HZWE7RRCQE",
+          "note": null,
+          "time": {
+            "timeline": "main",
+            "tick": "20",
+            "order": "0"
+          },
+          "transitionId": "kt_6792BKRRHP3MS3FTKT03WTWJ8N"
+        }
+      ]
+    },
+    {
+      "operation": "relationships",
+      "target": "char_0PYVCG3ETXZ640BWJ5JMT6XXFZ",
+      "time": {
+        "timeline": "main",
+        "tick": "50",
+        "order": "2147483647"
+      },
+      "expected": [
+        {
+          "relationshipId": "rel_4QMDM336YCMY6TT554VXDFQHPE",
+          "from": "char_0PYVCG3ETXZ640BWJ5JMT6XXFZ",
+          "to": "char_62PCSFAX4YQE48JK476XKGG6B8",
+          "relationshipKind": "obligation",
+          "status": "active",
+          "metrics": {
+            "obligation": 0.5
+          },
+          "facets": [
+            "practical cooperation"
+          ],
+          "note": "An explicitly authored directed relationship.",
+          "time": {
+            "timeline": "main",
+            "tick": "0",
+            "order": "0"
+          },
+          "transitionId": "rt_57YJEGEJFRNXN0AEHNV8N7G2F2"
+        }
+      ]
+    },
+    {
+      "operation": "state",
+      "target": "char_39E9EWWC017E40519033S4RW4X",
+      "time": {
+        "timeline": "main",
+        "tick": "50",
+        "order": "2147483647"
+      },
+      "expected": {
+        "condition": "well",
+        "location": {
+          "entity": "loc_2SYYRXM9AHJGKYKGG200TZV82Y"
+        }
+      }
+    },
+    {
+      "operation": "knowledge",
+      "target": "char_39E9EWWC017E40519033S4RW4X",
+      "time": {
+        "timeline": "main",
+        "tick": "50",
+        "order": "2147483647"
+      },
+      "expected": []
+    },
+    {
+      "operation": "relationships",
+      "target": "char_39E9EWWC017E40519033S4RW4X",
+      "time": {
+        "timeline": "main",
+        "tick": "50",
+        "order": "2147483647"
+      },
+      "expected": []
+    },
+    {
+      "operation": "state",
+      "target": "char_46VTBJZ9TNMTF7G14N5GKYQ9C1",
+      "time": {
+        "timeline": "main",
+        "tick": "50",
+        "order": "2147483647"
+      },
+      "expected": {
+        "condition": "well",
+        "location": {
+          "entity": "loc_3VDY39471DED5V26TEVYXMRQK3"
+        }
+      }
+    },
+    {
+      "operation": "knowledge",
+      "target": "char_46VTBJZ9TNMTF7G14N5GKYQ9C1",
+      "time": {
+        "timeline": "main",
+        "tick": "50",
+        "order": "2147483647"
+      },
+      "expected": [
+        {
+          "knowledgeId": "know_16HV4MMSQFV7RVFESSE8GQEKJ0",
+          "claimKey": "tideglass.return-authorized",
+          "statement": "Tideglass return authorization: Cora has authorized ferry service after the recorded checks.",
+          "claim": {
+            "key": "tideglass.return-authorized",
+            "statement": "Tideglass return authorization: Cora has authorized ferry service after the recorded checks.",
+            "truth": "true"
+          },
+          "state": "accepted",
+          "confidence": 0.95,
+          "acquisition": "observed",
+          "sourceEntityId": null,
+          "causingEventId": "event_6FTMM1W0HX7G8HNWA313JBD2XE",
+          "note": null,
+          "time": {
+            "timeline": "main",
+            "tick": "40",
+            "order": "1"
+          },
+          "transitionId": "kt_5SXMW9SXK7E163KK98M2N14PQM"
+        }
+      ]
+    },
+    {
+      "operation": "relationships",
+      "target": "char_46VTBJZ9TNMTF7G14N5GKYQ9C1",
+      "time": {
+        "timeline": "main",
+        "tick": "50",
+        "order": "2147483647"
+      },
+      "expected": [
+        {
+          "relationshipId": "rel_600QPBZBZVZJ96C0YX59790KNM",
+          "from": "char_46VTBJZ9TNMTF7G14N5GKYQ9C1",
+          "to": "char_4JVNDN6QW0BAFFV379AJJSMEPZ",
+          "relationshipKind": "obligation",
+          "status": "active",
+          "metrics": {
+            "obligation": 0.4
+          },
+          "facets": [
+            "practical cooperation"
+          ],
+          "note": "An explicitly authored directed relationship.",
+          "time": {
+            "timeline": "main",
+            "tick": "0",
+            "order": "0"
+          },
+          "transitionId": "rt_58NT6688CRCAG8TJW8WHY85YMG"
+        }
+      ]
+    },
+    {
+      "operation": "state",
+      "target": "char_4JVNDN6QW0BAFFV379AJJSMEPZ",
+      "time": {
+        "timeline": "main",
+        "tick": "50",
+        "order": "2147483647"
+      },
+      "expected": {
+        "condition": "well",
+        "location": {
+          "entity": "loc_6ZT4TZRBGZTHMYVRDXV3HFTTPQ"
+        }
+      }
+    },
+    {
+      "operation": "knowledge",
+      "target": "char_4JVNDN6QW0BAFFV379AJJSMEPZ",
+      "time": {
+        "timeline": "main",
+        "tick": "50",
+        "order": "2147483647"
+      },
+      "expected": [
+        {
+          "knowledgeId": "know_33RB1GJYPCGCPDA9KYT8GN4PN9",
+          "claimKey": "tideglass.storm-report",
+          "statement": "The storm cracked the signal lens.",
+          "claim": {
+            "key": "tideglass.storm-report",
+            "statement": "The storm cracked the signal lens.",
+            "truth": "true"
+          },
+          "state": "accepted",
+          "confidence": 0.95,
+          "acquisition": "observed",
+          "sourceEntityId": null,
+          "causingEventId": "event_63W6ZYRM67EZ5VAB3PR5R19TFC",
+          "note": null,
+          "time": {
+            "timeline": "main",
+            "tick": "10",
+            "order": "0"
+          },
+          "transitionId": "kt_7FHKDS8T8YSF0FBJQ7RS4PM7MY"
+        }
+      ]
+    },
+    {
+      "operation": "relationships",
+      "target": "char_4JVNDN6QW0BAFFV379AJJSMEPZ",
+      "time": {
+        "timeline": "main",
+        "tick": "50",
+        "order": "2147483647"
+      },
+      "expected": [
+        {
+          "relationshipId": "rel_7Y1Y0Z51JTGRZ02BTV2K31ERNA",
+          "from": "char_4JVNDN6QW0BAFFV379AJJSMEPZ",
+          "to": "char_0PYVCG3ETXZ640BWJ5JMT6XXFZ",
+          "relationshipKind": "trust",
+          "status": "active",
+          "metrics": {
+            "trust": 0.75
+          },
+          "facets": [
+            "verified repair"
+          ],
+          "note": "Mina has verified Tavi's repair.",
+          "time": {
+            "timeline": "main",
+            "tick": "30",
+            "order": "0"
+          },
+          "transitionId": "rt_55469W4Z2JHVVJ4PQ3F9CTM3GR"
+        }
+      ]
+    },
+    {
+      "operation": "state",
+      "target": "char_62PCSFAX4YQE48JK476XKGG6B8",
+      "time": {
+        "timeline": "main",
+        "tick": "50",
+        "order": "2147483647"
+      },
+      "expected": {
+        "condition": "well",
+        "location": {
+          "entity": "loc_3VDY39471DED5V26TEVYXMRQK3"
+        }
+      }
+    },
+    {
+      "operation": "knowledge",
+      "target": "char_62PCSFAX4YQE48JK476XKGG6B8",
+      "time": {
+        "timeline": "main",
+        "tick": "50",
+        "order": "2147483647"
+      },
+      "expected": [
+        {
+          "knowledgeId": "know_5WR6NRNE78SCKKZ0FPAEYR61T5",
+          "claimKey": "tideglass.ferry-suspension",
+          "statement": "The ferry remains suspended while repair and inspection are pending.",
+          "claim": {
+            "key": "tideglass.ferry-suspension",
+            "statement": "The ferry remains suspended while repair and inspection are pending.",
+            "truth": "true"
+          },
+          "state": "accepted",
+          "confidence": 0.95,
+          "acquisition": "observed",
+          "sourceEntityId": null,
+          "causingEventId": "event_63W6ZYRM67EZ5VAB3PR5R19TFC",
+          "note": null,
+          "time": {
+            "timeline": "main",
+            "tick": "10",
+            "order": "0"
+          },
+          "transitionId": "kt_4FHJGMDHETJQW76C7CDGD9ZGQ0"
+        }
+      ]
+    },
+    {
+      "operation": "relationships",
+      "target": "char_62PCSFAX4YQE48JK476XKGG6B8",
+      "time": {
+        "timeline": "main",
+        "tick": "50",
+        "order": "2147483647"
+      },
+      "expected": [
+        {
+          "relationshipId": "rel_4WEP0KV5C79HNMY7J2QTN67BY1",
+          "from": "char_62PCSFAX4YQE48JK476XKGG6B8",
+          "to": "char_6D246WN3J75HBRJJXGQ5H6QAD4",
+          "relationshipKind": "trust",
+          "status": "active",
+          "metrics": {
+            "trust": 0.5
+          },
+          "facets": [
+            "practical cooperation"
+          ],
+          "note": "An explicitly authored directed relationship.",
+          "time": {
+            "timeline": "main",
+            "tick": "0",
+            "order": "0"
+          },
+          "transitionId": "rt_35F8S0MR3A747JFRQ5XRMM3D9N"
+        }
+      ]
+    },
+    {
+      "operation": "state",
+      "target": "char_6D246WN3J75HBRJJXGQ5H6QAD4",
+      "time": {
+        "timeline": "main",
+        "tick": "50",
+        "order": "2147483647"
+      },
+      "expected": {
+        "condition": "well",
+        "location": {
+          "entity": "loc_3VDY39471DED5V26TEVYXMRQK3"
+        }
+      }
+    },
+    {
+      "operation": "knowledge",
+      "target": "char_6D246WN3J75HBRJJXGQ5H6QAD4",
+      "time": {
+        "timeline": "main",
+        "tick": "50",
+        "order": "2147483647"
+      },
+      "expected": [
+        {
+          "knowledgeId": "know_0WYS8PMTPS0KNEX3SCQZ30E6JF",
+          "claimKey": "tideglass.log-discrepancy",
+          "statement": "Tideglass log discrepancy: an inspection note was copied into the completion column.",
+          "claim": {
+            "key": "tideglass.log-discrepancy",
+            "statement": "Tideglass log discrepancy: an inspection note was copied into the completion column.",
+            "truth": "true"
+          },
+          "state": "accepted",
+          "confidence": 0.95,
+          "acquisition": "read",
+          "sourceEntityId": null,
+          "causingEventId": "event_22CNFT9Q1FNTR7039D5A324D4X",
+          "note": null,
+          "time": {
+            "timeline": "main",
+            "tick": "20",
+            "order": "2"
+          },
+          "transitionId": "kt_7PS223KX8ND42PG1R2W497DKGS"
+        },
+        {
+          "knowledgeId": "know_0XNM8BDXPVH3XAEMC1STDN9VMB",
+          "claimKey": "tideglass.log-absence",
+          "statement": "No verified completion entry has been found at the quay.",
+          "claim": {
+            "key": "tideglass.log-absence",
+            "statement": "No verified completion entry has been found at the quay.",
+            "truth": "true"
+          },
+          "state": "accepted",
+          "confidence": 0.95,
+          "acquisition": "observed",
+          "sourceEntityId": null,
+          "causingEventId": "event_3M1TJPZ4845X2J6V5QASPFZK4G",
+          "note": null,
+          "time": {
+            "timeline": "main",
+            "tick": "20",
+            "order": "1"
+          },
+          "transitionId": "kt_1QT4HX8JTF8Y8NADXGBD4RDP45"
+        }
+      ]
+    },
+    {
+      "operation": "relationships",
+      "target": "char_6D246WN3J75HBRJJXGQ5H6QAD4",
+      "time": {
+        "timeline": "main",
+        "tick": "50",
+        "order": "2147483647"
+      },
+      "expected": [
+        {
+          "relationshipId": "rel_0Y5PE3MEG7ZK91Z24B1F6G1T31",
+          "from": "char_6D246WN3J75HBRJJXGQ5H6QAD4",
+          "to": "char_39E9EWWC017E40519033S4RW4X",
+          "relationshipKind": "trust",
+          "status": "active",
+          "metrics": {
+            "trust": 0.6
+          },
+          "facets": [
+            "practical cooperation"
+          ],
+          "note": "An explicitly authored directed relationship.",
+          "time": {
+            "timeline": "main",
+            "tick": "0",
+            "order": "0"
+          },
+          "transitionId": "rt_0T3YA92QQV3R10S7373QG3BBPJ"
+        }
+      ]
+    },
+    {
+      "operation": "state",
+      "target": "loc_0708459BXR2PVVHA4VASXHB69C",
+      "time": {
+        "timeline": "main",
+        "tick": "50",
+        "order": "2147483647"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "loc_117ZGNWJM0Y3N7CWER2H3XK722",
+      "time": {
+        "timeline": "main",
+        "tick": "50",
+        "order": "2147483647"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "loc_2DW2BZ5PN3XBMD2FWQA4Q61V1E",
+      "time": {
+        "timeline": "main",
+        "tick": "50",
+        "order": "2147483647"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "loc_2SYYRXM9AHJGKYKGG200TZV82Y",
+      "time": {
+        "timeline": "main",
+        "tick": "50",
+        "order": "2147483647"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "loc_3VDY39471DED5V26TEVYXMRQK3",
+      "time": {
+        "timeline": "main",
+        "tick": "50",
+        "order": "2147483647"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "loc_6ZT4TZRBGZTHMYVRDXV3HFTTPQ",
+      "time": {
+        "timeline": "main",
+        "tick": "50",
+        "order": "2147483647"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "loc_7F7G4Y2CZAD32HYW0B28N61Q72",
+      "time": {
+        "timeline": "main",
+        "tick": "50",
+        "order": "2147483647"
+      },
+      "expected": {}
+    },
+    {
+      "operation": "state",
+      "target": "obj_0NQWK9WPK4PSR5722YH0RJ89CH",
+      "time": {
+        "timeline": "main",
+        "tick": "50",
+        "order": "2147483647"
+      },
+      "expected": {
+        "condition": "legible",
+        "location": {
+          "entity": "loc_2SYYRXM9AHJGKYKGG200TZV82Y"
+        }
+      }
+    },
+    {
+      "operation": "state",
+      "target": "obj_13BZCJF8R08S5RSH4VRJXMA0YK",
+      "time": {
+        "timeline": "main",
+        "tick": "50",
+        "order": "2147483647"
+      },
+      "expected": {
+        "condition": "usable",
+        "holder": {
+          "entity": "char_62PCSFAX4YQE48JK476XKGG6B8"
+        }
+      }
+    },
+    {
+      "operation": "state",
+      "target": "obj_4C9HNZYKJG5QQ6DWTWDJ4NWJ8D",
+      "time": {
+        "timeline": "main",
+        "tick": "50",
+        "order": "2147483647"
+      },
+      "expected": {
+        "condition": "repaired",
+        "location": {
+          "entity": "loc_6ZT4TZRBGZTHMYVRDXV3HFTTPQ"
+        }
+      }
+    },
+    {
+      "operation": "state",
+      "target": "obj_76VC9SVNSR7ASZK025X7PTRBJH",
+      "time": {
+        "timeline": "main",
+        "tick": "50",
+        "order": "2147483647"
+      },
+      "expected": {
+        "condition": "usable",
+        "holder": {
+          "entity": "char_0PYVCG3ETXZ640BWJ5JMT6XXFZ"
+        }
+      }
+    }
+  ]
+}

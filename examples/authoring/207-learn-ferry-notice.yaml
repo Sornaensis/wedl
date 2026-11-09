@@ -1,0 +1,30 @@
+kind: knowledge
+id: know_00000000000000000000000039
+title: Ana has read the ferry notice
+knower: char_00000000000000000000000001
+claim:
+  key: known.ferry.notice
+  statement: I recognize the ferry notice.
+  object:
+    entity: obj_00000000000000000000000002
+transitions:
+- id: read-ferry-notice
+  time:
+    timeline: main
+    tick: 21
+    order: 0
+  state: accepted
+  acquisition: read
+  confidence: 0.8
+  note: AUTHOR_RETRIEVAL_NOTICE_NOTE is not searchable character evidence.
+- id: forgot-ferry-notice
+  time:
+    timeline: main
+    tick: 24
+    order: 0
+  state: forgotten
+  acquisition: inferred
+  confidence: 0.0
+body: 'UNTIMED_RETRIEVAL_NOTICE_KNOWLEDGE_BODY is not admitted prose.
+
+  '

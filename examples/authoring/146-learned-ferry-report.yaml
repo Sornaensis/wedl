@@ -1,0 +1,82 @@
+kind: knowledge
+id: know_00000000000000000000000010
+title: An independently learned ferry report
+knower: char_00000000000000000000000001
+claim:
+  key: ferry.report
+  statement: Residents told me the ferry runs all night.
+  assertion_id: assertion_00000000000000000000000017
+transitions:
+- id: initial-rejection
+  time:
+    timeline: main
+    tick: 10
+    order: 0
+  state: rejected
+  confidence: 0.2
+  acquisition: told
+  note: AUTHOR_ACQUISITION_NOTE remains outside the linked character result.
+- id: heard-report
+  time:
+    timeline: main
+    tick: 11
+    order: 0
+  state: suspected
+  confidence: 0.5
+  acquisition: told
+  note: AUTHOR_ACQUISITION_NOTE remains outside the linked character result.
+- id: held-rejection
+  time:
+    timeline: main
+    tick: 12
+    order: 0
+  state: rejected
+  confidence: 0.8
+  acquisition: told
+  note: AUTHOR_ACQUISITION_NOTE remains outside the linked character result.
+- id: forgot-report
+  time:
+    timeline: main
+    tick: 14
+    order: 0
+  state: forgotten
+  confidence: 0.0
+  acquisition: told
+  note: AUTHOR_ACQUISITION_NOTE remains outside the linked character result.
+- id: remembered-report
+  time:
+    timeline: main
+    tick: 15
+    order: 0
+  state: remembered
+  confidence: 0.7
+  acquisition: told
+  note: AUTHOR_ACQUISITION_NOTE remains outside the linked character result.
+- id: later-rejection
+  time:
+    timeline: main
+    tick: 16
+    order: 0
+  state: rejected
+  confidence: 0.9
+  acquisition: told
+  note: AUTHOR_ACQUISITION_NOTE remains outside the linked character result.
+- id: forgot-again
+  time:
+    timeline: main
+    tick: 17
+    order: 0
+  state: forgotten
+  confidence: 0.0
+  acquisition: told
+  note: AUTHOR_ACQUISITION_NOTE remains outside the linked character result.
+audience:
+- public
+perspectives:
+- ordinary
+body: '# Author learning source
+
+
+  UNREAD_KNOWLEDGE_BODY remains separate from the learned statement.
+
+  '

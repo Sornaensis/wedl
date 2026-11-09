@@ -1,0 +1,22 @@
+kind: location
+id: location:harbor/courtyard
+title: Harbor Courtyard
+spatial:
+  map_id: map:harbor
+  geometry:
+    kind: polygon
+    coordinates:
+    - - -2
+      - -2
+    - - 2
+      - -2
+    - - 2
+      - 2
+    - - -2
+      - 2
+    - - -2
+      - -2
+body: |
+  # Harbor Courtyard
+
+  An explicit authored spatial declaration.

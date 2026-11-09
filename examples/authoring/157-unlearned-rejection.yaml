@@ -1,0 +1,28 @@
+kind: knowledge
+id: know_00000000000000000000000017
+title: A rejected report with no acquisition
+knower: char_00000000000000000000000001
+claim:
+  key: ferry.unlearned
+  statement: UNLEARNED_REJECTION_WORDS remain unavailable.
+  assertion_id: assertion_00000000000000000000000018
+transitions:
+- id: rejected-without-learning
+  time:
+    timeline: main
+    tick: 11
+    order: 0
+  state: rejected
+  confidence: 1.0
+  acquisition: told
+  note: AUTHOR_ACQUISITION_NOTE remains outside the linked character result.
+audience:
+- public
+perspectives:
+- ordinary
+body: '# Author learning source
+
+
+  UNREAD_KNOWLEDGE_BODY remains separate from the learned statement.
+
+  '

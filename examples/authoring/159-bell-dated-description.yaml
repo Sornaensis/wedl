@@ -1,0 +1,22 @@
+kind: object
+descriptions:
+- id: description_00000000000000000000000001
+  heading: The bell at the landing
+  markdown: A blue cord hangs from the bell beside the ferry steps.
+  valid:
+    kind: interval
+    timeline: main
+    start:
+      timeline: main
+      tick: 10
+      order: 0
+    end:
+      timeline: main
+      tick: 19
+      order: 0
+  audience:
+  - author
+  - public
+  perspectives:
+  - author
+  - ordinary

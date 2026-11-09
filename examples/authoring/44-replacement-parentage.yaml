@@ -1,0 +1,34 @@
+kind: knowledge
+id: know_00000000000000000000000009
+title: Ana learns a different parentage
+knower: char_00000000000000000000000001
+claim:
+  key: genealogy.parentage
+  statement: Ana learns a different parentage.
+  genealogy:
+    kind: parentage
+    payload:
+      child_id: char_00000000000000000000000001
+      parent_id: char_00000000000000000000000002
+      basis: biological
+    valid:
+      from:
+        timeline: main
+        tick: -40
+        order: 0
+    labels:
+      char_00000000000000000000000001: Ana
+      char_00000000000000000000000002: Rowan Reed
+transitions:
+- id: learned-replacement
+  time:
+    timeline: main
+    tick: 9
+    order: 1
+  state: accepted
+  acquisition: told
+  confidence: 1
+body: |
+  # Ana learns a different parentage
+
+  An explicitly authored belief, independent of canonical history.

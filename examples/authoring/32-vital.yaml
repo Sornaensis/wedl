@@ -1,0 +1,23 @@
+kind: vital-history
+id: vital_00000000000000000000000001
+title: Ana's vital history
+character_id: char_00000000000000000000000001
+disclosure: known
+initialization:
+  transition_id: transition_00000000000000000000000029
+  transition_kind: vital-initialize
+  applicability:
+    applicability_kind: instant
+    point: {timeline: main, tick: -40, order: 0}
+  payload: {}
+transitions:
+  - transition_id: transition_00000000000000000000000030
+    transition_kind: vital-birth
+    applicability:
+      applicability_kind: instant
+      point: {timeline: main, tick: -30, order: 0}
+    payload: {}
+body: |
+  # Ana's vital history
+
+  Birth is an authored story point. It implies no civil date or age.

@@ -1,0 +1,32 @@
+kind: assertion
+id: assertion_00000000000000000000000017
+title: Canonical ferry rule
+domain: narrative.reading
+subject:
+  kind: record
+  id: concept_00000000000000000000000037
+predicate: policy-text
+value: The ferry serves the morning route.
+classification: author-fact
+valid:
+  kind: interval
+  timeline: main
+  start:
+    timeline: main
+    tick: 10
+    order: 0
+  end:
+    timeline: main
+    tick: 12
+    order: 0
+evidence: []
+audience:
+- author
+perspectives:
+- author
+body: '# Author rule
+
+
+  CANONICAL_RULE_BODY is separate from learned words.
+
+  '

@@ -1,0 +1,34 @@
+kind: knowledge
+id: know_00000000000000000000000005
+title: Ana suspects guild membership
+knower: char_00000000000000000000000001
+claim:
+  key: genealogy.affiliation
+  statement: Ana suspects guild membership.
+  genealogy:
+    kind: affiliation
+    payload:
+      character_id: char_00000000000000000000000001
+      organization_id: organization_00000000000000000000000001
+      role: null
+    valid:
+      from:
+        timeline: main
+        tick: -40
+        order: 0
+    labels:
+      char_00000000000000000000000001: Annie
+      organization_00000000000000000000000001: The Lantern Guild
+transitions:
+- id: learned-affiliation
+  time:
+    timeline: main
+    tick: 4
+    order: 0
+  state: suspected
+  acquisition: told
+  confidence: 0.6
+body: |
+  # Ana suspects guild membership
+
+  An explicitly authored belief, independent of canonical history.

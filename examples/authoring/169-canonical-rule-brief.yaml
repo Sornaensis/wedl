@@ -1,0 +1,31 @@
+kind: context-brief
+id: brief_00000000000000000000000005
+title: The corrected author rule
+domain: harbor.writing
+scope: world
+valid:
+  kind: interval
+  timeline: main
+  start:
+    timeline: main
+    tick: 10
+    order: 0
+  end:
+    timeline: main
+    tick: 19
+    order: 0
+required_refs:
+- kind: record
+  id: assertion_00000000000000000000000018
+audience:
+- author
+- public
+perspectives:
+- author
+- ordinary
+body: '# The corrected author rule
+
+
+  This is explicitly authored setting prose with its own validity and scope.
+
+  '

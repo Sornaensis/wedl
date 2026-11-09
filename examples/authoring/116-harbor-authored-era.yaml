@@ -1,0 +1,22 @@
+kind: lore-concept
+id: concept_00000000000000000000000026
+title: Harbor reed era
+domain: environment.harbor
+profile: context-era
+values:
+  places:
+  - kind: record
+    id: loc_00000000000000000000000001
+  date_text: The era remembered as before the new bridge. This wording supplies no calendar conversion.
+valid:
+  kind: timeless
+audience:
+- author
+perspectives:
+- author
+body: '# Harbor reed era
+
+
+  This authored record has its own identity and remains independent of character knowledge.
+
+  '

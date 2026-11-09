@@ -1,0 +1,40 @@
+kind: world
+predicates:
+- id: practice-rule
+  subject_kinds:
+  - lore-concept
+  value_type:
+    type: object
+    required:
+      wording:
+        type: string
+      count:
+        type: number
+      absence:
+        type: 'null'
+      links:
+        type: array
+        items:
+          type: entity
+          kinds:
+          - lore-concept
+        max_items: 8
+      literal:
+        type: object
+        required:
+          kind:
+            type: string
+          id:
+            type: string
+        optional: {}
+    optional: {}
+- id: practice-account
+  subject_kinds:
+  - lore-concept
+  value_type:
+    type: string
+- id: practice-origin
+  subject_kinds:
+  - lore-concept
+  value_type:
+    type: 'null'

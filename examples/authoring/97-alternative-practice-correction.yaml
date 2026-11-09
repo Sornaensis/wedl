@@ -1,0 +1,43 @@
+kind: assertion
+id: assertion_00000000000000000000000005
+title: Alternative early calling correction
+domain: magic.practice
+subject:
+  kind: record
+  id: concept_00000000000000000000000009
+predicate: practice-rule
+value:
+  wording: A rival account says the invitation may remain silent.
+  count: 9007199254740993
+  absence: null
+  links:
+  - kind: record
+    id: concept_00000000000000000000000008
+  - kind: record
+    id: concept_00000000000000000000000007
+  literal:
+    kind: record
+    id: concept_00000000000000000000000099
+  qualification: This is a separate authored correction; it does not override the other correction.
+classification: author-fact
+valid:
+  kind: interval
+  timeline: main
+  start:
+    timeline: main
+    tick: 0
+    order: 0
+  end:
+    timeline: main
+    tick: 9
+    order: 0
+evidence: []
+audience:
+- author
+perspectives:
+- author
+body: |
+  # Alternative early calling correction
+
+  The classification and value are explicit authored source, independent of what any character has learned.
+replaces: assertion_00000000000000000000000001

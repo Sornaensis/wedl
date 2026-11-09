@@ -1,0 +1,25 @@
+kind: overlay
+id: overlay:harbor/flood-warning
+title: Harbor Flood Warning
+lifecycle: time-bounded
+membership:
+  location_ids:
+  - loc_00000000000000000000000001
+  - location:harbor/landing
+audience:
+- author
+perspectives:
+- author
+valid:
+  start:
+    timeline: main
+    tick: 10
+    order: 0
+  end:
+    timeline: main
+    tick: 12
+    order: 0
+body: |
+  # Harbor Flood Warning
+
+  An explicit authored spatial declaration.

@@ -1,0 +1,44 @@
+kind: existence-episode
+id: existence_00000000000000000000000006
+title: A separate embodied account
+domain: character.existence
+character_id: char_00000000000000000000000001
+episode_kind: embodied
+valid:
+  kind: interval
+  timeline: main
+  start:
+    timeline: main
+    tick: 4
+    order: 0
+  end:
+    timeline: main
+    tick: 8
+    order: 0
+start_evidence:
+- revision: '0000000000000000000000000000000000000006'
+  path: former-records/account-6.md
+  blob_oid: '0000000000000000000000000000000000000010'
+  target:
+    kind: section
+    owner_id: former-character
+    id: former-section
+audience:
+- author
+perspectives:
+- author
+body: '# A separate embodied account
+
+
+  This is an independent authored account. It does not calculate age or change vital history.
+
+  '
+provenance: The illustrative historical pointers are syntax only and remain unverified.
+end_evidence:
+- revision: 000000000000000000000000000000000000001a
+  path: former-records/account-26.md
+  blob_oid: '0000000000000000000000000000000000000024'
+  target:
+    kind: section
+    owner_id: former-character
+    id: former-section

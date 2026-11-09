@@ -1,0 +1,31 @@
+kind: map
+id: map:harbor/levels
+title: Harbor Levels
+crs: local-planar:harbor-levels
+axis_order:
+- east
+- north
+unit: m
+z_policy: required
+bounds:
+  min:
+  - -10
+  - -10
+  - 0
+  max:
+  - 10
+  - 10
+  - 5
+origin:
+  label: Dock level
+  coordinates:
+  - 0
+  - 0
+  - 0
+scale:
+  value: 1
+  unit: m
+body: |
+  # Harbor Levels
+
+  An explicit authored spatial declaration.

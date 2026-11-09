@@ -1,0 +1,16 @@
+kind: overlay
+id: overlay:harbor/maintenance
+title: Maintenance Area
+lifecycle: static
+membership:
+  location_ids:
+  - loc_00000000000000000000000001
+  - location:harbor/boardwalk
+audience:
+- author
+perspectives:
+- author
+body: |
+  # Maintenance Area
+
+  An explicit authored spatial declaration.

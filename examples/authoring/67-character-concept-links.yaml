@@ -1,0 +1,19 @@
+kind: character
+concept_links:
+- relation: associated-with
+  concept_id: concept_00000000000000000000000002
+  valid:
+    kind: interval
+    timeline: main
+    start:
+      timeline: main
+      tick: 12
+      order: 0
+    end:
+      timeline: main
+      tick: 16
+      order: 0
+- relation: uses-symbol
+  concept_id: concept_00000000000000000000000001
+  valid:
+    kind: timeless
