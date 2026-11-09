@@ -49,12 +49,16 @@ fn image(root: &Path, folders: &[&str]) -> Image {
         for item in walkdir::WalkDir::new(path) {
             let item = item.unwrap();
             if item.file_type().is_file() {
+                let path = item
+                    .path()
+                    .strip_prefix(root)
+                    .unwrap()
+                    .to_string_lossy()
+                    .into_owned();
+                #[cfg(windows)]
+                let path = path.replace('\\', "/");
                 result.insert(
-                    item.path()
-                        .strip_prefix(root)
-                        .unwrap()
-                        .to_string_lossy()
-                        .into_owned(),
+                    path,
                     (
                         fs::read(item.path()).unwrap(),
                         fs::metadata(item.path()).unwrap().modified().unwrap(),

@@ -70,6 +70,8 @@ pub fn init_world(path: &Path, title: &str) -> Result<World> {
 }
 
 pub fn parse_record(bytes: &[u8], path: &str) -> Result<Record> {
+    #[cfg(feature = "snapshot-baseline")]
+    crate::snapshot_baseline::record(|stats| stats.record_parses += 1);
     let fail = |message: String| Error::Parse {
         path: path.to_owned(),
         message,
@@ -156,6 +158,8 @@ pub fn world_from_records(
 
 /// Exact source identity independent of mutable parsed projections.
 pub(crate) fn fingerprint_for_records(records: &BTreeMap<String, Record>) -> String {
+    #[cfg(feature = "snapshot-baseline")]
+    crate::snapshot_baseline::record(|stats| stats.fingerprint_passes += 1);
     let mut hash = Sha256::new();
     hash.update(b"wedl-rs/source-v1\0");
     // Length framing prevents ambiguity between paths and source bytes.
@@ -166,6 +170,10 @@ pub(crate) fn fingerprint_for_records(records: &BTreeMap<String, Record>) -> Str
         hash.update(record.source_path.as_bytes());
         hash.update((record.raw_bytes.len() as u64).to_be_bytes());
         hash.update(&record.raw_bytes);
+        #[cfg(feature = "snapshot-baseline")]
+        crate::snapshot_baseline::record(|stats| {
+            stats.fingerprinted_source_bytes += record.raw_bytes.len()
+        });
     }
     hex::encode(hash.finalize())
 }

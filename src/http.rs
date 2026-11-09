@@ -74,10 +74,14 @@ struct LiveSession {
 
 impl LiveSession {
     fn run<T>(&self, current: bool, work: impl FnOnce(Service) -> Result<T>) -> Result<T> {
+        #[cfg(feature = "snapshot-baseline")]
+        let measurement = crate::snapshot_baseline::Measurement::start();
         let _guard = self
             .gate
             .lock()
             .map_err(|_| Error::Data("live author request worker failed".into()))?;
+        #[cfg(feature = "snapshot-baseline")]
+        measurement.acquired_gate();
         // A load failure or pending publication never falls back to an older
         // snapshot. Source capture itself uses the native publication fence.
         let service = if current {

@@ -140,6 +140,12 @@ pub fn compile(world: &World) -> Result<CompileReport> {
     temporary
         .persist(&path)
         .map_err(|error| Error::Io(error.error))?;
+    #[cfg(feature = "snapshot-baseline")]
+    crate::snapshot_baseline::record(|stats| {
+        stats.fts_builds += 1;
+        stats.projected_records += world.records.len();
+        stats.projected_fts_rows += indexed_count;
+    });
     Ok(CompileReport {
         protocol: crate::CONTRACT,
         schema: INDEX_SCHEMA,
@@ -154,6 +160,8 @@ pub fn compile(world: &World) -> Result<CompileReport> {
 }
 
 fn matching_index(world: &World) -> Result<Option<Connection>> {
+    #[cfg(feature = "snapshot-baseline")]
+    crate::snapshot_baseline::record(|stats| stats.fts_index_probes += 1);
     let path = cache_path(world)?;
     if !path.exists() {
         return Ok(None);
@@ -176,6 +184,8 @@ fn matching_index(world: &World) -> Result<Option<Connection>> {
             return Ok(None);
         }
     }
+    #[cfg(feature = "snapshot-baseline")]
+    crate::snapshot_baseline::record(|stats| stats.fts_index_quick_checks += 1);
     let integrity: std::result::Result<String, _> =
         connection.query_row("PRAGMA quick_check", [], |row| row.get(0));
     if integrity.as_deref().ok() != Some("ok") {
@@ -191,6 +201,8 @@ fn matching_index(world: &World) -> Result<Option<Connection>> {
     {
         return Ok(None);
     }
+    #[cfg(feature = "snapshot-baseline")]
+    crate::snapshot_baseline::record(|stats| stats.fts_index_matches += 1);
     Ok(Some(connection))
 }
 

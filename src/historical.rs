@@ -809,6 +809,8 @@ pub fn load_current_world(root: &Path) -> Result<World> {
         Error::Conflict("working source changed during bounded capture; reload".into())
     }
     fn paths(root: &Path) -> Result<BTreeMap<String, Stamp>> {
+        #[cfg(feature = "snapshot-baseline")]
+        crate::snapshot_baseline::record(|stats| stats.source_walks += 1);
         let directory = root.join("story");
         let metadata = fs::symlink_metadata(&directory)?;
         if metadata.file_type().is_symlink() || !metadata.is_dir() {
@@ -823,6 +825,8 @@ pub fn load_current_world(root: &Path) -> Result<World> {
         {
             let entry = entry.map_err(|_| invalid("working source walk failed"))?;
             entries += 1;
+            #[cfg(feature = "snapshot-baseline")]
+            crate::snapshot_baseline::record(|stats| stats.walked_entries += 1);
             if entries > MAX_TREE_OBJECTS {
                 return Err(invalid("working source exceeds its complete entry bound"));
             }
@@ -836,6 +840,11 @@ pub fn load_current_world(root: &Path) -> Result<World> {
                 .ok()
                 .and_then(|path| path.to_str())
                 .ok_or_else(|| invalid("working source path must be relative UTF-8"))?;
+            // Keep the original Git/source path spelling on Windows worktrees.
+            #[cfg(windows)]
+            let normalized = relative.replace('\\', "/");
+            #[cfg(windows)]
+            let relative = normalized.as_str();
             safe_path(relative)?;
             if !metadata.is_file()
                 || entry.path().extension().and_then(|s| s.to_str()) != Some("md")
@@ -869,6 +878,11 @@ pub fn load_current_world(root: &Path) -> Result<World> {
         }
         let mut bytes = Vec::with_capacity(expected.bytes as usize);
         file.take(expected.bytes + 1).read_to_end(&mut bytes)?;
+        #[cfg(feature = "snapshot-baseline")]
+        crate::snapshot_baseline::record(|stats| {
+            stats.source_file_reads += 1;
+            stats.source_bytes_read += bytes.len();
+        });
         let final_metadata = fs::symlink_metadata(&path)?;
         if bytes.len() as u64 != expected.bytes
             || final_metadata.file_type().is_symlink()
@@ -890,6 +904,8 @@ pub fn load_current_world(root: &Path) -> Result<World> {
     let mut budget = SourceBudget::default();
     for (path, metadata) in &selected {
         let bytes = read(&root, path, metadata)?;
+        #[cfg(feature = "snapshot-baseline")]
+        crate::snapshot_baseline::record(|stats| stats.source_preflights += 1);
         preflight_source(&bytes, &mut budget)?;
         records.push(source::parse_record(&bytes, path)?);
     }

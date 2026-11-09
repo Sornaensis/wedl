@@ -1587,6 +1587,8 @@ fn section_audiences(world: &World, record: &Record, out: &mut Vec<Diagnostic>) 
 }
 
 pub fn validate_world(world: &World) -> ValidationReport {
+    #[cfg(feature = "snapshot-baseline")]
+    crate::snapshot_baseline::record(|stats| stats.full_validations += 1);
     let mut diagnostics = Vec::new();
     let owner = match world.world_record() {
         Ok(owner) => owner,

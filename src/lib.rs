@@ -26,6 +26,8 @@ pub mod retcon_reviews;
 pub mod reveal;
 pub mod runtime;
 pub mod service;
+#[cfg(feature = "snapshot-baseline")]
+mod snapshot_baseline;
 pub mod source;
 pub mod validation;
 
