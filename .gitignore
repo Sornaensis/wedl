@@ -1,3 +1,4 @@
 /target/
 .wedl-rust/
 .adrai/
+*.workspace

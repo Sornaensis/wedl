@@ -97,3 +97,48 @@ Each measured request walked the source tree three times and read every Markdown
 | Published record rows / FTS rows | 0 / 0 | 0 / 0 | 4,096 / 4,096 |
 
 These are single-host measurements on a synthetic world. Historical Git loads, the future read-only browser, complex semantics, and physical SQLite I/O need separate comparison runs.
+
+## Live worktree reuse comparison
+
+The existing live server retains its latest bounded parsed world and validation report. It reuses them only after the source path set and bytes match on both reads and the publication fence passes. Changed source still receives the full parse and validation. The server replaces its startup world on the first bounded capture, keeps the existing request gate, and continues to use the separate lexical index and its integrity checks.
+
+This comparison used the same Windows 11 build 26200 host, Intel Core Ultra 9 285K, Rust 1.97.1, release profile, fixtures, sample count, and benchmark runner as the baseline. Use the commands above with `--offline` added to the Cargo build. The inputs were base `2ba30125f4e164a111a08728decf3ca837b90941` plus the live reuse changes in `src/historical.rs`, `src/http.rs`, and `src/service.rs`. Binary SHA-256 was `784107d1b7e494e1294178d1751c7a909ae80ed57ed4e269385dbff4510ff30a`.
+
+All values below are milliseconds, shown as baseline → live reuse. The edited columns are single requests. The warm and four-reader columns use the same 12-request nearest-rank p95 as the baseline. The runner issues the edited entity request before the edited FTS request, so that search starts from a worktree view the entity read has already refreshed.
+
+| Records | Warm entity p95 | Four-reader p95 | Four-reader gate p95 | Warm FTS p95 | Edited entity | Edited FTS |
+| ---: | ---: | ---: | ---: | ---: | ---: | ---: |
+| 64 | 65.3 → 78.6 | 182.7 → 194.3 | 137.3 → 140.7 | 79.1 → 83.1 | 74.9 → 66.3 | 73.1 → 92.9 |
+| 1,024 | 1,200.9 → 829.0 | 3,384.3 → 2,053.0 | 2,593.6 → 1,525.0 | 846.2 → 517.5 | 748.1 → 449.7 | 852.0 → 516.5 |
+| 4,096 | 3,690.3 → 1,689.4 | 13,936.4 → 6,226.4 | 10,575.0 → 4,622.8 | 3,937.9 → 1,880.3 | 3,441.8 → 1,480.9 | 4,781.2 → 2,142.1 |
+
+At 4,096 records, serial entity throughput rose from 0.312 to 0.679 requests per second and four-reader throughput rose from 0.295 to 0.693. Peak server RSS across the whole tier went from 183,848,960 to 182,353,920 bytes. The persisted lexical index was 74,031,104 bytes in both runs. All three tiers exposed the same-size, same-mtime edit without restarting, with matching updated entity and search fingerprints.
+
+| Work per request at 4,096 records | Warm entity | First or edited entity | Warm FTS | First or edited FTS |
+| --- | ---: | ---: | ---: | ---: |
+| Source walks | 3 | 3 | 3 | 3 |
+| Source files read | 8,192 | 8,192 | 8,192 | 8,192 |
+| Logical source bytes read | 64,996,618 | 64,996,618 | 64,996,618 | 64,996,618 |
+| Source preflights | 0 | 4,096 | 0 | 0 |
+| Record parses | 0 | 8,192 | 4,096 | 8,192 |
+| Full validations | 0 | 1 | 1 | 2 |
+| Fingerprint passes | 0 | 2 | 1 | 2 |
+| FTS quick checks / builds | 0 / 0 | 0 / 0 | 1 / 0 | 1 / 1 |
+| Published record rows / FTS rows | 0 / 0 | 0 / 0 | 0 / 0 | 4,096 / 4,096 |
+
+The reduced work is deterministic for unchanged bounded source. Timings come from separate single-host runs on synthetic data, and the small tier did not improve. Edited entity requests performed the same logical work as the baseline, so their elapsed-time difference also reflects run conditions. Conservative file verification and serial request execution still govern live latency. The SQLite generation targets and the existing source limits remain the criteria for that separate implementation.
+
+### Back-to-back near-limit comparison
+
+A follow-up ran the exact Git archive of `2ba30125f4e164a111a08728decf3ca837b90941` first and the reuse implementation second. Build each input with the command above using separate `CARGO_TARGET_DIR` directories, then run the same benchmark with `--tier near-limit --samples 4 --workers 4`. Each run created a fresh 4,096-record fixture. The base binary SHA-256 was `75e6f6ab624d311fb02343552fa67409e75bb3202bc6a2ac7619df26a538b0ba`. The reuse binary SHA-256 was `6d8fc347d5739e556eb3e79c49f094545bde3c3a377cb9957b15750ea90428a7`.
+
+| Measurement (ms) | Exact base | Live reuse |
+| --- | ---: | ---: |
+| Warm entity p95 | 3,913.7 | 1,570.9 |
+| Four-reader entity p95 | 9,593.2 | 5,801.6 |
+| Four-reader gate p95 | 7,427.9 | 4,393.9 |
+| Warm FTS p95 | 2,536.0 | 2,073.4 |
+| Edited entity | 1,837.8 | 1,695.5 |
+| Edited FTS | 2,928.4 | 2,247.2 |
+
+The adjacent runs confirmed 8,192 record parses for each warm entity request on the base and zero with reuse. Both parsed 8,192 records on the first edited entity request. Four samples make the reported p95 the slowest sample. These measurements reflect one run per build, including run-order and filesystem variation.

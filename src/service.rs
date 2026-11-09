@@ -1,6 +1,6 @@
 //! Application operations shared by the command line and the local HTTP adapter.
 //! These are the Rust prototype's contracts, not the Python transport protocol.
-use std::{collections::BTreeMap, sync::Arc};
+use std::{collections::BTreeMap, path::PathBuf, sync::Arc};
 
 use serde_json::{Value, json};
 
@@ -988,6 +988,7 @@ impl Operation {
 
 #[derive(Clone)]
 pub struct Service {
+    source_root: Arc<PathBuf>,
     world: Arc<World>,
     validation: Arc<validation::ValidationReport>,
     reader: Arc<crate::reader::PresentationService>,
@@ -1000,6 +1001,7 @@ impl Service {
             world.root.clone(),
         )));
         Self {
+            source_root: Arc::new(world.root.clone()),
             world: Arc::new(world),
             validation,
             reader,
@@ -1014,21 +1016,25 @@ impl Service {
         &self.world
     }
 
-    /// Capture one new immutable worktree snapshot while retaining installed
-    /// reader policy and disclosure state. HTTP owns request serialization;
-    /// the native writers retain their independent publication lock/checks.
-    pub(crate) fn capture_worktree(&self) -> Result<Self> {
+    /// Capture an immutable worktree snapshot or reuse a byte-identical bounded
+    /// capture, retaining installed reader policy and disclosure state.
+    /// HTTP owns request serialization and the previous bounded capture.
+    pub(crate) fn capture_worktree(&self, bounded: bool) -> Result<Self> {
         if self.world.revision.is_some() {
             return Err(Error::InvalidInput(
                 "live author requests require the current worktree".into(),
             ));
         }
-        let world = crate::historical::load_current_world(&self.world.root)?;
-        Ok(Self {
-            validation: Arc::new(validation::validate_world(&world)),
-            world: Arc::new(world),
-            reader: self.reader.clone(),
-        })
+        let previous = bounded.then_some(self.world());
+        match crate::historical::capture_current_world(&self.source_root, previous)? {
+            Some(world) => Ok(Self {
+                source_root: self.source_root.clone(),
+                validation: Arc::new(validation::validate_world(&world)),
+                world: Arc::new(world),
+                reader: self.reader.clone(),
+            }),
+            None => Ok(self.clone()),
+        }
     }
 
     fn time(&self, input: &TimeInput) -> Result<StoryTime> {
@@ -1137,32 +1143,36 @@ impl Service {
             Operation::EditDraftReview { request } => edit_drafts::review(world, &request)?,
             Operation::EditDraftApply { request } => edit_drafts::apply(world, &request)?,
             Operation::RevisionReview { request } => {
-                revision_review::review(&world.root, &request)?
+                revision_review::review(&self.source_root, &request)?
             }
             Operation::RevealResolve { request } => {
-                manuscript::resolve_reveal(&world.root, &request)?
+                manuscript::resolve_reveal(&self.source_root, &request)?
             }
             Operation::ReaderPreview { request } => self.reader.preview(request.as_bytes())?,
-            Operation::ManuscriptList { request } => manuscript::list(&world.root, &request)?,
-            Operation::ManuscriptDetail { request } => manuscript::detail(&world.root, &request)?,
-            Operation::ManuscriptResolve { request } => manuscript::resolve(&world.root, &request)?,
+            Operation::ManuscriptList { request } => manuscript::list(&self.source_root, &request)?,
+            Operation::ManuscriptDetail { request } => {
+                manuscript::detail(&self.source_root, &request)?
+            }
+            Operation::ManuscriptResolve { request } => {
+                manuscript::resolve(&self.source_root, &request)?
+            }
             Operation::ManuscriptSavePreview { request } => {
                 manuscript::save_preview(world, &request)?
             }
             Operation::ManuscriptSave { request } => manuscript::save(world, &request)?,
             Operation::RetconImpactPreview { request } => retcon_impact::preview(world, &request)?,
             Operation::RetconReviewPreview { request } => {
-                retcon_reviews::preview(&world.root, &request)?
+                retcon_reviews::preview(&self.source_root, &request)?
             }
             Operation::RetconReviewSavePreview { request } => {
                 retcon_reviews::save_preview(world, &request)?
             }
             Operation::RetconReviewSave { request } => retcon_reviews::save(world, &request)?,
             Operation::RetconReviewQueue { request } => {
-                retcon_reviews::queue(&world.root, &request)?
+                retcon_reviews::queue(&self.source_root, &request)?
             }
             Operation::RetconReviewDetail { request } => {
-                retcon_reviews::detail(&world.root, &request)?
+                retcon_reviews::detail(&self.source_root, &request)?
             }
             Operation::EventConsequences { request } => event_consequences::read(world, &request)?,
             Operation::GroupedConsequences { request } => {

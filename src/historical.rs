@@ -784,6 +784,15 @@ fn load_world_bounded(
 /// as original Git reads. Native publication and concurrent file-image changes
 /// refuse the whole capture; this reader never creates cache or lock files.
 pub fn load_current_world(root: &Path) -> Result<World> {
+    Ok(capture_current_world(root, None)?.expect("a capture without a previous world is new"))
+}
+
+/// Return no new world only if the entire bounded worktree image matches the
+/// previous bounded capture. Callers must supply a world from this loader.
+pub(crate) fn capture_current_world(
+    root: &Path,
+    previous: Option<&World>,
+) -> Result<Option<World>> {
     #[derive(Clone, Debug, PartialEq, Eq)]
     struct Stamp {
         bytes: u64,
@@ -900,27 +909,67 @@ pub fn load_current_world(root: &Path) -> Result<World> {
     let root = root.canonicalize()?;
     let publication = crate::publication::read_stamp(&root)?;
     let selected = paths(&root)?;
-    let mut records = Vec::with_capacity(selected.len());
+    let mut reusable = previous
+        .filter(|world| world.revision.is_none() && world.root == root)
+        .map(|world| {
+            world
+                .records
+                .values()
+                .map(|record| (record.source_path.as_str(), record.raw_bytes.as_slice()))
+                .collect::<BTreeMap<_, _>>()
+        })
+        .filter(|sources| {
+            selected
+                .keys()
+                .map(String::as_str)
+                .eq(sources.keys().copied())
+        });
+    let mut records = Vec::new();
     let mut budget = SourceBudget::default();
-    for (path, metadata) in &selected {
-        let bytes = read(&root, path, metadata)?;
+    let mut parse = |path: &str, bytes: &[u8]| -> Result<()> {
         #[cfg(feature = "snapshot-baseline")]
         crate::snapshot_baseline::record(|stats| stats.source_preflights += 1);
-        preflight_source(&bytes, &mut budget)?;
-        records.push(source::parse_record(&bytes, path)?);
+        preflight_source(bytes, &mut budget)?;
+        records.push(source::parse_record(bytes, path)?);
+        Ok(())
+    };
+    for (path, metadata) in &selected {
+        let bytes = read(&root, path, metadata)?;
+        if let Some(sources) = &reusable {
+            if bytes == sources[path.as_str()] {
+                continue;
+            }
+            // Earlier files were proved identical on this pass. Parse that
+            // prefix in source order without reading those files a third time.
+            for (&earlier, &bytes) in sources
+                .iter()
+                .take_while(|(earlier, _)| **earlier < path.as_str())
+            {
+                parse(earlier, bytes)?;
+            }
+            reusable = None;
+        }
+        parse(path, &bytes)?;
     }
     if paths(&root)? != selected {
         return Err(drift());
     }
-    for record in &records {
-        if read(&root, &record.source_path, &selected[&record.source_path])? != record.raw_bytes {
+    for (index, (path, metadata)) in selected.iter().enumerate() {
+        let expected = match &reusable {
+            Some(sources) => sources[path.as_str()],
+            None => records[index].raw_bytes.as_slice(),
+        };
+        if read(&root, path, metadata)? != expected {
             return Err(drift());
         }
     }
     if paths(&root)? != selected || crate::publication::read_stamp(&root)? != publication {
         return Err(drift());
     }
-    source::world_from_records(root, records, None)
+    if reusable.is_some() {
+        return Ok(None);
+    }
+    source::world_from_records(root, records, None).map(Some)
 }
 
 /// Select the live HEAD exactly once, then prove that the selected literal OID

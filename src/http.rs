@@ -61,22 +61,30 @@ pub fn live_router(service: Service) -> Router {
         })
         .layer(middleware::from_fn(local_request))
         .with_state(LiveSession {
-            service,
-            gate: Arc::new(Mutex::new(())),
+            reader: service.reader().clone(),
+            gate: Arc::new(Mutex::new(LiveState {
+                service,
+                bounded: false,
+            })),
         })
 }
 
 #[derive(Clone)]
 struct LiveSession {
+    reader: crate::reader::PresentationService,
+    gate: Arc<Mutex<LiveState>>,
+}
+
+struct LiveState {
     service: Service,
-    gate: Arc<Mutex<()>>,
+    bounded: bool,
 }
 
 impl LiveSession {
     fn run<T>(&self, current: bool, work: impl FnOnce(Service) -> Result<T>) -> Result<T> {
         #[cfg(feature = "snapshot-baseline")]
         let measurement = crate::snapshot_baseline::Measurement::start();
-        let _guard = self
+        let mut state = self
             .gate
             .lock()
             .map_err(|_| Error::Data("live author request worker failed".into()))?;
@@ -84,14 +92,13 @@ impl LiveSession {
         measurement.acquired_gate();
         // A load failure or pending publication never falls back to an older
         // snapshot. Source capture itself uses the native publication fence.
-        let service = if current {
-            self.service.capture_worktree()?
-        } else {
-            // Static guidance and independently captured original/private reads
-            // use this path and omit outer source pins.
-            self.service.clone()
-        };
-        work(service)
+        if current {
+            state.service = state.service.capture_worktree(state.bounded)?;
+            state.bounded = true;
+        }
+        // Static and independently captured original/private reads dispatch
+        // without refreshing the worktree or using its outer source pins.
+        work(state.service.clone())
     }
 }
 
@@ -121,7 +128,7 @@ async fn live_api(
         path.map_err(|_| ApiError(Error::InvalidInput("route path is not valid UTF-8".into())))?;
     let operation = operation(&path, raw.as_deref())?;
     if let Operation::ReaderPreview { request } = operation {
-        let reader = session.service.reader().clone();
+        let reader = session.reader.clone();
         let worker = reader.clone();
         let prepared = tokio::task::spawn_blocking(move || {
             session.run(false, |_| worker.prepare_preview(request.as_bytes()))

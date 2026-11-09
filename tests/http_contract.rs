@@ -21,7 +21,11 @@ fn world() -> World {
 }
 
 async fn response(service: Service, uri: &str) -> (StatusCode, Value) {
-    let response = http::router(service)
+    router_response(http::router(service), uri).await
+}
+
+async fn router_response(router: axum::Router, uri: &str) -> (StatusCode, Value) {
+    let response = router
         .oneshot(
             Request::builder()
                 .uri(uri)
@@ -334,6 +338,92 @@ async fn invalid_world_allows_diagnostics_but_not_reads() {
     let (status, body) = response(service, "/api/entities").await;
     assert_eq!(status, StatusCode::BAD_REQUEST);
     assert_eq!(body["code"], "validation_error");
+}
+
+#[tokio::test]
+async fn live_worktree_reuse_preserves_exact_refresh_and_refusals() {
+    use std::fs;
+
+    let scratch = tempfile::tempdir().unwrap();
+    let root = scratch.path().join("world");
+    let mut startup = source::init_world(&root, "Live world").unwrap();
+    let world_id = startup.world_record().unwrap().id.clone();
+    startup.records.get_mut(&world_id).unwrap().title = "Untrusted startup".into();
+    let app = http::live_router(Service::new(startup));
+
+    let (status, initial) = router_response(app.clone(), "/api/status").await;
+    assert_eq!(status, StatusCode::OK);
+    assert_eq!(initial["result"]["world"], "Live world");
+    assert_eq!(initial["result"]["validation"]["valid"], true);
+
+    let path = root.join("story/z-old.md");
+    let raw = "---\nschema: wedl/v1\nkind: object\nid: obj_00000000000000000000000001\ntitle: Live lamp\ndomain: setting\nstatus: canonical\ntags: []\naliases: []\n---\nOld lamp\n";
+    fs::write(&path, raw).unwrap();
+    let uri = "/api/entity?id=obj_00000000000000000000000001";
+    let (status, added) = router_response(app.clone(), uri).await;
+    assert_eq!(status, StatusCode::OK, "{added}");
+    assert_eq!(added["result"]["bodyMarkdown"], "Old lamp\n");
+    assert_ne!(added["fingerprint"], initial["fingerprint"]);
+    assert_eq!(
+        router_response(app.clone(), uri).await,
+        (StatusCode::OK, added.clone())
+    );
+
+    let modified = fs::metadata(&path).unwrap().modified().unwrap();
+    let edited = raw.replace("Old lamp", "New lamp");
+    fs::write(&path, &edited).unwrap();
+    fs::File::options()
+        .write(true)
+        .open(&path)
+        .unwrap()
+        .set_times(fs::FileTimes::new().set_modified(modified))
+        .unwrap();
+    assert_eq!(fs::metadata(&path).unwrap().modified().unwrap(), modified);
+    let (status, changed) = router_response(app.clone(), uri).await;
+    assert_eq!(status, StatusCode::OK, "{changed}");
+    assert_eq!(changed["result"]["bodyMarkdown"], "New lamp\n");
+    assert_ne!(changed["fingerprint"], added["fingerprint"]);
+
+    let renamed = root.join("story/z-new.md");
+    fs::rename(&path, &renamed).unwrap();
+    let (status, moved) = router_response(app.clone(), uri).await;
+    assert_eq!(status, StatusCode::OK, "{moved}");
+    assert_eq!(moved["result"]["path"], "story/z-new.md");
+    assert_ne!(moved["fingerprint"], changed["fingerprint"]);
+
+    fs::write(
+        &renamed,
+        edited.replace("status: canonical", "status: invalid"),
+    )
+    .unwrap();
+    let (status, invalid) = router_response(app.clone(), "/api/status").await;
+    assert_eq!(status, StatusCode::OK);
+    assert_eq!(invalid["result"]["validation"]["valid"], false);
+    let (status, refusal) = router_response(app.clone(), uri).await;
+    assert_eq!(status, StatusCode::BAD_REQUEST);
+    assert_eq!(refusal["code"], "validation_error");
+
+    fs::write(&renamed, edited).unwrap();
+    assert_eq!(
+        router_response(app.clone(), uri).await,
+        (StatusCode::OK, moved.clone())
+    );
+    let state = root.join(".wedl-rust");
+    fs::create_dir_all(&state).unwrap();
+    let journal = state.join("pending-outcome.json");
+    fs::write(&journal, b"pending").unwrap();
+    let (status, refusal) = router_response(app.clone(), uri).await;
+    assert_eq!(status, StatusCode::CONFLICT);
+    assert!(refusal["message"].as_str().unwrap().contains("pending"));
+    fs::remove_file(journal).unwrap();
+
+    assert_eq!(
+        router_response(app.clone(), uri).await,
+        (StatusCode::OK, moved)
+    );
+    fs::remove_file(renamed).unwrap();
+    let (status, _) = router_response(app, uri).await;
+    assert_eq!(status, StatusCode::NOT_FOUND);
 }
 
 #[test]
