@@ -1011,6 +1011,52 @@ pub(crate) fn head(root: &Path) -> Result<String> {
     Ok(revision.into())
 }
 
+/// Return a small window of authenticated first-parent commits and their
+/// authored subject lines for private Author selection. The anchor is an
+/// exact original commit, not a revision expression or a request-time ref.
+pub(crate) fn recent_named_revisions(root: &Path, anchor: &str) -> Result<Vec<(String, String)>> {
+    const MAX_CHOICES: usize = 24;
+    let repository = Repository::open(root, anchor)?;
+    let mut current = anchor.to_owned();
+    let mut choices = Vec::new();
+    let mut seen = BTreeSet::new();
+    for _ in 0..MAX_CHOICES {
+        if !seen.insert(current.clone()) {
+            return Err(invalid("original first-parent history contains a cycle"));
+        }
+        let bytes = repository.commit(&current)?;
+        let mut lines = bytes.split(|byte| *byte == b'\n');
+        let mut parents = 0;
+        let mut first_parent = None;
+        for line in lines.by_ref().take_while(|line| !line.is_empty()) {
+            let Some(parent) = line.strip_prefix(b"parent ") else {
+                continue;
+            };
+            let parent = std::str::from_utf8(parent)
+                .ok()
+                .filter(|parent| valid_oid(parent) && parent.len() == anchor.len())
+                .ok_or_else(|| invalid("original first parent must be an exact OID"))?;
+            parents += 1;
+            if parents > 64 {
+                return Err(invalid("original commit exceeds 64 parents"));
+            }
+            first_parent.get_or_insert_with(|| parent.to_owned());
+        }
+        let subject = lines
+            .filter_map(|line| std::str::from_utf8(line).ok())
+            .map(str::trim)
+            .find(|line| !line.is_empty())
+            .unwrap_or_default()
+            .chars()
+            .take(256)
+            .collect();
+        choices.push((current, subject));
+        let Some(parent) = first_parent else { break };
+        current = parent;
+    }
+    Ok(choices)
+}
+
 /// Original first-parent commits after `base`, in chronological order. A full
 /// base sentinel is required within the requested 1..256 commit bound; merging
 /// an unrelated base through a second parent never establishes this history.

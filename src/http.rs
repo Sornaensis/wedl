@@ -21,22 +21,69 @@ use crate::{
     chronology::{AnnotationQuery, CivilDate, DateInput, DateTarget, EraMatchMode},
     compendium::{self, Browser as CompendiumBrowser},
     service::{CompendiumSource, Operation, Service, TimeInput},
-    validation,
+    validation, workbench,
 };
 
 pub const INDEX: &str = include_str!("../static/index.html");
 const COMPENDIUM: &str = include_str!("../static/compendium.html");
 
+fn workbench_assets<S: Clone + Send + Sync + 'static>() -> Router<S> {
+    Router::new()
+        .route(
+            "/workbench",
+            get(|| async { Html(include_str!("../static/workbench.html")) }),
+        )
+        .route(
+            "/workbench.js",
+            get(|| async {
+                (
+                    [(
+                        axum::http::header::CONTENT_TYPE,
+                        "text/javascript; charset=utf-8",
+                    )],
+                    include_str!("../static/workbench.js"),
+                )
+            }),
+        )
+        .route(
+            "/workbench-core.js",
+            get(|| async {
+                (
+                    [(
+                        axum::http::header::CONTENT_TYPE,
+                        "text/javascript; charset=utf-8",
+                    )],
+                    include_str!("../static/workbench-core.js"),
+                )
+            }),
+        )
+        .route(
+            "/workbench-archive.js",
+            get(|| async {
+                (
+                    [(
+                        axum::http::header::CONTENT_TYPE,
+                        "text/javascript; charset=utf-8",
+                    )],
+                    include_str!("../static/workbench-archive.js"),
+                )
+            }),
+        )
+}
+
 pub fn router(service: Service) -> Router {
     let service = service.with_compendium_authority();
     Router::new()
+        .merge(workbench_assets())
         .route("/", get(|| async { Html(INDEX) }))
         .route("/compendium", get(|| async { Html(COMPENDIUM) }))
         .route("/api/compendium/{endpoint}", get(fixed_compendium))
+        .route("/api/workbench/{endpoint}", get(fixed_workbench))
         .route("/api/{*path}", get(api))
         .fallback(|| async { ApiError(Error::NotFound("route does not exist".into())) })
         .method_not_allowed_fallback(|| async { (StatusCode::METHOD_NOT_ALLOWED, Json(json!({"code":"method_not_allowed","message":"This snapshot server accepts GET requests only","details":{}}))) })
         .layer(Extension(Arc::new(CompendiumBrowser::new())))
+        .layer(Extension(Arc::new(workbench::Browser::default())))
         .layer(middleware::from_fn(local_request))
         .with_state(service)
 }
@@ -53,9 +100,11 @@ pub fn live_router(service: Service) -> Router {
 fn worktree_router(service: Service, live_author: bool) -> Router {
     let service = service.with_compendium_authority();
     let mut app = Router::new()
+        .merge(workbench_assets())
         .route("/", get(|| async { Html(INDEX) }))
         .route("/compendium", get(|| async { Html(COMPENDIUM) }))
         .route("/api/compendium/{endpoint}", get(current_compendium))
+        .route("/api/workbench/{endpoint}", get(current_workbench))
         .route("/api/session", get(worktree_capabilities))
         .route("/api/{*path}", get(live_api));
     if live_author {
@@ -76,6 +125,7 @@ fn worktree_router(service: Service, live_author: bool) -> Router {
             )
         })
         .layer(Extension(Arc::new(CompendiumBrowser::new())))
+        .layer(Extension(Arc::new(workbench::Browser::default())))
         .layer(middleware::from_fn(local_request))
         .with_state(LiveSession {
             live_author,
@@ -187,6 +237,96 @@ async fn current_compendium(
         })
         .await
         .unwrap_or(Err(compendium::Failure::Source)),
+    )
+}
+
+fn workbench_response(result: Result<serde_json::Value>) -> Response {
+    match result {
+        Ok(value) => Json(value).into_response(),
+        Err(Error::Conflict(_)) => refusal(
+            StatusCode::CONFLICT,
+            "stale",
+            "The source changed. Reload the selection.",
+        ),
+        Err(Error::InvalidInput(_) | Error::Ambiguous(_)) => refusal(
+            StatusCode::BAD_REQUEST,
+            "invalid",
+            "Choose a supported Workbench selection.",
+        ),
+        Err(Error::Unsupported(_)) => refusal(
+            StatusCode::UNPROCESSABLE_ENTITY,
+            "unsupported",
+            "This selection needs the native file workflow.",
+        ),
+        Err(_) => refusal(
+            StatusCode::NOT_FOUND,
+            "unavailable",
+            "This selection is unavailable.",
+        ),
+    }
+}
+
+async fn fixed_workbench(
+    State(service): State<Service>,
+    Extension(browser): Extension<Arc<workbench::Browser>>,
+    Path(endpoint): Path<String>,
+    RawQuery(query): RawQuery,
+) -> Response {
+    if endpoint == "archive-simulation" {
+        let reader = service.reader().clone();
+        let result = tokio::task::spawn_blocking(move || {
+            let query =
+                parse_query_bounded(query.as_deref().unwrap_or(""), workbench::MAX_QUERY_BYTES)?;
+            browser.prepare_simulation(&service, &query)
+        })
+        .await
+        .unwrap_or_else(|_| Err(workbench::unavailable()));
+        return workbench_response(
+            result.and_then(|prepared| workbench::present_simulation(reader.emit(prepared))),
+        );
+    }
+    workbench_response(
+        tokio::task::spawn_blocking(move || {
+            let query =
+                parse_query_bounded(query.as_deref().unwrap_or(""), workbench::MAX_QUERY_BYTES)?;
+            browser.execute(&service, &endpoint, &query, false)
+        })
+        .await
+        .unwrap_or_else(|_| Err(workbench::unavailable())),
+    )
+}
+
+async fn current_workbench(
+    State(session): State<LiveSession>,
+    Extension(browser): Extension<Arc<workbench::Browser>>,
+    Path(endpoint): Path<String>,
+    RawQuery(query): RawQuery,
+) -> Response {
+    if endpoint == "archive-simulation" {
+        let reader = session.reader.clone();
+        let result = tokio::task::spawn_blocking(move || {
+            let query =
+                parse_query_bounded(query.as_deref().unwrap_or(""), workbench::MAX_QUERY_BYTES)?;
+            session.run(false, |service| {
+                browser.prepare_simulation(&service, &query)
+            })
+        })
+        .await
+        .unwrap_or_else(|_| Err(workbench::unavailable()));
+        return workbench_response(
+            result.and_then(|prepared| workbench::present_simulation(reader.emit(prepared))),
+        );
+    }
+    workbench_response(
+        tokio::task::spawn_blocking(move || {
+            let query =
+                parse_query_bounded(query.as_deref().unwrap_or(""), workbench::MAX_QUERY_BYTES)?;
+            session.run(workbench::needs_current(&endpoint, &query), |service| {
+                browser.execute(&service, &endpoint, &query, session.live_author)
+            })
+        })
+        .await
+        .unwrap_or_else(|_| Err(workbench::unavailable())),
     )
 }
 
@@ -376,37 +516,87 @@ async fn live_write(
     State(session): State<LiveSession>,
     request: axum::extract::Request,
 ) -> std::result::Result<Response, ApiError> {
+    let receipt = single_header(request.headers(), "accept") == Some(workbench::RECEIPT_MEDIA);
+    let before_dispatch = |response: Response| {
+        if receipt {
+            write_receipt_error(response.status(), false)
+        } else {
+            response
+        }
+    };
     if let Err(response) = write_headers(request.headers()) {
-        return Ok(response);
+        return Ok(before_dispatch(response));
     }
     if request.uri().query().is_some() {
-        return Err(ApiError(Error::InvalidInput(
-            "write routes do not accept query parameters".into(),
-        )));
+        return Ok(before_dispatch(
+            ApiError(Error::InvalidInput(
+                "write routes do not accept query parameters".into(),
+            ))
+            .into_response(),
+        ));
     }
-    let route = WriteRoute::at(request.uri().path())
-        .ok_or_else(|| ApiError(Error::NotFound("write route does not exist".into())))?;
+    let Some(route) = WriteRoute::at(request.uri().path()) else {
+        return Ok(before_dispatch(
+            ApiError(Error::NotFound("write route does not exist".into())).into_response(),
+        ));
+    };
     let bytes = match axum::body::to_bytes(request.into_body(), route.limit()).await {
         Ok(bytes) => bytes,
         Err(_) => {
-            return Ok(refusal(
+            return Ok(before_dispatch(refusal(
                 StatusCode::PAYLOAD_TOO_LARGE,
                 "request_too_large",
                 "Write body exceeds the route byte bound or could not be read",
-            ));
+            )));
         }
     };
-    let raw = String::from_utf8(bytes.to_vec())
-        .map_err(|_| ApiError(Error::InvalidInput("write body must be UTF-8 JSON".into())))?;
-    let result = tokio::task::spawn_blocking(move || {
-        let operation = route.decode(&raw)?;
+    let Ok(raw) = String::from_utf8(bytes.to_vec()) else {
+        return Ok(before_dispatch(
+            ApiError(Error::InvalidInput("write body must be UTF-8 JSON".into())).into_response(),
+        ));
+    };
+    let (dispatched, result) = tokio::task::spawn_blocking(move || {
+        let operation = match route.decode(&raw) {
+            Ok(operation) => operation,
+            Err(error) => return (false, Err(error)),
+        };
         // Keep exact native review/hash/approval admission, including terminal
         // retries whose original expected fingerprint predates publication.
-        session.run(true, |service| service.execute(operation))
+        // The capture fence can itself encounter a pending native publication.
+        (
+            true,
+            session.run(true, |service| service.execute(operation)),
+        )
     })
     .await
-    .map_err(|_| ApiError(Error::Data("request worker failed".into())))??;
-    Ok(Json(result).into_response())
+    .unwrap_or_else(|_| (true, Err(Error::Data("request worker failed".into()))));
+    match result {
+        Ok(result) => Ok(Json(if receipt {
+            workbench::receipt(&result)
+        } else {
+            result
+        })
+        .into_response()),
+        Err(error) if receipt => Ok(write_receipt_error(
+            ApiError(error).into_response().status(),
+            dispatched,
+        )),
+        Err(error) => Err(ApiError(error)),
+    }
+}
+
+fn write_receipt_error(status: StatusCode, may_have_effects: bool) -> Response {
+    // Native writer errors can follow durable effects. Only failures proven
+    // to precede native dispatch can safely release the submission lock.
+    let (outcome, message) = if may_have_effects {
+        ("unconfirmed", "The operation could not be confirmed.")
+    } else {
+        (
+            "refused",
+            "The operation was refused before native dispatch.",
+        )
+    };
+    (status, Json(json!({"outcome":outcome,"message":message}))).into_response()
 }
 
 fn reader_response(result: serde_json::Value) -> Response {
@@ -425,6 +615,7 @@ fn reader_response(result: serde_json::Value) -> Response {
 }
 
 async fn local_request(request: axum::extract::Request, next: Next) -> Response {
+    let workbench_page = request.uri().path() == "/workbench";
     if let Some(host) = request.headers().get("host") {
         let valid = host
             .to_str()
@@ -463,7 +654,14 @@ async fn local_request(request: axum::extract::Request, next: Next) -> Response 
     response
         .headers_mut()
         .insert("x-frame-options", HeaderValue::from_static("DENY"));
-    response.headers_mut().insert("content-security-policy", HeaderValue::from_static("default-src 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'"));
+    let policy = if workbench_page {
+        "default-src 'self'; script-src 'self'; style-src 'unsafe-inline'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'"
+    } else {
+        "default-src 'self'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'self'; object-src 'none'; base-uri 'none'; frame-ancestors 'none'"
+    };
+    response
+        .headers_mut()
+        .insert("content-security-policy", HeaderValue::from_static(policy));
     response
 }
 

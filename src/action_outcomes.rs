@@ -508,6 +508,16 @@ fn replay(world: &World, request: &ApplyRequest, current: &action_store::Stored)
     Ok(result)
 }
 
+/// Inspect a completed application using the native replay checks without writing.
+pub(crate) fn inspect_applied(world: &World, request: &ApplyRequest) -> Result<Json> {
+    request.validate()?;
+    let current = action_store::load_pinned(world, &request.action_id, None)?;
+    if current.draft.phase != "applied" {
+        return Err(invalid("outcome inspection requires an applied action"));
+    }
+    replay(world, request, &current)
+}
+
 /// Apply only the exact saved proposal bound by this complete reviewed packet.
 /// Native approval is an explicit local caller declaration, not authentication.
 pub fn apply(world: &World, request: &ApplyRequest) -> Result<Json> {

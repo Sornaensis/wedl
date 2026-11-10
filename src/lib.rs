@@ -71,4 +71,5 @@ pub mod social;
 pub mod spatial;
 pub mod spatial_history;
 pub mod species;
+mod workbench;
 pub mod writing_frames;

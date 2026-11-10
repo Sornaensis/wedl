@@ -14,8 +14,8 @@ use std::{
 mod outcomes;
 mod store;
 
-pub(crate) use outcomes::validate_publication;
 pub use outcomes::{apply, review};
+pub(crate) use outcomes::{inspect_applied, validate_publication};
 pub use store::{detail, list, preview, save};
 
 pub const MAX_DOCUMENT: usize = 262_144;

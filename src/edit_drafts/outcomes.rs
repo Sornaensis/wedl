@@ -287,6 +287,23 @@ fn replay(world: &World, request: &ApplyRequest, document: &store::Stored) -> Re
     Ok(result)
 }
 
+/// Inspect a completed application using the native replay checks without writing.
+pub(crate) fn inspect_applied(world: &World, request: &ApplyRequest) -> Result<Json> {
+    request.validate()?;
+    if world.revision.is_some() {
+        return Err(invalid(
+            "edit application inspection requires the current worktree",
+        ));
+    }
+    let document = store::load_pinned(world, &request.edit_id, None)?;
+    if document.draft.phase != "applied" {
+        return Err(invalid(
+            "edit application inspection requires an applied edit",
+        ));
+    }
+    replay(world, request, &document)
+}
+
 fn approved(report: &Json, request: &ApplyRequest) -> Result<()> {
     if report["reviewSha256"].as_str() != Some(request.review_sha256.as_str()) {
         return Err(Error::Conflict(
