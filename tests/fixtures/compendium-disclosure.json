@@ -1,0 +1,111 @@
+{
+  "tick": "9007199254740993",
+  "records": [
+    {
+      "kind": "world", "id": "world_00000000000000000000000000", "title": "Disclosure harbor",
+      "capabilities": ["spatial-core-v1", "geometry-v1", "route-v1", "lore-core-v1", "spatial-history-v1"],
+      "default_timeline": "main", "timelines": [{"id": "main", "label": "Harbor chronology"}, {"id": "alternate", "label": "Alternate chronology"}],
+      "current_time": {"timeline": "main", "tick": "$tick", "order": 2},
+      "state_keys": {}, "relationship_metrics": {}, "threads": [],
+      "profiles": [{"id": "notes", "label": "Notes", "fields": {"type": "object", "required": {"note": {"type": "string"}}, "optional": {}}}]
+    },
+    {"kind": "character", "id": "char_00000000000000000000000001", "title": "Ada River", "initial_state": {}},
+    {"kind": "character", "id": "char_00000000000000000000000002", "title": "Bea Finch", "initial_state": {}},
+    {"kind": "character", "id": "char_00000000000000000000000003", "title": "Cove hand", "initial_state": {}},
+    {"kind": "object", "id": "obj_00000000000000000000000001", "title": "Loose compass"},
+    {"kind": "object", "id": "obj_00000000000000000000000002", "title": "Bronze token"},
+    {"kind": "object", "id": "obj_00000000000000000000000003", "title": "Signal lantern"},
+    {
+      "kind": "location", "id": "loc_00000000000000000000000001", "title": "Dock",
+      "$body": "MATRIX_AUTHOR_DOCK_PROSE",
+      "spatial": {"map_id": "map:harbor", "geometry": {"kind": "point", "coordinates": [20, 20]}},
+      "concept_links": [
+        {"relation": "documents", "concept_id": "concept_00000000000000000000000001", "valid": {"kind": "timeless"}},
+        {"relation": "$withheldEdge", "concept_id": "concept_00000000000000000000000001", "valid": {
+          "kind": "interval", "timeline": "main", "start": {"timeline": "main", "tick": "$tick", "order": 3}
+        }}
+      ]
+    },
+    {
+      "kind": "location", "id": "loc_00000000000000000000000002", "title": "Bluff",
+      "spatial": {"map_id": "map:harbor", "geometry": {"kind": "point", "coordinates": [80, 80]}}
+    },
+    {"kind": "location", "id": "loc_00000000000000000000000003", "title": "Storehouse"},
+    {
+      "kind": "location", "id": "loc_00000000000000000000000004", "title": "Moving buoy",
+      "spatial": {"map_id": "map:harbor", "geometry": {"kind": "point", "coordinates": [50, 50]}},
+      "spatial_history": [{"id": "spatialhistory_00000000000000000000000001", "aspect": "placement",
+        "valid": {"kind": "interval", "timeline": "main", "start": {"timeline": "main", "tick": "$tick", "order": 2}},
+        "value": {"map_id": "map:survey", "geometry": {"kind": "point", "coordinates": [12, 15, 2]}}}]
+    },
+    {
+      "kind": "location", "id": "loc_00000000000000000000000005", "title": "Lower platform",
+      "spatial": {"map_id": "map:survey", "geometry": {"kind": "point", "coordinates": [0, 0, 3]}}
+    },
+    {
+      "kind": "location", "id": "loc_00000000000000000000000006", "title": "Upper platform",
+      "spatial": {"map_id": "map:survey", "geometry": {"kind": "point", "coordinates": [0, 0, 7]}}
+    },
+    {
+      "kind": "map", "id": "map:harbor", "title": "Harbor grid", "crs": "local-planar:harbor",
+      "axis_order": ["east", "north"], "unit": "pace", "bounds": {"min": [0, 0], "max": [100, 100]}
+    },
+    {
+      "kind": "map", "id": "map:survey", "title": "Ocean survey", "crs": "EPSG:4326",
+      "axis_order": ["longitude", "latitude"], "unit": "degree", "z_policy": "required",
+      "bounds": {"min": [-90, -45, 0], "max": [90, 45, 20]}
+    },
+    {
+      "kind": "route", "id": "route:pier-path", "title": "Pier path", "from_location_id": "loc_00000000000000000000000001",
+      "to_location_id": "loc_00000000000000000000000002", "direction": "one-way", "modes": ["foot"], "availability": "open"
+    },
+    {
+      "kind": "route", "id": "route:return-path", "title": "Return path", "from_location_id": "loc_00000000000000000000000002",
+      "to_location_id": "loc_00000000000000000000000001", "direction": "one-way", "modes": ["foot"], "availability": "closed"
+    },
+    {
+      "kind": "lore-concept", "id": "concept_00000000000000000000000001", "title": "Pier ledger",
+      "domain": "harbor.notes", "profile": "notes", "values": {"note": "Verified tide mark."},
+      "audience": ["public"], "perspectives": ["ordinary"], "valid": {"kind": "timeless"}
+    },
+    {
+      "kind": "event", "id": "event_00000000000000000000000001", "title": "First tide",
+      "location": "loc_00000000000000000000000001", "time": {"timeline": "main", "tick": "$tick", "order": 1},
+      "participants": [{"character": "char_00000000000000000000000001"}], "causes": [], "effects": [], "related_story_points": []
+    },
+    {
+      "kind": "event", "id": "event_00000000000000000000000002", "title": "Second tide",
+      "location": "loc_00000000000000000000000001", "time": {"timeline": "main", "tick": "$tick", "order": 2},
+      "participants": [{"character": "char_00000000000000000000000002"}],
+      "causes": ["event_00000000000000000000000001"], "effects": [], "related_story_points": []
+    },
+    {
+      "kind": "event", "id": "event_00000000000000000000000003", "title": "First tide",
+      "location": "loc_00000000000000000000000001", "time": {"timeline": "alternate", "tick": "$tick", "order": 1},
+      "participants": [], "causes": [], "effects": [], "related_story_points": []
+    },
+    {
+      "kind": "scene", "id": "scene_00000000000000000000000001", "title": "Night watch", "status": "closed",
+      "location": "loc_00000000000000000000000001",
+      "time": {"start": {"timeline": "main", "tick": "$tick", "order": 0}, "current": {"timeline": "main", "tick": "$tick", "order": 1}, "end": {"timeline": "main", "tick": "$tick", "order": 1}},
+      "participants": [{"character": "char_00000000000000000000000001"}, {"character": "char_00000000000000000000000003"}],
+      "objects": ["obj_00000000000000000000000003"], "conversations": [], "observations": [], "environments": [], "outcome_events": []
+    }
+  ],
+  "knowledge": [
+    ["First tide", "event_00000000000000000000000001", 1],
+    ["Second tide", "event_00000000000000000000000002", 2],
+    ["Dock", "loc_00000000000000000000000001", 1],
+    ["Bluff", "loc_00000000000000000000000002", 1],
+    ["Pier ledger", "concept_00000000000000000000000001", 1],
+    ["Loose compass", "obj_00000000000000000000000001", 1],
+    ["Storehouse", "loc_00000000000000000000000003", 1],
+    ["Pier path", "route:pier-path", 1],
+    ["Bea Finch", "char_00000000000000000000000002", 2],
+    ["Bronze token", "obj_00000000000000000000000002", 2]
+  ],
+  "variants": [
+    {"name": "baseline", "bound": 13, "point": [1.23456789, 3.987654321]},
+    {"name": "counterpart", "bound": 71, "point": [21.31415926, 37.27182818]}
+  ]
+}
