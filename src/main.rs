@@ -2001,12 +2001,15 @@ enum Command {
         #[arg(long)]
         expected_after_sha256: String,
     },
-    /// Serve the local-author browser with fresh worktree reads and guarded reviewed writes; revisions are read-only.
+    /// Serve the read-only local-author browser.
     Serve {
         #[arg(long, default_value = "127.0.0.1")]
         host: String,
         #[arg(long, default_value_t = 8765)]
         port: u16,
+        /// Enable reviewed browser writes for the current worktree. Historical revisions stay read-only.
+        #[arg(long)]
+        live_author: bool,
         /// Explicit operator-owned policy for author reader simulation.
         #[arg(long, value_name = "FILE")]
         reader_simulation_policy: Option<PathBuf>,
@@ -3539,6 +3542,7 @@ async fn run(cli: Cli) -> Result<u8> {
         Command::Serve {
             host,
             port,
+            live_author,
             reader_simulation_policy,
         } => {
             if let Some(path) = reader_simulation_policy {
@@ -3549,7 +3553,11 @@ async fn run(cli: Cli) -> Result<u8> {
                     )?,
                 ))?;
             }
-            http::serve(service, &host, port).await?;
+            if live_author {
+                http::serve_live_author(service, &host, port).await?;
+            } else {
+                http::serve(service, &host, port).await?;
+            }
             return Ok(0);
         }
     };

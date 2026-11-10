@@ -9,7 +9,17 @@ use axum::{
 };
 use http_body_util::BodyExt;
 use serde_json::{Value as Json, json};
-use std::{collections::BTreeMap, fs, path::Path, process::Command, time::SystemTime};
+use std::{
+    collections::BTreeMap,
+    fs,
+    io::{BufRead, BufReader, Read, Write},
+    net::{SocketAddr, TcpStream},
+    path::Path,
+    process::{Child, Command, Stdio},
+    sync::mpsc,
+    thread,
+    time::{Duration, SystemTime},
+};
 use tower::ServiceExt;
 use wedl::{
     http, manuscript,
@@ -21,6 +31,85 @@ use wedl::{
 
 const SAVE: &str = "/api/action-drafts/save";
 const WORK: &str = "work_00000000000000000000000001";
+const WRITE_ROUTES: [&str; 6] = [
+    SAVE,
+    "/api/action-drafts/apply-outcome",
+    "/api/edit-drafts/save",
+    "/api/edit-drafts/apply",
+    "/api/manuscripts/save",
+    "/api/retcon-reviews/save",
+];
+
+struct CliServer(Child);
+
+impl CliServer {
+    fn start(root: &Path, revision: Option<&str>, live_author: bool) -> (Self, SocketAddr) {
+        let mut command = Command::new(env!("CARGO_BIN_EXE_wedl-rs"));
+        command.arg("--repo").arg(root);
+        if let Some(revision) = revision {
+            command.args(["--revision", revision]);
+        }
+        command.args(["serve", "--port", "0"]);
+        if live_author {
+            command.arg("--live-author");
+        }
+        let mut server = Self(
+            command
+                .stdout(Stdio::null())
+                .stderr(Stdio::piped())
+                .spawn()
+                .unwrap(),
+        );
+        let stderr = BufReader::new(server.0.stderr.take().unwrap());
+        let (send, receive) = mpsc::channel();
+        thread::spawn(move || {
+            for line in stderr.lines() {
+                if matches!(&line, Ok(text) if text.trim().is_empty()) {
+                    continue;
+                }
+                let _ = send.send(line);
+                break;
+            }
+        });
+        let line = receive
+            .recv_timeout(Duration::from_secs(15))
+            .unwrap()
+            .unwrap();
+        let address = line
+            .strip_prefix("Ready: http://")
+            .and_then(|ready| ready.split_once(' '))
+            .unwrap_or_else(|| panic!("CLI did not report a listening address: {line}"))
+            .0
+            .parse()
+            .unwrap();
+        (server, address)
+    }
+}
+
+impl Drop for CliServer {
+    fn drop(&mut self) {
+        let _ = self.0.kill();
+        let _ = self.0.wait();
+    }
+}
+
+fn cli_request(address: SocketAddr, method: &str, path: &str, body: &str) -> (u16, Json) {
+    let timeout = Some(Duration::from_secs(5));
+    let mut stream = TcpStream::connect_timeout(&address, Duration::from_secs(5)).unwrap();
+    stream.set_read_timeout(timeout).unwrap();
+    stream.set_write_timeout(timeout).unwrap();
+    write!(
+        stream,
+        "{method} {path} HTTP/1.1\r\nHost: {address}\r\nOrigin: http://{address}\r\nX-WEDL-Write: 1\r\nContent-Type: application/json\r\nContent-Length: {}\r\nConnection: close\r\n\r\n{body}",
+        body.len(),
+    )
+    .unwrap();
+    let mut response = String::new();
+    stream.read_to_string(&mut response).unwrap();
+    let (head, body) = response.split_once("\r\n\r\n").unwrap();
+    let status = head.split_whitespace().nth(1).unwrap().parse().unwrap();
+    (status, serde_json::from_str(body).unwrap())
+}
 
 fn post(uri: &str, bytes: impl Into<Body>) -> Request<Body> {
     Request::builder()
@@ -84,6 +173,53 @@ fn image(root: &Path) -> BTreeMap<String, (Vec<u8>, SystemTime)> {
 
 fn encoded(value: &str) -> String {
     value.bytes().map(|byte| format!("%{byte:02X}")).collect()
+}
+
+#[test]
+fn cli_worktree_serve_is_read_only_until_live_author_is_enabled() {
+    let (_directory, world) = base::fixture();
+    let (_read_only, address) = CliServer::start(&world.root, None, false);
+    let (status, session) = cli_request(address, "GET", "/api/session", "");
+    assert_eq!(status, 200);
+    assert_eq!(
+        session["result"],
+        json!({"mode":"read-only-author","writesEnabled":false})
+    );
+    let (status, initial) = cli_request(address, "GET", "/api/status", "");
+    assert_eq!(status, 200);
+    assert_eq!(initial["fingerprint"], world.fingerprint);
+    let before = image(&world.root);
+    let valid_save = request(&world);
+    for route in WRITE_ROUTES {
+        let (status, result) = cli_request(address, "POST", route, &valid_save);
+        assert_eq!(status, 405, "{route}: {result}");
+    }
+    assert_eq!(image(&world.root), before);
+
+    let place = world.records.get(base::PLACE).unwrap();
+    let source_path = world.root.join(&place.source_path);
+    let original = fs::read_to_string(&source_path).unwrap();
+    fs::write(
+        &source_path,
+        original.replace("A landing.", "A new landing."),
+    )
+    .unwrap();
+    let current = source::load_world(&world.root, None).unwrap();
+    let (status, refreshed) = cli_request(address, "GET", "/api/status", "");
+    assert_eq!(status, 200);
+    assert_ne!(current.fingerprint, world.fingerprint);
+    assert_eq!(refreshed["fingerprint"], current.fingerprint);
+
+    let (_live, address) = CliServer::start(&world.root, None, true);
+    let (status, session) = cli_request(address, "GET", "/api/session", "");
+    assert_eq!(status, 200);
+    assert_eq!(
+        session["result"],
+        json!({"mode":"live-author","writesEnabled":true})
+    );
+    let (status, saved) = cli_request(address, "POST", SAVE, &request(&current));
+    assert_eq!(status, 200, "{saved}");
+    assert!(base::path(&current, &base::id(1)).is_file());
 }
 
 #[tokio::test]
@@ -273,14 +409,7 @@ async fn post_surface_is_an_exact_whitelist_and_has_no_raw_plan_or_record_writer
             "{route}"
         );
     }
-    for route in [
-        SAVE,
-        "/api/action-drafts/apply-outcome",
-        "/api/edit-drafts/save",
-        "/api/edit-drafts/apply",
-        "/api/manuscripts/save",
-        "/api/retcon-reviews/save",
-    ] {
+    for route in WRITE_ROUTES {
         assert_eq!(
             call(&app, post(&format!("{route}?apply=true"), "{}"))
                 .await
@@ -472,6 +601,14 @@ async fn explicit_historical_manuscript_and_revision_reads_survive_live_parse_co
         &["commit", "-q", "-m", "Original explicit sources"],
     );
     let revision = git(&world.root, &["rev-parse", "HEAD"]);
+    let (_historical, address) = CliServer::start(&world.root, Some(&revision), true);
+    let (status, snapshot) = cli_request(address, "GET", "/api/status", "");
+    assert_eq!(status, 200);
+    assert_eq!(snapshot["revision"], revision);
+    assert_eq!(cli_request(address, "GET", "/api/session", "").0, 404);
+    for route in WRITE_ROUTES {
+        assert_eq!(cli_request(address, "POST", route, "{}").0, 405, "{route}");
+    }
     let service = Service::new(world.clone());
     let app = http::live_router(service.clone());
     let list = json!({"revision":revision,"kind":null,"maxItems":100});

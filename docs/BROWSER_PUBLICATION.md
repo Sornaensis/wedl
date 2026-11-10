@@ -7,9 +7,10 @@ source, API and private-document labels remain v1.
 
 ## Author workflow
 
-Start `wedl-rs --repo WORLD serve` and open the printed loopback URL. The header
-reports whether publication is available. A server opened with `--revision`
-remains an immutable read-only snapshot; downloads are still available.
+Start `wedl-rs --repo WORLD serve --live-author` and open the printed loopback URL.
+The header reports whether publication is available. Plain `serve` provides
+read-only worktree browsing. A server opened with `--revision` serves an immutable
+read-only snapshot even with `--live-author`. Downloads remain available in all modes.
 
 1. In **Actions**, create or import a draft and choose **Save private draft**.
    List and load the saved draft before continuing. Resolution-needed saves and
@@ -33,16 +34,19 @@ Reveal-plan source uses the same manuscript save route.
 Saves never silently replace a tab's buffer or change its original pins. This
 also holds when the author types or changes tabs while a write is pending. Load
 the saved document explicitly to continue from its new hash. **Refresh source**
-invalidates cached results and approvals while retaining local inputs, selected
-story coordinates and original pins. Capturing new pins is a separate action.
+is available in both worktree modes. It invalidates cached results and approvals
+while retaining local inputs, selected story coordinates and original pins.
+Capturing new pins is a separate action.
 
 ## HTTP contract
 
 `http::router(Service)` retains its immutable GET-only contract.
-`http::live_router(Service)` is used for current-worktree `serve`; historical
-input falls back to the immutable router. `GET /api/session` on the live router
-returns `result: {mode: "live-author", writesEnabled: true}` in the ordinary
-`wedl-rust/v1` envelope.
+Current-worktree `serve` uses the same fenced read capture as `serve --live-author`,
+with only the read routes registered. Current-worktree `serve --live-author` uses
+`http::live_router(Service)`. Historical input uses the immutable router.
+`GET /api/session` returns capabilities in the ordinary `wedl-rust/v1` envelope.
+Plain worktree mode reports `mode: "read-only-author"` and `writesEnabled: false`.
+The live router reports `mode: "live-author"` and `writesEnabled: true`.
 
 | Exact POST route | Existing native request | Maximum body bytes |
 | --- | --- | ---: |

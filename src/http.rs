@@ -41,17 +41,24 @@ pub fn live_router(service: Service) -> Router {
     if service.world().revision.is_some() {
         return router(service);
     }
-    Router::new()
+    worktree_router(service, true)
+}
+
+fn worktree_router(service: Service, live_author: bool) -> Router {
+    let mut app = Router::new()
         .route("/", get(|| async { Html(INDEX) }))
-        .route("/api/session", get(live_capabilities))
-        .route("/api/{*path}", get(live_api))
-        .route("/api/action-drafts/save", post(live_write))
-        .route("/api/action-drafts/apply-outcome", post(live_write))
-        .route("/api/edit-drafts/save", post(live_write))
-        .route("/api/edit-drafts/apply", post(live_write))
-        .route("/api/manuscripts/save", post(live_write))
-        .route("/api/retcon-reviews/save", post(live_write))
-        .fallback(|| async { ApiError(Error::NotFound("route does not exist".into())) })
+        .route("/api/session", get(worktree_capabilities))
+        .route("/api/{*path}", get(live_api));
+    if live_author {
+        app = app
+            .route("/api/action-drafts/save", post(live_write))
+            .route("/api/action-drafts/apply-outcome", post(live_write))
+            .route("/api/edit-drafts/save", post(live_write))
+            .route("/api/edit-drafts/apply", post(live_write))
+            .route("/api/manuscripts/save", post(live_write))
+            .route("/api/retcon-reviews/save", post(live_write));
+    }
+    app.fallback(|| async { ApiError(Error::NotFound("route does not exist".into())) })
         .method_not_allowed_fallback(|| async {
             refusal(
                 StatusCode::METHOD_NOT_ALLOWED,
@@ -61,6 +68,7 @@ pub fn live_router(service: Service) -> Router {
         })
         .layer(middleware::from_fn(local_request))
         .with_state(LiveSession {
+            live_author,
             reader: service.reader().clone(),
             gate: Arc::new(Mutex::new(LiveState {
                 service,
@@ -71,6 +79,7 @@ pub fn live_router(service: Service) -> Router {
 
 #[derive(Clone)]
 struct LiveSession {
+    live_author: bool,
     reader: crate::reader::PresentationService,
     gate: Arc<Mutex<LiveState>>,
 }
@@ -102,16 +111,22 @@ impl LiveSession {
     }
 }
 
-async fn live_capabilities(
+async fn worktree_capabilities(
     State(session): State<LiveSession>,
     RawQuery(raw): RawQuery,
 ) -> std::result::Result<Response, ApiError> {
     allowed(&parse_query(raw.as_deref().unwrap_or(""))?, &[])?;
+    let writes_enabled = session.live_author;
+    let mode = if writes_enabled {
+        "live-author"
+    } else {
+        "read-only-author"
+    };
     let result = tokio::task::spawn_blocking(move || {
         session.run(true, |service| {
             Ok(json!({"protocol":crate::service::PROTOCOL,
             "fingerprint":service.world().fingerprint,"revision":null,
-            "result":{"mode":"live-author","writesEnabled":true}}))
+            "result":{"mode":mode,"writesEnabled":writes_enabled}}))
         })
     })
     .await
@@ -391,6 +406,14 @@ pub fn loopback_address(host: &str, port: u16) -> Result<SocketAddr> {
 }
 
 pub async fn serve(service: Service, host: &str, port: u16) -> Result<()> {
+    serve_author(service, host, port, false).await
+}
+
+pub async fn serve_live_author(service: Service, host: &str, port: u16) -> Result<()> {
+    serve_author(service, host, port, true).await
+}
+
+async fn serve_author(service: Service, host: &str, port: u16, live_author: bool) -> Result<()> {
     if !validation::validate_world(service.world()).valid {
         return Err(Error::Validation(
             "source validation failed; run validate before serve".into(),
@@ -398,21 +421,13 @@ pub async fn serve(service: Service, host: &str, port: u16) -> Result<()> {
     }
     let listener = tokio::net::TcpListener::bind(loopback_address(host, port)?).await?;
     let address = listener.local_addr()?;
-    let historical = service.world().revision.is_some();
-    eprintln!(
-        "Ready: http://{address} — {} {} (Ctrl+C to stop)",
-        if historical {
-            "fixed read-only author snapshot"
-        } else {
-            "live local-author worktree"
-        },
-        service.world().fingerprint
-    );
-    let app = if historical {
-        router(service)
-    } else {
-        live_router(service)
+    let fingerprint = service.world().fingerprint.clone();
+    let (mode, app) = match (service.world().revision.is_some(), live_author) {
+        (true, _) => ("fixed read-only author snapshot", router(service)),
+        (false, false) => ("read-only author worktree", worktree_router(service, false)),
+        (false, true) => ("live local-author worktree", live_router(service)),
     };
+    eprintln!("Ready: http://{address} — {mode} {fingerprint} (Ctrl+C to stop)");
     axum::serve(listener, app)
         .with_graceful_shutdown(async {
             let _ = tokio::signal::ctrl_c().await;

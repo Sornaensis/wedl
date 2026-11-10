@@ -891,7 +891,7 @@
     const $ = id => document.getElementById(id);
     const setText = (id, value) => { $(id).textContent = value; };
     let selected = null, view = 'browse', generation = 0, loadedFingerprint = null, loadedRevision = null, searchThreadsLoading = false, storyHorizonTouched = false;
-    let publicationReady = false, writesEnabled = false, publicationBusy = false, sourceRefreshBusy = false, publicationNeedsRefresh = false, lastPublication = null, catalogueEpoch = 0;
+    let publicationReady = false, writesEnabled = false, sourceRefreshAvailable = false, publicationBusy = false, sourceRefreshBusy = false, publicationNeedsRefresh = false, lastPublication = null, catalogueEpoch = 0;
     let coreCatalogueEpoch = 0, coreCatalogueBusy = false, coreCatalogueRead = null;
     // Initial status may arrive after a request has been edited or used.
     // Source defaults apply only to untouched selections.
@@ -3478,7 +3478,7 @@
         if (available) { try { action.read(); } catch { available = false; } }
         $(action.id).disabled = !available;
       }
-      $('source-refresh').disabled = !writesEnabled || publicationBusy || sourceRefreshBusy;
+      $('source-refresh').disabled = !sourceRefreshAvailable || publicationBusy || sourceRefreshBusy;
       $('publish-download-request').disabled = !lastPublication;
     }
     function invalidateSourceViews() {
@@ -3501,7 +3501,7 @@
       refreshPublicationControls();
     }
     async function refreshSource() {
-      if (!writesEnabled || sourceRefreshBusy) throw new Error('Live source refresh is unavailable in this session.');
+      if (!sourceRefreshAvailable || sourceRefreshBusy) throw new Error('Current source refresh is unavailable in this session.');
       const retainedFrame = view === 'writing' && writingResolved && sameFrame(writingResolved,writingFrame()) ? jsonCopy(writingResolved) : null;
       sourceRefreshBusy = true; publicationNeedsRefresh = true; invalidateSourceViews();
       const retainedEpoch = writingEpoch, retainedGeneration = generation;
@@ -3602,9 +3602,13 @@
         validatePendingWritingHistory();
         try {
           const sessionResponse = await fetch('/api/session',{credentials:'same-origin',cache:'no-store'});
-          if (sessionResponse.ok) { const session = await sessionResponse.json(); writesEnabled = loadedRevision === null && session.revision === null && session.result?.mode === 'live-author' && session.result.writesEnabled === true; }
-        } catch { writesEnabled = false; }
-        setText('publication-mode',writesEnabled ? 'Current worktree · reviewed publication available' : 'Read-only snapshot · downloads remain available');
+          if (sessionResponse.ok) {
+            const session = await sessionResponse.json(), mode = session.result?.mode;
+            sourceRefreshAvailable = loadedRevision === null && session.revision === null && (mode === 'read-only-author' || mode === 'live-author');
+            writesEnabled = sourceRefreshAvailable && mode === 'live-author' && session.result.writesEnabled === true;
+          }
+        } catch { sourceRefreshAvailable = false; writesEnabled = false; }
+        setText('publication-mode',writesEnabled ? 'Current worktree · reviewed publication available' : sourceRefreshAvailable ? 'Current worktree · read-only · downloads remain available' : 'Read-only snapshot · downloads remain available');
         refreshPublicationControls();
         await catalogue();
       } catch (error) {setText('world-title', 'Unable to open world'); report(error, 'list-status');}

@@ -1,4 +1,4 @@
-"""Benchmark the production live author server built with snapshot-baseline."""
+"""Benchmark the production read-only author server built with snapshot-baseline."""
 import argparse
 from collections import deque
 from concurrent.futures import ThreadPoolExecutor
@@ -93,7 +93,7 @@ def server(binary, root):
             for line in process.stderr:
                 line = line.strip()
                 address = re.match(
-                    r"Ready: http://127\.0\.0\.1:(\d+) \u2014 live local-author worktree ([0-9a-f]{64}) ",
+                    r"Ready: http://127\.0\.0\.1:(\d+) \u2014 read-only author worktree ([0-9a-f]{64}) ",
                     line,
                 )
                 if address:

@@ -26,3 +26,5 @@ wedl-rs --repo tideglass-world serve
 ```
 
 After running `serve`, open [localhost:8765](http://127.0.0.1:8765) in your browser.
+The browser is read-only by default. Use `serve --live-author` to enable
+reviewed publication in the current worktree.
