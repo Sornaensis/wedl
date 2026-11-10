@@ -98,6 +98,40 @@ struct PublicInput {
     publication_id: String,
     at: TimeInput,
     text_policy: String,
+    #[serde(default)]
+    presentation: Option<PresentationInput>,
+}
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct PresentationInput {
+    edition: Option<String>,
+    #[serde(default)]
+    positions: Vec<PositionInput>,
+}
+#[derive(Deserialize)]
+#[serde(deny_unknown_fields)]
+struct PositionInput {
+    occurrence: usize,
+    label: String,
+}
+impl PresentationInput {
+    fn into_labels(self) -> Result<reader::PublicLabels> {
+        let count = self.positions.len();
+        let positions = self
+            .positions
+            .into_iter()
+            .map(|item| (item.occurrence, item.label))
+            .collect::<BTreeMap<_, _>>();
+        if count != positions.len() {
+            return Err(invalid());
+        }
+        let labels = reader::PublicLabels {
+            edition: self.edition,
+            positions,
+        };
+        labels.validate()?;
+        Ok(labels)
+    }
 }
 #[derive(Deserialize)]
 #[serde(rename_all = "camelCase", deny_unknown_fields)]
@@ -248,6 +282,13 @@ pub fn read(path: &Path) -> Result<String> {
     String::from_utf8(bytes).map_err(|_| invalid())
 }
 pub fn decode_public(root: &Path, raw: &str) -> Result<reader::PublicPolicy> {
+    decode_public_with_labels(root, raw).map(|(policy, _)| policy)
+}
+/// Decode optional browser labels alongside the unchanged machine policy.
+pub fn decode_public_with_labels(
+    root: &Path,
+    raw: &str,
+) -> Result<(reader::PublicPolicy, reader::PublicLabels)> {
     let input: PublicInput = decode(raw)?;
     if input.schema != SCHEMA || input.kind != "public" {
         return Err(invalid());
@@ -256,19 +297,27 @@ pub fn decode_public(root: &Path, raw: &str) -> Result<reader::PublicPolicy> {
     let cursor_secret = secret(&input.cursor_secret)?;
     let at = input.at.into_time()?;
     let text_policy = text_policy(&input.text_policy)?;
-    Ok(reader::PublicPolicy {
-        repository: reader::repository_identity(root)?,
-        revision: input.revision,
-        work_id: input.work_id,
-        plan_id: input.plan_id,
-        canonical_scope,
-        generation: input.generation,
-        max_occurrence: input.max_occurrence,
-        cursor_secret,
-        publication_id: input.publication_id,
-        at,
-        text_policy,
-    })
+    let labels = input
+        .presentation
+        .map(PresentationInput::into_labels)
+        .transpose()?
+        .unwrap_or_default();
+    Ok((
+        reader::PublicPolicy {
+            repository: reader::repository_identity(root)?,
+            revision: input.revision,
+            work_id: input.work_id,
+            plan_id: input.plan_id,
+            canonical_scope,
+            generation: input.generation,
+            max_occurrence: input.max_occurrence,
+            cursor_secret,
+            publication_id: input.publication_id,
+            at,
+            text_policy,
+        },
+        labels,
+    ))
 }
 pub fn decode_simulation(root: &Path, raw: &str) -> Result<reader::SimulationPolicy> {
     let input: SimulationInput = decode(raw)?;
@@ -290,4 +339,44 @@ pub fn decode_simulation(root: &Path, raw: &str) -> Result<reader::SimulationPol
         principal_id: input.principal_id,
         author_permissions,
     })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn published_labels_are_optional_closed_bounded_operator_input() {
+        let labels = decode::<PresentationInput>(
+            r#"{"edition":"Published story","positions":[{"occurrence":0,"label":"Arrival"}]}"#,
+        )
+        .unwrap()
+        .into_labels()
+        .unwrap();
+        assert_eq!(labels.edition.as_deref(), Some("Published story"));
+        assert_eq!(
+            labels.positions.get(&0).map(String::as_str),
+            Some("Arrival")
+        );
+        let defaults = decode::<PresentationInput>("{}")
+            .unwrap()
+            .into_labels()
+            .unwrap();
+        assert!(defaults.edition.is_none() && defaults.positions.is_empty());
+        for raw in [
+            r#"{"edition":""}"#,
+            r#"{"edition":"bad\nlabel"}"#,
+            r#"{"positions":[{"occurrence":1024,"label":"Future"}]}"#,
+            r#"{"positions":[{"occurrence":0,"label":"A"},{"occurrence":0,"label":"B"}]}"#,
+            r#"{"positions":[{"occurrence":1,"label":"A","private":true}]}"#,
+            r#"{"edition":"A","edition":"B"}"#,
+        ] {
+            assert!(
+                decode::<PresentationInput>(raw)
+                    .and_then(PresentationInput::into_labels)
+                    .is_err(),
+                "accepted {raw}"
+            );
+        }
+    }
 }

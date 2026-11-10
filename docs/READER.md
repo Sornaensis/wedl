@@ -44,6 +44,9 @@ The isolated listener binds only loopback and serves exactly:
 | `/reader.js` | GET | Reader script |
 | `/api/reader-presentation/page` | POST | One admitted page |
 | `/api/reader-presentation/search` | POST | Search admitted items |
+| `/api/reader-presentation/choices` | GET | Installed public edition and named positions |
+| `/api/reader-presentation/read` | POST | Browser reading position and revealed items |
+| `/api/reader-presentation/find` | POST | Browser search at that reading position |
 
 It mounts no author, session, source, policy, entity, private search, preview, or
 mutation routes. The reader requires one loopback Host header; an Origin, when
@@ -82,7 +85,7 @@ or invocation. They are not repository discovery files. Restart the CLI server
 to reload a changed file; embedding callers can install/revoke policies directly.
 No HTTP endpoint changes policy.
 
-A public configuration has exactly these fields (substitute real identifiers,
+A public configuration has these required fields (substitute real identifiers,
 commit, whitelist, and a privately generated 32-byte secret):
 
 ```json
@@ -106,12 +109,29 @@ commit, whitelist, and a privately generated 32-byte secret):
 }
 ```
 
+The optional public `presentation` object publishes browser labels for the pinned
+work and reveal plan. Use an `edition` string and a `positions` array of objects
+such as `{"occurrence": 0, "label": "Arrival at the Quay"}`. Both fields may be
+omitted. Each label is nonblank, at most 120 Unicode scalars and 480 UTF-8 bytes,
+and has no control characters. Occurrences must be unique integers from 0 to
+1023. Choices expose only positions that exist in the pinned work and are
+within `maxOccurrence`. The edition defaults to **Published edition**, and
+eligible unnamed positions remain available through previous and next navigation.
+
 Simulation uses `kind: "author-simulation"`, replaces `publicationId`, `at`, and
 `textPolicy` with `principalId` and `authorPermissions`, and otherwise has the
 same common fields. `authorPermissions` has the same shape as `canonicalScope`.
 Unknown or duplicate fields, duplicate record/path entries, coercions, and
 structural budget excess are rejected. Configuration decoding does not infer a
 whitelist from author access.
+
+The browser requests choices without a body or query. Reading and search submit
+`edition` and `position` opaque selectors, a `cursor` (initially `null`), and
+`query` for search only. Selectors are scoped to the installed public policy and
+rechecked against its pinned source for every request. Unavailable positions,
+including bookmarks from replaced policies, share the same recovery state. The
+browser receives published labels, permitted text, counts and opaque navigation.
+The machine page and search protocol below remains available separately.
 
 `sections: null` permits the selected records' ordinary fields. A map is an
 explicit whitelist: missing owners and empty path arrays permit no fields.
@@ -150,7 +170,7 @@ nonblank, at most 256 Unicode scalars and 1024 UTF-8 bytes. Preview `at` contain
 exact `timeline`, `tick`, and `order`; tick/order are canonical signed decimal
 strings fitting i64/i32, without plus signs, leading zeroes, or `-0`. Public
 requests cannot override their installed horizon. Query parameters are forbidden
-on both public POST routes.
+on public POST routes.
 
 An available result contains exactly `protocol`, `mode`, `operation`, `outcome`,
 `code`, `revision`, `occurrence`, `at`, `navigation`, `items`, `count`, and

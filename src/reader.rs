@@ -17,8 +17,10 @@ use std::{
     sync::{Arc, RwLock},
 };
 
+mod browser;
 pub(crate) mod casefold;
 mod transport;
+pub use browser::PublicLabels;
 pub use transport::{router, serve};
 
 pub const PROTOCOL: &str = "wedl-reader-presentation/v1";
@@ -82,6 +84,7 @@ pub struct SimulationPolicy {
 #[derive(Default)]
 struct Installed {
     public: Option<Arc<PublicPolicy>>,
+    public_labels: Arc<PublicLabels>,
     simulation: Option<Arc<SimulationPolicy>>,
 }
 struct Inner {
@@ -446,6 +449,16 @@ impl PresentationService {
         Ok(())
     }
     pub fn install_public(&self, policy: Option<PublicPolicy>) -> Result<()> {
+        self.install_public_with_labels(policy, PublicLabels::default())
+    }
+    /// Install public presentation labels with the policy whose immutable work
+    /// and reveal plan they describe. Labels never grant access on their own.
+    pub fn install_public_with_labels(
+        &self,
+        policy: Option<PublicPolicy>,
+        labels: PublicLabels,
+    ) -> Result<()> {
+        labels.validate()?;
         let policy = policy.map(Arc::new);
         if let Some(policy) = &policy {
             if !handle(&policy.publication_id) || !valid_time(&policy.at) {
@@ -453,11 +466,13 @@ impl PresentationService {
             }
             self.validate_binding(&CapturedPolicy::Public(policy.clone()).binding())?;
         }
-        self.0
-            .installed
-            .write()
-            .map_err(|_| invalid_policy())?
-            .public = policy;
+        let mut installed = self.0.installed.write().map_err(|_| invalid_policy())?;
+        installed.public_labels = if policy.is_some() {
+            Arc::new(labels)
+        } else {
+            Arc::default()
+        };
+        installed.public = policy;
         Ok(())
     }
     pub fn install_simulation(&self, policy: Option<SimulationPolicy>) -> Result<()> {
@@ -586,7 +601,107 @@ impl PresentationService {
         policy: &CapturedPolicy,
         mode: Mode,
     ) -> std::result::Result<Json, ProjectionError> {
+        let source = ReaderSource::load(root, &policy.binding(), Some(request.occurrence))?;
+        Self::project_loaded(&source, request, policy, mode, None)
+    }
+    fn project_loaded(
+        source: &ReaderSource,
+        request: &Selection,
+        policy: &CapturedPolicy,
+        mode: Mode,
+        browser_binding: Option<&[u8; 32]>,
+    ) -> std::result::Result<Json, ProjectionError> {
         let b = policy.binding();
+        let ReaderSource {
+            world,
+            plan,
+            occurrence_count,
+            work_blob,
+            plan_blob,
+        } = source;
+        if request.occurrence >= *occurrence_count {
+            return Err(ProjectionError::Unavailable);
+        }
+        let (scope, at, text_policy, principal) = match policy {
+            CapturedPolicy::Public(p) => (
+                p.canonical_scope.clone(),
+                p.at.clone(),
+                p.text_policy,
+                "anonymous-public",
+            ),
+            CapturedPolicy::Simulation(p) => (
+                p.canonical_scope.intersect(&p.author_permissions)?,
+                request.at.clone().ok_or(ProjectionError::Unavailable)?,
+                request.text_policy.ok_or(ProjectionError::Unavailable)?,
+                p.principal_id.as_str(),
+            ),
+        };
+        check_horizon(world, &at)?;
+        let grant = ReaderGrant {
+            reader_id: principal.into(),
+            plan_id: Some(b.plan_id.into()),
+            revision: b.revision.into(),
+            canonical_scope: scope.clone(),
+            at: at.clone(),
+            lens: Lens::AuthorAsOf,
+            audiences: ["public".into()].into(),
+            perspectives: ["ordinary".into()].into(),
+        };
+        let items = reveal::project_resolved(world, plan, request.occurrence, principal, &grant)?
+            .into_iter()
+            .filter(|item| item.kind != "text" || text_policy == TextPolicy::AllAtPinnedPlan)
+            .collect::<Vec<_>>();
+        let mut context = json!({"protocol":PROTOCOL,"mode":mode.label(),"operation":request.operation,
+            "repository":b.repository,"revision":b.revision,"work":b.work_id,"plan":b.plan_id,
+            "workBlob":work_blob,"planBlob":plan_blob,"principal":principal,
+            "scope":scope,"policyScope":b.scope,"at":at,"generation":b.generation,"textPolicy":text_policy,
+            "ceiling":b.ceiling,"occurrence":request.occurrence,"limit":request.limit});
+        match policy {
+            CapturedPolicy::Public(p) => context["publication"] = p.publication_id.clone().into(),
+            CapturedPolicy::Simulation(p) => {
+                context["permissions"] = serde_json::to_value(&p.author_permissions)
+                    .map_err(|_| ProjectionError::Invalid)?
+            }
+        }
+        if let Some(binding) = browser_binding {
+            context["browser"] = hex::encode(binding).into();
+        }
+        paginated(
+            items,
+            *occurrence_count,
+            b.ceiling,
+            &at,
+            b.secret,
+            context,
+            request,
+            mode,
+        )
+    }
+}
+
+fn check_horizon(
+    world: &crate::model::World,
+    at: &StoryTime,
+) -> std::result::Result<(), ProjectionError> {
+    world
+        .story_time(at.tick, Some(&at.timeline), at.order)
+        .map(|_| ())
+        .map_err(|_| ProjectionError::Unavailable)
+}
+
+struct ReaderSource {
+    world: crate::model::World,
+    plan: manuscript::RevealPlan,
+    occurrence_count: usize,
+    work_blob: Option<String>,
+    plan_blob: Option<String>,
+}
+impl ReaderSource {
+    fn load(
+        root: &Path,
+        b: &Binding<'_>,
+        occurrence: Option<usize>,
+    ) -> std::result::Result<Self, ProjectionError> {
         historical::preflight_reader_sources(root, b.revision)?;
         let world = historical::load_world_with_file_limit(root, b.revision, 2 * 1024 * 1024)?;
         let authors = manuscript::snapshot(root, Some(b.revision))?;
@@ -614,69 +729,20 @@ impl PresentationService {
         if occurrence_count > MAX_OCCURRENCES {
             return Err(ProjectionError::Limit);
         }
-        if request.occurrence >= occurrence_count {
+        if occurrence.is_some_and(|occurrence| occurrence >= occurrence_count) {
             return Err(ProjectionError::Unavailable);
         }
         let plan = manuscript::resolve_reveal_plan(&world, &authors, b.plan_id, MAX_OCCURRENCES)?;
         if plan.work_id != b.work_id {
             return Err(ProjectionError::Unavailable);
         }
-        let (scope, at, text_policy, principal) = match policy {
-            CapturedPolicy::Public(p) => (
-                p.canonical_scope.clone(),
-                p.at.clone(),
-                p.text_policy,
-                "anonymous-public",
-            ),
-            CapturedPolicy::Simulation(p) => (
-                p.canonical_scope.intersect(&p.author_permissions)?,
-                request.at.clone().ok_or(ProjectionError::Unavailable)?,
-                request.text_policy.ok_or(ProjectionError::Unavailable)?,
-                p.principal_id.as_str(),
-            ),
-        };
-        if world
-            .story_time(at.tick, Some(&at.timeline), at.order)
-            .is_err()
-        {
-            return Err(ProjectionError::Unavailable);
-        }
-        let grant = ReaderGrant {
-            reader_id: principal.into(),
-            plan_id: Some(b.plan_id.into()),
-            revision: b.revision.into(),
-            canonical_scope: scope.clone(),
-            at: at.clone(),
-            lens: Lens::AuthorAsOf,
-            audiences: ["public".into()].into(),
-            perspectives: ["ordinary".into()].into(),
-        };
-        let items = reveal::project_resolved(&world, &plan, request.occurrence, principal, &grant)?
-            .into_iter()
-            .filter(|item| item.kind != "text" || text_policy == TextPolicy::AllAtPinnedPlan)
-            .collect::<Vec<_>>();
-        let mut context = json!({"protocol":PROTOCOL,"mode":mode.label(),"operation":request.operation,
-            "repository":b.repository,"revision":b.revision,"work":b.work_id,"plan":b.plan_id,
-            "workBlob":work_record.blob_oid,"planBlob":plan_record.blob_oid,"principal":principal,
-            "scope":scope,"policyScope":b.scope,"at":at,"generation":b.generation,"textPolicy":text_policy,
-            "ceiling":b.ceiling,"occurrence":request.occurrence,"limit":request.limit});
-        match policy {
-            CapturedPolicy::Public(p) => context["publication"] = p.publication_id.clone().into(),
-            CapturedPolicy::Simulation(p) => {
-                context["permissions"] = serde_json::to_value(&p.author_permissions)
-                    .map_err(|_| ProjectionError::Invalid)?
-            }
-        }
-        paginated(
-            items,
+        Ok(Self {
+            world,
+            plan,
             occurrence_count,
-            b.ceiling,
-            &at,
-            b.secret,
-            context,
-            request,
-            mode,
-        )
+            work_blob: work_record.blob_oid.clone(),
+            plan_blob: plan_record.blob_oid.clone(),
+        })
     }
 }
 

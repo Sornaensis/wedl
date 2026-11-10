@@ -1,10 +1,54 @@
 <!doctype html>
 <html lang="en">
-<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>WEDL · Reader</title>
-<style>
-:root{color-scheme:dark;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#e1e8e5;background:#101715;--muted:#a6b6ae;--line:#2c3b34;--accent:#a9ddbc}*{box-sizing:border-box}body{margin:0}header,main{max-width:960px;margin:auto;padding:1.5rem}header{border-bottom:1px solid var(--line)}h1{font-size:1.8rem;margin:.3rem 0}.eyebrow{text-transform:uppercase;letter-spacing:.12em;color:var(--accent);font-size:.75rem}.muted,label,.status{color:var(--muted)}label{display:block;font-size:.85rem;margin:.4rem 0}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.8rem}input,button,select{font:inherit;color:inherit;border:1px solid #42544a;border-radius:6px;background:#111c16;padding:.65rem}input,select{width:100%}button{cursor:pointer;background:#233b2e}button:hover{background:#2b4c39}button:disabled{opacity:.45;cursor:default}button:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}.actions{display:flex;flex-wrap:wrap;gap:.6rem;margin:1rem 0}.status{font-size:.9rem;overflow-wrap:anywhere}.error{color:#ffb0a4}.item{border-top:1px solid var(--line);padding:1.2rem 0}.item h2{font-size:1.2rem;margin:.2rem 0 .7rem}.prose{font:inherit;white-space:pre-wrap;line-height:1.75;margin:0;overflow-wrap:anywhere}.kind{font-size:.75rem;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}[hidden]{display:none!important}@media(max-width:550px){.grid{grid-template-columns:1fr}header,main{padding:1rem}.actions button{flex:1}}
-</style><script src="/reader.js" defer></script></head>
-<body><header><p class="eyebrow">WEDL · Reader</p><h1>Read the revealed story.</h1><p class="muted">Choose the publication and reading position supplied by its author.</p></header>
-<main><form id="reader-form"><div class="grid"><div><label for="publication">Publication</label><input id="publication" required maxlength="128" autocomplete="off" spellcheck="false"></div><div><label for="revision">Edition · full commit ID</label><input id="revision" required maxlength="64" autocomplete="off" spellcheck="false"></div><div><label for="occurrence">Reading position · starts at 0</label><input id="occurrence" type="number" min="0" max="1023" value="0" required></div><div><label for="page-size">Items per page</label><select id="page-size"><option value="20">20</option><option value="50">50</option><option value="100">100</option><option value="1">1</option></select></div></div><div class="actions"><button id="read" type="submit">Read this position</button></div></form>
-<form id="search-form"><label for="query">Search revealed content</label><input id="query" maxlength="256" autocomplete="off" required><div class="actions"><button id="search" type="submit">Search</button></div></form>
-<p id="reader-status" class="status" role="status"></p><section id="reader-results" hidden><p id="reader-count" class="muted"></p><div class="actions"><button id="previous" type="button" disabled>Previous position</button><button id="next" type="button" disabled>Next position</button></div><div id="reader-items"></div><div class="actions"><button id="more" type="button" disabled>Next page</button></div></section></main></body></html>
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>WEDL · Reader</title>
+  <style>
+    :root{color-scheme:dark;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#e1e8e5;background:#101715;--muted:#a6b6ae;--line:#2c3b34;--accent:#a9ddbc;--panel:#142019;--inset:#111c16}
+    *{box-sizing:border-box}body{margin:0}h1,h2,h3,p{margin-top:0}p{line-height:1.6;margin-bottom:.85rem}a{color:var(--accent)}button,input,select{font:inherit;color:inherit}button{cursor:pointer;background:#233b2e;border:1px solid #42634e;border-radius:6px;padding:.61rem .85rem;font-size:.9rem}button:hover{background:#2b4c39}button:disabled{opacity:.45;cursor:default}button.primary{background:#315641;border-color:#5d896d}button.secondary{background:transparent;border-color:var(--line)}button.secondary:hover{background:var(--panel)}a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,[tabindex="-1"]:focus-visible{outline:2px solid var(--accent);outline-offset:3px}input,select{background:var(--inset);border:1px solid #42544a;border-radius:5px;padding:.6rem .68rem;width:100%;min-width:0}label{display:block;font-size:.8rem;color:var(--muted);margin-bottom:.35rem}
+    .wrap{max-width:960px;margin-inline:auto;padding-inline:clamp(1rem,4vw,2rem)}.bar{border-bottom:1px solid var(--line)}.hero{padding-block:1.7rem 1.25rem}.hero h1{font-size:clamp(1.75rem,4vw,2.5rem);margin-bottom:.5rem}.hero p:last-child{margin-bottom:0}.row,.brand{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap}.brand{align-items:flex-start;gap:.8rem;flex-wrap:nowrap}.mark{display:grid;place-items:center;width:2.5rem;height:2.5rem;border:1px solid #42634e;border-radius:8px;background:#17251d;color:var(--accent);flex:none;margin-top:.15rem}.mark svg{width:1.25rem;height:1.25rem}.spread{justify-content:space-between}.tag{display:inline-flex;border:1px solid var(--line);background:#17251d;border-radius:99px;padding:.23rem .57rem;font-size:.73rem;color:#c4d6ca}.muted{color:var(--muted);font-size:.88rem}.eyebrow{font-size:.71rem;text-transform:uppercase;letter-spacing:.15em;color:var(--accent);font-weight:650;margin-bottom:.35rem}
+    main{padding-block:1.35rem 2rem;min-height:68vh}.panel{border:1px solid var(--line);background:var(--panel);border-radius:8px;padding:1rem}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.75rem;align-items:end}.actions{margin-top:.85rem}.search{margin-block:1rem 1.1rem;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:.65rem;align-items:end}.reading-header{padding-block:1.1rem .75rem}.reading-header h2{font-size:clamp(1.5rem,3vw,2rem);letter-spacing:-.02em;margin-bottom:.25rem;overflow-wrap:anywhere}.status{min-height:1.35em}.item{border-top:1px solid var(--line);padding:1rem 0}.item h3{font-size:1.2rem;margin:.3rem 0 .5rem;overflow-wrap:anywhere}.prose{font:inherit;white-space:pre-wrap;line-height:1.75;max-width:68ch;overflow-wrap:anywhere;margin:0}.empty{border:1px dashed #42544a;border-radius:7px;padding:1rem;color:var(--muted)}.empty h2{font-size:1.25rem;color:#e1e8e5}.skip{position:absolute;top:0;left:-1000px;background:var(--inset);padding:.65rem;z-index:4}.skip:focus{left:.7rem;top:.7rem}footer{border-top:1px solid var(--line);padding-block:1.2rem;font-size:.8rem;color:var(--muted)}[hidden]{display:none!important}
+    @media(max-width:570px){.grid{grid-template-columns:1fr}.mark{width:2rem;height:2rem}}@media(max-width:460px){.search{grid-template-columns:1fr}.search button{justify-self:start}.mark{display:none}}
+  </style>
+  <script src="/reader.js" defer></script>
+</head>
+<body>
+  <a href="#reading" class="skip" id="skip">Skip to reading</a>
+  <header class="bar">
+    <div class="wrap hero row spread">
+      <div class="brand">
+        <span class="mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M12 3 4 7v10l8 4 8-4V7L12 3Zm0 5 4 2v4l-4 2-4-2v-4l4-2Z"/></svg></span>
+        <div><p class="eyebrow">WEDL · Reader</p><h1>Read the revealed story.</h1><p class="muted">Choose an edition and continue at a published reading position.</p></div>
+      </div>
+      <span class="tag">Published Reader</span>
+    </div>
+  </header>
+  <main id="reading" class="wrap" tabindex="-1">
+    <section id="choices" class="panel" aria-label="Published choices" hidden>
+      <form id="reader-form">
+        <div class="grid">
+          <div><label for="edition">Edition</label><select id="edition"></select></div>
+          <div><label for="position">Reading position</label><select id="position"></select></div>
+        </div>
+        <div class="row actions"><button type="submit" class="primary">Read this position</button></div>
+      </form>
+    </section>
+    <form id="search-form" class="search" hidden>
+      <div><label for="query">Search revealed content</label><input id="query" type="search" maxlength="256" autocomplete="off" placeholder="Search this reading position" required></div>
+      <button type="submit">Search</button>
+    </form>
+    <p id="reader-status" class="muted status" role="status"></p>
+    <section id="reader-results" aria-label="Revealed story" hidden>
+      <div class="reading-header row spread">
+        <div><p class="eyebrow" id="reader-edition"></p><h2 id="reader-position" tabindex="-1"></h2><p id="reader-count" class="muted"></p></div>
+        <nav class="row" aria-label="Reading navigation"><button id="previous" class="secondary" type="button" disabled>Previous position</button><button id="next" class="secondary" type="button" disabled>Next position</button></nav>
+      </div>
+      <div id="reader-items"></div>
+      <button id="more" class="secondary" type="button" hidden>More revealed items</button>
+    </section>
+    <section id="unavailable" class="empty" hidden><h2 id="unavailable-heading" tabindex="-1">This selection is unavailable.</h2><p>Open the published edition to choose an available position.</p><button id="reopen" type="button">Open published edition</button></section>
+  </main>
+  <div class="wrap"><footer>The Reader uses published reading positions and revealed content.</footer></div>
+</body>
+</html>

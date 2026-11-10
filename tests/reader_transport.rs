@@ -293,7 +293,7 @@ async fn public_reader_native_cli_http_match_with_section_only_first_reveal() {
         native
     );
     let (status, value) = send(
-        reader::router(service),
+        reader::router(service.clone()),
         "POST",
         "/api/reader-presentation/search",
         &input.to_string(),
@@ -301,6 +301,70 @@ async fn public_reader_native_cli_http_match_with_section_only_first_reveal() {
     .await;
     assert_eq!(status, StatusCode::OK);
     assert_eq!(value, native);
+
+    let mut published = policy;
+    published["maxOccurrence"] = 1.into();
+    published["presentation"] = json!({"edition":"Published river story","positions":[
+        {"occurrence":0,"label":"Arrival at the bank"},
+        {"occurrence":2,"label":"Withheld future label"}
+    ]});
+    let (policy, labels) =
+        reader_config::decode_public_with_labels(&world.root, &published.to_string()).unwrap();
+    service
+        .install_public_with_labels(Some(policy), labels)
+        .unwrap();
+    let (status, choices) = send(
+        reader::router(service.clone()),
+        "GET",
+        "/api/reader-presentation/choices",
+        "",
+    )
+    .await;
+    assert_eq!(status, StatusCode::OK);
+    assert_eq!(choices["edition"]["label"], "Published river story");
+    assert_eq!(choices["positions"], json!([choices["entry"]]));
+    assert_eq!(choices["entry"]["label"], "Arrival at the bank");
+    let read = json!({"edition":choices["edition"]["selector"],"position":choices["entry"]["selector"],"cursor":null});
+    let (status, view) = send(
+        reader::router(service.clone()),
+        "POST",
+        "/api/reader-presentation/read",
+        &read.to_string(),
+    )
+    .await;
+    assert_eq!(status, StatusCode::OK);
+    assert_eq!(
+        view["items"],
+        json!([{"kind":"section","title":"Public bank","markdown":"Public river bank."}])
+    );
+    assert_eq!(view["next"]["label"], "Next position");
+    assert_eq!(view["previous"], Json::Null);
+    for body in [&choices, &view] {
+        let raw = body.to_string();
+        for forbidden in [
+            revision.as_str(),
+            WORK,
+            PLAN,
+            CHAPTER,
+            "Withheld future label",
+            "Ordinary owner title",
+            "ownerId",
+            "occurrence",
+        ] {
+            assert!(!raw.contains(forbidden), "leaked {forbidden}");
+        }
+    }
+    service.install_public(None).unwrap();
+    let (status, stale) = send(
+        reader::router(service),
+        "POST",
+        "/api/reader-presentation/read",
+        &read.to_string(),
+    )
+    .await;
+    assert_eq!(status, StatusCode::CONFLICT);
+    assert_eq!(stale["outcome"], "unavailable");
+    assert!(stale.get("items").is_none());
     assert_eq!(image(&world.root), before);
 }
 

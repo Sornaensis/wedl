@@ -2146,10 +2146,11 @@ async fn run(cli: Cli) -> Result<u8> {
         }
         let service = wedl::reader::PresentationService::new(Some(cli.repo.clone()));
         if let Some(path) = policy {
-            service.install_public(Some(wedl::reader_config::decode_public(
+            let (policy, labels) = wedl::reader_config::decode_public_with_labels(
                 &cli.repo,
                 &wedl::reader_config::read(path)?,
-            )?))?;
+            )?;
+            service.install_public_with_labels(Some(policy), labels)?;
         }
         wedl::reader::serve(service, host, *port).await?;
         return Ok(0);

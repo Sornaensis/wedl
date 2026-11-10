@@ -1,6 +1,6 @@
 //! Dedicated reader-only loopback origin. No author router, source discovery,
 //! private assets, policy installation endpoint or session/token route is mounted.
-use super::*;
+use super::{browser::BrowserRequest, *};
 use axum::{
     Json, Router,
     body::to_bytes,
@@ -60,6 +60,9 @@ pub fn router(service: PresentationService) -> Router {
         )
         .route("/api/reader-presentation/page", post(page))
         .route("/api/reader-presentation/search", post(search))
+        .route("/api/reader-presentation/choices", get(choices))
+        .route("/api/reader-presentation/read", post(read_position))
+        .route("/api/reader-presentation/find", post(find_revealed))
         .fallback(|| async { route_failure(StatusCode::NOT_FOUND) })
         .method_not_allowed_fallback(|| async { route_failure(StatusCode::METHOD_NOT_ALLOWED) })
         .layer(middleware::from_fn(local_request))
@@ -123,9 +126,9 @@ async fn page(State(service): State<PresentationService>, request: Request) -> R
 async fn search(State(service): State<PresentationService>, request: Request) -> Response {
     read(service, request, Operation::Search).await
 }
-async fn read(service: PresentationService, request: Request, operation: Operation) -> Response {
+async fn request_json(request: Request) -> Result<axum::body::Bytes> {
     if request.uri().query().is_some() {
-        return usage();
+        return Err(invalid_request());
     }
     let json = request
         .headers()
@@ -138,9 +141,14 @@ async fn read(service: PresentationService, request: Request, operation: Operati
                 .is_some_and(|value| value.trim().eq_ignore_ascii_case("application/json"))
         });
     if !json {
-        return usage();
+        return Err(invalid_request());
     }
-    let raw = match to_bytes(request.into_body(), MAX_REQUEST_BYTES).await {
+    to_bytes(request.into_body(), MAX_REQUEST_BYTES)
+        .await
+        .map_err(|_| invalid_request())
+}
+async fn read(service: PresentationService, request: Request, operation: Operation) -> Response {
+    let raw = match request_json(request).await {
         Ok(raw) => raw,
         Err(_) => return usage(),
     };
@@ -150,6 +158,39 @@ async fn read(service: PresentationService, request: Request, operation: Operati
     match prepared {
         Ok(Ok(prepared)) => result_response(service.emit(prepared)),
         Ok(Err(_)) => usage(),
+        Err(_) => unavailable_response(),
+    }
+}
+async fn choices(State(service): State<PresentationService>, request: Request) -> Response {
+    if request.uri().query().is_some() || to_bytes(request.into_body(), 0).await.is_err() {
+        return usage();
+    }
+    browser_read(service, BrowserRequest::Choices).await
+}
+async fn read_position(State(service): State<PresentationService>, request: Request) -> Response {
+    browser_position(service, request, Operation::Page).await
+}
+async fn find_revealed(State(service): State<PresentationService>, request: Request) -> Response {
+    browser_position(service, request, Operation::Search).await
+}
+async fn browser_position(
+    service: PresentationService,
+    request: Request,
+    operation: Operation,
+) -> Response {
+    let request = match request_json(request)
+        .await
+        .and_then(|raw| BrowserRequest::reading(&raw, operation))
+    {
+        Ok(request) => request,
+        Err(_) => return usage(),
+    };
+    browser_read(service, request).await
+}
+async fn browser_read(service: PresentationService, request: BrowserRequest) -> Response {
+    let worker = service.clone();
+    match tokio::task::spawn_blocking(move || worker.prepare_browser(request)).await {
+        Ok(prepared) => result_response(service.emit(prepared)),
         Err(_) => unavailable_response(),
     }
 }
@@ -374,5 +415,49 @@ mod tests {
             serde_json::from_slice::<serde_json::Value>(&bytes).unwrap(),
             failure(Mode::Reader, Failure::Unavailable)
         );
+    }
+
+    #[tokio::test]
+    async fn browser_routes_require_public_policy_and_closed_loopback_requests() {
+        let host = Some("localhost:8766");
+        let choices = "/api/reader-presentation/choices";
+        let read = "/api/reader-presentation/read";
+        let find = "/api/reader-presentation/find";
+        let raw =
+            json!({"edition":"a".repeat(64),"position":"b".repeat(64),"cursor":null}).to_string();
+        let query = json!({"edition":"a".repeat(64),"position":"b".repeat(64),"cursor":null,"query":"story"}).to_string();
+        for (path, method, body) in [
+            (choices, "GET", String::new()),
+            (read, "POST", raw.clone()),
+            (read, "POST", r#"{"cursor":null}"#.into()),
+            (find, "POST", query),
+        ] {
+            let response = send(host, None, path, method, body).await;
+            assert_eq!(response.status(), StatusCode::CONFLICT);
+            security_headers(&response);
+            let bytes = response.into_body().collect().await.unwrap().to_bytes();
+            assert_eq!(
+                serde_json::from_slice::<serde_json::Value>(&bytes).unwrap(),
+                failure(Mode::Reader, Failure::Unavailable)
+            );
+        }
+        for (path, method, body) in [
+            (
+                "/api/reader-presentation/choices?grant=all",
+                "GET",
+                String::new(),
+            ),
+            (choices, "GET", "x".into()),
+            (read, "POST", request()),
+            (find, "POST", raw.clone()),
+            (read, "POST", " ".repeat(MAX_REQUEST_BYTES + 1)),
+        ] {
+            let response = send(host, None, path, method, body).await;
+            assert_eq!(response.status(), StatusCode::BAD_REQUEST);
+            security_headers(&response);
+        }
+        let response = send(host, Some("http://localhost:8765"), read, "POST", raw).await;
+        assert_eq!(response.status(), StatusCode::FORBIDDEN);
+        security_headers(&response);
     }
 }
