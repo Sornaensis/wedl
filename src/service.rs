@@ -986,12 +986,31 @@ impl Operation {
     }
 }
 
+/// Choose the source authority for one Compendium read.
+#[derive(Clone, Copy)]
+pub enum CompendiumSource {
+    /// Select and verify current worktree bytes for this request.
+    Current,
+    /// Use the exact immutable snapshot supplied to this service.
+    Fixed,
+}
+
+/// Retain this pin across every projection contributing to one response.
+pub struct CompendiumPin(Arc<compiler::generation::Generation>);
+
+impl CompendiumPin {
+    pub fn world(&self) -> &World {
+        self.0.world()
+    }
+}
+
 #[derive(Clone)]
 pub struct Service {
     source_root: Arc<PathBuf>,
     world: Arc<World>,
     validation: Arc<validation::ValidationReport>,
     reader: Arc<crate::reader::PresentationService>,
+    compendium_generations: Arc<compiler::generation::Generations>,
 }
 
 impl Service {
@@ -1005,6 +1024,7 @@ impl Service {
             world: Arc::new(world),
             validation,
             reader,
+            compendium_generations: Arc::default(),
         }
     }
 
@@ -1032,8 +1052,40 @@ impl Service {
                 validation: Arc::new(validation::validate_world(&world)),
                 world: Arc::new(world),
                 reader: self.reader.clone(),
+                compendium_generations: self.compendium_generations.clone(),
             }),
             None => Ok(self.clone()),
+        }
+    }
+
+    /// Pin a compiled source for Compendium. This does not select a lens or
+    /// grant access to any record. Current reads always fence source anew.
+    pub fn pin_compendium_source(&self, source: CompendiumSource) -> Result<CompendiumPin> {
+        let generations = &self.compendium_generations;
+        if matches!(source, CompendiumSource::Fixed) {
+            return generations
+                .pin(self.world(), &self.validation, false)
+                .map(CompendiumPin);
+        }
+        if self.world.revision.is_some() {
+            return Err(Error::InvalidInput(
+                "current Compendium reads require a worktree service".into(),
+            ));
+        }
+
+        let prior = generations.prior_worktree()?;
+        let previous = prior.as_ref().map(|pin| pin.world());
+        match crate::historical::capture_current_world(&self.source_root, previous)? {
+            Some(world) => {
+                drop(prior);
+                let validation = validation::validate_world(&world);
+                generations
+                    .pin(&world, &validation, true)
+                    .map(CompendiumPin)
+            }
+            None => Ok(CompendiumPin(
+                prior.expect("unchanged source requires a prior pin"),
+            )),
         }
     }
 
@@ -2391,4 +2443,85 @@ pub fn yaml_json(value: &serde_yaml::Value) -> Result<Value> {
             ));
         }
     })
+}
+
+#[cfg(test)]
+mod compendium_tests {
+    use super::*;
+    use std::fs;
+
+    #[test]
+    fn current_fences_before_reusing_an_image_and_fixed_keeps_its_snapshot() {
+        let directory = tempfile::tempdir().unwrap();
+        let world =
+            crate::source::init_world(&directory.path().join("world"), "First view").unwrap();
+        let source = world.root.join("story/world.md");
+        let service = Service::new(world);
+        let fixed = service
+            .pin_compendium_source(CompendiumSource::Fixed)
+            .unwrap();
+        let current = service
+            .pin_compendium_source(CompendiumSource::Current)
+            .unwrap();
+        let warm = service
+            .clone()
+            .pin_compendium_source(CompendiumSource::Current)
+            .unwrap();
+        assert!(Arc::ptr_eq(&fixed.0, &current.0));
+        assert!(Arc::ptr_eq(&current.0, &warm.0));
+
+        let before = fs::read_to_string(&source).unwrap();
+        let edited = before.replace("First view", "Later view");
+        assert_eq!(before.len(), edited.len());
+        assert_ne!(before, edited);
+        let timestamp = fs::metadata(&source).unwrap().modified().unwrap();
+        fs::write(&source, edited).unwrap();
+        fs::File::options()
+            .write(true)
+            .open(&source)
+            .unwrap()
+            .set_modified(timestamp)
+            .unwrap();
+        assert_eq!(
+            fs::metadata(&source).unwrap().modified().unwrap(),
+            timestamp
+        );
+
+        let updated = service
+            .pin_compendium_source(CompendiumSource::Current)
+            .unwrap();
+        assert_ne!(updated.world().fingerprint, current.world().fingerprint);
+        assert_eq!(updated.world().world_record().unwrap().title, "Later view");
+        assert_eq!(current.world().world_record().unwrap().title, "First view");
+        assert!(Arc::ptr_eq(
+            &fixed.0,
+            &service
+                .pin_compendium_source(CompendiumSource::Fixed)
+                .unwrap()
+                .0,
+        ));
+        assert!(Arc::ptr_eq(
+            &updated.0,
+            &service
+                .pin_compendium_source(CompendiumSource::Current)
+                .unwrap()
+                .0,
+        ));
+
+        fs::write(&source, "unreadable canonical source").unwrap();
+        assert!(
+            service
+                .pin_compendium_source(CompendiumSource::Current)
+                .is_err()
+        );
+        assert!(Arc::ptr_eq(
+            &fixed.0,
+            &service
+                .pin_compendium_source(CompendiumSource::Fixed)
+                .unwrap()
+                .0,
+        ));
+        assert!(!service.world().root.join(".wedl-rust").exists());
+        assert!(!service.world().root.join("author").exists());
+    }
 }

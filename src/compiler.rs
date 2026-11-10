@@ -7,6 +7,7 @@ use serde_json::{Value, json};
 use std::{fs, path::PathBuf};
 
 mod author;
+pub(crate) mod generation;
 pub(crate) mod structured;
 pub use author::{AuthorSearchSelection, search_with_hypotheses, search_with_selection};
 

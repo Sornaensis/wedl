@@ -488,6 +488,31 @@ pub(crate) struct WorldBudget {
     source: SourceBudget,
 }
 
+impl WorldBudget {
+    /// Charge an already captured canonical record against the native source
+    /// limits before a compiled projection replays its bytes.
+    pub(crate) fn admit_record(&mut self, path: &str, bytes: &[u8]) -> Result<()> {
+        safe_path(path)?;
+        if !path.starts_with("story/") || !path.ends_with(".md") {
+            return Err(invalid(
+                "canonical source requires a Markdown path under story",
+            ));
+        }
+        if self.records >= MAX_SOURCE_RECORDS
+            || bytes.len() > MAX_SOURCE_FILE_BYTES
+            || bytes.len() > MAX_SOURCE_BYTES - self.raw_bytes
+        {
+            return Err(invalid(
+                "canonical source exceeds its complete source bounds",
+            ));
+        }
+        preflight_source(bytes, &mut self.source)?;
+        self.records += 1;
+        self.raw_bytes += bytes.len();
+        Ok(())
+    }
+}
+
 /// Traverse expanded YAML without constructing Values. Repeated aliases count
 /// every expanded scalar/node before the ordinary native parser can copy them.
 fn preflight_source(bytes: &[u8], budget: &mut SourceBudget) -> Result<()> {

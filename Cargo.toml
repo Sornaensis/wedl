@@ -21,7 +21,7 @@ snapshot-baseline = []
 axum = "0.8"
 clap = { version = "4", features = ["derive"] }
 hex = "0.4"
-rusqlite = { version = "0.37", features = ["bundled"] }
+rusqlite = { version = "0.37", features = ["bundled", "serialize"] }
 serde = { version = "1", features = ["derive"] }
 serde_json = "1"
 serde_yaml = { package = "serde_yaml_ng", version = "0.10" }
