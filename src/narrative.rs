@@ -170,6 +170,27 @@ impl<'a> CharacterScope<'a> {
         if !validation::validate_world(world).valid {
             return Err(malformed());
         }
+        Self::from_validated_world(world, viewer, at, selected_scene)
+    }
+
+    /// The generation provider validates the complete native source before
+    /// exposing this immutable pin. Every lens still checks native viewer,
+    /// timeline, presence and acquisition semantics below.
+    pub(crate) fn from_compendium_pin(
+        pin: &'a crate::service::CompendiumPin,
+        viewer: &'a str,
+        at: &'a StoryTime,
+        selected_scene: Option<&str>,
+    ) -> Result<Self> {
+        Self::from_validated_world(pin.world(), viewer, at, selected_scene)
+    }
+
+    fn from_validated_world(
+        world: &'a World,
+        viewer: &'a str,
+        at: &'a StoryTime,
+        selected_scene: Option<&str>,
+    ) -> Result<Self> {
         if !validation::valid_id_for_kind(viewer, "character")
             || world
                 .records

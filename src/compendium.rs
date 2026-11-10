@@ -2,9 +2,10 @@
 //! and private writers do not use these context or selector handles.
 mod choices;
 mod directory;
+mod graph;
 
 use crate::{
-    model::{StoryTime, World},
+    model::StoryTime,
     narrative::CharacterScope,
     service::{CompendiumPin, CompendiumSource, CompendiumWitness, Service},
 };
@@ -109,21 +110,18 @@ impl Lens {
         }
     }
 
-    fn scope<'a>(&'a self, world: &'a World) -> Result<Option<CharacterScope<'a>>> {
+    fn scope<'a>(&'a self, pin: &'a CompendiumPin) -> Result<Option<CharacterScope<'a>>> {
         match self {
             Self::Character {
                 moment,
                 viewer,
                 scene,
             } => {
-                let scope = match scene {
-                    Some(scene) => {
-                        CharacterScope::with_scene(world, viewer, &moment.at, Some(scene))
-                    }
-                    None => CharacterScope::new(world, viewer, &moment.at),
-                }
-                .map_err(|_| Failure::Unavailable)?;
-                if !world
+                let scope =
+                    CharacterScope::from_compendium_pin(pin, viewer, &moment.at, scene.as_deref())
+                        .map_err(|_| Failure::Unavailable)?;
+                if !pin
+                    .world()
                     .records
                     .get(&moment.owner)
                     .map(|owner| scope.visible(owner))
@@ -150,6 +148,7 @@ enum Action {
     Choices,
     Page,
     Record,
+    Graph,
 }
 
 impl Request {
@@ -159,6 +158,7 @@ impl Request {
             "choices" => Action::Choices,
             "page" => Action::Page,
             "record" => Action::Record,
+            "graph" => Action::Graph,
             _ => return Err(Failure::Unavailable),
         };
         let allowed: &[&str] = match action {
@@ -184,9 +184,11 @@ impl Request {
                 "cursor",
                 "calendar",
                 "date",
+                "kind",
             ],
             Action::Page => &["view", "kind", "q", "timeline", "limit", "cursor"],
             Action::Record => &["view", "record"],
+            Action::Graph => &["view", "root", "timeline", "q", "limit", "cursor"],
         };
         if query.keys().any(|key| !allowed.contains(&key.as_str())) {
             return Err(Failure::Invalid);
@@ -200,6 +202,7 @@ impl Request {
             "scene",
             "cursor",
             "record",
+            "root",
             "calendar",
         ] {
             if request.get(name).is_some_and(|value| {
@@ -342,9 +345,9 @@ impl Browser {
                     Lens::All
                 } else {
                     let view = self.lookup(request.required("view")?, &pin)?;
-                    choices::resolve(self, world, &view, &request)?
+                    choices::resolve(self, &pin, &view, &request)?
                 };
-                let scope = lens.scope(world)?;
+                let scope = lens.scope(&pin)?;
                 let labels = choices::context_labels(world, &lens, scope.as_ref())?;
                 let capabilities = Capabilities {
                     workbench: lens.mode() != Mode::Character,
@@ -354,15 +357,19 @@ impl Browser {
             }
             Action::Choices => {
                 let view = self.lookup(request.required("view")?, &pin)?;
-                choices::read(self, world, &view, &request)?
+                choices::read(self, &pin, &view, &request)?
             }
             Action::Page => {
                 let view = self.lookup(request.required("view")?, &pin)?;
-                directory::page(self, world, &view, &request)?
+                directory::page(self, &pin, &view, &request)?
             }
             Action::Record => {
                 let view = self.lookup(request.required("view")?, &pin)?;
-                directory::record(self, world, &view, &request)?
+                directory::record(self, &pin, &view, &request)?
+            }
+            Action::Graph => {
+                let view = self.lookup(request.required("view")?, &pin)?;
+                graph::read(self, &pin, &view, &request)?
             }
         };
         if serde_json::to_vec(&result)

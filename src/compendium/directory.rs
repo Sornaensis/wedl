@@ -2,15 +2,16 @@ use super::{Browser, Failure, Lens, Request, Result, View, choices, display, fol
 use crate::{
     model::{Record, StoryTime, World},
     narrative::CharacterScope,
+    service::CompendiumPin,
 };
 use serde::Serialize;
 use serde_json::{Value, json};
 use std::collections::{BTreeMap, BTreeSet};
 
-struct Row {
-    id: String,
-    title: String,
-    timelines: BTreeSet<String>,
+pub(super) struct Row {
+    pub(super) id: String,
+    pub(super) title: String,
+    pub(super) timelines: BTreeSet<String>,
 }
 
 #[derive(Serialize)]
@@ -35,7 +36,7 @@ struct Facet {
     count: usize,
 }
 
-fn kind_label(kind: &str) -> String {
+pub(super) fn kind_label(kind: &str) -> String {
     kind.split('-')
         .map(|part| {
             let mut chars = part.chars();
@@ -48,7 +49,11 @@ fn kind_label(kind: &str) -> String {
         .join(" ")
 }
 
-fn rows(world: &World, lens: &Lens, scope: Option<&CharacterScope<'_>>) -> Result<Vec<Row>> {
+pub(super) fn rows(
+    world: &World,
+    lens: &Lens,
+    scope: Option<&CharacterScope<'_>>,
+) -> Result<Vec<Row>> {
     let at = lens.moment().map(|moment| &moment.at);
     let timelines = match at {
         Some(at) => vec![at.timeline.as_str()],
@@ -100,10 +105,14 @@ fn rows(world: &World, lens: &Lens, scope: Option<&CharacterScope<'_>>) -> Resul
     Ok(result)
 }
 
+pub(super) fn record_handle(browser: &Browser, view: &View, id: &str) -> Result<String> {
+    browser.handle(view, "record", &[id])
+}
+
 fn card<'a>(browser: &Browser, view: &View, world: &'a World, row: &'a Row) -> Result<Card<'a>> {
     let record = &world.records[&row.id];
     Ok(Card {
-        handle: browser.handle(view, "record", &[&row.id])?,
+        handle: record_handle(browser, view, &row.id)?,
         title: &row.title,
         kind: &record.kind,
         kind_label: kind_label(&record.kind),
@@ -186,11 +195,12 @@ fn character_evidence(
 
 pub(super) fn page(
     browser: &Browser,
-    world: &World,
+    pin: &CompendiumPin,
     view: &View,
     request: &Request,
 ) -> Result<Value> {
-    let scope = view.lens.scope(world)?;
+    let world = pin.world();
+    let scope = view.lens.scope(pin)?;
     let mut rows = rows(world, &view.lens, scope.as_ref())?;
     let query = fold(request.get("q").unwrap_or("").trim());
     let kind = request.get("kind").unwrap_or("");
@@ -338,14 +348,15 @@ pub(super) fn page(
 
 pub(super) fn record(
     browser: &Browser,
-    world: &World,
+    pin: &CompendiumPin,
     view: &View,
     request: &Request,
 ) -> Result<Value> {
     let target = request.required("record")?;
-    let scope = view.lens.scope(world)?;
+    let world = pin.world();
+    let scope = view.lens.scope(pin)?;
     for row in rows(world, &view.lens, scope.as_ref())? {
-        if browser.handle(view, "record", &[&row.id])? != target {
+        if record_handle(browser, view, &row.id)? != target {
             continue;
         }
         let record = &world.records[&row.id];

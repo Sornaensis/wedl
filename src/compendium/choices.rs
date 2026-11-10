@@ -4,6 +4,7 @@ use super::{
 use crate::{
     model::{Record, StoryTime, World},
     narrative::CharacterScope,
+    service::CompendiumPin,
 };
 use serde::Serialize;
 use serde_json::{Value, json};
@@ -11,12 +12,12 @@ use serde_yaml::Value as Yaml;
 use std::collections::{BTreeMap, BTreeSet};
 
 #[derive(Clone)]
-struct Candidate {
-    value: String,
-    member: &'static str,
-    label: String,
-    descriptor: String,
-    moment: Option<Moment>,
+pub(super) struct Candidate {
+    pub(super) value: String,
+    pub(super) member: &'static str,
+    pub(super) label: String,
+    pub(super) descriptor: String,
+    pub(super) moment: Option<Moment>,
 }
 
 #[derive(Clone, Copy, PartialEq, Eq)]
@@ -129,7 +130,7 @@ fn moment_descriptor(
     Ok(kind.into())
 }
 
-fn moments(
+pub(super) fn moments(
     world: &World,
     lens: &Lens,
     scope: Option<&CharacterScope<'_>>,
@@ -216,28 +217,37 @@ fn calendars(world: &World) -> Result<Vec<Candidate>> {
 
 struct Selection<'a> {
     browser: &'a Browser,
-    world: &'a World,
+    pin: &'a CompendiumPin,
     view: &'a View,
     mode: Mode,
     scope: Option<CharacterScope<'a>>,
 }
 
 impl<'a> Selection<'a> {
-    fn new(browser: &'a Browser, world: &'a World, view: &'a View, mode: Mode) -> Result<Self> {
+    fn new(
+        browser: &'a Browser,
+        pin: &'a CompendiumPin,
+        view: &'a View,
+        mode: Mode,
+    ) -> Result<Self> {
         if view.lens.mode() == Mode::Character && mode != Mode::Character {
             return Err(Failure::Unavailable);
         }
         Ok(Self {
             browser,
-            world,
+            pin,
             view,
             mode,
-            scope: view.lens.scope(world)?,
+            scope: view.lens.scope(pin)?,
         })
     }
 
+    fn world(&self) -> &'a World {
+        self.pin.world()
+    }
+
     fn timeline_options(&self) -> Result<Vec<Candidate>> {
-        Ok(timelines(self.world)?.into_iter().filter(|(id, _)| {
+        Ok(timelines(self.world())?.into_iter().filter(|(id, _)| {
             !matches!(&self.view.lens, Lens::Character { moment, .. } if *id != moment.at.timeline)
         }).map(|(value, label)| Candidate {
             value: value.into(),
@@ -293,13 +303,30 @@ impl<'a> Selection<'a> {
     }
 
     fn moment_options(&self, request: &Request, timeline: &str) -> Result<Vec<Candidate>> {
-        let mut options = moments(self.world, &self.view.lens, self.scope.as_ref(), timeline)?;
+        let mut options = moments(self.world(), &self.view.lens, self.scope.as_ref(), timeline)?;
         if let Some(dates) = matching_dates(self, request, timeline)? {
             options.retain(|item| {
                 item.moment
                     .as_ref()
                     .is_some_and(|moment| dates.contains(&(moment.at.tick, moment.at.order)))
             });
+        }
+        if let Lens::Character {
+            moment: active,
+            viewer,
+            scene,
+        } = &self.view.lens
+        {
+            let mut admitted = Vec::new();
+            for option in options {
+                let moment = option.moment.as_ref().ok_or(Failure::Source)?;
+                if moment.at == active.at
+                    || self.readable_moment(moment, viewer, scene.as_deref())?
+                {
+                    admitted.push(option);
+                }
+            }
+            return Ok(admitted);
         }
         Ok(options)
     }
@@ -317,9 +344,58 @@ impl<'a> Selection<'a> {
         self.resolve(
             Menu::Viewpoint,
             &[&moment.owner, moment.member],
-            viewpoints(self.world, self.scope.as_ref(), &moment.at)?,
+            self.viewpoint_options(moment)?,
             request.required("viewpoint")?,
         )
+    }
+
+    fn readable_moment(&self, moment: &Moment, viewer: &str, scene: Option<&str>) -> Result<bool> {
+        let owner = self
+            .world()
+            .records
+            .get(&moment.owner)
+            .ok_or(Failure::Source)?;
+        let ordinary = CharacterScope::from_compendium_pin(self.pin, viewer, &moment.at, None)
+            .map_err(|_| Failure::Source)?;
+        if !self
+            .world()
+            .records
+            .get(viewer)
+            .map(|record| ordinary.visible(record))
+            .transpose()
+            .map_err(|_| Failure::Source)?
+            .unwrap_or(false)
+        {
+            return Ok(false);
+        }
+        if ordinary.visible(owner).map_err(|_| Failure::Source)? {
+            return Ok(true);
+        }
+        let Some(scene) = scene else { return Ok(false) };
+        let selected = self.world().records.get(scene).ok_or(Failure::Source)?;
+        if !crate::narrative::labels_match(selected, viewer).map_err(|_| Failure::Source)?
+            || !crate::scene::present(self.world(), selected, viewer, &moment.at)
+                .map_err(|_| Failure::Source)?
+        {
+            return Ok(false);
+        }
+        let scope = CharacterScope::from_compendium_pin(self.pin, viewer, &moment.at, Some(scene))
+            .map_err(|_| Failure::Source)?;
+        scope.visible(owner).map_err(|_| Failure::Source)
+    }
+
+    fn viewpoint_options(&self, moment: &Moment) -> Result<Vec<Candidate>> {
+        let options = viewpoints(self.world(), self.scope.as_ref(), &moment.at)?;
+        let Lens::Character { viewer, .. } = &self.view.lens else {
+            return Ok(options);
+        };
+        let mut admitted = Vec::new();
+        for option in options {
+            if &option.value == viewer || self.readable_moment(moment, &option.value, None)? {
+                admitted.push(option);
+            }
+        }
+        Ok(admitted)
     }
 
     fn scenes(&self, moment: &Moment, viewer: &str) -> Result<Vec<Candidate>> {
@@ -330,13 +406,13 @@ impl<'a> Selection<'a> {
         }
         let mut output = Vec::new();
         for record in self
-            .world
+            .world()
             .records
             .values()
             .filter(|record| record.kind == "scene")
         {
             if crate::narrative::labels_match(record, viewer).map_err(|_| Failure::Source)?
-                && crate::scene::present(self.world, record, viewer, &moment.at)
+                && crate::scene::present(self.world(), record, viewer, &moment.at)
                     .map_err(|_| Failure::Source)?
             {
                 output.push(named(record, "Present in this scene"));
@@ -348,12 +424,12 @@ impl<'a> Selection<'a> {
 
 pub(super) fn resolve(
     browser: &Browser,
-    world: &World,
+    pin: &CompendiumPin,
     view: &View,
     request: &Request,
 ) -> Result<Lens> {
     let mode = Mode::parse(request.required("mode")?)?;
-    let selection = Selection::new(browser, world, view, mode)?;
+    let selection = Selection::new(browser, pin, view, mode)?;
     if mode == Mode::All {
         if [
             "timeline",
@@ -416,7 +492,8 @@ fn matching_dates(
         }
         _ => return Err(Failure::Invalid),
     };
-    let calendar = selection.resolve(Menu::Calendar, &[], calendars(selection.world)?, calendar)?;
+    let calendar =
+        selection.resolve(Menu::Calendar, &[], calendars(selection.world())?, calendar)?;
     let mut fields = date.rsplitn(3, '-');
     let day = fields
         .next()
@@ -437,7 +514,7 @@ fn matching_dates(
         day: Some(day),
     };
     let resolved =
-        crate::chronology::story_times(selection.world, &date, None, Some(timeline), 1000)
+        crate::chronology::story_times(selection.world(), &date, None, Some(timeline), 1000)
             .map_err(|_| Failure::Unavailable)?;
     let mut points = BTreeSet::new();
     for item in resolved["items"].as_array().ok_or(Failure::Source)? {
@@ -457,13 +534,19 @@ fn matching_dates(
 
 pub(super) fn read(
     browser: &Browser,
-    world: &World,
+    pin: &CompendiumPin,
     view: &View,
     request: &Request,
 ) -> Result<Value> {
+    if request.get("menu") == Some("record") {
+        return super::graph::record_choices(browser, pin, view, request);
+    }
+    if request.get("kind").is_some() {
+        return Err(Failure::Invalid);
+    }
     let menu = Menu::parse(request.required("menu")?)?;
     let mode = Mode::parse(request.required("mode")?)?;
-    let selection = Selection::new(browser, world, view, mode)?;
+    let selection = Selection::new(browser, pin, view, mode)?;
     let expected: &[&str] = match menu {
         Menu::Timeline | Menu::Calendar => &[],
         Menu::Moment => &["timeline"],
@@ -484,7 +567,7 @@ pub(super) fn read(
     let mut parents = Vec::new();
     let mut items = match menu {
         Menu::Timeline => selection.timeline_options()?,
-        Menu::Calendar => calendars(world)?,
+        Menu::Calendar => calendars(pin.world())?,
         _ => {
             let timeline = selection.timeline(request)?;
             if menu == Menu::Moment {
@@ -497,7 +580,7 @@ pub(super) fn read(
                     .moment
                     .ok_or(Failure::Source)?;
                 let candidates = if menu == Menu::Viewpoint {
-                    viewpoints(world, selection.scope.as_ref(), &moment.at)?
+                    selection.viewpoint_options(&moment)?
                 } else {
                     let viewer = selection.viewpoint(request, &moment)?.value;
                     let scenes = selection.scenes(&moment, &viewer)?;
