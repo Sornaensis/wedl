@@ -1,0 +1,399 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>WEDL · Compendium</title>
+  <style>
+    :root{color-scheme:dark;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#e1e8e5;background:#101715;--muted:#a6b6ae;--line:#2c3b34;--accent:#a9ddbc;--panel:#142019;--inset:#111c16}
+    *{box-sizing:border-box}body{margin:0}a{color:var(--accent);text-underline-offset:.22em}h1,h2,h3,p{margin-top:0}h1{font-size:1.65rem;margin:0;overflow-wrap:anywhere}h2{font-size:clamp(1.8rem,4vw,2.8rem);line-height:1.1;letter-spacing:-.035em;margin-bottom:.65rem;overflow-wrap:anywhere}p{line-height:1.6}.muted,small{color:var(--muted);font-size:.88rem}.eyebrow{font-size:.71rem;text-transform:uppercase;letter-spacing:.15em;color:var(--accent);font-weight:650;margin-bottom:.35rem}
+    button,input,select{font:inherit;color:inherit}button{cursor:pointer;background:#233b2e;border:1px solid #42634e;border-radius:6px;padding:.61rem .85rem}button:hover{background:#2b4c39}button:disabled{opacity:.45;cursor:default}button.secondary{background:transparent;border-color:var(--line)}button.primary{background:#315641;border-color:#5d896d}a:focus-visible,button:focus-visible,input:focus-visible,select:focus-visible,[tabindex="-1"]:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+    input,select{background:var(--inset);border:1px solid #42544a;border-radius:5px;padding:.6rem .68rem;width:100%;min-width:0}label{display:block;font-size:.8rem;color:var(--muted);margin:0 0 .35rem}.wrap{max-width:1240px;margin-inline:auto;padding-inline:clamp(1rem,4vw,2.25rem)}.bar{border-bottom:1px solid var(--line)}.row{display:flex;align-items:center;gap:.6rem;flex-wrap:wrap}.spread{justify-content:space-between}.brand{padding-block:1.1rem;gap:.8rem}.mark{display:grid;place-items:center;width:2.5rem;height:2.5rem;border:1px solid #42634e;border-radius:8px;background:#17251d;color:var(--accent);flex:none}.mark svg{width:1.25rem;height:1.25rem}.tag{border:1px solid var(--line);background:#17251d;border-radius:99px;padding:.23rem .57rem;font-size:.76rem;color:#c4d6ca}
+    .context{background:#17251d;border-bottom:1px solid var(--line);padding-block:.8rem}.context small{display:block;margin-top:.18rem}.nav{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;padding-block:.55rem}.nav a,.nav button{padding:.58rem .8rem;font-size:.88rem}.nav .private{margin-left:auto}.page{padding-block:1.65rem 2.6rem;min-height:66vh}.filters,.selector-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.75rem;margin-block:1rem}.filters{grid-template-columns:2fr 1fr 1fr}.resultline{min-height:1.4em;margin:.65rem 0}.cards{list-style:none;margin:1rem 0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.6rem}.record{width:100%;height:100%;display:block;text-align:left;border:1px solid var(--line);background:var(--panel);border-radius:6px;padding:.85rem;min-width:0}.record:hover{border-color:#6d9478;background:#1a2b21}.record strong{display:block;color:#d4ecd9;overflow-wrap:anywhere}.record .eyebrow{font-size:.65rem;display:block}.section{max-width:70ch;margin-top:1.3rem}.section p{white-space:pre-wrap;overflow-wrap:anywhere}.section h3{margin-bottom:.5rem}.empty{border:1px dashed #42544a;border-radius:7px;padding:1rem;color:var(--muted)}
+    .skip{position:absolute;top:0;left:-1000px;background:var(--inset);padding:.65rem;z-index:4}.skip:focus{left:.7rem;top:.7rem}dialog{border:1px solid #42634e;border-radius:9px;background:#17251d;color:inherit;width:min(540px,calc(100% - 2rem));padding:1.2rem;max-height:calc(100dvh - 2rem)}dialog::backdrop{background:#07100dbb}dialog h2{font-size:1.65rem}dialog .row{margin-top:.85rem}dialog details{margin-block:.8rem}dialog summary{cursor:pointer}dialog [role="status"]{min-height:1.4em}.more{margin-top:.3rem}.date-control{margin:.5rem 0}[hidden]{display:none!important}
+    @media(max-width:870px){.cards{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:620px){.nav .private{margin-left:0}.filters{grid-template-columns:1fr 1fr}.filters>div:first-child{grid-column:1/-1}.brand{align-items:flex-start}}@media(max-width:430px){.cards,.filters,.selector-fields{grid-template-columns:1fr}.filters>div:first-child{grid-column:auto}}
+  </style>
+</head>
+<body>
+  <a class="skip" href="#view">Skip to content</a>
+  <header class="bar"><div class="wrap row spread brand">
+    <div class="row">
+      <span class="mark"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true"><path d="M12 3 4 7v10l8 4 8-4V7L12 3Zm0 5 4 2v4l-4 2-4-2v-4L12 8Z"/></svg></span>
+      <div><p class="eyebrow">WEDL / Compendium</p><h1 id="world-title">Compendium</h1></div>
+    </div>
+    <span class="tag">Read-only browsing</span>
+  </div></header>
+  <div class="context"><div class="wrap row spread">
+    <div><p class="eyebrow">Story context</p><strong id="context-label">Opening view…</strong><small id="context-detail"></small></div>
+    <button id="change" type="button" disabled>Change context</button>
+  </div></div>
+  <div class="bar"><nav class="wrap nav" aria-label="Compendium" id="nav"></nav></div>
+  <main id="view" class="wrap page" tabindex="-1"></main>
+  <dialog id="selector" aria-labelledby="selector-title">
+    <form id="context-form">
+      <p class="eyebrow">Story context</p>
+      <h2 id="selector-title">Change context</h2>
+      <p class="muted" id="selector-hint"></p>
+      <div><label for="mode">View</label><select id="mode"></select></div>
+      <div class="selector-fields" id="named-fields"></div>
+      <div id="calendar-fields"></div>
+      <p class="muted" id="selector-status" role="status"></p>
+      <div class="row spread"><button id="cancel" type="button" class="secondary">Cancel</button><button id="apply" class="primary" type="submit">Open view</button></div>
+    </form>
+  </dialog>
+  <script>
+    'use strict';
+    const byId = id => document.getElementById(id);
+    const view = byId('view'), nav = byId('nav'), dialog = byId('selector');
+    const labels = {all: 'Author · All story', 'as-of': 'Author · As of', character: 'Character'};
+    const failureMessages = {
+      context_changed: 'The source changed. Reload this view.',
+      source_unavailable: 'The source is unavailable. Try again.',
+      unavailable: 'This selection is unavailable.',
+    };
+    const fieldNames = {timeline: 'Timeline', moment: 'Named moment', viewpoint: 'Viewpoint', scene: 'Scene', calendar: 'Calendar'};
+    const levels = ['timeline', 'moment', 'viewpoint', 'scene'];
+    const panels = new Map();
+    let current, epoch = 0, pickerEpoch = 0, filters = {}, pickerDate = {}, lastDirectoryButton = null;
+
+    function node(tag, text, className) {
+      const result = document.createElement(tag);
+      if (text) result.textContent = text;
+      if (className) result.className = className;
+      return result;
+    }
+    function button(label, action, className) {
+      const result = node('button', label, className);
+      result.type = 'button';
+      result.addEventListener('click', action);
+      return result;
+    }
+    function heading(text) {
+      const result = node('h2', text);
+      result.tabIndex = -1;
+      return result;
+    }
+    function abort(panel) {
+      panels.get(panel)?.abort();
+      panels.delete(panel);
+    }
+    function beginContext() {
+      epoch++;
+      for (const panel of panels.keys()) abort(panel);
+      current = null;
+      filters = {};
+      lastDirectoryButton = null;
+      byId('world-title').textContent = 'Compendium';
+      byId('context-label').textContent = 'Opening view…';
+      byId('context-detail').replaceChildren();
+      byId('change').disabled = true;
+      byId('mode').replaceChildren();
+      byId('named-fields').replaceChildren();
+      byId('calendar-fields').replaceChildren();
+      byId('selector-status').replaceChildren();
+      byId('selector-hint').replaceChildren();
+      byId('return-author')?.remove();
+      nav.replaceChildren();
+      view.replaceChildren();
+      view.setAttribute('aria-busy', 'true');
+    }
+    async function load(panel, endpoint, fields, render, failed, picker = null) {
+      const contextEpoch = epoch;
+      const token = fields.view;
+      abort(panel);
+      const controller = new AbortController();
+      panels.set(panel, controller);
+      const valid = () => epoch === contextEpoch && panels.get(panel) === controller
+        && (!token || current?.viewToken === token || panel === 'context')
+        && (picker === null || picker === pickerEpoch);
+      try {
+        const url = new URL('/api/compendium/' + endpoint, location.origin);
+        url.search = new URLSearchParams(Object.entries(fields).filter(([, value]) => value !== '' && value != null));
+        const response = await fetch(url, {signal: controller.signal, cache: 'no-store'});
+        const payload = await response.json();
+        if (!valid()) return;
+        if (!response.ok) {
+          failed(payload.code);
+        } else if (panel === 'context' || payload.viewToken === token) {
+          render(payload);
+        }
+      } catch (error) {
+        if (valid() && error.name !== 'AbortError') failed('source_unavailable');
+      } finally {
+        if (panels.get(panel) === controller) panels.delete(panel);
+      }
+    }
+    function recover(code) {
+      if (dialog.open) dialog.close();
+      beginContext();
+      byId('context-label').textContent = 'View unavailable';
+      byId('context-detail').textContent = 'Choose a view to continue.';
+      view.removeAttribute('aria-busy');
+      const notice = node('section', null, 'empty');
+      const title = heading(failureMessages[code] ?? failureMessages.unavailable);
+      notice.append(title, button('Return to Author discovery', () => openContext({})));
+      view.append(notice);
+      title.focus();
+    }
+    function contextBar() {
+      const active = current.labels;
+      byId('world-title').textContent = active.title;
+      byId('context-label').textContent = active.mode === 'character' ? 'Character · ' + active.viewpoint : labels[active.mode];
+      byId('context-detail').textContent = active.mode === 'all' ? 'All declared timelines'
+        : [active.timeline, active.moment, active.descriptor, active.mode === 'character' ? active.scene ?? 'No scene selected' : null].filter(Boolean).join(' · ');
+      byId('change').disabled = false;
+      const directory = button('Directory', () => showDirectory(), 'secondary');
+      nav.replaceChildren(directory);
+      if (current.capabilities.workbench) {
+        const author = node('a', 'Author Workbench ↗', 'private');
+        author.href = '/';
+        nav.append(author);
+      }
+    }
+    function openContext(fields) {
+      beginContext();
+      load('context', 'context', fields, result => {
+        current = result;
+        contextBar();
+        showDirectory();
+      }, recover);
+    }
+    function setOptions(select, values, selection, placeholder) {
+      const empty = new Option(placeholder, '');
+      select.replaceChildren(empty);
+      for (const {value, label, disabled} of values) {
+        const option = new Option(label, value);
+        option.disabled = Boolean(disabled);
+        select.add(option);
+      }
+      if ([...select.options].some(option => option.value === selection)) select.value = selection;
+    }
+    function showDirectory(restore = false) {
+      abort('record');
+      const form = node('form', null, 'filters');
+      const search = node('input');
+      search.type = 'search';
+      search.value = filters.q ?? '';
+      search.maxLength = 120;
+      const kinds = node('select');
+      const timelines = node('select');
+      for (const [name, text, control] of [['search', 'Search admitted records', search], ['kind', 'Record kind', kinds], ['timeline', 'Timeline', timelines]]) {
+        control.id = 'directory-' + name;
+        const label = node('label', text);
+        label.htmlFor = control.id;
+        const container = node('div');
+        container.append(label, control);
+        form.append(container);
+      }
+      const status = node('p', null, 'muted resultline');
+      status.setAttribute('role', 'status');
+      const cards = node('ul', null, 'cards');
+      const paging = node('div');
+      const title = heading('Directory');
+      view.replaceChildren(title, form, status, cards, paging);
+      if (!restore) title.focus();
+      function requestPage(cursor = null) {
+        if (!cursor) {
+          cards.replaceChildren();
+          paging.replaceChildren();
+        }
+        status.textContent = 'Loading records…';
+        view.setAttribute('aria-busy', 'true');
+        load('page', 'page', {view: current.viewToken, ...filters, cursor}, result => {
+          view.removeAttribute('aria-busy');
+          const options = values => values.map(value => ({value: value.handle, label: value.label + ' · ' + value.count}));
+          setOptions(kinds, options(result.facets.kinds), filters.kind, 'All kinds');
+          setOptions(timelines, options(result.facets.timelines), filters.timeline, 'All admitted timelines');
+          if ((filters.kind || '') !== kinds.value || (filters.timeline || '') !== timelines.value) {
+            filters.kind = kinds.value;
+            filters.timeline = timelines.value;
+            requestPage();
+            return;
+          }
+          status.textContent = result.total === 0 ? 'No admitted records match this search.' : result.total + (result.total === 1 ? ' record' : ' records');
+          for (const record of result.items) {
+            const item = node('li');
+            const open = button(null, () => {
+              lastDirectoryButton = record.handle;
+              openRecord(record.handle);
+            }, 'record');
+            open.append(node('span', record.kindLabel, 'eyebrow'), node('strong', record.title));
+            item.append(open);
+            cards.append(item);
+            if (restore && lastDirectoryButton === record.handle) open.focus();
+          }
+          if (restore && !cards.contains(document.activeElement)) title.focus();
+          restore = false;
+          paging.replaceChildren();
+          if (result.nextCursor) paging.append(button('More records', () => requestPage(result.nextCursor), 'secondary'));
+        }, recover);
+      }
+      form.addEventListener('submit', event => { event.preventDefault(); requestPage(); });
+      search.addEventListener('input', () => { filters.q = search.value; requestPage(); });
+      kinds.addEventListener('change', () => { filters.kind = kinds.value; requestPage(); });
+      timelines.addEventListener('change', () => { filters.timeline = timelines.value; requestPage(); });
+      requestPage();
+    }
+    function openRecord(handle) {
+      abort('page');
+      view.replaceChildren(node('p', 'Opening record…', 'muted'));
+      view.setAttribute('aria-busy', 'true');
+      load('record', 'record', {view: current.viewToken, record: handle}, result => {
+        view.removeAttribute('aria-busy');
+        const title = heading(result.record.title);
+        view.replaceChildren(button('Back to directory', () => showDirectory(true), 'secondary'),
+          node('p', result.record.kindLabel, 'eyebrow resultline'), title);
+        for (const section of result.sections) {
+          const article = node('section', null, 'section');
+          article.append(node('h3', section.heading), node('p', section.text));
+          view.append(article);
+        }
+        if (!result.sections.length) view.append(node('p', 'No description is available in this view.', 'muted'));
+        title.focus();
+      }, recover);
+    }
+
+    const mode = byId('mode'), namedFields = byId('named-fields');
+    const calendarFields = byId('calendar-fields'), selectorStatus = byId('selector-status');
+    const selected = () => Object.fromEntries(levels.map(level => [level, byId('choose-' + level)?.value || '']));
+    function ready() {
+      const choices = selected();
+      byId('apply').disabled = mode.value !== 'all' && (!choices.timeline || !choices.moment
+        || (mode.value === 'character' && !choices.viewpoint));
+    }
+    function clearAfter(menu) {
+      for (const level of levels.slice(levels.indexOf(menu) + 1)) {
+        abort('picker-' + level);
+        byId('field-' + level)?.remove();
+      }
+      ready();
+    }
+    function makeField(menu, container) {
+      const field = node('div');
+      field.id = 'field-' + menu;
+      const select = node('select');
+      select.id = 'choose-' + menu;
+      const label = node('label', fieldNames[menu]);
+      label.htmlFor = select.id;
+      select.add(new Option(menu === 'scene' ? 'No scene selected' : 'Choose ' + fieldNames[menu].toLowerCase(), ''));
+      const paging = node('div', null, 'more');
+      field.append(label, select, paging);
+      container.append(field);
+      return {select, paging};
+    }
+    function choicesFor(menu, parents = {}, container = namedFields, changed = () => {}) {
+      byId('field-' + menu)?.remove();
+      const {select, paging} = makeField(menu, container);
+      select.addEventListener('change', changed);
+      const panel = 'picker-' + menu;
+      const picker = pickerEpoch;
+      function get(cursor) {
+        paging.replaceChildren();
+        selectorStatus.textContent = 'Loading named choices…';
+        load(panel, 'choices', {view: current.viewToken, mode: mode.value, menu, ...parents, cursor}, result => {
+          for (const choice of result.items) {
+            const option = new Option(choice.label + ' · ' + choice.descriptor, choice.handle || '');
+            option.disabled = !choice.handle;
+            select.add(option);
+          }
+          selectorStatus.textContent = select.options.length === 1 && menu !== 'scene' ? 'No named choices are available.' : '';
+          if (result.nextCursor) paging.append(button('More ' + fieldNames[menu].toLowerCase() + ' choices', () => get(result.nextCursor), 'secondary'));
+        }, code => {
+          if (code === 'context_changed' || code === 'source_unavailable') recover(code);
+          else selectorStatus.textContent = failureMessages.unavailable;
+        }, picker);
+      }
+      get(null);
+      return select;
+    }
+    function prepareMoment(timeline, dateFields = {}) {
+      pickerDate = dateFields;
+      clearAfter('timeline');
+      choicesFor('moment', {timeline, ...dateFields}, namedFields, () => {
+        const {moment} = selected();
+        clearAfter('moment');
+        if (moment && mode.value === 'character') choicesFor('viewpoint', {timeline, moment}, namedFields, () => {
+          const {viewpoint} = selected();
+          clearAfter('viewpoint');
+          if (viewpoint) choicesFor('scene', {timeline, moment, viewpoint}, namedFields, ready);
+          ready();
+        });
+        ready();
+      });
+    }
+    function changeTimeline() {
+      pickerEpoch++;
+      for (const panel of panels.keys()) if (panel.startsWith('picker-')) abort(panel);
+      const {timeline} = selected();
+      clearAfter('timeline');
+      pickerDate = {};
+      calendarFields.replaceChildren();
+      if (!timeline) return;
+      prepareMoment(timeline);
+      if (mode.value !== 'as-of') return;
+      const details = node('details');
+      details.append(node('summary', 'Find a moment by authored date'));
+      calendarFields.append(details);
+      details.addEventListener('toggle', () => {
+        if (!details.open || details.querySelector('select')) return;
+        const calendar = choicesFor('calendar', {}, details);
+        const label = node('label', 'Calendar date (year-month-day)', 'date-control');
+        label.htmlFor = 'authored-date';
+        const date = node('input');
+        date.id = 'authored-date';
+        date.placeholder = 'Year-month-day';
+        date.maxLength = 24;
+        details.append(label, date, button('Find named moments', () => {
+          if (!calendar.value || !date.value.trim()) return;
+          prepareMoment(timeline, {calendar: calendar.value, date: date.value.trim()});
+        }, 'secondary'), button('Clear date filter', () => {
+          date.value = '';
+          prepareMoment(timeline);
+        }, 'secondary'));
+      });
+    }
+    function configurePicker() {
+      pickerEpoch++;
+      for (const panel of panels.keys()) if (panel.startsWith('picker-')) abort(panel);
+      namedFields.replaceChildren();
+      calendarFields.replaceChildren();
+      pickerDate = {};
+      selectorStatus.replaceChildren();
+      if (mode.value !== 'all') choicesFor('timeline', {}, namedFields, changeTimeline);
+      ready();
+    }
+    byId('change').addEventListener('click', () => {
+      const options = current.labels.mode === 'character' ? ['character'] : ['all', 'as-of', 'character'];
+      mode.replaceChildren(...options.map(value => new Option(labels[value], value)));
+      mode.value = current.labels.mode;
+      byId('selector-hint').textContent = current.labels.mode === 'character'
+        ? 'Choose from this character’s admitted view, or return to Author discovery.'
+        : 'Choose a named story moment, or explicitly enter a character’s view from Author discovery.';
+      const prior = byId('return-author');
+      if (prior) prior.remove();
+      if (current.labels.mode === 'character') {
+        const reset = button('Return to Author discovery', () => { dialog.close(); openContext({}); }, 'secondary');
+        reset.id = 'return-author';
+        byId('selector-hint').after(reset);
+      }
+      dialog.showModal();
+      configurePicker();
+    });
+    mode.addEventListener('change', configurePicker);
+    byId('cancel').addEventListener('click', () => dialog.close());
+    dialog.addEventListener('close', () => {
+      pickerEpoch++;
+      for (const panel of panels.keys()) if (panel.startsWith('picker-')) abort(panel);
+      namedFields.replaceChildren();
+      calendarFields.replaceChildren();
+    });
+    byId('context-form').addEventListener('submit', event => {
+      event.preventDefault();
+      const fields = {view: current.viewToken, mode: mode.value, ...selected(), ...pickerDate};
+      dialog.close();
+      openContext(fields);
+    });
+    openContext({});
+  </script>
+</body>
+</html>

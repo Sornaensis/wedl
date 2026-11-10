@@ -7,7 +7,7 @@ use std::{
 };
 
 use axum::{
-    Json, Router,
+    Extension, Json, Router,
     extract::{Path, RawQuery, State},
     http::{HeaderMap, HeaderValue, StatusCode},
     middleware::{self, Next},
@@ -19,18 +19,24 @@ use serde_json::json;
 use crate::{
     Error, Result,
     chronology::{AnnotationQuery, CivilDate, DateInput, DateTarget, EraMatchMode},
-    service::{Operation, Service, TimeInput},
+    compendium::{self, Browser as CompendiumBrowser},
+    service::{CompendiumSource, Operation, Service, TimeInput},
     validation,
 };
 
 pub const INDEX: &str = include_str!("../static/index.html");
+const COMPENDIUM: &str = include_str!("../static/compendium.html");
 
 pub fn router(service: Service) -> Router {
+    let service = service.with_compendium_authority();
     Router::new()
         .route("/", get(|| async { Html(INDEX) }))
+        .route("/compendium", get(|| async { Html(COMPENDIUM) }))
+        .route("/api/compendium/{endpoint}", get(fixed_compendium))
         .route("/api/{*path}", get(api))
         .fallback(|| async { ApiError(Error::NotFound("route does not exist".into())) })
         .method_not_allowed_fallback(|| async { (StatusCode::METHOD_NOT_ALLOWED, Json(json!({"code":"method_not_allowed","message":"This snapshot server accepts GET requests only","details":{}}))) })
+        .layer(Extension(Arc::new(CompendiumBrowser::new())))
         .layer(middleware::from_fn(local_request))
         .with_state(service)
 }
@@ -45,8 +51,11 @@ pub fn live_router(service: Service) -> Router {
 }
 
 fn worktree_router(service: Service, live_author: bool) -> Router {
+    let service = service.with_compendium_authority();
     let mut app = Router::new()
         .route("/", get(|| async { Html(INDEX) }))
+        .route("/compendium", get(|| async { Html(COMPENDIUM) }))
+        .route("/api/compendium/{endpoint}", get(current_compendium))
         .route("/api/session", get(worktree_capabilities))
         .route("/api/{*path}", get(live_api));
     if live_author {
@@ -66,6 +75,7 @@ fn worktree_router(service: Service, live_author: bool) -> Router {
                 "This route does not accept the requested method",
             )
         })
+        .layer(Extension(Arc::new(CompendiumBrowser::new())))
         .layer(middleware::from_fn(local_request))
         .with_state(LiveSession {
             live_author,
@@ -109,6 +119,75 @@ impl LiveSession {
         // without refreshing the worktree or using its outer source pins.
         work(state.service.clone())
     }
+}
+
+fn compendium_request(
+    endpoint: &str,
+    query: Option<&str>,
+) -> std::result::Result<compendium::Request, compendium::Failure> {
+    let query = parse_query_bounded(query.unwrap_or(""), compendium::MAX_QUERY_BYTES)
+        .map_err(|_| compendium::Failure::Invalid)?;
+    compendium::Request::decode(endpoint, query)
+}
+
+fn compendium_response(
+    result: std::result::Result<serde_json::Value, compendium::Failure>,
+) -> Response {
+    match result {
+        Ok(result) => Json(result).into_response(),
+        Err(failure) => {
+            let (status, code, message) = failure.presentation();
+            refusal(
+                StatusCode::from_u16(status).expect("known Compendium HTTP status"),
+                code,
+                message,
+            )
+        }
+    }
+}
+
+async fn fixed_compendium(
+    State(service): State<Service>,
+    Extension(browser): Extension<Arc<CompendiumBrowser>>,
+    Path(endpoint): Path<String>,
+    RawQuery(query): RawQuery,
+) -> Response {
+    let request = match compendium_request(&endpoint, query.as_deref()) {
+        Ok(request) => request,
+        Err(failure) => return compendium_response(Err(failure)),
+    };
+    compendium_response(
+        tokio::task::spawn_blocking(move || {
+            browser.execute(&service, CompendiumSource::Fixed, request)
+        })
+        .await
+        .unwrap_or(Err(compendium::Failure::Source)),
+    )
+}
+
+async fn current_compendium(
+    State(session): State<LiveSession>,
+    Extension(browser): Extension<Arc<CompendiumBrowser>>,
+    Path(endpoint): Path<String>,
+    RawQuery(query): RawQuery,
+) -> Response {
+    let request = match compendium_request(&endpoint, query.as_deref()) {
+        Ok(request) => request,
+        Err(failure) => return compendium_response(Err(failure)),
+    };
+    compendium_response(
+        tokio::task::spawn_blocking(move || {
+            // The pin performs native current-source capture while this request
+            // holds the same gate as a live-author write. Do not capture twice.
+            session
+                .run(false, |service| {
+                    Ok(browser.execute(&service, CompendiumSource::Current, request))
+                })
+                .unwrap_or(Err(compendium::Failure::Source))
+        })
+        .await
+        .unwrap_or(Err(compendium::Failure::Source)),
+    )
 }
 
 async fn worktree_capabilities(

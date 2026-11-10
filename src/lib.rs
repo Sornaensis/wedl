@@ -7,6 +7,7 @@ pub mod authoring;
 pub mod authoring_schema;
 pub mod authoring_tools;
 pub mod catalogue;
+pub(crate) mod compendium;
 pub mod compiler;
 pub mod consequence_semantics;
 pub mod consequences;

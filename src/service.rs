@@ -1002,6 +1002,19 @@ impl CompendiumPin {
     pub fn world(&self) -> &World {
         self.0.world()
     }
+
+    pub(crate) fn witness(&self) -> CompendiumWitness {
+        CompendiumWitness(Arc::downgrade(&self.0))
+    }
+}
+
+#[derive(Clone)]
+pub(crate) struct CompendiumWitness(std::sync::Weak<compiler::generation::Generation>);
+
+impl CompendiumWitness {
+    pub(crate) fn matches(&self, pin: &CompendiumPin) -> bool {
+        self.0.ptr_eq(&Arc::downgrade(&pin.0))
+    }
 }
 
 #[derive(Clone)]
@@ -1034,6 +1047,13 @@ impl Service {
 
     pub fn world(&self) -> &World {
         &self.world
+    }
+
+    /// Two Author routers can share native source and Reader policy state but
+    /// must not retire one another's Compendium views.
+    pub(crate) fn with_compendium_authority(mut self) -> Self {
+        self.compendium_generations = Arc::default();
+        self
     }
 
     /// Capture an immutable worktree snapshot or reuse a byte-identical bounded

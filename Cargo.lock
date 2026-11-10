@@ -944,6 +944,7 @@ version = "1.0.0"
 dependencies = [
  "axum",
  "clap",
+ "getrandom",
  "hex",
  "http-body-util",
  "rusqlite",

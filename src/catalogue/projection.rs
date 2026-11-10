@@ -317,6 +317,25 @@ pub(super) fn select(
     request: &Request,
     character_scope: Option<&CharacterScope<'_>>,
 ) -> Result<Selection> {
+    select_inner(world, request, character_scope, false, None)
+}
+
+pub(super) fn select_browser(
+    world: &World,
+    request: &Request,
+    character_scope: Option<&CharacterScope<'_>>,
+    scene: Option<&str>,
+) -> Result<Selection> {
+    select_inner(world, request, character_scope, true, scene)
+}
+
+fn select_inner(
+    world: &World,
+    request: &Request,
+    character_scope: Option<&CharacterScope<'_>>,
+    include_learned: bool,
+    explicit_scene: Option<&str>,
+) -> Result<Selection> {
     let page = match &request.operation {
         Operation::Page(page) => Some(page),
         _ => None,
@@ -324,7 +343,7 @@ pub(super) fn select(
     if let Some(page) = page {
         validate_threads(world, &page.threads)?;
     }
-    let learned_enabled = page.is_none_or(|page| page.query.is_some());
+    let learned_enabled = include_learned || page.is_none_or(|page| page.query.is_some());
     let mut learned = BTreeMap::new();
     if let Lens::Character { character, .. } = &request.lens {
         let at = request.at.as_ref().unwrap();
@@ -392,7 +411,9 @@ pub(super) fn select(
                     .map_err(|_| source_error())?
             }
         };
-        if visible && temporal(world, record, request)? {
+        if visible
+            && (explicit_scene == Some(record.id.as_str()) || temporal(world, record, request)?)
+        {
             allowed.insert(record.id.clone());
         }
     }

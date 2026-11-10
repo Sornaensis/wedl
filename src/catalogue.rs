@@ -466,6 +466,66 @@ fn unbase64(value: &str) -> Result<Vec<u8>> {
 fn fold(value: &str) -> String {
     crate::reader::casefold::fold(&value.nfc().collect::<String>())
 }
+
+/// Closed projection adapter for the Compendium. A caller supplies its native
+/// admitted scope and merges timelines before doing any presentation filtering.
+pub(crate) fn browser_rows(
+    world: &World,
+    timeline: &str,
+    at: Option<&StoryTime>,
+    character: Option<(&str, Option<&str>, &crate::narrative::CharacterScope<'_>)>,
+) -> Result<Vec<(String, String, Option<String>)>> {
+    let lens = if let Some((viewer, scene, _)) = character {
+        Lens::Character {
+            character: viewer.into(),
+            scene: scene.unwrap_or_default().into(),
+        }
+    } else if at.is_some() {
+        Lens::AuthorAsOf
+    } else {
+        Lens::AuthorAllTime(timeline.into())
+    };
+    let request = Request {
+        raw: Json::Null,
+        fingerprint: world.fingerprint.clone(),
+        at: at.cloned(),
+        lens,
+        operation: Operation::Page(Page {
+            filters: Filters {
+                kinds: Vec::new(),
+                profiles: Vec::new(),
+                eras: Vec::new(),
+                name: String::new(),
+            },
+            sort: "name-asc".into(),
+            query: None,
+            mode: None,
+            threads: Vec::new(),
+            limit: MAX_SELECTION,
+            cursor: None,
+        }),
+    };
+    let selected = projection::select_browser(
+        world,
+        &request,
+        character.map(|(_, _, scope)| scope),
+        character.and_then(|(_, scene, _)| scene),
+    )?;
+    selected
+        .rows
+        .into_iter()
+        .map(|(id, row)| {
+            let title = row.item["title"]
+                .as_str()
+                .ok_or_else(source_error)?
+                .to_owned();
+            let learned = row
+                .learned
+                .and_then(|value| value["statement"].as_str().map(str::to_owned));
+            Ok((id, title, learned))
+        })
+        .collect()
+}
 fn name_key(item: &Json) -> Vec<Json> {
     let title = item["title"]
         .as_str()
