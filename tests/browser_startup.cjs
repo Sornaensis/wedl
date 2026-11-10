@@ -145,9 +145,17 @@ async function main() {
   assert.ok(ready, 'Server did not become ready');
   browser = await chromium.launch({headless: true, ...(process.env.WEDL_TEST_CHROMIUM ? {executablePath: process.env.WEDL_TEST_CHROMIUM} : {}), args: process.platform === 'linux' ? ['--no-sandbox'] : []});
   const context = await browser.newContext({viewport: {width: 1280, height: 900}, acceptDownloads: true});
+  const compendium = await pageFor(context);
+  await compendium.goto(origin);
+  await compendium.getByRole('heading', {name: 'Directory', exact: true}).waitFor();
+  equal('The root opens a fresh Author directory', await compendium.locator('#context-label').textContent(), 'Author · All story');
+  equal('Author discovery links to the Workbench', await compendium.getByRole('link', {name: /Author Workbench/}).getAttribute('href'), '/workbench');
+  equal('Compendium startup uses scoped reads', report.api.length > 0 && report.api.every(request => request.path.startsWith('/api/compendium/')), true);
+  await compendium.close();
 
+  const legacy = origin + '/legacy-author';
   const page = await pageFor(context), held = await holdStatus(page);
-  await page.goto(origin, {waitUntil: 'domcontentloaded'}); await held.started();
+  await page.goto(legacy, {waitUntil: 'domcontentloaded'}); await held.started();
   equal('Source refresh is disabled before initial status arrives', await page.locator('#source-refresh').isDisabled(), true);
   report.chosen = {};
   for (const group of groups) {
@@ -176,7 +184,7 @@ async function main() {
   if (report.queueRevisionAfter !== queueRevision) report.mismatches.push('retcon-queue-revision');
 
   const untouched = await pageFor(context), untouchedHeld = await holdStatus(untouched);
-  await untouched.goto(origin, {waitUntil: 'domcontentloaded'}); await untouchedHeld.started();
+  await untouched.goto(legacy, {waitUntil: 'domcontentloaded'}); await untouchedHeld.started();
   report.untouchedBefore = await capture(untouched);
   await untouchedHeld.release(); report.untouchedAfter = await capture(untouched);
   const native = status.result.currentTime, expected = structuredClone(report.untouchedBefore);
@@ -188,7 +196,7 @@ async function main() {
 
   // A successful request download uses the horizon without editing its fields.
   const used = await pageFor(context), usedHeld = await holdStatus(used);
-  await used.goto(origin, {waitUntil: 'domcontentloaded'}); await usedHeld.started();
+  await used.goto(legacy, {waitUntil: 'domcontentloaded'}); await usedHeld.started();
   await used.locator('#consequence-tab').click();
   const plan = cli(['authoring', 'scaffold', '--family', 'changeset', '--expected-fingerprint', status.fingerprint]).result.plan;
   await used.locator('#grouped-consequence-file').setInputFiles({name: 'plan.json', mimeType: 'application/json', buffer: Buffer.from(JSON.stringify(plan))});
@@ -206,7 +214,7 @@ async function main() {
 
   // Editing one coordinate preserves the whole point, including its timeline.
   const partial = await pageFor(context), partialHeld = await holdStatus(partial);
-  await partial.goto(origin, {waitUntil: 'domcontentloaded'}); await partialHeld.started();
+  await partial.goto(legacy, {waitUntil: 'domcontentloaded'}); await partialHeld.started();
   await partial.locator('#consequence-tab').click(); await partial.locator('#consequence-tick').fill('-9007199254740993');
   report.partialBefore = (await capture(partial, ['consequence'])).consequence;
   await partialHeld.release(); report.partialAfter = (await capture(partial, ['consequence'])).consequence;

@@ -537,9 +537,10 @@ pub(super) fn read(
     pin: &CompendiumPin,
     view: &View,
     request: &Request,
+    routes: &super::bookmarks::Issuer<'_>,
 ) -> Result<Value> {
     if request.get("menu") == Some("record") {
-        return super::graph::record_choices(browser, pin, view, request);
+        return super::graph::record_choices(browser, pin, view, request, routes);
     }
     if request.get("kind").is_some() {
         return Err(Failure::Invalid);

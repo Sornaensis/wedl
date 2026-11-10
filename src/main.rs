@@ -2013,6 +2013,9 @@ enum Command {
         /// Explicit operator-owned policy for author reader simulation.
         #[arg(long, value_name = "FILE")]
         reader_simulation_policy: Option<PathBuf>,
+        /// Read a protected key ring for durable Compendium links.
+        #[arg(long, value_name = "FILE")]
+        compendium_keyring: Option<PathBuf>,
     },
     /// Serve the isolated anonymous reader UI/API; no policy means no access.
     ServeReader {
@@ -3545,7 +3548,12 @@ async fn run(cli: Cli) -> Result<u8> {
             port,
             live_author,
             reader_simulation_policy,
+            compendium_keyring,
         } => {
+            let mut service = service;
+            if let Some(path) = compendium_keyring {
+                service.install_compendium_keyring(&path)?;
+            }
             if let Some(path) = reader_simulation_policy {
                 service.reader().install_simulation(Some(
                     wedl::reader_config::decode_simulation(

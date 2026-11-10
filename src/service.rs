@@ -1024,6 +1024,7 @@ pub struct Service {
     validation: Arc<validation::ValidationReport>,
     reader: Arc<crate::reader::PresentationService>,
     compendium_generations: Arc<compiler::generation::Generations>,
+    compendium_keyring: Option<Arc<crate::compendium::bookmarks::Keyring>>,
 }
 
 impl Service {
@@ -1038,6 +1039,7 @@ impl Service {
             validation,
             reader,
             compendium_generations: Arc::default(),
+            compendium_keyring: None,
         }
     }
 
@@ -1047,6 +1049,20 @@ impl Service {
 
     pub fn world(&self) -> &World {
         &self.world
+    }
+
+    /// Install operator-provisioned address keys without writing world source
+    /// or registering any HTTP policy or publishing authority.
+    pub fn install_compendium_keyring(&mut self, path: &std::path::Path) -> Result<()> {
+        self.compendium_keyring = Some(Arc::new(crate::compendium::bookmarks::Keyring::load(
+            &self.source_root,
+            path,
+        )?));
+        Ok(())
+    }
+
+    pub(crate) fn compendium_keyring(&self) -> Option<&crate::compendium::bookmarks::Keyring> {
+        self.compendium_keyring.as_deref()
     }
 
     /// Two Author routers can share native source and Reader policy state but
@@ -1073,6 +1089,7 @@ impl Service {
                 world: Arc::new(world),
                 reader: self.reader.clone(),
                 compendium_generations: self.compendium_generations.clone(),
+                compendium_keyring: self.compendium_keyring.clone(),
             }),
             None => Ok(self.clone()),
         }

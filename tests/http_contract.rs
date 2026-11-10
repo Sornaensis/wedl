@@ -317,12 +317,17 @@ async fn local_author_server_rejects_rebinding_hosts_and_foreign_origins() {
         .unwrap();
     assert_eq!(response.status(), StatusCode::OK);
     assert_eq!(response.headers()["cache-control"], "no-store");
+    assert_eq!(response.headers()["referrer-policy"], "no-referrer");
     assert!(
         response
             .headers()
             .get("access-control-allow-origin")
             .is_none()
     );
+    let body = response.into_body().collect().await.unwrap().to_bytes();
+    let html = std::str::from_utf8(&body).unwrap();
+    assert!(html.contains("WEDL / Compendium"));
+    assert!(!html.contains("WEDL / Native author tools"));
 }
 
 #[tokio::test]

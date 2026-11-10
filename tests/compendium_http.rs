@@ -277,6 +277,7 @@ async fn get(app: &Router, endpoint: &str, fields: &[(&str, &str)]) -> (StatusCo
         .unwrap();
     let status = response.status();
     assert_eq!(response.headers()["cache-control"], "no-store");
+    assert_eq!(response.headers()["referrer-policy"], "no-referrer");
     let body = response.into_body().collect().await.unwrap().to_bytes();
     (status, serde_json::from_slice(&body).unwrap())
 }
@@ -309,6 +310,75 @@ fn card<'a>(value: &'a Value, title: &str) -> Option<&'a str> {
         .iter()
         .find(|row| row["title"] == title)
         .and_then(|row| row["handle"].as_str())
+}
+
+fn card_href<'a>(value: &'a Value, title: &str) -> &'a str {
+    value["items"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|row| row["title"] == title)
+        .unwrap_or_else(|| panic!("missing {title:?} in {value}"))["href"]
+        .as_str()
+        .unwrap()
+}
+
+fn address(href: &str) -> &str {
+    let value = href.strip_prefix("/compendium/v1/").unwrap();
+    assert_eq!(value.len(), 1592);
+    assert!(
+        value
+            .bytes()
+            .all(|byte| b"0123456789abcdef".contains(&byte))
+    );
+    value
+}
+
+fn keyring(path: &Path, keys: &[u8]) {
+    fs::write(
+        path,
+        serde_json::to_vec(&json!({
+            "schema":"wedl-compendium-keyring/v1",
+            "installation":"73".repeat(16),
+            "keys": keys.iter().map(|byte| format!("{byte:02x}").repeat(32)).collect::<Vec<_>>(),
+        }))
+        .unwrap(),
+    )
+    .unwrap();
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::PermissionsExt;
+        fs::set_permissions(path, fs::Permissions::from_mode(0o600)).unwrap();
+    }
+}
+
+async fn restore(app: &Router, href: &str) -> Value {
+    let value = read(app, "bookmark", &[("address", address(href))]).await;
+    assert_eq!(value["href"], href);
+    value
+}
+
+async fn record_from_restore(app: &Router, restored: &Value) -> Value {
+    read(
+        app,
+        "record",
+        &[
+            ("view", view(restored)),
+            (
+                "record",
+                restored["destination"]["handle"].as_str().unwrap(),
+            ),
+        ],
+    )
+    .await
+}
+
+async fn unavailable_bookmark(app: &Router, raw: &str) -> Value {
+    let (status, value) = get(app, "bookmark", &[("address", raw)]).await;
+    assert_eq!(status, StatusCode::NOT_FOUND);
+    assert_eq!(value["code"], "unavailable");
+    assert_eq!(value["details"], json!({}));
+    value
 }
 
 async fn named(app: &Router, token: &str, mode: &str, timeline: &str) -> (String, Value) {
@@ -690,6 +760,226 @@ async fn current_generation_changes_fence_old_view_and_fixed_router_stays_pinned
     let fixed = read(&fixed, "page", &[("view", view(&before_fixed))]).await;
     assert!(card(&fixed, "Ana").is_some());
     assert_eq!(fs::read_dir(root.path()).unwrap().count(), 1);
+}
+
+#[tokio::test]
+async fn bookmarks_are_opaque_cold_links_bound_to_installation_source_and_server_mode() {
+    let (root, mut service) = fixture();
+    let protected = tempfile::tempdir().unwrap();
+    let config = protected.path().join("links.json");
+    keyring(&config, &[0x32]);
+    assert!(
+        service
+            .install_compendium_keyring(Path::new("links.json"))
+            .is_err()
+    );
+    let inside = root.path().join("links.json");
+    keyring(&inside, &[0x32]);
+    assert!(service.install_compendium_keyring(&inside).is_err());
+    fs::remove_file(inside).unwrap();
+    service.install_compendium_keyring(&config).unwrap();
+    let live = http::live_router(service.clone());
+    let context = read(&live, "context", &[]).await;
+    assert_eq!(context["routes"]["durable"], true);
+    let old_view = view(&context);
+    let fields = [("view", old_view), ("q", "Ana")];
+    let page = read(&live, "page", &fields).await;
+    let href = card_href(&page, "Ana");
+    assert_ne!(href, card_href(&read(&live, "page", &fields).await, "Ana"));
+    assert_ne!(address(href), card(&page, "Ana").unwrap());
+    assert!(!href.contains(ANA) && !href.contains("Ana") && !href.contains('?'));
+    assert_eq!(
+        address(href).len(),
+        address(context["routes"]["graph"].as_str().unwrap()).len()
+    );
+    for path in ["/", "/compendium", href, "/compendium/v1/malformed"] {
+        let response = live
+            .clone()
+            .oneshot(Request::builder().uri(path).body(Body::empty()).unwrap())
+            .await
+            .unwrap();
+        assert_eq!(response.status(), StatusCode::OK);
+        assert_eq!(response.headers()["referrer-policy"], "no-referrer");
+        assert_eq!(response.headers()["cache-control"], "no-store");
+        let shell = response.into_body().collect().await.unwrap().to_bytes();
+        let shell = std::str::from_utf8(&shell).unwrap();
+        assert!(shell.contains("WEDL · Compendium"));
+        assert!(!shell.contains(ANA) && !shell.contains("First signal"));
+    }
+    let failure = unavailable_bookmark(&live, "wrong-length").await;
+    let mut altered = address(href).to_owned();
+    altered.replace_range(750..751, if &altered[750..751] == "a" { "b" } else { "a" });
+    assert_eq!(unavailable_bookmark(&live, &altered).await, failure);
+    let fixed = http::router(service.clone());
+    assert_eq!(unavailable_bookmark(&fixed, address(href)).await, failure);
+    let (_other_root, mut other) = fixture();
+    other.install_compendium_keyring(&config).unwrap();
+    assert_eq!(
+        unavailable_bookmark(&http::live_router(other), address(href)).await,
+        failure
+    );
+
+    let path = root.path().join("story").join(format!("{ANA}.md"));
+    let before = fs::read_to_string(&path).unwrap();
+    let after = before.replace("title: Ana", "title: Ada");
+    let modified = fs::metadata(&path).unwrap().modified().unwrap();
+    fs::write(&path, &after).unwrap();
+    fs::File::options()
+        .write(true)
+        .open(&path)
+        .unwrap()
+        .set_modified(modified)
+        .unwrap();
+    let mut restarted = Service::new(source::load_world(root.path(), None).unwrap());
+    keyring(&config, &[0x57, 0x32]);
+    restarted.install_compendium_keyring(&config).unwrap();
+    let restarted = http::live_router(restarted);
+    let restored = restore(&restarted, href).await;
+    assert_ne!(view(&restored), old_view);
+    assert_eq!(restored["destination"]["kind"], "record");
+    assert_eq!(
+        record_from_restore(&restarted, &restored).await["record"]["title"],
+        "Ada"
+    );
+    assert_eq!(
+        get(&restarted, "page", &[("view", old_view)]).await.0,
+        StatusCode::NOT_FOUND
+    );
+    assert_eq!(fs::read_to_string(&path).unwrap(), after);
+    assert_eq!(fs::read_dir(root.path()).unwrap().count(), 1);
+    let new_context = read(&restarted, "context", &[]).await;
+    let new_page = read(
+        &restarted,
+        "page",
+        &[("view", view(&new_context)), ("q", "Ada")],
+    )
+    .await;
+    let new_href = card_href(&new_page, "Ada");
+    keyring(&config, &[0x57]);
+    service.install_compendium_keyring(&config).unwrap();
+    let retired = http::live_router(service);
+    assert_eq!(unavailable_bookmark(&retired, address(href)).await, failure);
+    assert_eq!(
+        record_from_restore(&retired, &restore(&retired, new_href).await).await["record"]["title"],
+        "Ada"
+    );
+}
+
+#[tokio::test]
+async fn character_bookmarks_require_current_members_and_destination_admission() {
+    let (root, service) = fixture();
+    let app = http::live_router(service.clone());
+    let author = read(&app, "context", &[]).await;
+    let current = character(&app, view(&author), "Second signal", true).await;
+    let current_view = view(&current);
+    assert_eq!(current["routes"]["durable"], false);
+    let old = read(
+        &app,
+        "page",
+        &[("view", current_view), ("q", "Signal ledger")],
+    )
+    .await;
+    let href = card_href(&old, "Signal ledger");
+    let restored = restore(&app, href).await;
+    assert_eq!(restored["labels"], current["labels"]);
+    assert_eq!(restored["capabilities"]["workbench"], false);
+    assert_eq!(
+        record_from_restore(&app, &restored).await["record"]["title"],
+        "Signal ledger"
+    );
+    let graph = restore(&app, current["routes"]["graph"].as_str().unwrap()).await;
+    assert_eq!(graph["destination"]["kind"], "graph");
+    let expired = unavailable_bookmark(&http::live_router(service), address(href)).await;
+    let ledger = root.path().join("story").join(format!("{LEDGER}.md"));
+    let original_ledger = fs::read_to_string(&ledger).unwrap();
+    let private = original_ledger.replace("- public", "- private");
+    assert_ne!(private, original_ledger);
+    fs::write(&ledger, private).unwrap();
+    assert!(validation::validate_world(&source::load_world(root.path(), None).unwrap()).valid);
+    assert_eq!(unavailable_bookmark(&app, address(href)).await, expired);
+    assert_eq!(
+        restore(&app, current["href"].as_str().unwrap()).await["destination"]["kind"],
+        "directory"
+    );
+    fs::write(ledger, original_ledger).unwrap();
+    let late = root.path().join("story").join(format!("{LATE}.md"));
+    let original_late = fs::read_to_string(&late).unwrap();
+    let moved = original_late.replace("order: 2", "order: 3");
+    assert_ne!(moved, original_late);
+    fs::write(late, moved).unwrap();
+    assert!(validation::validate_world(&source::load_world(root.path(), None).unwrap()).valid);
+    assert_eq!(unavailable_bookmark(&app, address(href)).await, expired);
+    assert_eq!(
+        unavailable_bookmark(&app, address(current["href"].as_str().unwrap())).await,
+        expired
+    );
+}
+
+#[tokio::test]
+async fn bookmarked_duplicate_titles_reopen_distinct_native_records_and_contexts_readmit_them() {
+    let (_root, service) = fixture();
+    let app = http::router(service);
+    let author = read(&app, "context", &[]).await;
+    let token = view(&author);
+    let events = read(&app, "page", &[("view", token), ("q", "First signal")]).await;
+    let duplicates = events["items"].as_array().unwrap();
+    assert_eq!(duplicates.len(), 2);
+    let mut participant_counts = Vec::new();
+    for row in duplicates {
+        let restored = restore(&app, row["href"].as_str().unwrap()).await;
+        let root = restored["destination"]["handle"].as_str().unwrap();
+        let graph = graph_root(&app, view(&restored), root).await;
+        participant_counts.push(
+            graph["items"]
+                .as_array()
+                .unwrap()
+                .iter()
+                .filter(|item| item["relation"] == "event-participant")
+                .count(),
+        );
+    }
+    participant_counts.sort_unstable();
+    assert_eq!(participant_counts, [0, 2]);
+
+    let current = character(&app, token, "First signal", false).await;
+    let current_page = read(&app, "page", &[("view", view(&current)), ("q", "Ana")]).await;
+    let (timeline, moments) = named(&app, view(&current), "character", "Main").await;
+    let moment = handle(&moments, "First signal");
+    let fields = [
+        ("view", view(&current)),
+        ("mode", "character"),
+        ("timeline", &timeline),
+        ("moment", moment),
+    ];
+    let mut viewer_query = fields.to_vec();
+    viewer_query.push(("menu", "viewpoint"));
+    let viewpoints = read(&app, "choices", &viewer_query).await;
+    let mut next = fields.to_vec();
+    next.push(("viewpoint", handle(&viewpoints, "Ana")));
+    next.push(("record", card(&current_page, "Ana").unwrap()));
+    let retained = read(&app, "context", &next).await;
+    assert_eq!(retained["destination"]["kind"], "record");
+    assert_eq!(
+        record_from_restore(&app, &retained).await["record"]["title"],
+        "Ana"
+    );
+
+    let (timeline, moments) = named(&app, token, "as-of", "Main").await;
+    let author_page = read(&app, "page", &[("view", token), ("q", "Second signal")]).await;
+    let changed = read(
+        &app,
+        "context",
+        &[
+            ("view", token),
+            ("mode", "as-of"),
+            ("timeline", &timeline),
+            ("moment", handle(&moments, "First signal")),
+            ("record", card(&author_page, "Second signal").unwrap()),
+        ],
+    )
+    .await;
+    assert_eq!(changed["destination"]["kind"], "directory");
+    assert!(!changed.to_string().contains("Second signal"));
 }
 
 fn linked(value: &Value, label: &str, relation: &str, direction: &str) -> bool {

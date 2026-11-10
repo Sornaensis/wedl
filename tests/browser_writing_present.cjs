@@ -130,7 +130,7 @@ async function main() {
   page.on('request', request => { const url = new URL(request.url()); if (url.pathname.startsWith('/api/')) report.api.push({method: request.method(), path: url.pathname}); });
   page.on('response', response => { const url = new URL(response.url()); if (url.pathname.startsWith('/api/') && !response.ok()) report.httpFailures.push({path: url.pathname, status: response.status()}); });
   page.on('requestfailed', request => report.requestFailures.push(request.failure()?.errorText));
-  await page.goto(origin);
+  await page.goto(origin + '/legacy-author');
   await page.waitForFunction(fingerprint => document.querySelector('#writing-fingerprint').value === fingerprint, status.fingerprint);
   await page.locator('#writing-tab').click();
   for (const [id, value] of [['writing-scene', ids.scene], ['writing-pov', ids.actor], ['writing-timeline', at.timeline], ['writing-tick', at.tick], ['writing-order', at.order], ['writing-budget', '100000']]) await page.locator('#' + id).fill(value);

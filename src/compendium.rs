@@ -1,5 +1,6 @@
 //! Closed presentation reads for the loopback Compendium. Native v1 readers
 //! and private writers do not use these context or selector handles.
+pub(crate) mod bookmarks;
 mod choices;
 mod directory;
 mod graph;
@@ -9,6 +10,7 @@ use crate::{
     narrative::CharacterScope,
     service::{CompendiumPin, CompendiumSource, CompendiumWitness, Service},
 };
+use bookmarks::{Authority, Issuer, Keyring, Target};
 use serde::Serialize;
 use serde_json::{Value, json};
 use sha2::{Digest, Sha256};
@@ -145,6 +147,7 @@ pub(crate) struct Request {
 
 enum Action {
     Context,
+    Bookmark,
     Choices,
     Page,
     Record,
@@ -155,6 +158,7 @@ impl Request {
     pub(crate) fn decode(endpoint: &str, query: BTreeMap<String, String>) -> Result<Self> {
         let action = match endpoint {
             "context" => Action::Context,
+            "bookmark" => Action::Bookmark,
             "choices" => Action::Choices,
             "page" => Action::Page,
             "record" => Action::Record,
@@ -171,7 +175,9 @@ impl Request {
                 "scene",
                 "calendar",
                 "date",
+                "record",
             ],
+            Action::Bookmark => &["address"],
             Action::Choices => &[
                 "view",
                 "menu",
@@ -191,9 +197,22 @@ impl Request {
             Action::Graph => &["view", "root", "timeline", "q", "limit", "cursor"],
         };
         if query.keys().any(|key| !allowed.contains(&key.as_str())) {
-            return Err(Failure::Invalid);
+            return Err(match action {
+                Action::Bookmark => Failure::Unavailable,
+                _ => Failure::Invalid,
+            });
         }
         let request = Self { action, query };
+        if matches!(request.action, Action::Bookmark)
+            && request.get("address").is_none_or(|value| {
+                value.len() != bookmarks::ADDRESS_LENGTH
+                    || !value
+                        .bytes()
+                        .all(|byte| byte.is_ascii_digit() || (b'a'..=b'f').contains(&byte))
+            })
+        {
+            return Err(Failure::Unavailable);
+        }
         for name in [
             "view",
             "timeline",
@@ -255,14 +274,18 @@ struct View {
 pub(crate) struct Browser {
     secret: Option<[u8; 32]>,
     views: Mutex<VecDeque<View>>,
+    authority: Authority,
+    transient: Option<Keyring>,
 }
 
 impl Browser {
-    pub(crate) fn new() -> Self {
+    pub(crate) fn new(authority: Authority) -> Self {
         let mut secret = [0; 32];
         Self {
             secret: getrandom::fill(&mut secret).ok().map(|_| secret),
             views: Mutex::new(VecDeque::new()),
+            authority,
+            transient: Keyring::transient().ok(),
         }
     }
 
@@ -280,7 +303,7 @@ impl Browser {
         Ok(view)
     }
 
-    fn remember(&self, lens: Lens, pin: &CompendiumPin) -> Result<String> {
+    fn remember(&self, lens: Lens, pin: &CompendiumPin) -> Result<View> {
         let mut random = [0; 32];
         getrandom::fill(&mut random).map_err(|_| Failure::Source)?;
         let token = hex::encode(random);
@@ -288,12 +311,13 @@ impl Browser {
         if views.len() == MAX_VIEWS {
             views.pop_front();
         }
-        views.push_back(View {
-            token: token.clone(),
+        let view = View {
+            token,
             source: pin.witness(),
             lens,
-        });
-        Ok(token)
+        };
+        views.push_back(view.clone());
+        Ok(view)
     }
 
     /// HMAC-SHA-256 over length-framed purpose and operands. Only the digest
@@ -332,44 +356,63 @@ impl Browser {
         if self.secret.is_none() {
             return Err(Failure::Source);
         }
+        let authority = self.authority;
+        let keyring = service
+            .compendium_keyring()
+            .or(self.transient.as_ref())
+            .ok_or(Failure::Source)?;
+        let address = request.get("address");
+        let saved = address
+            .map(|address| keyring.open(service.world(), authority, address))
+            .transpose()?;
         let pin = service
             .pin_compendium_source(source)
             .map_err(|error| match error {
+                _ if saved.is_some() => Failure::Unavailable,
                 crate::Error::Conflict(_) if request.get("view").is_some() => Failure::Changed,
                 _ => Failure::Source,
             })?;
         let world = pin.world();
         let result = match request.action {
             Action::Context => {
-                let lens = if request.query.is_empty() {
-                    Lens::All
+                let (lens, target) = if request.query.is_empty() {
+                    (Lens::All, Target::Directory)
                 } else {
                     let view = self.lookup(request.required("view")?, &pin)?;
-                    choices::resolve(self, &pin, &view, &request)?
+                    let lens = choices::resolve(self, &pin, &view, &request)?;
+                    let record = request
+                        .get("record")
+                        .map(|handle| directory::find_record(self, &pin, &view, handle))
+                        .transpose()?
+                        .flatten();
+                    (lens, record.map_or(Target::Directory, Target::Record))
                 };
-                let scope = lens.scope(&pin)?;
-                let labels = choices::context_labels(world, &lens, scope.as_ref())?;
-                let capabilities = Capabilities {
-                    workbench: lens.mode() != Mode::Character,
-                };
-                let token = self.remember(lens, &pin)?;
-                json!({"viewToken":token, "labels":labels, "capabilities":capabilities})
+                self.present_context(keyring, authority, &pin, lens, target, None)?
+            }
+            Action::Bookmark => {
+                let (lens, target) = saved.ok_or(Failure::Unavailable)?.resolve(world)?;
+                self.present_context(keyring, authority, &pin, lens, target, address)
+                    .map_err(|_| Failure::Unavailable)?
             }
             Action::Choices => {
                 let view = self.lookup(request.required("view")?, &pin)?;
-                choices::read(self, &pin, &view, &request)?
+                let routes = Issuer::new(keyring, world, authority, &view.lens)?;
+                choices::read(self, &pin, &view, &request, &routes)?
             }
             Action::Page => {
                 let view = self.lookup(request.required("view")?, &pin)?;
-                directory::page(self, &pin, &view, &request)?
+                let routes = Issuer::new(keyring, world, authority, &view.lens)?;
+                directory::page(self, &pin, &view, &request, &routes)?
             }
             Action::Record => {
                 let view = self.lookup(request.required("view")?, &pin)?;
-                directory::record(self, &pin, &view, &request)?
+                let routes = Issuer::new(keyring, world, authority, &view.lens)?;
+                directory::record(self, &pin, &view, &request, &routes)?
             }
             Action::Graph => {
                 let view = self.lookup(request.required("view")?, &pin)?;
-                graph::read(self, &pin, &view, &request)?
+                let routes = Issuer::new(keyring, world, authority, &view.lens)?;
+                graph::read(self, &pin, &view, &request, &routes)?
             }
         };
         if serde_json::to_vec(&result)
@@ -380,6 +423,63 @@ impl Browser {
             return Err(Failure::Source);
         }
         Ok(result)
+    }
+
+    fn present_context(
+        &self,
+        keyring: &Keyring,
+        authority: Authority,
+        pin: &CompendiumPin,
+        lens: Lens,
+        mut target: Target<'_>,
+        address: Option<&str>,
+    ) -> Result<Value> {
+        let world = pin.world();
+        let scope = lens.scope(pin)?;
+        if let Target::Record(record) = target
+            && !directory::rows(world, &lens, scope.as_ref())?
+                .iter()
+                .any(|row| row.id == record.id)
+        {
+            if address.is_some() {
+                return Err(Failure::Unavailable);
+            }
+            target = Target::Directory;
+        }
+        // Restore does not emit any labels until the complete lens and its
+        // destination have both been re-admitted on this one generation.
+        let labels = choices::context_labels(world, &lens, scope.as_ref())?;
+        let capabilities = Capabilities {
+            workbench: lens.mode() != Mode::Character,
+        };
+        let routes = Issuer::new(keyring, world, authority, &lens)?;
+        let directory = if matches!(lens, Lens::All) {
+            "/compendium".to_owned()
+        } else {
+            routes.path(Target::Directory)?
+        };
+        let graph = routes.path(Target::Graph)?;
+        let href = match address {
+            Some(address) => format!("{}{address}", bookmarks::PREFIX),
+            None => match target {
+                Target::Directory => directory.clone(),
+                Target::Graph => graph.clone(),
+                record => routes.path(record)?,
+            },
+        };
+        let view = self.remember(lens, pin)?;
+        let destination = match target {
+            Target::Directory => json!({"kind":"directory"}),
+            Target::Graph => json!({"kind":"graph"}),
+            Target::Record(record) => {
+                json!({"kind":"record","handle":directory::record_handle(self, &view, &record.id)?})
+            }
+        };
+        Ok(json!({
+            "viewToken":view.token, "labels":labels, "capabilities":capabilities,
+            "href":href, "destination":destination,
+            "routes":{"directory":directory,"graph":graph,"durable":keyring.durable()},
+        }))
     }
 }
 

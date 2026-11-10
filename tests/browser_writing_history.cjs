@@ -129,7 +129,8 @@ async function main() {
   browser = await chromium.launch({headless: true, ...(process.env.WEDL_TEST_CHROMIUM ? {executablePath: process.env.WEDL_TEST_CHROMIUM} : {}), args: process.platform === 'linux' ? ['--no-sandbox'] : []});
   const context = await browser.newContext({viewport: {width: 1280, height: 900}, acceptDownloads: true});
   const page = await pageFor(context);
-  await page.goto(origin, {waitUntil: 'networkidle'}); await page.locator('#writing-tab').click();
+  const legacy = origin + '/legacy-author';
+  await page.goto(legacy, {waitUntil: 'networkidle'}); await page.locator('#writing-tab').click();
   await page.evaluate(() => window.history.replaceState({unrelated: {note: 'Preserve this tab state'}}, ''));
   const initialHistory = await history(page);
   await page.locator('#writing-tick').fill(frameA.at.tick); await page.locator('#writing-order').fill(frameA.at.order); await page.locator('#writing-resolve').click(); await waitValidated(page, frameA);
@@ -170,7 +171,7 @@ async function main() {
   equal('Reload does not restore draft Plan prose', await page.locator('#grouped-consequence-plan').inputValue(), '');
   equal('Reload does not restore context brief input', await page.locator('#writing-briefs').inputValue(), '');
 
-  const independent = await pageFor(context); await independent.goto(origin, {waitUntil: 'networkidle'}); await independent.locator('#writing-tab').click();
+  const independent = await pageFor(context); await independent.goto(legacy, {waitUntil: 'networkidle'}); await independent.locator('#writing-tab').click();
   equal('Another browser tab has no retained frame', (await history(independent)).state, null);
   equal('Another browser tab cannot download this tab’s frame', await independent.locator('#writing-download').isDisabled(), true);
 
@@ -222,7 +223,7 @@ async function main() {
   // Malformed state is rejected before any field can inherit its values.
   const malformed = [{...frameB, extra: 'not a frame field'}, {...frameB, at: {...frameB.at, tick: 9007199254740992}}, {...frameB, work: {...frameB.work, title: 'private prose'}}, {...frameB, at: {...frameB.at, order: '-0'}}];
   for (let index = 0; index < malformed.length; index++) {
-    const invalid = await pageFor(context); await invalid.goto(origin, {waitUntil: 'networkidle'});
+    const invalid = await pageFor(context); await invalid.goto(legacy, {waitUntil: 'networkidle'});
     await invalid.evaluate(({key, frame}) => window.history.replaceState({[key]: frame, unrelated: 17}, ''), {key, frame: malformed[index]});
     const readCount = report.api.filter(item => item.path === '/api/writing/resolve').length;
     await invalid.reload({waitUntil: 'networkidle'});

@@ -1,5 +1,6 @@
 //! Presentation links consume only independently admitted directory rows.
 //! A typed relationship owner must also prove the edge in the active scope.
+use super::bookmarks::{Issuer, Target};
 use super::{
     Browser, Failure, Lens, Request, Result, View, choices, directory, display, fold, page_start,
 };
@@ -40,6 +41,7 @@ enum Direction {
 #[derive(Serialize)]
 struct Choice<'a> {
     handle: Option<String>,
+    href: Option<String>,
     label: &'a str,
     kind: &'a str,
     descriptor: String,
@@ -51,7 +53,7 @@ struct Choice<'a> {
 
 struct Item<'a> {
     row: &'a directory::Row,
-    kind: &'a str,
+    record: &'a Record,
     descriptor: String,
     member: &'a str,
     relation: Option<Relation>,
@@ -62,7 +64,7 @@ impl<'a> Item<'a> {
     fn visible_key(&self) -> (String, &'a str, String, Option<Relation>, Option<Direction>) {
         (
             fold(&self.row.title),
-            self.kind,
+            &self.record.kind,
             fold(&self.descriptor),
             self.relation,
             self.direction,
@@ -77,6 +79,7 @@ fn choice_page(
     parent: &[&str],
     mut items: Vec<Item<'_>>,
     named_order: bool,
+    routes: &Issuer<'_>,
 ) -> Result<(Vec<Value>, Option<String>)> {
     let query = fold(request.get("q").unwrap_or("").trim());
     let limit = request.limit()?;
@@ -128,6 +131,9 @@ fn choice_page(
         let handle = (!ambiguous)
             .then(|| directory::record_handle(browser, view, &item.row.id))
             .transpose()?;
+        let href = (!ambiguous)
+            .then(|| routes.path(Target::Record(item.record)))
+            .transpose()?;
         let descriptor = if ambiguous {
             format!("{} · Ambiguous choice", item.descriptor)
         } else {
@@ -135,8 +141,9 @@ fn choice_page(
         };
         output.push(json!(Choice {
             handle,
+            href,
             label: &item.row.title,
-            kind: item.kind,
+            kind: &item.record.kind,
             descriptor,
             relation: item.relation,
             direction: item.direction,
@@ -153,6 +160,7 @@ pub(super) fn record_choices(
     pin: &CompendiumPin,
     view: &View,
     request: &Request,
+    routes: &Issuer<'_>,
 ) -> Result<Value> {
     if [
         "mode",
@@ -182,7 +190,7 @@ pub(super) fn record_choices(
                 .is_none_or(|selected| selected == kind)
                 .then(|| Item {
                     row,
-                    kind,
+                    record: &world.records[&row.id],
                     descriptor: directory::kind_label(kind),
                     member: "",
                     relation: None,
@@ -197,6 +205,7 @@ pub(super) fn record_choices(
         &["directory-records", filter.unwrap_or("")],
         items,
         false,
+        routes,
     )?;
     Ok(json!({"viewToken":view.token, "items":items, "nextCursor":next}))
 }
@@ -246,7 +255,7 @@ impl<'a> Projection<'a> {
         let row = self.rows[target_id];
         self.output.push(Item {
             row,
-            kind: &self.world.records[&row.id].kind,
+            record: &self.world.records[&row.id],
             descriptor: label,
             member: "",
             relation: Some(relation),
@@ -604,6 +613,7 @@ fn timeline_page(
     request: &Request,
     scope: Option<&CharacterScope<'_>>,
     rows: &[directory::Row],
+    routes: &Issuer<'_>,
 ) -> Result<Value> {
     let declared = choices::timelines(world)?;
     let default = world.default_timeline();
@@ -647,7 +657,7 @@ fn timeline_page(
         .iter()
         .map(|candidate| Item {
             row: admitted[candidate.value.as_str()],
-            kind: &world.records[&candidate.value].kind,
+            record: &world.records[&candidate.value],
             descriptor: candidate.descriptor.clone(),
             member: candidate.member,
             relation: None,
@@ -661,6 +671,7 @@ fn timeline_page(
         &["timeline-positions", timeline],
         items,
         true,
+        routes,
     )?;
     Ok(json!({
         "viewToken":view.token, "items":items, "nextCursor":next,
@@ -673,12 +684,13 @@ pub(super) fn read(
     pin: &CompendiumPin,
     view: &View,
     request: &Request,
+    routes: &Issuer<'_>,
 ) -> Result<Value> {
     let world = pin.world();
     let scope = view.lens.scope(pin)?;
     let rows = directory::rows(world, &view.lens, scope.as_ref())?;
     let Some(root) = request.get("root") else {
-        return timeline_page(browser, world, view, request, scope.as_ref(), &rows);
+        return timeline_page(browser, world, view, request, scope.as_ref(), &rows, routes);
     };
     if request.get("timeline").is_some() {
         return Err(Failure::Invalid);
@@ -699,6 +711,7 @@ pub(super) fn read(
         &["neighborhood", &focus.id],
         items,
         false,
+        routes,
     )?;
     Ok(json!({
         "viewToken":view.token, "items":items, "nextCursor":next,

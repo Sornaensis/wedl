@@ -1,3 +1,4 @@
+use super::bookmarks::{Issuer, Target};
 use super::{Browser, Failure, Lens, Request, Result, View, choices, display, fold, page_start};
 use crate::{
     model::{Record, StoryTime, World},
@@ -18,6 +19,7 @@ pub(super) struct Row {
 #[serde(rename_all = "camelCase")]
 struct Card<'a> {
     handle: String,
+    href: String,
     title: &'a str,
     kind: &'a str,
     kind_label: String,
@@ -109,10 +111,17 @@ pub(super) fn record_handle(browser: &Browser, view: &View, id: &str) -> Result<
     browser.handle(view, "record", &[id])
 }
 
-fn card<'a>(browser: &Browser, view: &View, world: &'a World, row: &'a Row) -> Result<Card<'a>> {
+fn card<'a>(
+    browser: &Browser,
+    view: &View,
+    world: &'a World,
+    row: &'a Row,
+    routes: &Issuer<'_>,
+) -> Result<Card<'a>> {
     let record = &world.records[&row.id];
     Ok(Card {
         handle: record_handle(browser, view, &row.id)?,
+        href: routes.path(Target::Record(record))?,
         title: &row.title,
         kind: &record.kind,
         kind_label: kind_label(&record.kind),
@@ -198,6 +207,7 @@ pub(super) fn page(
     pin: &CompendiumPin,
     view: &View,
     request: &Request,
+    routes: &Issuer<'_>,
 ) -> Result<Value> {
     let world = pin.world();
     let scope = view.lens.scope(pin)?;
@@ -332,7 +342,7 @@ pub(super) fn page(
     let end = (start + limit).min(rows.len());
     let items = rows[start..end]
         .iter()
-        .map(|row| card(browser, view, world, row))
+        .map(|row| card(browser, view, world, row, routes))
         .collect::<Result<Vec<_>>>()?;
     let next_cursor = (end < rows.len())
         .then(|| cursor(&rows[end - 1]))
@@ -351,6 +361,7 @@ pub(super) fn record(
     pin: &CompendiumPin,
     view: &View,
     request: &Request,
+    routes: &Issuer<'_>,
 ) -> Result<Value> {
     let target = request.required("record")?;
     let world = pin.world();
@@ -368,8 +379,23 @@ pub(super) fn record(
             author_sections(world, record, view.lens.moment().map(|moment| &moment.at))?
         };
         return Ok(
-            json!({"viewToken":view.token, "record":card(browser, view, world, &row)?, "sections":sections}),
+            json!({"viewToken":view.token, "record":card(browser, view, world, &row, routes)?, "sections":sections}),
         );
     }
     Err(Failure::Unavailable)
+}
+
+pub(super) fn find_record<'a>(
+    browser: &Browser,
+    pin: &'a CompendiumPin,
+    view: &View,
+    handle: &str,
+) -> Result<Option<&'a Record>> {
+    let scope = view.lens.scope(pin)?;
+    for row in rows(pin.world(), &view.lens, scope.as_ref())? {
+        if record_handle(browser, view, &row.id)? == handle {
+            return Ok(pin.world().records.get(&row.id));
+        }
+    }
+    Ok(None)
 }

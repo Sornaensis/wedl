@@ -19,7 +19,7 @@ use serde_json::json;
 use crate::{
     Error, Result,
     chronology::{AnnotationQuery, CivilDate, DateInput, DateTarget, EraMatchMode},
-    compendium::{self, Browser as CompendiumBrowser},
+    compendium::{self, Browser as CompendiumBrowser, bookmarks::Authority},
     service::{CompendiumSource, Operation, Service, TimeInput},
     validation, workbench,
 };
@@ -75,14 +75,17 @@ pub fn router(service: Service) -> Router {
     let service = service.with_compendium_authority();
     Router::new()
         .merge(workbench_assets())
-        .route("/", get(|| async { Html(INDEX) }))
+        .route("/", get(|| async { Html(COMPENDIUM) }))
+        .route("/legacy-author", get(|| async { Html(INDEX) }))
         .route("/compendium", get(|| async { Html(COMPENDIUM) }))
+        .route("/compendium/", get(|| async { Html(COMPENDIUM) }))
+        .route("/compendium/{*address}", get(|| async { Html(COMPENDIUM) }))
         .route("/api/compendium/{endpoint}", get(fixed_compendium))
         .route("/api/workbench/{endpoint}", get(fixed_workbench))
         .route("/api/{*path}", get(api))
         .fallback(|| async { ApiError(Error::NotFound("route does not exist".into())) })
         .method_not_allowed_fallback(|| async { (StatusCode::METHOD_NOT_ALLOWED, Json(json!({"code":"method_not_allowed","message":"This snapshot server accepts GET requests only","details":{}}))) })
-        .layer(Extension(Arc::new(CompendiumBrowser::new())))
+        .layer(Extension(Arc::new(CompendiumBrowser::new(Authority::Fixed))))
         .layer(Extension(Arc::new(workbench::Browser::default())))
         .layer(middleware::from_fn(local_request))
         .with_state(service)
@@ -101,8 +104,11 @@ fn worktree_router(service: Service, live_author: bool) -> Router {
     let service = service.with_compendium_authority();
     let mut app = Router::new()
         .merge(workbench_assets())
-        .route("/", get(|| async { Html(INDEX) }))
+        .route("/", get(|| async { Html(COMPENDIUM) }))
+        .route("/legacy-author", get(|| async { Html(INDEX) }))
         .route("/compendium", get(|| async { Html(COMPENDIUM) }))
+        .route("/compendium/", get(|| async { Html(COMPENDIUM) }))
+        .route("/compendium/{*address}", get(|| async { Html(COMPENDIUM) }))
         .route("/api/compendium/{endpoint}", get(current_compendium))
         .route("/api/workbench/{endpoint}", get(current_workbench))
         .route("/api/session", get(worktree_capabilities))
@@ -124,7 +130,13 @@ fn worktree_router(service: Service, live_author: bool) -> Router {
                 "This route does not accept the requested method",
             )
         })
-        .layer(Extension(Arc::new(CompendiumBrowser::new())))
+        .layer(Extension(Arc::new(CompendiumBrowser::new(
+            if live_author {
+                Authority::LiveAuthor
+            } else {
+                Authority::CurrentReadOnly
+            },
+        ))))
         .layer(Extension(Arc::new(workbench::Browser::default())))
         .layer(middleware::from_fn(local_request))
         .with_state(LiveSession {
@@ -175,8 +187,14 @@ fn compendium_request(
     endpoint: &str,
     query: Option<&str>,
 ) -> std::result::Result<compendium::Request, compendium::Failure> {
-    let query = parse_query_bounded(query.unwrap_or(""), compendium::MAX_QUERY_BYTES)
-        .map_err(|_| compendium::Failure::Invalid)?;
+    let query =
+        parse_query_bounded(query.unwrap_or(""), compendium::MAX_QUERY_BYTES).map_err(|_| {
+            if endpoint == "bookmark" {
+                compendium::Failure::Unavailable
+            } else {
+                compendium::Failure::Invalid
+            }
+        })?;
     compendium::Request::decode(endpoint, query)
 }
 
@@ -615,7 +633,12 @@ fn reader_response(result: serde_json::Value) -> Response {
 }
 
 async fn local_request(request: axum::extract::Request, next: Next) -> Response {
-    let workbench_page = request.uri().path() == "/workbench";
+    let path = request.uri().path();
+    let workbench_page = path == "/workbench";
+    let compendium = path == "/"
+        || path == "/compendium"
+        || path.starts_with("/compendium/")
+        || path.starts_with("/api/compendium/");
     if let Some(host) = request.headers().get("host") {
         let valid = host
             .to_str()
@@ -641,6 +664,11 @@ async fn local_request(request: axum::extract::Request, next: Next) -> Response 
         }
     }
     let mut response = next.run(request).await;
+    if compendium {
+        response
+            .headers_mut()
+            .insert("referrer-policy", HeaderValue::from_static("no-referrer"));
+    }
     response
         .headers_mut()
         .insert("cache-control", HeaderValue::from_static("no-store"));

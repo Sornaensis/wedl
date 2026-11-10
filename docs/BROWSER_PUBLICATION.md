@@ -14,8 +14,8 @@ read-only snapshot even with `--live-author`. Downloads remain available in all 
 
 Open **Author Workbench** at `/workbench` for named Writing choices, private
 drafts, structured reviews, and the Publication receipt. **Native author tools**
-at `/` remain available for exact file workflows. The Workbench opens its own
-writing context and does not move the Compendium's reading position.
+at `/legacy-author` remain available for exact file workflows. The Workbench
+opens its own writing context and does not move the Compendium's reading position.
 
 1. In **Actions**, create or import a draft and choose **Save private draft**.
    List and load the saved draft before continuing. Resolution-needed saves and

@@ -3,6 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="referrer" content="no-referrer">
   <title>WEDL · Compendium</title>
   <style>
     :root{color-scheme:dark;font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#e1e8e5;background:#101715;--muted:#a6b6ae;--line:#2c3b34;--accent:#a9ddbc;--panel:#142019;--inset:#111c16}
@@ -12,6 +13,8 @@
     .context{background:#17251d;border-bottom:1px solid var(--line);padding-block:.8rem}.context small{display:block;margin-top:.18rem}.nav{display:flex;align-items:center;gap:.5rem;flex-wrap:wrap;padding-block:.55rem}.nav a,.nav button{padding:.58rem .8rem;font-size:.88rem}.nav .private{margin-left:auto}.page{padding-block:1.65rem 2.6rem;min-height:66vh}.filters,.selector-fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:.75rem;margin-block:1rem}.filters{grid-template-columns:2fr 1fr 1fr}.resultline{min-height:1.4em;margin:.65rem 0}.cards{list-style:none;margin:1rem 0;padding:0;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:.6rem}.record{width:100%;height:100%;display:block;text-align:left;border:1px solid var(--line);background:var(--panel);border-radius:6px;padding:.85rem;min-width:0}.record:hover{border-color:#6d9478;background:#1a2b21}.record strong{display:block;color:#d4ecd9;overflow-wrap:anywhere}.record .eyebrow{font-size:.65rem;display:block}.section{max-width:70ch;margin-top:1.3rem}.section p{white-space:pre-wrap;overflow-wrap:anywhere}.section h3{margin-bottom:.5rem}.empty{border:1px dashed #42544a;border-radius:7px;padding:1rem;color:var(--muted)}
     .skip{position:absolute;top:0;left:-1000px;background:var(--inset);padding:.65rem;z-index:4}.skip:focus{left:.7rem;top:.7rem}dialog{border:1px solid #42634e;border-radius:9px;background:#17251d;color:inherit;width:min(540px,calc(100% - 2rem));padding:1.2rem;max-height:calc(100dvh - 2rem)}dialog::backdrop{background:#07100dbb}dialog h2{font-size:1.65rem}dialog .row{margin-top:.85rem}dialog details{margin-block:.8rem}dialog summary{cursor:pointer}dialog [role="status"]{min-height:1.4em}.more{margin-top:.3rem}.date-control{margin:.5rem 0}[hidden]{display:none!important}
     .story-links{display:grid;gap:.6rem;list-style:none;padding:0;margin:1rem 0;max-width:70ch}.story-links .record{height:auto;text-decoration:none}.story-links small{display:block;margin-top:.2rem}.story-links .record[aria-disabled=true]{cursor:default}.notice{padding:.8rem 1rem;border:1px solid var(--line);background:#17251d;border-radius:7px;max-width:70ch}.graph-preview{max-width:25rem;margin:1rem 0}
+    .record{text-decoration:none}.nav [aria-current=page]{background:#233b2e;border-radius:5px;color:#e1e8e5}.detail-grid{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:clamp(1rem,4vw,2.4rem);margin-top:1rem}.related{align-self:start;border:1px solid var(--line);background:var(--inset);border-radius:8px;padding:1rem}.related h2{font-size:1.35rem;letter-spacing:normal}.related h3{font-size:.95rem;margin:1rem 0 .45rem}.related .story-links{margin:.5rem 0}.related .story-links .record{padding:.65rem}.record-actions{margin-block:.65rem}
+    @media(max-width:720px){.detail-grid{grid-template-columns:minmax(0,1fr)}}
     @media(max-width:870px){.cards{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:620px){.nav .private{margin-left:0}.filters{grid-template-columns:1fr 1fr}.filters>div:first-child{grid-column:1/-1}.brand{align-items:flex-start}}@media(max-width:430px){.cards,.filters,.selector-fields{grid-template-columns:1fr}.filters>div:first-child{grid-column:auto}}
   </style>
 </head>
@@ -55,7 +58,11 @@
     const fieldNames = {timeline: 'Timeline', moment: 'Named moment', viewpoint: 'Viewpoint', scene: 'Scene', calendar: 'Calendar'};
     const levels = ['timeline', 'moment', 'viewpoint', 'scene'];
     const panels = new Map();
-    let current, epoch = 0, pickerEpoch = 0, filters = {}, pickerDate = {}, lastDirectoryButton = null;
+    const focusHints = new Map();
+    const rootPath = '/compendium';
+    const addressPattern = /^\/compendium\/v1\/([0-9a-f]{1592})$/;
+    history.scrollRestoration = 'manual';
+    let current, epoch = 0, pickerEpoch = 0, filters = {}, pickerDate = {};
 
     function node(tag, text, className) {
       const result = document.createElement(tag);
@@ -74,6 +81,41 @@
       result.tabIndex = -1;
       return result;
     }
+    function routeLink(path, label, className) {
+      const anchor = node('a', label, className);
+      anchor.href = path;
+      anchor.addEventListener('click', event => {
+        if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+        event.preventDefault();
+        if (anchor.getAttribute('aria-current') === 'page') return;
+        rememberPosition(anchor);
+        resolveAddress(path, true);
+      });
+      return anchor;
+    }
+    function focusTargets() {
+      return [...document.querySelectorAll('#nav a, #change, #view a, #view button, #view input, #view select')];
+    }
+    function rememberPosition(trigger = document.activeElement) {
+      if (!current) return;
+      const index = focusTargets().indexOf(trigger);
+      const key = crypto.randomUUID();
+      if (index >= 0) focusHints.set(key, {index, tag:trigger.tagName, text:trigger.textContent});
+      if (focusHints.size > 96) focusHints.delete(focusHints.keys().next().value);
+      history.replaceState({
+        q: current.destination.kind === 'directory' ? filters.q ?? '' : '',
+        focus: key,
+        scroll: scrollY,
+      }, '');
+    }
+    function placeFocus(title, restore) {
+      const hint = focusHints.get(restore?.focus);
+      const candidate = hint && focusTargets()[hint.index];
+      const target = candidate && !candidate.disabled && candidate.tagName === hint.tag && candidate.textContent === hint.text
+        ? candidate : title;
+      target.focus({preventScroll: true});
+      window.scrollTo(0, Number.isFinite(restore?.scroll) ? restore.scroll : 0);
+    }
     function abort(panel) {
       panels.get(panel)?.abort();
       panels.delete(panel);
@@ -81,9 +123,9 @@
     function beginContext() {
       epoch++;
       for (const panel of panels.keys()) abort(panel);
+      if (dialog.open) dialog.close();
       current = null;
       filters = {};
-      lastDirectoryButton = null;
       byId('world-title').textContent = 'Compendium';
       byId('context-label').textContent = 'Opening view…';
       byId('context-detail').replaceChildren();
@@ -132,7 +174,7 @@
       view.removeAttribute('aria-busy');
       const notice = node('section', null, 'empty');
       const title = heading(failureMessages[code] ?? failureMessages.unavailable);
-      notice.append(title, button('Return to Author discovery', () => openContext({})));
+      notice.append(title, button('Return to Author discovery', () => openContext({}, true)));
       view.append(notice);
       title.focus();
     }
@@ -143,21 +185,43 @@
       byId('context-detail').textContent = active.mode === 'all' ? 'All declared timelines'
         : [active.timeline, active.moment, active.descriptor, active.mode === 'character' ? active.scene ?? 'No scene selected' : null].filter(Boolean).join(' · ');
       byId('change').disabled = false;
-      const directory = button('Directory', () => showDirectory(), 'secondary');
-      nav.replaceChildren(directory, button('Story graph', showGraph, 'secondary'));
+      const directory = routeLink(current.destination.kind === 'directory' ? location.pathname : current.routes.directory, 'Directory');
+      const graph = routeLink(current.destination.kind === 'graph' ? location.pathname : current.routes.graph, 'Story graph');
+      if (current.destination.kind === 'directory') directory.setAttribute('aria-current', 'page');
+      if (current.destination.kind === 'graph') graph.setAttribute('aria-current', 'page');
+      nav.replaceChildren(directory, graph);
       if (current.capabilities.workbench) {
         const author = node('a', 'Author Workbench ↗', 'private');
-        author.href = '/';
+        author.href = '/workbench';
         nav.append(author);
       }
     }
-    function openContext(fields) {
+    function navigate(endpoint, fields, push, restore) {
       beginContext();
-      load('context', 'context', fields, result => {
+      load('context', endpoint, fields, result => {
+        if (push && location.pathname !== result.href) history.pushState(null, '', result.href);
         current = result;
         contextBar();
-        showDirectory();
-      }, recover);
+        if (result.destination.kind === 'record') openRecord(result.destination.handle, restore);
+        else if (result.destination.kind === 'graph') showGraph(restore);
+        else {
+          if (typeof restore?.q === 'string') filters.q = restore.q;
+          showDirectory(restore);
+        }
+      }, code => recover(endpoint === 'bookmark' ? 'unavailable' : code));
+    }
+    function openContext(fields, push = false) {
+      if (push) rememberPosition(byId('change'));
+      if (fields.view && current?.destination.kind === 'record') fields.record = current.destination.handle;
+      navigate('context', fields, push, null);
+    }
+    function resolveAddress(path, push = false, restore = null) {
+      if (path === rootPath || path === '/') navigate('context', {}, push, restore);
+      else {
+        const address = path.match(addressPattern)?.[1];
+        if (address) navigate('bookmark', {address}, push, restore);
+        else recover('unavailable');
+      }
     }
     function setOptions(select, values, selection, placeholder) {
       const empty = new Option(placeholder, '');
@@ -169,7 +233,7 @@
       }
       if ([...select.options].some(option => option.value === selection)) select.value = selection;
     }
-    function showDirectory(restore = false) {
+    function showDirectory(restore) {
       abort('record');
       abort('graph');
       abort('graph-timelines');
@@ -194,7 +258,7 @@
       const paging = node('div');
       const title = heading('Directory');
       view.replaceChildren(title, form, status, cards, paging);
-      if (!restore) title.focus();
+      if (!restore) placeFocus(title);
       function requestPage(cursor = null) {
         if (!cursor) {
           cards.replaceChildren();
@@ -216,19 +280,15 @@
           status.textContent = result.total === 0 ? 'No admitted records match this search.' : result.total + (result.total === 1 ? ' record' : ' records');
           for (const record of result.items) {
             const item = node('li');
-            const open = button(null, () => {
-              lastDirectoryButton = record.handle;
-              openRecord(record.handle);
-            }, 'record');
+            const open = routeLink(record.href, null, 'record');
             open.append(node('span', record.kindLabel, 'eyebrow'), node('strong', record.title));
             item.append(open);
             cards.append(item);
-            if (restore && lastDirectoryButton === record.handle) open.focus();
           }
-          if (restore && !cards.contains(document.activeElement)) title.focus();
-          restore = false;
           paging.replaceChildren();
           if (result.nextCursor) paging.append(button('More records', () => requestPage(result.nextCursor), 'secondary'));
+          if (restore) placeFocus(title, restore);
+          restore = null;
         }, recover);
       }
       form.addEventListener('submit', event => { event.preventDefault(); requestPage(); });
@@ -237,7 +297,7 @@
       timelines.addEventListener('change', () => { filters.timeline = timelines.value; requestPage(); });
       requestPage();
     }
-    function openRecord(handle) {
+    function openRecord(handle, restore) {
       abort('page');
       abort('graph');
       abort('graph-timelines');
@@ -246,57 +306,108 @@
       load('record', 'record', {view: current.viewToken, record: handle}, result => {
         view.removeAttribute('aria-busy');
         const title = heading(result.record.title);
-        view.replaceChildren(button('Back to directory', () => showDirectory(true), 'secondary'),
-          node('p', result.record.kindLabel, 'eyebrow resultline'), title);
+        const grid = node('div', null, 'detail-grid');
+        const detail = node('article');
+        const actions = node('div', null, 'row record-actions');
+        const linkStatus = node('span', current.routes.durable ? '' : 'Links expire when the server restarts.', 'muted');
+        linkStatus.setAttribute('role', 'status');
+        const copy = button('Copy bookmark', async () => {
+          const path = current.href;
+          try {
+            await navigator.clipboard.writeText(new URL(path, location.origin).href);
+            if (linkStatus.isConnected) linkStatus.textContent = current.routes.durable ? 'Bookmark copied.' : 'Session link copied. It expires when the server restarts.';
+          } catch {
+            if (linkStatus.isConnected) linkStatus.textContent = 'Copy the link from the address bar.';
+          }
+        }, 'secondary');
+        const skip = node('a', 'Skip to related records');
+        skip.href = '#related-records';
+        skip.addEventListener('click', event => {
+          event.preventDefault();
+          byId('related-records').focus();
+        });
+        actions.append(copy, linkStatus);
+        detail.append(node('p', result.record.kindLabel, 'eyebrow'), title, actions, skip);
         for (const section of result.sections) {
           const article = node('section', null, 'section');
           article.append(node('h3', section.heading), node('p', section.text));
-          view.append(article);
+          detail.append(article);
         }
-        if (!result.sections.length) view.append(node('p', 'No description is available in this view.', 'muted'));
-        relatedStory(handle);
-        title.focus();
+        if (!result.sections.length) detail.append(node('p', 'No description is available in this view.', 'muted'));
+        grid.append(detail, relatedStory(handle, () => { if (restore) placeFocus(title, restore); }));
+        view.replaceChildren(routeLink(current.routes.directory, 'Browse all eligible records'), grid);
+        if (!restore) placeFocus(title);
       }, recover);
     }
 
+    const kindNames = {'world-setting':'World setting', 'lore-concept':'Lore concept', 'story-outcome':'Story outcome'};
+    const kindName = kind => kindNames[kind] ?? kind.charAt(0).toUpperCase() + kind.slice(1).replaceAll('-', ' ');
+    const relations = {
+      'event-participant': ['Participants', 'Participated in'],
+      'event-location': ['Event locations', 'Events here'],
+      cause: ['Effects', 'Causes'],
+      'scene-participant': ['Participants', 'Scenes featuring this record'],
+      'scene-location': ['Scene locations', 'Scenes here'],
+      'scene-object': ['Objects listed in this scene', 'Scenes listing this object'],
+      'story-outcome': ['Story outcomes', 'Story points leading to this outcome'],
+      lore: ['Related lore', 'Lore referenced by'],
+      route: ['Connected locations', 'Connected locations'],
+      'route-origin': ['Route origin', 'Routes from here'],
+      'route-destination': ['Route destination', 'Routes to here'],
+    };
+    const directions = {outgoing: 'Outgoing', incoming: 'Incoming', 'two-way': 'Both directions'};
+    const relationName = choice => relations[choice.relation]?.[Number(choice.direction === 'incoming')] ?? 'Related records';
     function storyChoice(choice) {
       const item = node('li');
-      const card = node(choice.handle ? 'a' : 'div', null, 'record');
-      if (choice.handle) {
-        card.href = '#record/' + choice.handle;
-        card.addEventListener('click', event => {
-          if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
-          event.preventDefault();
-          openRecord(choice.handle);
-        });
-      } else {
-        card.setAttribute('aria-disabled', 'true');
-      }
-      const direction = {outgoing:'Outgoing', incoming:'Incoming', 'two-way':'Both directions'}[choice.direction];
-      card.append(node('strong', choice.label), node('small', [direction, choice.descriptor].filter(Boolean).join(' · ')));
+      const card = choice.href ? routeLink(choice.href, null, 'record') : node('div', null, 'record');
+      if (!choice.href) card.setAttribute('aria-disabled', 'true');
+      const relationship = choice.relation ? relationName(choice) : null;
+      card.append(node('strong', choice.label), node('small', [kindName(choice.kind), relationship, directions[choice.direction], choice.descriptor].filter(Boolean).join(' · ')));
       item.append(card);
       return item;
     }
-    function relatedStory(root) {
-      const section = node('section', null, 'section');
-      const results = node('ul', null, 'story-links');
+    function relatedStory(root, firstPaint) {
+      const section = node('aside', null, 'related');
+      section.id = 'related-records';
+      section.tabIndex = -1;
+      section.setAttribute('aria-labelledby', 'related-title');
+      const title = node('h2', 'Related records');
+      title.id = 'related-title';
+      const results = node('div');
       const status = node('p', 'Checking admitted relationships…', 'muted');
       status.setAttribute('role', 'status');
       const paging = node('div');
-      section.append(node('h3', 'Related story links'), status, results, paging);
-      view.append(section);
+      const groups = new Map();
+      section.append(title, status, results, paging);
       function read(cursor = null) {
         load('graph', 'graph', {view:current.viewToken, root, cursor}, result => {
-          status.textContent = result.items.length ? '' : 'No admitted relationships are available.';
-          if (!result.causalAvailable) status.textContent += ' Causal links are unavailable in Character view.';
-          results.append(...result.items.map(storyChoice));
+          if (!cursor) {
+            const messages = [];
+            if (!result.items.length) messages.push('No admitted relationships are available.');
+            if (!result.causalAvailable) messages.push('Causal links are unavailable in Character view.');
+            status.textContent = messages.join(' ');
+            status.hidden = !messages.length;
+          }
+          for (const choice of result.items) {
+            const key = relationName(choice);
+            if (!groups.has(key)) {
+              const group = node('section');
+              const entries = node('ul', null, 'story-links');
+              group.append(node('h3', key), entries);
+              results.append(group);
+              groups.set(key, entries);
+            }
+            groups.get(key).append(storyChoice(choice));
+          }
           paging.replaceChildren();
           if (result.nextCursor) paging.append(button('More relationships', () => read(result.nextCursor), 'secondary'));
+          if (!cursor) firstPaint();
         }, recover);
       }
       read();
+      return section;
     }
-    function showGraph() {
+    function showGraph(restore) {
       abort('page');
       abort('record');
       abort('graph');
@@ -341,7 +452,7 @@
         timelines();
       }
       view.append(status, positions, paging);
-      title.focus();
+      if (!restore) placeFocus(title);
       function loadPositions(cursor = null) {
         if (!cursor) {
           positions.replaceChildren();
@@ -355,6 +466,8 @@
           positions.append(...result.items.map(storyChoice));
           paging.replaceChildren();
           if (result.nextCursor) paging.append(button('More named positions', () => loadPositions(result.nextCursor), 'secondary'));
+          if (restore) placeFocus(title, restore);
+          restore = null;
         }, recover);
       }
       loadPositions();
@@ -479,7 +592,7 @@
       const prior = byId('return-author');
       if (prior) prior.remove();
       if (current.labels.mode === 'character') {
-        const reset = button('Return to Author discovery', () => { dialog.close(); openContext({}); }, 'secondary');
+        const reset = button('Return to Author discovery', () => { dialog.close(); openContext({}, true); }, 'secondary');
         reset.id = 'return-author';
         byId('selector-hint').after(reset);
       }
@@ -498,10 +611,19 @@
       event.preventDefault();
       const fields = {view: current.viewToken, mode: mode.value, ...selected(), ...pickerDate};
       dialog.close();
-      openContext(fields);
+      openContext(fields, true);
     });
-    if (location.hash.startsWith('#record/')) recover('unavailable');
-    else openContext({});
+    window.addEventListener('popstate', event => resolveAddress(location.pathname, false, event.state));
+    window.addEventListener('pagehide', event => {
+      if (event.persisted) {
+        rememberPosition();
+        beginContext();
+      }
+    });
+    window.addEventListener('pageshow', event => {
+      if (event.persisted) resolveAddress(location.pathname, false, history.state);
+    });
+    resolveAddress(location.pathname, false, history.state);
   </script>
 </body>
 </html>
