@@ -375,6 +375,7 @@ impl AddressLens {
 pub(super) enum Target<'a> {
     Directory,
     Graph,
+    Map(Option<&'a Record>),
     Record(&'a Record),
 }
 
@@ -383,6 +384,7 @@ pub(super) enum Target<'a> {
 enum AddressTarget {
     Directory,
     Graph,
+    Map { map: Option<String> },
     Record { kind: String, record: String },
 }
 
@@ -403,6 +405,11 @@ impl Descriptor {
         let target = match self.target {
             AddressTarget::Directory => Target::Directory,
             AddressTarget::Graph => Target::Graph,
+            AddressTarget::Map { map } => Target::Map(
+                map.as_deref()
+                    .map(|digest| resolve_record(world, digest))
+                    .transpose()?,
+            ),
             AddressTarget::Record { kind, record } => {
                 let record = resolve_record(world, &record)?;
                 if record.kind != kind {
@@ -447,6 +454,9 @@ impl<'a> Issuer<'a> {
         let target = match target {
             Target::Directory => AddressTarget::Directory,
             Target::Graph => AddressTarget::Graph,
+            Target::Map(map) => AddressTarget::Map {
+                map: map.map(|record| identity(&record.id)),
+            },
             Target::Record(record) => AddressTarget::Record {
                 kind: record.kind.clone(),
                 record: identity(&record.id),

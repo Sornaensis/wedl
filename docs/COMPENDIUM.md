@@ -6,6 +6,22 @@ new tab. Each record link retains its Author or Character context and is checked
 again against the source on every open. Author views link to the Workbench at
 `/workbench`, and the diagnostic browser is available at `/legacy-author`.
 
+## Maps and locations
+
+Choose **Map** to open the authored layout or the effective placements at a
+named Author moment. The plot uses east and north for local maps and longitude
+and latitude for geographic maps. Three-dimensional maps use a top view with
+elevation shown on linked point cards. Route connectors show authored direction
+and availability as schematic lines. Zoom, pan and reset work with the keyboard.
+
+The linked locations and routes list includes admitted records even when
+placement, dated geometry or drawing is unavailable. Character view opens
+the admitted list with supported spatial history. A map choice can be
+bookmarked in an Author view, with the same source and admission checks as
+record links.
+
+## Link retention
+
 By default, links work for the lifetime of the server. To keep links across
 restarts and cache rebuilds, provision a key ring outside the world and pass
 its absolute path when starting the server.

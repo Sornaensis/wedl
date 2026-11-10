@@ -93,15 +93,15 @@ fn metric(value: &Yaml, label: &str) -> Result<()> {
     }
     Ok(())
 }
-struct Map<'a> {
+pub(crate) struct Map<'a> {
     record: &'a Record,
     canonical: bool,
-    crs: &'a str,
-    axes: [&'a str; 2],
-    unit: &'a str,
+    pub(crate) crs: &'a str,
+    pub(crate) axes: [&'a str; 2],
+    pub(crate) unit: &'a str,
     policy: &'a str,
-    minimum: Vec<f64>,
-    maximum: Vec<f64>,
+    pub(crate) minimum: Vec<f64>,
+    pub(crate) maximum: Vec<f64>,
 }
 impl<'a> Map<'a> {
     fn parse(record: &'a Record) -> Result<Self> {
@@ -204,11 +204,55 @@ impl<'a> Map<'a> {
         }
         Ok(())
     }
+
+    pub(crate) fn compendium(record: &'a Record) -> Result<Self> {
+        let map = Self::parse(record)?;
+        if record.kind != "map" || !map.canonical {
+            return Err(Error::NotFound("canonical map is unavailable".into()));
+        }
+        Ok(map)
+    }
+
+    fn placement_shape<'b>(&self, value: &'b Yaml, canonical: bool) -> Result<Shape<'b>> {
+        if canonical && !self.canonical {
+            return Err(invalid("a canonical placement requires a canonical map"));
+        }
+        let shape = shape(value)?;
+        for point in &shape.points {
+            self.accepts(point, "spatial.geometry.coordinates")?;
+        }
+        Ok(shape)
+    }
+
+    /// The caller has already pinned valid source and admitted both records.
+    /// Select the effective member before checking map membership or bounds.
+    pub(crate) fn compendium_placement<'b>(
+        &self,
+        world: &World,
+        record: &'b Record,
+        at: Option<&StoryTime>,
+    ) -> Result<Option<Shape<'b>>> {
+        if !canonical(record)? {
+            return Ok(None);
+        }
+        let value = match at {
+            Some(at) => crate::spatial_history::effective_value(world, record, "spatial", at)?,
+            None => record.get("spatial"),
+        };
+        let Some(value) = value.filter(|value| !value.is_null()) else {
+            return Ok(None);
+        };
+        let fields = closed(value, &["map_id", "geometry"], "spatial")?;
+        if text(&fields["map_id"], "spatial.map_id")? != self.record.id {
+            return Ok(None);
+        }
+        self.placement_shape(&fields["geometry"], true).map(Some)
+    }
 }
-struct Shape<'a> {
-    kind: &'a str,
+pub(crate) struct Shape<'a> {
+    pub(crate) kind: &'a str,
     authored: &'a Yaml,
-    points: Vec<Vec<f64>>,
+    pub(crate) points: Vec<Vec<f64>>,
 }
 fn shape<'a>(value: &'a Yaml) -> Result<Shape<'a>> {
     let fields = closed(value, &["kind", "coordinates"], "spatial.geometry")?;
@@ -283,13 +327,7 @@ impl<'a> Placement<'a> {
         let map = maps.get(map_id).ok_or_else(|| {
             invalid("spatial.map_id must reference an existing valid exact map ID")
         })?;
-        if canonical && !map.canonical {
-            return Err(invalid("a canonical placement requires a canonical map"));
-        }
-        let shape = shape(&fields["geometry"])?;
-        for point in &shape.points {
-            map.accepts(point, "spatial.geometry.coordinates")?
-        }
+        let shape = map.placement_shape(&fields["geometry"], canonical)?;
         let mut minimum = shape.points[0].clone();
         let mut maximum = minimum.clone();
         for point in &shape.points {

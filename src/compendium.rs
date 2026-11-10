@@ -4,6 +4,7 @@ pub(crate) mod bookmarks;
 mod choices;
 mod directory;
 mod graph;
+mod maps;
 
 use crate::{
     model::StoryTime,
@@ -152,6 +153,8 @@ enum Action {
     Page,
     Record,
     Graph,
+    Map,
+    Locations,
 }
 
 impl Request {
@@ -163,6 +166,8 @@ impl Request {
             "page" => Action::Page,
             "record" => Action::Record,
             "graph" => Action::Graph,
+            "map" => Action::Map,
+            "locations" => Action::Locations,
             _ => return Err(Failure::Unavailable),
         };
         let allowed: &[&str] = match action {
@@ -176,6 +181,7 @@ impl Request {
                 "calendar",
                 "date",
                 "record",
+                "section",
             ],
             Action::Bookmark => &["address"],
             Action::Choices => &[
@@ -195,6 +201,17 @@ impl Request {
             Action::Page => &["view", "kind", "q", "timeline", "limit", "cursor"],
             Action::Record => &["view", "record"],
             Action::Graph => &["view", "root", "timeline", "q", "limit", "cursor"],
+            Action::Map => &[
+                "view",
+                "map",
+                "zoom",
+                "x",
+                "y",
+                "limit",
+                "cursor",
+                "mapCursor",
+            ],
+            Action::Locations => &["view", "limit", "cursor"],
         };
         if query.keys().any(|key| !allowed.contains(&key.as_str())) {
             return Err(match action {
@@ -203,6 +220,11 @@ impl Request {
             });
         }
         let request = Self { action, query };
+        if request.get("section").is_some_and(|section| {
+            section != "map" || request.get("record").is_some() || request.get("view").is_none()
+        }) {
+            return Err(Failure::Invalid);
+        }
         if matches!(request.action, Action::Bookmark)
             && request.get("address").is_none_or(|value| {
                 value.len() != bookmarks::ADDRESS_LENGTH
@@ -223,6 +245,8 @@ impl Request {
             "record",
             "root",
             "calendar",
+            "map",
+            "mapCursor",
         ] {
             if request.get(name).is_some_and(|value| {
                 value.len() != 64
@@ -380,12 +404,17 @@ impl Browser {
                 } else {
                     let view = self.lookup(request.required("view")?, &pin)?;
                     let lens = choices::resolve(self, &pin, &view, &request)?;
-                    let record = request
-                        .get("record")
-                        .map(|handle| directory::find_record(self, &pin, &view, handle))
-                        .transpose()?
-                        .flatten();
-                    (lens, record.map_or(Target::Directory, Target::Record))
+                    let target = if request.get("section").is_some() {
+                        Target::Map(None)
+                    } else {
+                        request
+                            .get("record")
+                            .map(|handle| directory::find_record(self, &pin, &view, handle))
+                            .transpose()?
+                            .flatten()
+                            .map_or(Target::Directory, Target::Record)
+                    };
+                    (lens, target)
                 };
                 self.present_context(keyring, authority, &pin, lens, target, None)?
             }
@@ -414,6 +443,11 @@ impl Browser {
                 let routes = Issuer::new(keyring, world, authority, &view.lens)?;
                 graph::read(self, &pin, &view, &request, &routes)?
             }
+            Action::Map | Action::Locations => {
+                let view = self.lookup(request.required("view")?, &pin)?;
+                let routes = Issuer::new(keyring, world, authority, &view.lens)?;
+                maps::read(self, &pin, &view, &request, &routes)?
+            }
         };
         if serde_json::to_vec(&result)
             .map_err(|_| Failure::Source)?
@@ -436,6 +470,15 @@ impl Browser {
     ) -> Result<Value> {
         let world = pin.world();
         let scope = lens.scope(pin)?;
+        if let Target::Map(Some(map)) = target
+            && (scope.is_some()
+                || !maps::is_map(map)
+                || !directory::rows(world, &lens, None)?
+                    .iter()
+                    .any(|row| row.id == map.id))
+        {
+            return Err(Failure::Unavailable);
+        }
         if let Target::Record(record) = target
             && !directory::rows(world, &lens, scope.as_ref())?
                 .iter()
@@ -451,6 +494,7 @@ impl Browser {
         let labels = choices::context_labels(world, &lens, scope.as_ref())?;
         let capabilities = Capabilities {
             workbench: lens.mode() != Mode::Character,
+            maps: lens.mode() != Mode::Character,
         };
         let routes = Issuer::new(keyring, world, authority, &lens)?;
         let directory = if matches!(lens, Lens::All) {
@@ -459,18 +503,23 @@ impl Browser {
             routes.path(Target::Directory)?
         };
         let graph = routes.path(Target::Graph)?;
+        let map = routes.path(Target::Map(None))?;
         let href = match address {
             Some(address) => format!("{}{address}", bookmarks::PREFIX),
             None => match target {
                 Target::Directory => directory.clone(),
                 Target::Graph => graph.clone(),
-                record => routes.path(record)?,
+                Target::Map(None) => map.clone(),
+                target => routes.path(target)?,
             },
         };
         let view = self.remember(lens, pin)?;
         let destination = match target {
             Target::Directory => json!({"kind":"directory"}),
             Target::Graph => json!({"kind":"graph"}),
+            Target::Map(selected) => json!({"kind":"map","map":selected
+                .map(|record| maps::map_handle(self, &view, &record.id))
+                .transpose()?}),
             Target::Record(record) => {
                 json!({"kind":"record","handle":directory::record_handle(self, &view, &record.id)?})
             }
@@ -478,7 +527,7 @@ impl Browser {
         Ok(json!({
             "viewToken":view.token, "labels":labels, "capabilities":capabilities,
             "href":href, "destination":destination,
-            "routes":{"directory":directory,"graph":graph,"durable":keyring.durable()},
+            "routes":{"directory":directory,"graph":graph,"map":map,"durable":keyring.durable()},
         }))
     }
 }
@@ -486,6 +535,7 @@ impl Browser {
 #[derive(Serialize)]
 struct Capabilities {
     workbench: bool,
+    maps: bool,
 }
 
 fn fold(value: &str) -> String {

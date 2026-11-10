@@ -14,6 +14,8 @@
     .skip{position:absolute;top:0;left:-1000px;background:var(--inset);padding:.65rem;z-index:4}.skip:focus{left:.7rem;top:.7rem}dialog{border:1px solid #42634e;border-radius:9px;background:#17251d;color:inherit;width:min(540px,calc(100% - 2rem));padding:1.2rem;max-height:calc(100dvh - 2rem)}dialog::backdrop{background:#07100dbb}dialog h2{font-size:1.65rem}dialog .row{margin-top:.85rem}dialog details{margin-block:.8rem}dialog summary{cursor:pointer}dialog [role="status"]{min-height:1.4em}.more{margin-top:.3rem}.date-control{margin:.5rem 0}[hidden]{display:none!important}
     .story-links{display:grid;gap:.6rem;list-style:none;padding:0;margin:1rem 0;max-width:70ch}.story-links .record{height:auto;text-decoration:none}.story-links small{display:block;margin-top:.2rem}.story-links .record[aria-disabled=true]{cursor:default}.notice{padding:.8rem 1rem;border:1px solid var(--line);background:#17251d;border-radius:7px;max-width:70ch}.graph-preview{max-width:25rem;margin:1rem 0}
     .record{text-decoration:none}.nav [aria-current=page]{background:#233b2e;border-radius:5px;color:#e1e8e5}.detail-grid{display:grid;grid-template-columns:minmax(0,2fr) minmax(0,1fr);gap:clamp(1rem,4vw,2.4rem);margin-top:1rem}.related{align-self:start;border:1px solid var(--line);background:var(--inset);border-radius:8px;padding:1rem}.related h2{font-size:1.35rem;letter-spacing:normal}.related h3{font-size:.95rem;margin:1rem 0 .45rem}.related .story-links{margin:.5rem 0}.related .story-links .record{padding:.65rem}.record-actions{margin-block:.65rem}
+    .map-picker{max-width:26rem;margin-block:1rem}.map-controls,.map-toolbar{margin-block:.65rem}.map-frame{margin:0}.map-frame svg{display:block;width:100%;border:1px solid var(--line);border-radius:8px;background:#162720}.map-frame figcaption{margin-top:.65rem}.map-frame .plot{fill:#1c3027;stroke:#42634e}.map-frame .north{fill:#b8d4c3;font-size:14px}.map-frame .feature{fill:none;stroke:#a9ddbc;stroke-width:2.5}.map-frame circle.feature{fill:#a9ddbc;stroke:#162720}.map-frame .area{fill:#41614f;fill-opacity:.7;stroke:none}.map-frame a:focus-visible .area,.map-frame a:hover .area{fill:#688b74}.map-frame .closed{stroke:#f0cd92;stroke-dasharray:7 5}.map-frame .restricted{stroke:#eadba8;stroke-dasharray:3 5}.map-frame .unknown{stroke:#afbac0;stroke-dasharray:2 5}.map-frame a:focus-visible .feature,.map-frame a:hover .feature{stroke:#fff;stroke-width:4}.map-frame .feature-label{fill:#edf4ef;stroke:#162720;stroke-width:3;paint-order:stroke;font-size:13px;pointer-events:none}.map-list{margin-top:1.45rem}.map-list dl{display:grid;grid-template-columns:auto 1fr;gap:.15rem .45rem;margin:.55rem 0 0;color:var(--muted);font-size:.8rem}.map-list dd{margin:0;overflow-wrap:anywhere}
+    .map-controls button[aria-disabled=true]{opacity:.45;cursor:default}
     @media(max-width:720px){.detail-grid{grid-template-columns:minmax(0,1fr)}}
     @media(max-width:870px){.cards{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:620px){.nav .private{margin-left:0}.filters{grid-template-columns:1fr 1fr}.filters>div:first-child{grid-column:1/-1}.brand{align-items:flex-start}}@media(max-width:430px){.cards,.filters,.selector-fields{grid-template-columns:1fr}.filters>div:first-child{grid-column:auto}}
   </style>
@@ -81,9 +83,8 @@
       result.tabIndex = -1;
       return result;
     }
-    function routeLink(path, label, className) {
-      const anchor = node('a', label, className);
-      anchor.href = path;
+    function bindRouteLink(anchor, path) {
+      anchor.setAttribute('href', path);
       anchor.addEventListener('click', event => {
         if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
         event.preventDefault();
@@ -92,6 +93,9 @@
         resolveAddress(path, true);
       });
       return anchor;
+    }
+    function routeLink(path, label, className) {
+      return bindRouteLink(node('a', label, className), path);
     }
     function focusTargets() {
       return [...document.querySelectorAll('#nav a, #change, #view a, #view button, #view input, #view select')];
@@ -187,9 +191,11 @@
       byId('change').disabled = false;
       const directory = routeLink(current.destination.kind === 'directory' ? location.pathname : current.routes.directory, 'Directory');
       const graph = routeLink(current.destination.kind === 'graph' ? location.pathname : current.routes.graph, 'Story graph');
+      const map = routeLink(current.destination.kind === 'map' ? location.pathname : current.routes.map, 'Map');
       if (current.destination.kind === 'directory') directory.setAttribute('aria-current', 'page');
       if (current.destination.kind === 'graph') graph.setAttribute('aria-current', 'page');
-      nav.replaceChildren(directory, graph);
+      if (current.destination.kind === 'map') map.setAttribute('aria-current', 'page');
+      nav.replaceChildren(directory, graph, map);
       if (current.capabilities.workbench) {
         const author = node('a', 'Author Workbench ↗', 'private');
         author.href = '/workbench';
@@ -204,6 +210,7 @@
         contextBar();
         if (result.destination.kind === 'record') openRecord(result.destination.handle, restore);
         else if (result.destination.kind === 'graph') showGraph(restore);
+        else if (result.destination.kind === 'map') showMap(restore);
         else {
           if (typeof restore?.q === 'string') filters.q = restore.q;
           showDirectory(restore);
@@ -213,6 +220,7 @@
     function openContext(fields, push = false) {
       if (push) rememberPosition(byId('change'));
       if (fields.view && current?.destination.kind === 'record') fields.record = current.destination.handle;
+      if (fields.view && current?.destination.kind === 'map') fields.section = 'map';
       navigate('context', fields, push, null);
     }
     function resolveAddress(path, push = false, restore = null) {
@@ -233,6 +241,265 @@
       }
       if ([...select.options].some(option => option.value === selection)) select.value = selection;
     }
+
+    function svgNode(tag, attributes = {}) {
+      const element = document.createElementNS('http://www.w3.org/2000/svg', tag);
+      for (const [name, value] of Object.entries(attributes)) element.setAttribute(name, value);
+      return element;
+    }
+
+    function mapDrawing(map, plot, features) {
+      const figure = node('figure', null, 'map-frame');
+      const svg = svgNode('svg', {viewBox: '0 0 760 400', role: 'group', 'aria-labelledby': 'map-title'});
+      const title = svgNode('title', {id: 'map-title'});
+      title.textContent = map.label + ', north up';
+      const marker = svgNode('marker', {
+        id: 'map-arrow', viewBox: '0 0 10 10', refX: 8, refY: 5,
+        markerWidth: 6, markerHeight: 6, orient: 'auto-start-reverse',
+      });
+      marker.append(svgNode('path', {d: 'M0 0 L10 5 L0 10 Z', fill: 'context-stroke'}));
+      const definitions = svgNode('defs');
+      const grid = svgNode('pattern', {id: 'map-grid', width: 40, height: 40, patternUnits: 'userSpaceOnUse'});
+      grid.append(svgNode('path', {d: 'M40 0 H0 V40', fill: 'none', stroke: '#324b3e'}));
+      definitions.append(marker, grid);
+      const [x, y, width, height] = plot;
+      // Keep synthetic even-odd return edges outside the fill's hit area.
+      const inset = Math.min(0.25, width / 4, height / 4);
+      const areaClip = svgNode('clipPath', {id: 'map-area-clip'});
+      areaClip.append(svgNode('rect', {
+        x: x + inset, y: y + inset, width: width - 2 * inset, height: height - 2 * inset,
+      }));
+      definitions.append(areaClip);
+      svg.append(title, definitions, svgNode('rect', {x, y, width, height, class: 'plot'}),
+        svgNode('rect', {x, y, width, height, fill: 'url(#map-grid)'}));
+      for (const shape of ['polygon', 'line', 'route', 'point']) {
+        for (const feature of features.filter(feature => feature.drawing.shape === shape)) {
+          const drawing = feature.drawing;
+          const detail = shape === 'route'
+            ? ', ' + drawing.direction + ', ' + drawing.availability : '';
+          const label = feature.title + detail;
+          const link = bindRouteLink(svgNode('a', {'aria-label': label, tabindex: 0}), feature.href);
+          const tooltip = svgNode('title');
+          tooltip.textContent = label;
+          link.append(tooltip);
+          const path = ([start, end]) => 'M ' + start.join(' ') + ' L ' + end.join(' ');
+          if (shape === 'polygon') {
+            link.append(svgNode('polygon', {
+              points: drawing.ring.map(point => point.join(',')).join(' '),
+              class: 'area', 'fill-rule': 'evenodd', 'pointer-events': 'visibleFill',
+              'clip-path': 'url(#map-area-clip)',
+            }));
+            if (drawing.edges.length) {
+              link.append(svgNode('path', {
+                d: drawing.edges.map(path).join(' '), class: 'feature', 'pointer-events': 'stroke',
+              }));
+            }
+          } else if (shape === 'line') {
+            link.append(svgNode('path', {d: drawing.parts.map(path).join(' '), class: 'feature'}));
+          } else if (shape === 'route') {
+            const connector = svgNode('path', {
+              d: path(drawing.segment), class: 'feature ' + drawing.availability,
+              'marker-end': 'url(#map-arrow)',
+            });
+            if (drawing.direction === 'two-way') connector.setAttribute('marker-start', 'url(#map-arrow)');
+            link.append(connector);
+          } else {
+            const [cx, cy] = drawing.point;
+            const right = cx > 620;
+            const name = svgNode('text', {
+              x: cx + (right ? -9 : 9), y: cy + (cy > 382 ? -10 : 17),
+              'text-anchor': right ? 'end' : 'start', class: 'feature-label', 'aria-hidden': 'true',
+            });
+            name.textContent = feature.title;
+            link.append(svgNode('circle', {cx, cy, r: 5.5, class: 'feature'}), name);
+          }
+          svg.append(link);
+        }
+      }
+      const north = svgNode('text', {x: 736, y: 26, class: 'north', 'aria-hidden': 'true'});
+      north.textContent = '↑ N';
+      svg.append(north);
+      const axes = map.crs === 'EPSG:4326' ? 'Geographic plot · Longitude and latitude' : 'Local grid · East and north';
+      const caption = [map.topView ? 'Top view' : null, axes, map.unit].filter(Boolean).join(' · ');
+      figure.append(svg, node('figcaption', caption + '. North is up. Route lines are schematic; dashed lines indicate closed, restricted or unknown availability.', 'muted'));
+      return figure;
+    }
+
+    function showMap(restore) {
+      const character = !current.capabilities.maps;
+      const title = heading(character ? 'Locations and routes' : 'Map');
+      const listing = node('section', null, 'map-list');
+      const listTitle = node('h3', character ? 'Known locations and routes' : 'Locations and routes');
+      listTitle.id = 'location-list-title';
+      listing.id = 'locations';
+      listing.tabIndex = -1;
+      listing.setAttribute('aria-labelledby', listTitle.id);
+      const cards = node('ul', null, 'cards');
+      const more = node('div');
+      listing.append(listTitle, cards, more, routeLink(current.routes.directory, 'Browse all eligible records'));
+      const message = node('p', null, 'muted resultline');
+      message.setAttribute('role', 'status');
+      const projection = node('div');
+      const mapTools = node('div');
+      const select = node('select');
+      select.id = 'map-selection';
+      const label = node('label', 'Map');
+      label.htmlFor = select.id;
+      const choices = node('div', null, 'map-picker');
+      const moreMaps = node('div', null, 'more');
+      choices.append(label, select, moreMaps);
+      const skip = node('a', 'Skip to locations and routes');
+      skip.href = '#locations';
+      skip.addEventListener('click', event => { event.preventDefault(); listing.focus(); });
+      const controls = node('div', null, 'row map-controls');
+      controls.setAttribute('role', 'group');
+      controls.setAttribute('aria-label', 'Map viewport');
+      const toolbar = node('div', null, 'row spread map-toolbar');
+      toolbar.append(skip, controls);
+      mapTools.append(choices, toolbar);
+      mapTools.hidden = true;
+      const subheading = node('p', current.labels.mode === 'all' ? 'Authored layout' : 'Layout at the selected moment', 'muted');
+      view.replaceChildren(title);
+      if (character) {
+        view.append(node('p', 'Maps are unavailable in Character view. Browse the locations and routes known at this moment.', 'notice'));
+      } else {
+        view.append(subheading, mapTools, projection);
+      }
+      view.append(message, listing);
+      if (!restore) placeFocus(title);
+      let selected = current.destination.map;
+      let viewport = {zoom: 0, x: 0, y: 0, maximum: 0};
+      let loadedChoices = false;
+      let choosingMap = false;
+      const controlsFor = [
+        ['Zoom in', () => zoom(1), () => viewport.zoom === 4],
+        ['Zoom out', () => zoom(-1), () => viewport.zoom === 0],
+        ['Pan west', () => move(viewport.x - 1, viewport.y), () => viewport.x === 0],
+        ['Pan east', () => move(viewport.x + 1, viewport.y), () => viewport.x === viewport.maximum],
+        ['Pan south', () => move(viewport.x, viewport.y - 1), () => viewport.y === 0],
+        ['Pan north', () => move(viewport.x, viewport.y + 1), () => viewport.y === viewport.maximum],
+        ['Reset view', () => requestMap(selected, {zoom: 0, x: 0, y: 0}), () => viewport.zoom === 0],
+      ].map(([name, action, disabled]) => {
+        const unavailable = () => choosingMap || disabled();
+        const control = button(name, () => { if (!unavailable()) action(); }, 'secondary');
+        controls.append(control);
+        return {control, disabled: unavailable};
+      });
+      const showControls = () => {
+        for (const {control, disabled} of controlsFor) control.setAttribute('aria-disabled', String(disabled()));
+      };
+      function move(x, y) {
+        requestMap(selected, {zoom: viewport.zoom, x, y});
+      }
+      function zoom(step) {
+        const level = viewport.zoom + step;
+        const maximum = 2 * (2 ** level - 1);
+        const adjust = value => Math.max(0, Math.min(maximum, Math.round((value + 1) * 2 ** step - 1)));
+        requestMap(selected, {zoom: level, x: adjust(viewport.x), y: adjust(viewport.y)});
+      }
+      function locationCards(page, append) {
+        if (!append) cards.replaceChildren();
+        for (const item of page.items) {
+          const row = node('li');
+          const link = routeLink(item.href, null, 'record');
+          link.append(node('span', item.kindLabel, 'eyebrow'), node('strong', item.title));
+          if (item.details.length) {
+            const details = node('dl');
+            for (const detail of item.details) details.append(node('dt', detail.label), node('dd', detail.value));
+            link.append(details);
+          }
+          row.append(link);
+          cards.append(row);
+        }
+        more.replaceChildren();
+        if (!cards.children.length) more.append(node('p', 'No admitted locations or routes are available.', 'muted'));
+        if (page.nextCursor) more.append(button('More locations and routes', () => requestList(page.nextCursor), 'secondary'));
+      }
+      function requestList(cursor = null) {
+        const fields = {view: current.viewToken, cursor};
+        if (!character) fields.map = selected;
+        if (!cursor) message.textContent = 'Opening locations and routes…';
+        load('map-list', character ? 'locations' : 'map', fields, result => {
+          view.removeAttribute('aria-busy');
+          message.textContent = '';
+          locationCards(result.locations, Boolean(cursor));
+          if (restore) placeFocus(title, restore);
+          restore = null;
+        }, recover);
+      }
+      function mapChoices(page) {
+        for (const item of page.items) {
+          if (![...select.options].some(option => option.value === item.handle)) {
+            select.add(new Option(item.label, item.handle));
+          }
+        }
+        moreMaps.replaceChildren();
+        if (page.nextCursor) {
+          moreMaps.append(button('More maps', () => {
+            load('map-choices', 'map', {view: current.viewToken, mapCursor: page.nextCursor}, result => mapChoices(result.choices), recover);
+          }, 'secondary'));
+        }
+      }
+      function requestMap(map, nextViewport, push = false) {
+        const {zoom, x, y} = nextViewport;
+        choosingMap = push;
+        viewport = {zoom, x, y, maximum: 2 * (2 ** zoom - 1)};
+        showControls();
+        abort('map-list');
+        message.textContent = 'Opening map…';
+        projection.setAttribute('aria-busy', 'true');
+        if (push) {
+          projection.replaceChildren();
+          cards.replaceChildren();
+          more.replaceChildren();
+        }
+        load('map', 'map', {view: current.viewToken, map, zoom, x, y}, result => {
+          const chosen = result.map;
+          choosingMap = false;
+          viewport = result.viewport;
+          selected = chosen?.handle;
+          if (push && chosen && location.pathname !== chosen.href) {
+            history.pushState(null, '', chosen.href);
+            current.href = chosen.href;
+            current.destination.map = chosen.handle;
+            contextBar();
+          }
+          title.textContent = chosen?.label ?? 'Map';
+          if (!loadedChoices) {
+            mapChoices(result.choices);
+            loadedChoices = true;
+          }
+          if (chosen && ![...select.options].some(option => option.value === selected)) select.add(new Option(chosen.label, selected));
+          if (selected) select.value = selected;
+          mapTools.hidden = !chosen;
+          controls.hidden = result.status === 'unsupported';
+          showControls();
+          const failures = {
+            'no-map': 'No admitted map is available.',
+            unsupported: 'Map unavailable at this moment.',
+            unusable: 'This map cannot be drawn in the selected viewport.',
+            'over-budget': 'The map has too many visible features to draw here. Zoom in or use the list.',
+          };
+          const notice = failures[result.status];
+          projection.replaceChildren(notice
+            ? node('p', notice + ' Locations and routes are available below.', 'notice')
+            : mapDrawing(chosen, result.plot, result.features));
+          projection.removeAttribute('aria-busy');
+          view.removeAttribute('aria-busy');
+          message.textContent = result.status === 'ready' && !result.features.length ? 'No drawable locations or routes are visible in this viewport.' : '';
+          locationCards(result.locations, false);
+          if (restore) placeFocus(title, restore);
+          restore = null;
+        }, recover);
+      }
+      select.addEventListener('change', () => {
+        rememberPosition(select);
+        requestMap(select.value, {zoom: 0, x: 0, y: 0}, true);
+      });
+      if (character) requestList();
+      else requestMap(selected, viewport);
+    }
+
     function showDirectory(restore) {
       abort('record');
       abort('graph');

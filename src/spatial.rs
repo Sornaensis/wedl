@@ -380,16 +380,25 @@ fn edge_value(world: &World, edge: &Edge<'_>) -> Result<Json> {
     Ok(value)
 }
 
-/// Inspect one canonical route, including closed routes. An explicit horizon
-/// selects authored historical availability/metrics without changing path reads.
-pub fn route_info(world: &World, reference: &str, at: Option<&StoryTime>) -> Result<Json> {
-    if let Some(at) = at {
-        crate::spatial_history::check_query(world, at)?;
-    }
-    if let Some(error) = validate(world).first() {
-        return Err(invalid(&error.message));
-    }
-    let record = world.resolve(reference)?;
+pub(crate) struct RouteDetails<'a> {
+    pub(crate) from: &'a str,
+    pub(crate) to: &'a str,
+    pub(crate) direction: &'a str,
+    pub(crate) availability: &'a str,
+    pub(crate) distance: Option<&'a Yaml>,
+    pub(crate) cost: Option<&'a Yaml>,
+    pub(crate) duration: Option<&'a Yaml>,
+    modes: Vec<&'a str>,
+    uncertainty: &'a str,
+}
+
+/// Shared exact fields. Compendium callers provide already-pinned validated
+/// source, an admitted route, and a checked horizon for effective history.
+pub(crate) fn route_details<'a>(
+    world: &'a World,
+    record: &'a Record,
+    at: Option<&StoryTime>,
+) -> Result<RouteDetails<'a>> {
     if record.kind != "route" || status(record)? != "canonical" {
         return Err(Error::NotFound("canonical route is unavailable".into()));
     }
@@ -402,17 +411,41 @@ pub fn route_info(world: &World, reference: &str, at: Option<&StoryTime>) -> Res
         .map(|value| text(value, "availability"))
         .transpose()?
         .unwrap_or("open");
+    Ok(RouteDetails {
+        from: route.from,
+        to: route.to,
+        direction: route.direction,
+        availability,
+        distance: effective("route_distance")?,
+        cost: effective("travel_cost")?,
+        duration: effective("duration")?,
+        modes: route.modes,
+        uncertainty: route.uncertainty,
+    })
+}
+
+/// Inspect one canonical route, including closed routes. An explicit horizon
+/// selects authored historical availability/metrics without changing path reads.
+pub fn route_info(world: &World, reference: &str, at: Option<&StoryTime>) -> Result<Json> {
+    if let Some(at) = at {
+        crate::spatial_history::check_query(world, at)?;
+    }
+    if let Some(error) = validate(world).first() {
+        return Err(invalid(&error.message));
+    }
+    let record = world.resolve(reference)?;
+    let route = route_details(world, record, at)?;
     let mut value = json!({"protocol":crate::CONTRACT,"perspective":"author","scope":SCOPE,
         "basis":"authored-route","routeId":record.id,"title":record.title,
         "fromLocationId":route.from,"toLocationId":route.to,"direction":route.direction,
-        "modes":route.modes,"availability":availability,"uncertainty":route.uncertainty,
+        "modes":route.modes,"availability":route.availability,"uncertainty":route.uncertainty,
         "citation":citation(world,record,"route")});
-    for (field, output) in [
-        ("route_distance", "routeDistance"),
-        ("travel_cost", "travelCost"),
-        ("duration", "duration"),
+    for (metric, output) in [
+        (route.distance, "routeDistance"),
+        (route.cost, "travelCost"),
+        (route.duration, "duration"),
     ] {
-        value[output] = effective(field)?
+        value[output] = metric
             .map(crate::service::yaml_json)
             .transpose()?
             .unwrap_or(Json::Null);

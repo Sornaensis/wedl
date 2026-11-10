@@ -995,6 +995,446 @@ async fn graph_root(app: &Router, token: &str, root: &str) -> Value {
     read(app, "graph", &[("view", token), ("root", root)]).await
 }
 
+fn placement(map: &str, kind: &str, coordinates: Value) -> Value {
+    json!({"map_id":map,"geometry":{"kind":kind,"coordinates":coordinates}})
+}
+
+fn map_fixture() -> (TempDir, Service) {
+    let (root, _) = fixture();
+    let path = root.path();
+    let world_path = path.join("story").join(format!("{WORLD}.md"));
+    let world = fs::read_to_string(&world_path).unwrap();
+    let expanded = world.replacen(
+        "- spatial-core-v1\n- route-v1\n- lore-core-v1\n",
+        "- spatial-core-v1\n- geometry-v1\n- route-v1\n- lore-core-v1\n- spatial-history-v1\n",
+        1,
+    );
+    assert_ne!(expanded, world);
+    fs::write(world_path, expanded).unwrap();
+    record(
+        path,
+        "map",
+        "map:garden",
+        "Garden grid",
+        json!({
+            "crs":"local-planar:garden","axis_order":["east","north"],"unit":"pace",
+            "bounds":{"min":[0,0],"max":[100,100]}
+        }),
+    );
+    record(
+        path,
+        "map",
+        "map:survey",
+        "Ocean survey",
+        json!({
+            "crs":"EPSG:4326","axis_order":["longitude","latitude"],"unit":"degree","z_policy":"required",
+            "bounds":{"min":[-90,-45,0],"max":[90,45,40]}
+        }),
+    );
+    record(
+        path,
+        "location",
+        DOCK,
+        "Dock",
+        json!({
+            "spatial":placement("map:garden","point",json!([20,20]))
+        }),
+    );
+    record(
+        path,
+        "location",
+        BLUFF,
+        "Bluff",
+        json!({
+            "spatial":placement("map:garden","point",json!([80,80]))
+        }),
+    );
+    let after = json!({"kind":"interval","timeline":"main","start":time("main",2)});
+    record(
+        path,
+        "route",
+        ROUTE,
+        "East footpath",
+        json!({
+            "from_location_id":DOCK,"to_location_id":BLUFF,"direction":"one-way","modes":["foot"],
+            "availability":"open","route_distance":{"value":9007199254740993_i64,"unit":"pace"},
+            "spatial_history":[{"id":"spatialhistory_00000000000000000000000002","aspect":"route-availability",
+            "valid":after,"value":{"availability":"closed"}}]
+        }),
+    );
+    record(
+        path,
+        "location",
+        "location:moving-buoy",
+        "Moving buoy",
+        json!({
+            "spatial":placement("map:garden","point",json!([50,50])),
+            "spatial_history":[{"id":"spatialhistory_00000000000000000000000001","aspect":"placement",
+            "valid":after,"value":placement("map:survey","point",json!([15,20,10]))}]
+        }),
+    );
+    for (id, name, map, kind, coords) in [
+        (
+            "location:clipped-yard",
+            "Clipped yard",
+            "map:garden",
+            "polygon",
+            json!([[0, 0], [70, 0], [70, 70], [0, 70], [0, 0]]),
+        ),
+        (
+            "location:near-corner",
+            "Near corner",
+            "map:garden",
+            "line",
+            json!([[0, 45], [45, 0]]),
+        ),
+        (
+            "location:split-reef",
+            "Split reef",
+            "map:garden",
+            "polygon",
+            json!([
+                [30, 10],
+                [70, 10],
+                [70, 70],
+                [60, 70],
+                [60, 20],
+                [40, 20],
+                [40, 70],
+                [30, 70],
+                [30, 10]
+            ]),
+        ),
+        (
+            "location:low-platform",
+            "Low platform",
+            "map:survey",
+            "point",
+            json!([0, 0, 2]),
+        ),
+        (
+            "location:high-platform",
+            "High platform",
+            "map:survey",
+            "point",
+            json!([0, 0, 20]),
+        ),
+        (
+            "location:elevation-line",
+            "Elevation line",
+            "map:survey",
+            "line",
+            json!([[15, -10, 2], [15, -10, 20]]),
+        ),
+    ] {
+        record(
+            path,
+            "location",
+            id,
+            name,
+            json!({"spatial":placement(map,kind,coords)}),
+        );
+    }
+    for (id, target, statement) in [
+        ("know_00000000000000000000000007", BLUFF, "I know the Bluff"),
+        (
+            "know_00000000000000000000000008",
+            ROUTE,
+            "I know the East footpath",
+        ),
+        ("know_00000000000000000000000009", DOCK, "I know the Dock"),
+    ] {
+        record(
+            path,
+            "knowledge",
+            id,
+            "Private note",
+            json!({
+                "knower":ANA,"claim":{"key":statement,"statement":statement,"truth":"true","object":{"entity":target}},
+                "transitions":[{"id":"observed","time":time("main",1),"state":"accepted","acquisition":"observed","confidence":1.0}]
+            }),
+        );
+    }
+    let world = source::load_world(path, None).unwrap();
+    let checked = validation::validate_world(&world);
+    assert!(checked.valid, "{checked:#?}");
+    (root, Service::new(world))
+}
+
+fn map_feature<'a>(map: &'a Value, title: &str) -> Option<&'a Value> {
+    map["features"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|feature| feature["title"] == title)
+}
+
+fn location_card<'a>(map: &'a Value, title: &str) -> &'a Value {
+    map["locations"]["items"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|item| item["title"] == title)
+        .unwrap()
+}
+
+async fn map_at(app: &Router, root_view: &str, moment: &str) -> Value {
+    let (timeline, moments) = named(app, root_view, "as-of", "Main").await;
+    read(
+        app,
+        "context",
+        &[
+            ("view", root_view),
+            ("mode", "as-of"),
+            ("section", "map"),
+            ("timeline", &timeline),
+            ("moment", handle(&moments, moment)),
+        ],
+    )
+    .await
+}
+
+#[tokio::test]
+async fn contextual_map_clips_north_up_and_selects_effective_members_before_map_membership() {
+    let (_root, service) = map_fixture();
+    let app = http::router(service);
+    let author = read(&app, "context", &[]).await;
+    let base = read(&app, "map", &[("view", view(&author))]).await;
+    assert_eq!(base["status"], "ready");
+    assert_eq!(base["map"]["crs"], "local-planar");
+    assert_eq!(base["map"]["axes"], json!(["east", "north"]));
+    assert_eq!(base["map"]["unit"], "pace");
+    let dock = &map_feature(&base, "Dock").unwrap()["drawing"]["point"];
+    let bluff = &map_feature(&base, "Bluff").unwrap()["drawing"]["point"];
+    assert!(dock[0].as_f64().unwrap() < bluff[0].as_f64().unwrap());
+    assert!(dock[1].as_f64().unwrap() > bluff[1].as_f64().unwrap());
+    let route = &map_feature(&base, "East footpath").unwrap()["drawing"];
+    assert_eq!(route["direction"], "one-way");
+    assert_eq!(route["availability"], "open");
+    assert_eq!(route["segment"], json!([dock, bluff]));
+    assert_eq!(
+        location_card(&base, "East footpath")["details"][4]["value"],
+        "9007199254740993 pace"
+    );
+
+    let clipped = read(&app, "map", &[("view", view(&author)), ("zoom", "1")]).await;
+    let ring = map_feature(&clipped, "Clipped yard").unwrap()["drawing"]["ring"]
+        .as_array()
+        .unwrap();
+    assert_eq!(ring.len(), 4);
+    assert!(ring.iter().any(|point| point[1] == 400.0));
+    assert!(ring.iter().all(|point| {
+        (0.0..=760.0).contains(&point[0].as_f64().unwrap())
+            && (0.0..=400.0).contains(&point[1].as_f64().unwrap())
+    }));
+    let split = &map_feature(&clipped, "Split reef").unwrap()["drawing"];
+    let edges = split["edges"].as_array().unwrap();
+    assert_eq!(edges.len(), 6);
+    assert!(
+        edges
+            .iter()
+            .all(|edge| edge[0][1] != 400.0 || edge[1][1] != 400.0)
+    );
+    assert_eq!(
+        split["ring"]
+            .as_array()
+            .unwrap()
+            .iter()
+            .filter(|point| point[1] == 400.0)
+            .count(),
+        4
+    );
+    assert!(map_feature(&clipped, "Near corner").is_none());
+    assert!(
+        location_card(&clipped, "Near corner")["href"]
+            .as_str()
+            .unwrap()
+            .starts_with("/compendium/v1/")
+    );
+    assert_eq!(
+        get(&app, "map", &[("view", view(&author)), ("zoom", "5")])
+            .await
+            .0,
+        StatusCode::BAD_REQUEST
+    );
+
+    let early = map_at(&app, view(&author), "First signal").await;
+    let late = map_at(&app, view(&author), "Second signal").await;
+    assert_eq!(late["destination"]["kind"], "map");
+    let early_map = read(&app, "map", &[("view", view(&early))]).await;
+    let late_map = read(&app, "map", &[("view", view(&late))]).await;
+    assert!(map_feature(&early_map, "Moving buoy").is_some());
+    assert!(map_feature(&late_map, "Moving buoy").is_none());
+    assert_eq!(
+        map_feature(&late_map, "East footpath").unwrap()["drawing"]["availability"],
+        "closed"
+    );
+    let ocean = handle(&late_map["choices"], "Ocean survey");
+    let survey = read(&app, "map", &[("view", view(&late)), ("map", ocean)]).await;
+    assert_eq!(survey["map"]["crs"], "EPSG:4326");
+    assert_eq!(survey["map"]["axes"], json!(["longitude", "latitude"]));
+    assert_eq!(survey["map"]["topView"], true);
+    assert!(map_feature(&survey, "Moving buoy").is_some());
+    assert!(map_feature(&survey, "East footpath").is_none());
+    assert_eq!(
+        map_feature(&survey, "Elevation line").unwrap()["drawing"]["shape"],
+        "point"
+    );
+    assert_eq!(
+        map_feature(&survey, "Low platform").unwrap()["drawing"],
+        map_feature(&survey, "High platform").unwrap()["drawing"]
+    );
+    assert_eq!(
+        location_card(&survey, "Low platform")["details"][1]["value"],
+        "2 degree"
+    );
+    assert_ne!(
+        location_card(&survey, "High platform")["href"],
+        location_card(&survey, "Low platform")["href"]
+    );
+    let restore = restore(&app, survey["map"]["href"].as_str().unwrap()).await;
+    let restored = read(
+        &app,
+        "map",
+        &[
+            ("view", view(&restore)),
+            ("map", restore["destination"]["map"].as_str().unwrap()),
+        ],
+    )
+    .await;
+    assert_eq!(restored["map"]["label"], "Ocean survey");
+    let opened = restore_record_title(&app, &survey, "High platform").await;
+    assert_eq!(opened, "High platform");
+}
+
+async fn restore_record_title(app: &Router, map: &Value, title: &str) -> String {
+    let restored = restore(app, location_card(map, title)["href"].as_str().unwrap()).await;
+    record_from_restore(app, &restored).await["record"]["title"]
+        .as_str()
+        .unwrap()
+        .to_owned()
+}
+
+#[tokio::test]
+async fn map_fallbacks_retain_admitted_links_without_author_geometry_in_character_view() {
+    let (_unsupported_root, unsupported) = fixture();
+    let fixed = http::router(unsupported);
+    let author = read(&fixed, "context", &[]).await;
+    let as_of = map_at(&fixed, view(&author), "First signal").await;
+    let unsupported = read(&fixed, "map", &[("view", view(&as_of))]).await;
+    assert_eq!(unsupported["status"], "unsupported");
+    assert_eq!(unsupported["features"], json!([]));
+    assert!(location_card(&unsupported, "Dock")["href"].is_string());
+
+    let (root, service) = map_fixture();
+    let app = http::live_router(service);
+    let author = read(&app, "context", &[]).await;
+    let base = read(&app, "map", &[("view", view(&author))]).await;
+    let character = character(&app, view(&author), "Second signal", false).await;
+    assert_eq!(character["capabilities"]["maps"], false);
+    let opened = restore(&app, character["routes"]["map"].as_str().unwrap()).await;
+    assert_eq!(opened["destination"]["kind"], "map");
+    assert_eq!(
+        get(&app, "map", &[("view", view(&opened))]).await.0,
+        StatusCode::NOT_FOUND
+    );
+    assert_eq!(
+        get(&app, "locations", &[("view", view(&author))]).await.0,
+        StatusCode::NOT_FOUND
+    );
+    let character_list = read(&app, "locations", &[("view", view(&opened))]).await;
+    let wire = character_list.to_string();
+    for withheld in [
+        "Garden grid",
+        "map:garden",
+        "axisOrder",
+        "axes",
+        "plot",
+        "features",
+        "coordinates",
+        "Ocean survey",
+        "Moving buoy",
+        "9007199254740993",
+    ] {
+        assert!(!wire.contains(withheld), "{withheld}: {wire}");
+    }
+    assert_eq!(
+        location_card(&character_list, "East footpath")["details"],
+        json!([{"label":"Availability","value":"Closed"}])
+    );
+    let first = read(
+        &app,
+        "locations",
+        &[("view", view(&opened)), ("limit", "1")],
+    )
+    .await;
+    let cursor = first["locations"]["nextCursor"].as_str().unwrap();
+    let next = read(
+        &app,
+        "locations",
+        &[("view", view(&opened)), ("limit", "1"), ("cursor", cursor)],
+    )
+    .await;
+    assert_ne!(
+        first["locations"]["items"][0]["title"],
+        next["locations"]["items"][0]["title"]
+    );
+
+    for index in 0..50 {
+        record(
+            root.path(),
+            "location",
+            &format!("location:private-{index}"),
+            "Withheld feature",
+            json!({
+                "audience":[], "spatial":placement("map:garden","point",json!([1,99]))
+            }),
+        );
+    }
+    assert_eq!(
+        get(&app, "map", &[("view", view(&author))]).await.0,
+        StatusCode::CONFLICT
+    );
+    let fresh = read(&app, "context", &[]).await;
+    let changed = read(&app, "map", &[("view", view(&fresh))]).await;
+    assert_eq!(map_observations(&changed), map_observations(&base));
+    assert!(!changed.to_string().contains("Withheld feature"));
+    for index in 0..50 {
+        record(
+            root.path(),
+            "location",
+            &format!("location:visible-{index}"),
+            &format!("Visible feature {index:02}"),
+            json!({
+                "spatial":placement("map:garden","point",json!([1,99]))
+            }),
+        );
+    }
+    let fresh = read(&app, "context", &[]).await;
+    let crowded = read(&app, "map", &[("view", view(&fresh))]).await;
+    assert_eq!(crowded["status"], "over-budget");
+    assert_eq!(crowded["features"], json!([]));
+    assert_eq!(crowded["locations"]["items"].as_array().unwrap().len(), 24);
+    assert!(crowded["locations"]["nextCursor"].is_string());
+    let saved_map = base["map"]["href"].as_str().unwrap();
+    assert_eq!(restore(&app, saved_map).await["destination"]["kind"], "map");
+    let map_path = root.path().join("story/map-garden.md");
+    let source = fs::read_to_string(&map_path).unwrap();
+    fs::write(map_path, source.replacen("---\n", "---\naudience: []\n", 1)).unwrap();
+    unavailable_bookmark(&app, address(saved_map)).await;
+}
+
+fn map_observations(map: &Value) -> Value {
+    json!({
+        "status":map["status"],
+        "plot":map["plot"],
+        "label":map["map"]["label"],
+        "features":map["features"].as_array().unwrap().iter().map(|feature| json!([feature["title"],feature["drawing"]])).collect::<Vec<_>>(),
+        "choices":map["choices"]["items"].as_array().unwrap().iter().map(|choice| choice["label"].clone()).collect::<Vec<_>>(),
+        "locations":map["locations"]["items"].as_array().unwrap().iter().map(|item| json!([item["title"],item["details"]])).collect::<Vec<_>>(),
+    })
+}
+
 #[tokio::test]
 async fn graph_projects_causal_scene_route_and_story_outcome_edges_on_the_named_view() {
     let (_root, service) = fixture();
